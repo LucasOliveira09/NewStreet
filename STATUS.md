@@ -12,18 +12,24 @@ As afirmações históricas abaixo de ausência de frame eram conservadoras e
 ficaram desatualizadas: a inspeção das capturas confirmou o marco, sem menu.
 SHA-256 do BMP: c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f.
 
-A consulta `sceNpManagerGetAccountRegion` agora segue o estado NP: não
-inicializado, argumentos nulos ou serviço offline. Nenhum país/idioma é
-inventado, e os buffers ficam intactos nos erros. A configuração online sem
-provedor de região permanece explícita. O teste reproduziu o import ausente
-antes; os 20 testes de boot passaram após a integração. A tentativa
-`1792869863628851200` rodou por 40 segundos, até o timeout do runner, sem
-novo erro estrito. A amostra de atividade aos 25 segundos mostra main em
-sleep de 10 ms (LR 0x16254), Render/FE/Input threads e DLC em Readdir.
-O renderizador continua apresentando buffers; o avanço após o logo ainda
-precisa ser investigado e não deve ser chamado de menu navegável.
+A consulta NP offline e a enumeração de diretórios já foram corrigidas e
+validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendia
+a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
+testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e nove overlays raw ligados com identidade e base LS conferidas.
+Há 14 ELFs SPU e dez overlays raw ligados com identidade e base LS conferidas.
+O novo `audio_spupause` (208 bytes, LS 0x3780) foi recompilado com suas duas
+entradas de callback, sem instruções ou destinos diretos ausentes. A tentativa
+`1792870717480694500` passou por ele e parou estritamente, código 90, em
+SPU 0x3930, thread 0x2003, após 27,006 segundos. O snapshot identifica o próximo
+programa como `spuresample.elf`, fonte 0x1fc6f00, LS 0x3900, 4.080 bytes iguais
+aos originais; sua integração é a próxima etapa.
+
+`tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
+e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
+configuração automaticamente. Cabeçalhos, tamanho e limites de código exigem
+revisão porque os módulos contêm dados e usam layouts diferentes.
+
 Os 16 CTest do runtime passaram. A extração UDF verificou 104 arquivos,
 4.800.945.013 bytes, preservando DATA0. As 47 capturas AssetStream observadas
 (15 RefPack, 32 DEFLATE, 2.671.706 bytes de saída) coincidiram integralmente

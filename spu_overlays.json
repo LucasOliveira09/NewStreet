@@ -140,6 +140,20 @@
       "extra_entries": [
         "0xb098"
       ]
+    },
+    {
+      "name": "audio_spupause",
+      "source_ea": "0x1ff3480",
+      "size": "0xd0",
+      "sha256": "02d1230464b4dfd47e61b3f1b1cb6c59e7426eb73dbfa54cd591f749a4005862",
+      "ls_base": "0x3780",
+      "entry": "0x37c0",
+      "code_start": "0x37b0",
+      "code_end": "0x384c",
+      "extra_entries": [
+        "0x37b0",
+        "0x37b8"
+      ]
     }
   ]
 }
