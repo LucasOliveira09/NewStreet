@@ -114,6 +114,9 @@
         "0x8d88",
         "0x8dfc",
         "0x8dd0"
+      ],
+      "additional_ls_bases": [
+        "0xac00"
       ]
     },
     {

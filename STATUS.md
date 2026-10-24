@@ -411,3 +411,7 @@ A segunda posição, LS 0x8900, foi conferida no snapshot e compilada
 estaticamente a partir do mesmo blob. Geração/build aprovados; tentativa
 1792871762724335900 avançou para outra carga de módulo em LS 0xac00,
 recusada por base ainda não admitida. O logo mantém o hash anterior.
+
+A posição adicional de gain fader em LS 0xac00 foi conferida integralmente,
+compilada e alcançada. Tentativa 1792871837562167900: próxima recusa de base
+em 0xd480, após 30,225 s. Geração sem instruções/destinos diretos ausentes.
