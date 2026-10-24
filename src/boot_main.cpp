@@ -34,6 +34,9 @@ void fifa_register_prx_handlers(void);
 int fifa_test_prx_registry(void);
 void fifa_install_guest_callbacks(void);
 int fifa_test_guest_callbacks(void);
+void fifa_install_spu_policy(void);
+void fifa_test_missing_spu(ppu_context*);
+void fifa_test_missing_spu_indirect(ppu_context*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -62,6 +65,8 @@ static int test_missing(const char* kind) {
     else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
     else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }
     else if (!std::strcmp(kind, "unlifted")) ppu_unlifted_stub(0x123400, &context);
+    else if (!std::strcmp(kind, "spu-workload")) fifa_test_missing_spu(&context);
+    else if (!std::strcmp(kind, "spu-indirect")) fifa_test_missing_spu_indirect(&context);
     else if (!std::strcmp(kind, "callback") || !std::strcmp(kind, "callback-ct")) {
         vm_base = (uint8_t*)std::calloc(1, 0x20000);
         if (!vm_base) return 3;
@@ -143,6 +148,7 @@ int main(int argc, char** argv) {
     ppu_fs_register();
     lv2_init_syscalls();
     fifa_install_guest_callbacks();
+    fifa_install_spu_policy();
     std::fprintf(stderr, "[fifa-boot] entry=0x%08X functions=%llu root=%s\n", entry,
                  (unsigned long long)function_table_count, root.c_str());
     int result = ppu_run(entry, 0x0FF00000u);

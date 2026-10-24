@@ -85,3 +85,12 @@ requisitos obrigatórios cobertos, permite avaliar a declaração de port comple
 
 Não há estimativa confirmada para finalizar o jogo. Bloqueios e decisões futuras
 devem ser registrados no `STATUS.md` pelo agente que iniciar a implementação.
+
+## Incremento SPU multi-segmento
+
+Pipeline e registro nativo de 14 imagens integrados; seis recusadas explicitamente.
+Doze testes de geração, sete de boot e 16 do runtime aprovados. A tentativa estrita
+`1792839751667270900` alcança a imagem inicial e para em salto para `0x3f00c`.
+Antes de expandir sua cobertura, verificar por que três grupos distintos iniciam
+a mesma thread `0x2000`; isso pode compartilhar e corromper seu contexto nativo.
+Nenhum resultado de tarefa, frame ou gameplay aceito por esse incremento.

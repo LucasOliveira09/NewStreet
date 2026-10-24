@@ -130,6 +130,120 @@ index 1a393fd..5a276c6 100644
      ctx->gpr[3] = 0;   /* CELL_OK */
  }
  
+diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
+index 59f5e4b..cfb8b56 100644
+--- a/runtime/spu/spu_channels.c
++++ b/runtime/spu/spu_channels.c
+@@ -16,6 +16,7 @@
+ #include "spu_coherency.h" /* lock-line lock + PPU-write coherence bitmap */
+ #include "spu_helpers.h"   /* spu_splat_u32 / spu_ls_read128 (SMC microstep) */
+ #include "spu_lockstep.h"
++#include "spu_workload.h"
+ #include "spu_interp.h"    /* spu_lifted_fn / spu_lifted_lookup -- defined below */
+ #include "ps3emu/ps3_ftrace.h"
+ #include <stdint.h>
+@@ -2293,6 +2294,22 @@ void spu_indirect_branch(spu_context* ctx)
+      * may also be registered (historical junk lifts) and must lose. */
+     if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
+     if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
++    /* A native-only consumer must see the actual unresolved transfer before
++     * generic title-specific exits or LS micro-interpretation can conceal it.
++     * Pack image + LS address, and keep SPU state distinct from PPU context. */
++    if (!fn && spu_missing_execution_hook) {
++        fprintf(stderr, "[spu-missing] image=%d tid=0x%X pc=0x%05X lr=0x%05X "
++                "r3=%08X.%08X r4=%08X.%08X r5=%08X.%08X r6=%08X.%08X\n",
++                ctx->image_id, ctx->spu_id, ctx->pc, ctx->gpr[0]._u32[0],
++                ctx->gpr[3]._u32[0], ctx->gpr[3]._u32[1],
++                ctx->gpr[4]._u32[0], ctx->gpr[4]._u32[1],
++                ctx->gpr[5]._u32[0], ctx->gpr[5]._u32[1],
++                ctx->gpr[6]._u32[0], ctx->gpr[6]._u32[1]);
++        fflush(stderr);
++        spu_missing_execution_hook("spu-indirect",
++            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->pc, NULL);
++        return;
++    }
+     /* The job returned through the link register we planted: it is finished.
+      * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
+      * return landed on LS 0, which is the job's OWN entry, and it ran a second
+diff --git a/runtime/spu/spu_workload.c b/runtime/spu/spu_workload.c
+index 2008961..88525af 100644
+--- a/runtime/spu/spu_workload.c
++++ b/runtime/spu/spu_workload.c
+@@ -6,6 +6,7 @@
+  * spu_workload_dispatch(); the registry is populated by the title's lifted set.
+  */
+ #include "spu_workload.h"
++void (*spu_missing_execution_hook)(const char*, uint64_t, void*) = NULL;
+ #include "spu_lifted_job.h"   /* spu_run_lifted_job */
+ #include "../ps3_log.h"      /* ps3_log_verbose */
+ #include <stdio.h>
+@@ -211,6 +212,7 @@ int spu_workload_dispatch(const uint8_t* image, uint32_t image_size,
+             "[spu_workload] dispatch MISS fp=0x%016llX size=%u "
+             "(no lifted SPU binary registered for this image)\n",
+             (unsigned long long)fp, image_size);
++        if (spu_missing_execution_hook) spu_missing_execution_hook("spu-workload", fp, NULL);
+         return 0;
+     }
+ 
+@@ -890,6 +892,7 @@ int spu_workload_dispatch_job(const uint8_t* image, uint32_t image_size,
+     for (unsigned i = 0; i < s_registry_count; i++)
+         if (s_registry[i].fp == fp) { fn = s_registry[i].fn; image_id = s_registry[i].image_id; break; }
+     if (!fn) {
++        if (spu_missing_execution_hook) spu_missing_execution_hook("spu-job", fp, NULL);
+         /* Capped: an unlifted job a title dispatches every frame (Tornado
+          * Outbreak's Wwise audio jobs) wrote 2 GB of these in three minutes,
+          * and the logging itself distorts guest timing. */
+@@ -1328,6 +1331,7 @@ int spu_workload_dispatch_async(const uint8_t* image, uint32_t image_size,
+           } }
+         fprintf(stderr, "[spu_workload] async dispatch MISS fp=0x%016llX size=%u\n",
+                 (unsigned long long)fp, image_size);
++        if (spu_missing_execution_hook) spu_missing_execution_hook("spu-async", fp, NULL);
+         return 0;
+     }
+ 
+diff --git a/runtime/spu/spu_workload.h b/runtime/spu/spu_workload.h
+index f8a726e..dbdb68c 100644
+--- a/runtime/spu/spu_workload.h
++++ b/runtime/spu/spu_workload.h
+@@ -34,6 +34,11 @@ extern "C" {
+ 
+ typedef void (*spu_lifted_entry_fn)(spu_context*);
+ 
++/* Optional host policy: fail visibly instead of reporting an unexecuted
++ * workload as complete or selecting a CPU interpreter. NULL preserves the
++ * upstream diagnostic behavior for existing hosts. */
++extern void (*spu_missing_execution_hook)(const char* kind, uint64_t value, void* ppu_ctx);
++
+ /* FNV-1a 64-bit over a byte range. The canonical workload fingerprint; the
+  * offline extractor computes the same value so registrations and the images a
+  * title passes to cellSpurs line up. */
+diff --git a/runtime/syscalls/lv2_register.c b/runtime/syscalls/lv2_register.c
+index 8815650..02b5d9e 100644
+--- a/runtime/syscalls/lv2_register.c
++++ b/runtime/syscalls/lv2_register.c
+@@ -1113,9 +1113,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+                       if (ls && spu_elf_load_to_ls(vm_base + src, isz, ls, &ls_entry))
+                           fprintf(stderr, "[SPU] thread tid=0x%X local store loaded "
+                                   "(entry 0x%05X)\n", t->tid, ls_entry);
+-                      else
++                      else {
++                          if (spu_missing_execution_hook)
++                              spu_missing_execution_hook("spu-local-store", src, ctx);
+                           fprintf(stderr, "[SPU] thread tid=0x%X LOCAL STORE LOAD FAILED "
+                                   "-- worker will run against zeroes\n", t->tid);
++                      }
+                     }
+                 } else {
+                     fprintf(stderr, "[SPU] thread tid=0x%X image @0x%08X (%u bytes) "
+@@ -1124,6 +1127,8 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+                 }
+             }
+         }
++        if (!fb && spu_missing_execution_hook)
++            spu_missing_execution_hook("spu-program", t->img_ea, ctx);
+         if (!fb && getenv("RD_SPU_INTERP") && t->img_ea) {
+             /* No lifted fallback: interpret the image instead of instant-
+              * completing. Additive + env-gated so it can't destabilize titles
 diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
 index 9d9df71..8c70caf 100644
 --- a/tools/ppu_lifter.py
@@ -172,3 +286,123 @@ index 9d9df71..8c70caf 100644
  
          lines.append("}")
          lines.append("")
+diff --git a/tools/spu_program_pipeline.py b/tools/spu_program_pipeline.py
+index 2b8984d..c3b62cf 100644
+--- a/tools/spu_program_pipeline.py
++++ b/tools/spu_program_pipeline.py
+@@ -29,13 +29,12 @@ def code_ranges(info):
+     if any(b > c for (_, b), (c, _) in zip(loads, loads[1:])):
+         raise ValueError('overlapping PT_LOAD memory ranges (including BSS) are unsupported')
+     executable = info['executable']
+-    if len(executable) != 1:
+-        raise ValueError('automated lifting requires exactly one executable PT_LOAD')
+-    segment = executable[0]
+-    start, end = segment['addr'], segment['addr'] + segment['filesz']
++    if not executable:
++        raise ValueError('image has no executable PT_LOAD')
+     sections = [s for s in info['sections'] if s['flags'] & 4 and s['size']]
+-    ranges = sorted((s['addr'], s['addr'] + s['size']) for s in sections) or [(start, end)]
+-    if any(a < start or b > end for a, b in ranges):
++    segments = [(s['addr'], s['addr'] + s['filesz']) for s in executable]
++    ranges = sorted((s['addr'], s['addr'] + s['size']) for s in sections) or sorted(segments)
++    if any(not any(start <= a < b <= end for start, end in segments) for a, b in ranges):
+         raise ValueError('executable sections outside supported text segment')
+     if any(b > c for (_, b), (c, _) in zip(ranges, ranges[1:])):
+         raise ValueError('overlapping executable sections are unsupported')
+@@ -148,7 +147,7 @@ def build_programs(args, registry_writer):
+                 raise ValueError('--extra-funcs requires discovered content name=ADDR[,ADDR...]')
+             extra[name] = [int(s.strip(), 0) for s in value.split(',')]
+         imgs, text_fps, image_ids = [], {}, {}
+-        from find_spu_functions import detect_functions
++        from find_spu_functions import detect_functions, text_image, parse_elf
+         from build_spu_workloads import debase_includes
+         for digest, program in sorted(unique.items()):
+             if program['status'] == 'unsupported':
+@@ -160,14 +159,17 @@ def build_programs(args, registry_writer):
+             (outdir / 'image.elf').write_bytes(blob)
+             try:
+                 ranges = code_ranges(info)
+-                functions, (offset, base, size) = detect_functions(blob, verbose=False)
++                functions, (_, base, _) = detect_functions(blob, verbose=False)
++                code, deployed_base = text_image(blob, parse_elf(blob)['phs'])
++                if deployed_base != base:
++                    raise ValueError('function detector and executable image disagree on LS base')
+                 bounds = sorted({(max(s, a), min(e, b)) for s, e in functions for a, b in ranges
+                                  if max(s, a) < min(e, b)})
+                 for address in extra.get(name, []):
+                     if not any(a <= address < b and address % 4 == 0 for a, b in ranges):
+                         raise ValueError('extra function address is outside executable ranges')
+                 program['executable_ranges'] = ranges
+-                (outdir / 'code.bin').write_bytes(blob[offset:offset + size])
++                (outdir / 'code.bin').write_bytes(code)
+                 (outdir / 'functions.json').write_text(json.dumps([dict(start=s, end=e) for s, e in bounds]))
+                 command = [sys.executable, args.lifter, str(outdir / 'code.bin'), '--base', str(base),
+                            '--functions', str(outdir / 'functions.json'), '--symbol-prefix', prefix,
+@@ -204,7 +206,9 @@ def build_programs(args, registry_writer):
+             program['status'] = 'registered'
+             imgs.append((name, prefix, int(program['fingerprint'], 16), info['entry']))
+             image_ids[name] = program['image_id']
+-            text_fps[name] = int(program['text_fingerprint'], 16)
++            # A multi-segment program has no single raw-text identity. Register
++            # only its full ELF fingerprint; do not alias its small first segment.
++            text_fps[name] = int(program.get('text_fingerprint', program['fingerprint']), 16)
+         # Default runtime capacity is 256 registrations, including text aliases.
+         if sum(len({fp, text_fps[name]}) for name, _, fp, _ in imgs) > 256:
+             report['errors'].append('generated registrations exceed default runtime capacity (256)')
+diff --git a/tools/test_spu_program_pipeline.py b/tools/test_spu_program_pipeline.py
+index 226f9b8..976fa92 100644
+--- a/tools/test_spu_program_pipeline.py
++++ b/tools/test_spu_program_pipeline.py
+@@ -90,8 +90,7 @@ class Pipeline(unittest.TestCase):
+         self.assertTrue((self.output / 'sources.cmake').exists())
+ 
+     def test_bad_bounds_and_unsupported_are_reported_without_registration(self):
+-        for blob, status in [(elf(bad_bounds=True), 'invalid'), (elf(unsupported=True), 'unsupported'),
+-                             (elf(multi=True), 'unsupported')]:
++        for blob, status in [(elf(bad_bounds=True), 'invalid'), (elf(unsupported=True), 'unsupported')]:
+             with self.subTest(status=status):
+                 result = self.run_pipeline(('input.bin', blob))
+                 self.assertNotEqual(result.returncode, 0)
+@@ -254,7 +253,10 @@ class Pipeline(unittest.TestCase):
+             self.skipTest('C compiler or CMake unavailable')
+         note = bytearray(elf(13, multi=True))
+         struct.pack_into('>I', note, 84, 4)
+-        result = self.run_pipeline(('input.bin', elf(7) + elf(9) + elf(11, rodata=True) + note))
++        multi = bytearray(elf(17, multi=True))
++        struct.pack_into('>I', multi, 0x100, 0x32002000)  # br 0x200 from LS 0x100
++        struct.pack_into('>I', multi, 0x108, 0x40800003 | (19 << 7))
++        result = self.run_pipeline(('input.bin', elf(7) + elf(9) + elf(11, rodata=True) + note + multi))
+         self.assertEqual(result.returncode, 0, result.stderr)
+         programs = self.manifest()['programs']
+         runtime = self.write_runtime_blocks()
+@@ -262,6 +264,8 @@ class Pipeline(unittest.TestCase):
+         for i, program in enumerate(programs):
+             blob = (self.output / program['name'] / 'image.elf').read_bytes()
+             immediate = (struct.unpack_from('>I', blob, 0x100)[0] >> 7) & 0xffff
++            if 'text_fingerprint' not in program:
++                immediate = 19
+             body += [f'unsigned char image{i}[] = {{' + ','.join(str(x) for x in blob) + '};',
+                      f'assert(spu_elf_image_size(image{i}, sizeof image{i}) == sizeof image{i});',
+                      f'uint64_t fp{i} = spu_workload_fingerprint(image{i}, sizeof image{i});',
+@@ -270,16 +274,17 @@ class Pipeline(unittest.TestCase):
+                      f'assert(f{i} && id{i} == {program["image_id"]});',
+                      f'assert(spu_lookup(0x100, id{i}) == f{i});',
+                      # Each context contains a 256 KB local store. Keep the
+-                     # four fixtures off Windows' default 1 MB main stack.
+-                     f'static spu_context c{i}; f{i}(&c{i});',
++                     # five fixtures off Windows' default 1 MB main stack.
++                     f'static spu_context c{i}; c{i}.image_id = id{i}; c{i}.host_depth = 1; f{i}(&c{i});',
++                     f'while (g_spu_trampoline_fn) {{ void (*next)(spu_context*) = g_spu_trampoline_fn; g_spu_trampoline_fn = 0; next(&c{i}); }}',
+                      f'assert(c{i}.gpr[3]._u32[0] == {immediate});']
+-        body += ['assert(f0 != f1 && id0 != id1);', 'assert(spu_workload_count() == 8);']
++        body += ['assert(f0 != f1 && id0 != id1);', 'assert(spu_workload_count() == 9);']
+         (self.root / 'proof.c').write_text(
+             '#include "spu_workload.h"\n#include <assert.h>\n'
+             'extern void spu_register_all(void);\n'
+             'extern spu_lifted_entry_fn spu_lookup(uint32_t, int);\n'
+             'SPU_THREAD_LOCAL void (*g_spu_trampoline_fn)(spu_context*);\n'
+-            'void spu_indirect_branch(spu_context* ctx) { (void)ctx; assert(0); }\n'
++            'void spu_indirect_branch(spu_context* ctx) { spu_lifted_entry_fn fn = spu_lookup(ctx->pc, ctx->image_id); assert(fn); fn(ctx); }\n'
+             'int main(void) { spu_register_all();\n' + '\n'.join(body) + '\nreturn 0; }\n')
+         # Minimal consumer uses the same CMake generation helper as the template.
+         cmake_source = 'cmake_minimum_required(VERSION 3.20)\nproject(proof C)\n'

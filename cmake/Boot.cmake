@@ -33,8 +33,24 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     src/prx_registry.cpp src/prx_registry_test.cpp
     src/guest_callbacks.cpp tests/callback_probe.cpp
     src/graphics.cpp
+    src/spu_policy.cpp
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
+
+option(FIFA_BUILD_SPU "Link the generated native SPU programs" OFF)
+if(FIFA_BUILD_SPU)
+    set(FIFA_SPU_DIR "${CMAKE_SOURCE_DIR}/private/generated/spu")
+    if(NOT EXISTS "${FIFA_SPU_DIR}/sources.cmake")
+        message(FATAL_ERROR "Run tools/build.ps1 -Target Spu before enabling native SPU programs")
+    endif()
+    include("${FIFA_SPU_DIR}/sources.cmake")
+    target_sources(fifa_boot PRIVATE ${SPU_GENERATED_SOURCES})
+    set_source_files_properties(${SPU_GENERATED_SOURCES} PROPERTIES
+        COMPILE_DEFINITIONS SPU_USE_DISPATCH_MT COMPILE_OPTIONS "/O2;/w")
+    # Scope this define to its consumer; changing it must not rebuild the
+    # hundreds of unrelated generated PPU translation units.
+    set_source_files_properties(src/spu_policy.cpp PROPERTIES COMPILE_DEFINITIONS FIFA_HAS_SPU)
+endif()
 target_include_directories(fifa_boot PRIVATE "${BOOT_RECOMP_DIR}" "${PS3_SDK}/include"
     "${PS3_SDK}/runtime/ppu" "${PS3_SDK}/runtime/spu" "${PS3_SDK}/runtime/memory"
     "${PS3_SDK}/runtime/syscalls" "${PS3_SDK}/runtime/platform" "${PS3_SDK}/libs/video")

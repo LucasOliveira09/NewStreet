@@ -30,8 +30,10 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Alcançar inicialização GCM com command buffer e região IO reais.
 - [x] Inicializar D3D12 no hardware local e consumir a fila RSX do jogo.
 - [x] Observar leitura real de locale.big e threads de carregamento.
-- [ ] Bloquear conclusão silenciosa de SPUs ausentes no runtime.
-- [ ] Recompilar e integrar a primeira imagem SPU multi-segmento solicitada.
+- [x] Bloquear programa/salto SPU ausente antes de fallback ou interpretação.
+- [x] Recompilar e ligar a primeira imagem SPU multi-segmento solicitada.
+- [ ] Validar isolamento das threads SPU entre grupos com números não contíguos.
+- [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 
 ## Inicialização e plataforma

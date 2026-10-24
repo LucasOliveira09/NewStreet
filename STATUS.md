@@ -29,12 +29,18 @@ gráfico, iniciados após GCM. D3D12 inicializou na AMD RX 580 2048SP e criou su
 janela de 1280x720. A execução passou a ler `data/loc/locale.big` e iniciou threads
 AssetStream::Load/Unpack/Translate. Nenhum flip/frame do jogo foi observado.
 
-O trace revelou dois problemas concretos: grupos SPU solicitam a imagem de 5.140
-bytes, fingerprint `22F896FE3B85A8C7`, que tem três segmentos executáveis e ainda
-não está recompilada; o upstream a tratou como concluída sem execução. É necessário
-bloquear isso e integrar sua tradução real. Depois disso, há também uma referência
-PPU não emitida em `0x13a796c` (LR `0x139c444`). Os logs da tentativa estão em
-`private/analysis/runs/1792825061374831800`.
+O pipeline agora gera código nativo para 14 dos 20 ELF SPU, incluindo a imagem de
+5.140 bytes, fingerprint `22F896FE3B85A8C7`, com três segmentos executáveis.
+O registro desta imagem usa seu ELF inteiro, sem alias incorreto pelo primeiro
+segmento pequeno. A integração é ativada com `-Target Spu` e `-WithSpu` no build.
+Isso não comprova que as tarefas funcionam: o runtime foi instrumentado para
+parar em programa/salto ausente antes de interpretar instruções ou concluir uma
+tarefa sem executá-la. A tentativa estrita em `private/analysis/runs/1792839751667270900`
+parou com `spu-indirect`, imagem 526190333, PC/LR `0x3f00c`. O trace mostra também
+grupos distintos iniciando a mesma thread `0x2000`: investigar o mapeamento entre
+número de SPU e índice da tabela antes de atribuir a falha ao código do jogo.
+Há ainda uma referência PPU não emitida em `0x13a796c` (LR `0x139c444`), observada
+na tentativa anterior. Nenhuma conclusão correta de tarefa SPU foi validada.
 Isso não comprova correção ou cobertura completa:
 304 referências diretas permanecem com diagnóstico explícito. Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
@@ -53,14 +59,18 @@ O hook HLE de callbacks foi ligado ao dispatcher OPD real. O teste passa oito
 argumentos de 64 bits, preserva a identidade da thread e restaura o contexto
 do chamador. Callbacks sem função recompilada agora também param explicitamente.
 O perfil ampliado usa `/Od` na investigação; `/O1` pode ser ativado para medição
-posterior. A geração SPU não produziu um registro utilizável: seis imagens têm
-palavras não decodificadas e uma tem três segmentos executáveis. O inventário
-de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao jogo.
+posterior. Seis imagens SPU ainda têm palavras não decodificadas; o inventário
+em `private/generated/spu/inventory.json` declara `complete=false`. A geração
+parcial é explícita e qualquer imagem requerida sem código deve parar.
+Os 12 testes do pipeline SPU passaram, incluindo execução compilada através de
+dois segmentos separados. Os sete testes de boot e os 16 CTest passaram após a
+política de execução nativa; logs em `reports/spu-pipeline-tests.log`,
+`reports/spu-strict-build.log` e `reports/runtime-after-spu-dispatch.log`.
 
 ## Primeira tarefa pendente
 
-Impedir conclusão silenciosa de SPUs sem código nativo e traduzir a imagem
-multi-segmento efetivamente solicitada. Depois, emitir o alvo PPU `0x13a796c`.
+Corrigir/validar o mapeamento dos grupos SPU e investigar o salto para `0x3f00c`.
+Depois, emitir e validar o alvo PPU `0x13a796c`.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

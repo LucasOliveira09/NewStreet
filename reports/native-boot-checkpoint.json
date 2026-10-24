@@ -1,27 +1,27 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "D3D12 backend initialized; real asset reads; missing SPU execution and PPU target observed",
+  "stage": "Native SPU programs linked; strict unresolved SPU branch diagnosed",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 98776,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "unlifted",
-    "value": 20609388,
-    "guest_lr": 20563012,
+    "kind": "spu-indirect",
+    "value": 2259970271706607632,
+    "guest_lr": 0,
     "guest_pc": 0,
-    "thread_id": 1,
-    "guest_toc": 35476336,
+    "thread_id": 0,
+    "guest_toc": 0,
     "arguments": [
       0,
-      10240,
       0,
-      1,
-      18446744073709496400,
-      301511056,
-      301511134,
-      301511128
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   },
   "spawn": {
@@ -44,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792825061374831800",
+  "logs": "private\\analysis\\runs\\1792839751667270900",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -82,6 +82,16 @@
     "fingerprint": "22F896FE3B85A8C7",
     "bytes": 5140,
     "executable_segments": 3,
-    "upstream_skipped_execution": true
+    "upstream_skipped_execution": true,
+    "native_programs_registered": 14,
+    "programs_discovered": 20,
+    "inventory_complete": false,
+    "strict_missing_program": true,
+    "strict_missing_branch": true,
+    "observed_image": 526190333,
+    "observed_pc": "0x3f00c",
+    "observed_lr": "0x3f00c",
+    "task_completion_validated": false,
+    "group_isolation_requires_investigation": true
   }
 }

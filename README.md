@@ -155,17 +155,24 @@ emulador é iniciado. O callback de encerramento do EBOOT também é executado.
 .\private\python-env\Scripts\python.exe tools/run_native.py --profile startup
 
 # Cobertura ampliada por OPD + chamadas e fronteiras descobertas.
-.\tools\build.ps1 -Target FullGame -Jobs 6
+.\tools\build.ps1 -Target Spu
+.\tools\build.ps1 -Target FullGame -WithSpu -Jobs 6
 .\private\python-env\Scripts\python.exe tools/run_native.py --profile full
 
 # Recompilar adaptadores sem repetir a geração já existente.
-.\tools\build.ps1 -Target FullGame -SkipLift -Jobs 6
+.\tools\build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 6
 ```
 
 O perfil `FullGame` usa `/Od` para reduzir o ciclo de investigação inicial.
 `-OptimizeFullGame` seleciona `/O1`; medir desempenho somente após validar o
 caminho funcional. O host também registra exceções nativas em `[fifa-crash]`,
 incluindo símbolo/endereço do Windows e o contexto PPU disponível.
+
+A geração SPU registra 14 dos 20 ELF descobertos; seis ainda têm instruções
+não decodificadas. O inventário parcial é explícito. O runtime para em programa
+ou salto SPU ausente antes de usar interpretação ou concluir uma tarefa sem código.
+O teste compilado do gerador cobre dois segmentos separados e seu salto entre
+segmentos. Ligar essas imagens ao executável ainda não valida sua execução no jogo.
 
 O registro PRX mantém os exports reais por biblioteca, NID e tipo (função ou
 variável). A chamada de uma função exportada usa seu OPD, preserva os argumentos

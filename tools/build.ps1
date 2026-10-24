@@ -1,9 +1,10 @@
 param(
-    [ValidateSet('All', 'Probe', 'Runtime', 'Boot', 'Game', 'FullGame')][string]$Target = 'All',
+    [ValidateSet('All', 'Probe', 'Runtime', 'Boot', 'Game', 'FullGame', 'Spu')][string]$Target = 'All',
     [int]$StartupLimit = 256,
     [string[]]$AddFunction = @(),
     [switch]$SkipLift,
     [switch]$OptimizeFullGame,
+    [switch]$WithSpu,
     [ValidateRange(1, 12)][int]$Jobs = 2
 )
 $ErrorActionPreference = 'Stop'
@@ -34,6 +35,15 @@ function Invoke-Checked {
 }
 
 Invoke-Checked $python @('tools/apply_patches.py')
+
+if ($Target -in @('All', 'Spu')) {
+    $spuOutput = [IO.Path]::GetFullPath((Join-Path $projectRoot 'private/generated/spu'))
+    $privateRoot = [IO.Path]::GetFullPath((Join-Path $projectRoot 'private')) + [IO.Path]::DirectorySeparatorChar
+    if (-not $spuOutput.StartsWith($privateRoot)) { throw 'SPU output escaped the owned private directory' }
+    Invoke-Checked $python @('vendor/ps3recomp/tools/build_spu_workloads.py', '--input', 'private/FIFAZF.elf',
+        '--lifted', $spuOutput, '--out', "$spuOutput/spu_workloads.c", '--register-fn', 'fifa_spu_register_all',
+        '--title', 'FIFA-Street', '--allow-partial')
+}
 
 if ($Target -in @('All', 'Runtime')) {
     Invoke-Checked $cmake @('-S','vendor/ps3recomp','-B','private/build/runtime-clang','-G','Ninja',
@@ -67,6 +77,8 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
     $profile = 'fifazf_startup'
     $buildDirectory = 'private/build/fifazf'
     $liftOptimization = '/O1'
+    $buildSpu = 'OFF'
+    if ($WithSpu -or $Target -eq 'All') { $buildSpu = 'ON' }
     if ($Target -eq 'FullGame') {
         $liftArguments += '--all-opd'
         $profile = 'fifazf_full'
@@ -83,6 +95,7 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
         '-DFIFA_BUILD_BOOT=ON',"-DPython3_EXECUTABLE=$python",
         "-DBOOT_RECOMP_DIR=$projectRoot/private/generated/$profile",
         "-DFIFA_LIFT_OPTIMIZATION=$liftOptimization",
+        "-DFIFA_BUILD_SPU=$buildSpu",
         "-DFIFA_RUNTIME_ARCHIVE=$runtimeArchive")
     Invoke-Checked $cmake @('--build',$buildDirectory,'--target','fifa_boot','--parallel',"$Jobs")
 }
