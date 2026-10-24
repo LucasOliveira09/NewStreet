@@ -12,7 +12,12 @@ limites e alocação esparsa rejeitada; os cinco testes ISO9660 também passaram
 A tentativa `1792846418492465200` abriu DATA0, descriptografou 7.467.087 bytes
 com magic BIG4 e iniciou tarefas antes ausentes. O novo bloqueio estrito é
 SPU PC `0xb0`, thread `0x2004`: overlay `AssetStream_refpack.elf`, fonte
-`0x1e59200`, que ainda precisa ser ligado e validado. A tabela de input vazia
+`0x1e59200`, que foi ligado em tradução nativa (42 funções, nenhuma instrução recusada ou
+alvo direto pendente). A tentativa seguinte `1792846643102912600` passou por
+essa tarefa e iniciou as threads Filesystem, DLC e EAAudioCore Dac. Parou em
+outra tarefa SPU ainda ausente: `spumixer.elf`, fonte `0x2006280`, LS `0xb0`;
+a cópia de 0x3300 bytes no LS coincide integralmente com a fonte.
+A tabela de input vazia
 foi observada antes desta correção; sua resolução ainda não foi confirmada.
 
 A implementação já liga 14 ELFs SPU e os overlays zlib/SportsRNA, com validação
@@ -173,3 +178,13 @@ identificou requisições de `buttonData.ini` e `buttonDataKeyBoardMouse.ini` an
 da chamada nula. A ISO foi extraída pela visão primária ISO9660, que contém
 `DATA0_BIG.SDAT`; o jogo procura `data0.big.sdat`. A relação com o nome UDF
 e a leitura/descriptografia do arquivo ainda precisam ser verificadas.
+
+### Overlay RefPack
+
+Fonte original `0x1e59200`, tamanho `0xa80`, LS base `0x80`, entrada `0xb0`.
+A fronteira executável termina em `0xa70`, depois do retorno em `0xa6c`;
+a região seguinte contém máscaras e o nome `AssetStream_refpack.elf`.
+O LS capturado difere apenas em dados posteriores ao código: o intervalo
+executável coincide byte a byte com a fonte. A tradução tem 42 funções,
+zero instruções recusadas e zero alvos diretos pendentes. O resultado de
+descompactação ainda não foi validado contra um oráculo independente.

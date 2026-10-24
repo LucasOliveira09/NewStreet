@@ -18,5 +18,23 @@
     "unsupported_instructions": 0,
     "missing_direct_targets": 0,
     "native_execution_validated": false
-  }
+  },
+  "additional_overlays": [
+    {
+      "name": "AssetStream_refpack",
+      "source_ea": "0x1e59200",
+      "source_bytes": 2688,
+      "sha256": "692c7aa55fa12a304d4ed49cdcc7ccfb94f49a7de7266aaf2fe02676813c2cd8",
+      "local_store_base": "0x80",
+      "entry": "0xb0",
+      "code_end_exclusive": "0xa70",
+      "return_at": "0xa6c",
+      "code_snapshot_byte_differences": 0,
+      "functions": 42,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792846643102912600",
+      "output_oracle_validated": false
+    }
+  ]
 }

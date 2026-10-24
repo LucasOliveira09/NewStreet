@@ -2,6 +2,19 @@
   "elf_sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
   "overlays": [
     {
+      "name": "assetstream_refpack",
+      "source_ea": "0x1e59200",
+      "size": "0xa80",
+      "sha256": "692c7aa55fa12a304d4ed49cdcc7ccfb94f49a7de7266aaf2fe02676813c2cd8",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0xa70",
+      "extra_entries": [
+        "0x154"
+      ]
+    },
+    {
       "name": "assetstream_zlib",
       "source_ea": "0x1e59c80",
       "size": "0x64b0",
