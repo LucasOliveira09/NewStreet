@@ -649,3 +649,16 @@ ps3recomp_gcm_fifo_set_fault_handler, evitando registro guest indevido de um
 ponteiro de função host. A regressão da tabela real falhou antes e passou
 depois. 27 testes de boot e os dois builds passaram; a tabela voltou a 1.201
 handlers. Os exports originais permanecem cobertos pela geração existente.
+
+## Captura interrompida não invalida o diagnóstico do boot
+
+A parada SPU da tentativa 1792879100554817400 interrompeu a gravação de
+refpack-15.json e o leitor lançou JSONDecodeError antes de salvar result.json.
+O validador agora registra metadados ausentes/incompletos como erro e mantém
+as outras comparações. A regressão cobre arquivo vazio, JSON truncado, lista
+e campos faltantes; os quatro cenários falharam antes e passaram depois.
+Reanálise real: 48 registros, 47 saídas iguais, refpack-15 incompleto,
+all_passed=false. Isso não demonstra erro de descompressão do jogo nem
+aprova a captura interrompida. 44 testes do projeto passaram.
+O primeiro bloqueio continua documentado no stderr original, em LS 0xa300;
+não há result.json recuperado com duração/exit code inventados.

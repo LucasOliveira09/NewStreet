@@ -66,11 +66,21 @@ def refpack_decode(data, limit=4 * 1024 * 1024):
 
 def validate(folder):
     results = []
+    metadata_incomplete = set()
     for meta in sorted(folder.glob('*.json')):
-        job = json.loads(meta.read_text(encoding='utf-8'))
-        if job.get('codec') not in ('refpack', 'zlib'):
+        item = dict(job=meta.stem, codec=None, matches=False)
+        try:
+            job = json.loads(meta.read_text(encoding='utf-8'))
+            if not isinstance(job, dict) or job.get('codec') not in ('refpack', 'zlib'):
+                raise ValueError('Missing or invalid job codec')
+            if any(key not in job for key in ('captured', 'input_bytes', 'output_bytes')):
+                raise ValueError('Incomplete job metadata')
+        except (ValueError, OSError) as error:
+            item['error'] = 'Invalid or interrupted metadata: ' + str(error)
+            metadata_incomplete.add(meta.stem)
+            results.append(item)
             continue
-        item = dict(job=meta.stem, codec=job['codec'], matches=False)
+        item['codec'] = job['codec']
         try:
             if not job['captured']:
                 raise ValueError('Native output was not captured')
@@ -96,7 +106,8 @@ def validate(folder):
             item['error'] = str(error)
         results.append(item)
     completed = {j['job'] for j in results}
-    incomplete = sorted(path.stem for path in folder.glob('*.input') if path.stem not in completed)
+    incomplete = sorted(metadata_incomplete | {
+        path.stem for path in folder.glob('*.input') if path.stem not in completed})
     return dict(jobs=results, total=len(results), passed=sum(j['matches'] for j in results),
                 capture_limit_per_codec=32, exhaustive=False,
                 incomplete=incomplete,
