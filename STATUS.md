@@ -488,3 +488,14 @@ A primeira preparação do quarto build falhou antes de compilar porque o
 ambiente VS, reinicializado repetidamente na mesma sessão PowerShell, estourou
 o limite de linha do cmd. A execução em processo limpo compilou e validou
 o quarto incremento. A correção de reuso do ambiente é uma etapa separada.
+
+## Reuso do ambiente de build
+
+A reinicialização do DevShell na mesma sessão fazia PATH crescer de 4.712 para
+6.144 e 7.576 caracteres; a quarta chamada falhou com "linha de entrada muito
+longa". O build agora reutiliza o ambiente se instalação e arquitetura host/
+target x64 já coincidem, e não duplica os diretórios LLVM/Ninja no PATH.
+Quatro builds Probe completos consecutivos passaram na mesma sessão, com PATH
+estável em 4.719 caracteres e Git encontrado nas quatro chamadas. Cada Probe
+exercitou os 20.020 retornos inteiros; isso valida o build repetido, sem ampliar
+a alegação de conformidade da CPU. Logs privados repeated-build-1..4.log.

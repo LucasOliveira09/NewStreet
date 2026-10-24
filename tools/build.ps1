@@ -19,14 +19,18 @@ $vsWhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer
 $vsPath = & $vsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 if (-not $vsPath) { throw 'Visual Studio C++ tools were not found.' }
 # https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell
-& (Join-Path $vsPath 'Common7\Tools\Launch-VsDevShell.ps1') -Arch amd64 -HostArch amd64 -SkipAutomaticLocation -NoLogo
+if (($env:VSINSTALLDIR -replace '[\\/]+$', '') -ne $vsPath -or
+    $env:VSCMD_ARG_TGT_ARCH -ne 'x64' -or $env:VSCMD_ARG_HOST_ARCH -ne 'x64') {
+    & (Join-Path $vsPath 'Common7\Tools\Launch-VsDevShell.ps1') -Arch amd64 -HostArch amd64 -SkipAutomaticLocation -NoLogo
+}
 $llvmBin = Join-Path $projectRoot 'private\toolchain\clang+llvm-23.1.4-x86_64-pc-windows-msvc\bin'
 $cmakeRoot = Join-Path $vsPath 'Common7\IDE\CommonExtensions\Microsoft\CMake'
 $cmake = Join-Path $cmakeRoot 'CMake\bin\cmake.exe'
 $ctest = Join-Path $cmakeRoot 'CMake\bin\ctest.exe'
 $python = Join-Path $projectRoot 'private\python-env\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath "$llvmBin\clang-cl.exe")) { throw 'Portable LLVM 23.1.4 is missing.' }
-$env:PATH = "$llvmBin;$cmakeRoot\Ninja;$env:PATH"
+$env:PATH = ((@($llvmBin, "$cmakeRoot\Ninja") + ($env:PATH -split ';')) |
+    Select-Object -Unique) -join ';'
 
 function Invoke-Checked {
     param([string]$Executable, [string[]]$Arguments)
