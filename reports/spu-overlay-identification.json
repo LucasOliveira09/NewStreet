@@ -80,6 +80,21 @@
       "missing_direct_targets": 0,
       "native_run": "private/analysis/runs/1792847260676890600",
       "audio_validated": false
+    },
+    {
+      "name": "spugainfader",
+      "source_ea": "0x1fda900",
+      "source_bytes": 10176,
+      "sha256": "603d8b068b7038371ec1681ce4c0edfeeff33de26a57e9e45ba4802b2f610fac",
+      "local_store_base": "0x6b80",
+      "entry": "0x6bb0",
+      "code_end_exclusive": "0x9320",
+      "functions": 157,
+      "source_snapshot_byte_differences": 0,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792869024593523500",
+      "audio_validated": false
     }
   ]
 }

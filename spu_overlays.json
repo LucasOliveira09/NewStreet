@@ -91,6 +91,24 @@
         "0x4948",
         "0x5148"
       ]
+    },
+    {
+      "name": "audio_spugainfader",
+      "source_ea": "0x1fda900",
+      "size": "0x27c0",
+      "sha256": "603d8b068b7038371ec1681ce4c0edfeeff33de26a57e9e45ba4802b2f610fac",
+      "ls_base": "0x6b80",
+      "entry": "0x6bb0",
+      "code_start": "0x6bb0",
+      "code_end": "0x9320",
+      "extra_entries": [
+        "0x6c38",
+        "0x8db4",
+        "0x8db8",
+        "0x8d88",
+        "0x8dfc",
+        "0x8dd0"
+      ]
     }
   ]
 }

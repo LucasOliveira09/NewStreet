@@ -252,3 +252,17 @@ o tamanho real da tabela. Esgotar a capacidade agora produz diagnóstico
 estrito `spu-overlay-capacity`. O teste mantém e despacha os sete módulos;
 os 18 testes de boot passaram. O patch do SDK inclui também a mudança de
 layout de `spu_context`, exigindo rebuild de runtime e traduções SPU.
+
+### Ganho e volume do mixer
+
+O módulo `spugainfader.elf` foi ligado com base LS `0x6b80`, entrada
+`0x6bb0`, fonte `0x1fda900`, 0x27c0 bytes e código até `0x9320`.
+O callback PIC `0x6c38` e os sete valores da jump table em `0x8d6c`
+foram conferidos no binário; seus cinco destinos distintos foram incluídos
+como fronteiras. A tradução tem 157 funções, zero instruções recusadas e
+zero alvos diretos pendentes. A execução `1792869024593523500`, já com
+a nova capacidade de módulos residentes e todos os artefatos recompilados,
+passou pelo ganho/volume até o módulo VU em LS `0x9430`, fonte `0x2004e00`.
+Os 18 testes de boot e os 16 CTest do runtime passaram. O rebuild sequencial
+completou; a tentativa sobreposta não foi usada como evidência. O link local
+foi limitado a quatro threads no cache CMake, sem alterar código de produção.
