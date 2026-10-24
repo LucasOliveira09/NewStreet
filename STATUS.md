@@ -17,14 +17,16 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e 14 programas raw ligados, incluindo uma segunda compilação
-estática do submix para LS 0x7800 (15 registros raw no total). As posições PIC
-são admitidas explicitamente em `spu_overlays.json`; nenhuma tradução ocorre
-durante a execução. 23 testes de boot, 39 do projeto e 16 do runtime passaram.
-A tentativa `1792871664851996100` passou pela segunda base do submix e parou
-ao carregar sample capture em LS 0x8900, ainda não admitida; saída estrita 90.
+Há 14 ELFs SPU e 14 programas raw ligados, mais quatro posições PIC
+adicionais compiladas estaticamente (18 registros raw no total). Submix,
+sample capture, gain fader e VU meter passaram pelas segundas posições
+observadas. A execução 1792871899123215200 chegou a 90,238 s sem nova
+fronteira estrita; ainda no logo, sem menu aceito.
+A amostra posterior 1792872007341002900 mostra main esperando mutex 8,
+LR 0xdce220. Ainda falta identificar seu dono e a dependência da espera.
 A captura de 1.542.656 floats do mix de áudio é inteiramente zero: áudio audível
-continua pendente. A tela conferida continua sendo o logo original.
+continua pendente. 24 testes de boot passaram após a correção NetCtl abaixo;
+o teste integrado dessa correção ainda está em execução/build.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -421,3 +423,16 @@ Tentativa 1792871899123215200: 90,238 s até o timeout controlado, sem nova
 fronteira estrita. O jogo ainda apresenta o logo; chamadas repetidas de NetCtl
 são observadas, sem atribuir a elas a causa da espera antes da amostragem.
 Próximo passo: watchdog, profiler e capturas posteriores para localizar o fluxo.
+
+## Estado NetCtl offline
+
+O SDK retornava NOT_INITIALIZED após Init ao consultar uma conexão offline,
+um desvio específico de outro título. A referência fixada distingue o ciclo
+de vida da biblioteca do estado Disconnected. GetState agora retorna a consulta
+bem-sucedida com estado zero nessa configuração, preservando erros antes de
+Init/depois de Term e endereço nulo. Não declara conexão/IP obtido.
+Regressão pelos handlers HLE reais falhou antes e passou depois, conferindo
+retornos, escrita big-endian e buffers preservados nos erros; 24 testes de boot
+aprovados. Build completo/teste integrado em andamento, sem concluir que isso
+resolva a espera no mutex. Fonte: RPCS3 aa9ebd2f, cellNetCtl.cpp linhas 125–142.
+https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/cellNetCtl.cpp#L125

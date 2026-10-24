@@ -1,20 +1,12 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Second static submix position passed; sample capture requested at LS 0x8900",
+  "stage": "Both observed audio chains admitted; title logo persists; main waits on mutex 8",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": 90,
-  "block": {
-    "kind": "spu-overlay-base",
-    "image": 526190333,
-    "thread": 8195,
-    "pc": 12604,
-    "lr": 11768,
-    "local_store_bytes": 262144,
-    "stem": "spu-8195-526190333-12604"
-  },
+  "exit_code": "timeout",
+  "block": null,
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -35,7 +27,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792871664851996100",
+  "logs": "private\\analysis\\runs\\1792871899123215200",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -78,8 +70,6 @@
     "strict_missing_program": true,
     "strict_missing_branch": true,
     "observed_image": 526190333,
-    "observed_pc": "0x313c",
-    "observed_lr": "0x2df8",
     "task_completion_validated": "47 captured AssetStream outputs match independent oracles; not all tasks",
     "group_isolation_requires_investigation": false,
     "boot_threads": 6,
@@ -101,7 +91,7 @@
   ],
   "pending_direct_targets": 0,
   "discovery_regression_tests": 3,
-  "boot_regression_tests": 23,
+  "boot_regression_tests": 24,
   "observed_null_call": {
     "lr": "0x11a9f50",
     "thread": 1,
@@ -113,7 +103,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 15,
+  "raw_spu_overlays": 18,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -122,7 +112,7 @@
     "deflate": 32,
     "exhaustive": false
   },
-  "boot_tests": 23,
+  "boot_tests": 24,
   "runtime_tests": 16,
   "first_frame": {
     "visually_reviewed": true,
@@ -143,5 +133,11 @@
     "peak": 0.0,
     "nonzero": 0,
     "audible_validated": false
+  },
+  "observed_wait": {
+    "lr": "0xdce220",
+    "mutex_id": 8,
+    "owner_not_yet_identified": true,
+    "evidence": "1792872007341002900"
   }
 }

@@ -1,3 +1,27 @@
+diff --git a/libs/network/cellNetCtl.c b/libs/network/cellNetCtl.c
+index c7926c0..d039802 100644
+--- a/libs/network/cellNetCtl.c
++++ b/libs/network/cellNetCtl.c
+@@ -155,15 +155,11 @@ s32 cellNetCtlGetState(s32* state)
+         return CELL_NET_CTL_ERROR_INVALID_ADDR;
+ 
+     if (!netctl_online()) {
+-        /* Offline: FAIL the query rather than report state=Disconnected.
+-         * LBP's connect job (sub_F433C(0)) polls GetState forever until
+-         * IPObtained and only exits on ret<0 -- and the working RPCS3 boot
+-         * shows exactly one GetState call failing with NOT_INITIALIZED,
+-         * after which the game proceeds offline. Still write a sane state
+-         * for callers that ignore the return value. */
++        /* Library initialization and network connection are separate states.
++         * A successful query reports Disconnected in the offline configuration;
++         * NOT_INITIALIZED is reserved for calls before Init or after Term. */
+         vm_write32((uint32_t)(uintptr_t)state, CELL_NET_CTL_STATE_Disconnected);
+-        printf("[cellNetCtl] GetState() -> error NOT_INITIALIZED (offline mode)\n");
+-        return CELL_NET_CTL_ERROR_NOT_INITIALIZED;
++        return CELL_OK;
+     }
+ 
+     vm_write32((uint32_t)(uintptr_t)state, CELL_NET_CTL_STATE_IPObtained);
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
 index 4d54b72..56b0574 100644
 --- a/runtime/ppu/ppu_fs.cpp

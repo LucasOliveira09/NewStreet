@@ -118,6 +118,17 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), dict(modules=7, dispatched=7))
 
+    def test_initialized_offline_netctl_reports_disconnected_and_preserves_lifecycle_errors(self):
+        env = os.environ.copy()
+        env.pop('PS3_NET_ONLINE', None)
+        result = subprocess.run([str(BOOT), '--test-offline-netctl'], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(before=0x80130101, duplicate=0x80130102,
+                              invalid=0x80130107, result=0, state=0,
+                              after=0x80130101, untouched=True))
+
     def test_same_spu_source_selects_the_static_translation_for_its_ls_base(self):
         result = subprocess.run([str(BOOT), '--test-spu-overlay', 'relocated'],
                                 capture_output=True, text=True, timeout=10)
