@@ -23,6 +23,31 @@ extern "C" int fifa_test_spu_overlay(const char* mode) {
     spu_begin_image(222);
     spu_register_function(0x100, overlay_entry);
     spu_begin_image(0);
+    if (!std::strcmp(mode, "many")) {
+        // Audio modules coexist in different LS spans. Loading a fifth module
+        // must not silently lose its identity or discard an earlier module.
+        static spu_context many;
+        spu_context_init(&many, 77);
+        many.image_id = 111;
+        for (unsigned i = 0; i < 7; ++i) {
+            uint32_t source = 0x10000 + i * 0x400, base = 0x80 + i * 0x400;
+            for (unsigned j = 0; j < 256; ++j) vm_base[source + j] = (uint8_t)(j * 37 + i);
+            uint64_t fp = spu_workload_fingerprint(vm_base + source, 256);
+            spu_begin_image(300 + i);
+            spu_register_function(base + 0x80, overlay_entry);
+            spu_overlay_register_region_checked(source, 256, base, 0x80, 0x20, 300 + i, fp);
+            std::memcpy(many.ls + base, vm_base + source, 256);
+            spu_overlay_note_get(&many, source, many.ls + base, 256);
+        }
+        for (unsigned i = 0; i < 7; ++i) {
+            many.gpr[3]._u32[0] = 0;
+            many.pc = 0x100 + i * 0x400;
+            spu_indirect_branch(&many);
+            if (many.gpr[3]._u32[0] != 7) return 23;
+        }
+        std::printf("{\"modules\":7,\"dispatched\":7}\n");
+        return 0;
+    }
     for (unsigned i = 0; i < 256; ++i) vm_base[0x10000 + i] = (uint8_t)(i * 37 + 3);
     uint64_t fp = spu_workload_fingerprint(vm_base + 0x10000, 256);
     spu_overlay_register_region_checked(0x10000, 256, 0x80, 0x80, 0x20, 222, fp);

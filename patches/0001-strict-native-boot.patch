@@ -141,7 +141,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..db16156 100644
+index 59f5e4b..9efd7bd 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -209,8 +209,12 @@ index 59f5e4b..db16156 100644
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1702,16 +1737,46 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
-     for (unsigned slot = 0; slot < 4; ++slot) {
+@@ -1699,22 +1734,52 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+ {
+     uint32_t lsa = (uint32_t)(ls - ctx->ls);
+     spu_ovl_dump(ctx, ea, lsa, ls, size);
+-    for (unsigned slot = 0; slot < 4; ++slot) {
++    for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
          if (!ctx->resident_code[slot].image_id) continue;
          uint32_t base = ctx->resident_code[slot].lsa;
 -        uint32_t end = base + ctx->resident_code[slot].size;
@@ -258,8 +262,32 @@ index 59f5e4b..db16156 100644
 +            }
              if (o->span) {
                  if (lsa + o->span > SPU_LS_SIZE) return;
-                 for (unsigned slot = 0; slot < 4; ++slot) {
-@@ -2293,6 +2358,23 @@ void spu_indirect_branch(spu_context* ctx)
+-                for (unsigned slot = 0; slot < 4; ++slot) {
++                for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
+                     if (ctx->resident_code[slot].image_id && ctx->resident_code[slot].lsa != lsa)
+                         continue;
+                     ctx->resident_code[slot].lsa = lsa;
+@@ -1723,7 +1788,9 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+                     ctx->resident_code[slot].image_id = o->image_id;
+                     return;
+                 }
+-                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
++                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
++                if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-capacity", ctx);
++                if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-capacity", o->image_id, NULL);
+                 return;
+             }
+             if (ctx->resident_ovl != o->image_id) {
+@@ -2278,7 +2345,7 @@ void spu_indirect_branch(spu_context* ctx)
+      * is 0 outside the region, so this only ever fires for genuine task code.) */
+     spu_fn fn = NULL;
+     int code_owner = 0;
+-    for (unsigned slot = 0; slot < 4; ++slot) {
++    for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
+         if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
+             ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
+             code_owner = ctx->resident_code[slot].image_id;
+@@ -2293,6 +2360,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -283,13 +311,26 @@ index 59f5e4b..db16156 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2923,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +2925,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }
 -#endif
 \ No newline at end of file
 +#endif
+diff --git a/runtime/spu/spu_context.h b/runtime/spu/spu_context.h
+index f46d415..bbedf13 100644
+--- a/runtime/spu/spu_context.h
++++ b/runtime/spu/spu_context.h
+@@ -289,7 +289,7 @@ typedef struct spu_context {
+     struct {
+         uint32_t lsa, size, source_ea;
+         int image_id;
+-    } resident_code[4];
++    } resident_code[128];
+ 
+     /* Resident SPURS-taskset TASK image id (0 = none) retires the id-0 wildcard
+      * for co-resident tasks. A taskset may hold several tasks that all lift at the
 diff --git a/runtime/spu/spu_drain.c b/runtime/spu/spu_drain.c
 index fc3cea1..9511532 100644
 --- a/runtime/spu/spu_drain.c

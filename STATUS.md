@@ -241,3 +241,14 @@ limites e entradas truncadas (três testes adicionais aprovados).
 Os 47 jobs comparados passaram integralmente; relatório autoral em
 `reports/asset-job-validation.json`, dados privados na tentativa acima.
 O host não usa o oráculo para executar ou substituir os descompactadores SPU.
+
+### Mais de quatro módulos residentes
+
+Um teste Windows dos handlers reais carregou sete módulos em spans LS
+independentes. Antes da correção, o runtime recusava silenciosamente a
+identidade do quinto ao sétimo e parava em `spu-indirect`. A capacidade foi
+alinhada ao limite de 128 fontes registradas, e todos os loops percorrem
+o tamanho real da tabela. Esgotar a capacidade agora produz diagnóstico
+estrito `spu-overlay-capacity`. O teste mantém e despacha os sete módulos;
+os 18 testes de boot passaram. O patch do SDK inclui também a mudança de
+layout de `spu_context`, exigindo rebuild de runtime e traduções SPU.
