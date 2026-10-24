@@ -308,3 +308,12 @@ build completo passaram; as 37 fontes antigas ficaram idênticas com a opção
 desligada. O baseline real 1792881874546096800 parou em LS 0xb300 após 21,825 s;
 a concorrência muda a cadeia observada. Próximo: integrar o manifesto e medir
 uma entrada PIC real fora das posições estáticas já existentes.
+
+## Gerador PIC optativo integrado
+
+Concluída a terceira etapa: flag booleana explícita, validação do cabeçalho e
+entrada relativa, uma imagem canônica e registro PIC com fingerprint. Os testes
+de manifesto passaram e a regeneração com flag desligada preservou 39 arquivos
+byte a byte (37 fontes SPU, registro e lista CMake). Próxima etapa: habilitar
+somente sound player 1, compilar e registrar a entrada física real. A ordem de
+agendamento pode exigir várias observações; não admitir posição por previsão.

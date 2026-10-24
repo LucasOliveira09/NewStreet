@@ -19,8 +19,16 @@ from spu_elf import fnv1a64
 
 
 def expand_overlays(items):
-    """Compile only explicitly admitted PIC positions, before execution."""
+    """Expand fixed placements, or emit one canonical image for opted-in PIC."""
     for item in items:
+        pic = item.get('relocatable_pic', False)
+        if not isinstance(pic, bool):
+            raise ValueError('relocatable_pic must be a boolean')
+        if pic:
+            canonical = dict(item)
+            canonical.pop('additional_ls_bases', None)
+            yield canonical
+            continue
         yield item
         original_base = int(item['ls_base'], 0)
         seen = {original_base}
@@ -38,6 +46,13 @@ def expand_overlays(items):
             variant['extra_entries'] = [hex(int(entry, 0) + delta)
                                         for entry in item.get('extra_entries', [])]
             yield variant
+
+
+def validate_pic_header(blob, entry_offset):
+    if (len(blob) < 48 or int.from_bytes(blob[28:32], 'big') != 0x80000000 or
+            int.from_bytes(blob[40:44], 'big') != 1 or
+            int.from_bytes(blob[16:20], 'big') != entry_offset):
+        raise ValueError('Unsupported raw PIC header or relative entry')
 
 
 def main():
@@ -76,6 +91,9 @@ def main():
                     break
             if blob is None or hashlib.sha256(blob).hexdigest() != item['sha256']:
                 raise RuntimeError('Overlay source/hash mismatch: ' + name)
+            pic = item.get('relocatable_pic', False)
+            if pic:
+                validate_pic_header(blob, entry-base)
             folder = stage / name; folder.mkdir()
             (folder / 'image.bin').write_bytes(blob)
             bounds, _ = detect_functions(blob, base, verbose=False, raw=True)
@@ -89,6 +107,8 @@ def main():
                        '--base', hex(base), '--functions', str(folder / 'functions.json'),
                        '--extra-funcs', ','.join(map(hex, entries)), '--code-end', hex(code_end), '--symbol-prefix', prefix,
                        '--output', str(folder), '--report', str(folder / 'lift.json')]
+            if pic:
+                command.append('--relocatable-pic')
             result = subprocess.run(command, capture_output=True, text=True)
             (folder / 'lift.log').write_text(result.stdout + result.stderr, encoding='utf-8')
             if result.returncode:
@@ -123,12 +143,15 @@ def main():
             slot = len(inventory['overlays'])
             if slot >= 128:
                 raise ValueError('Too many native overlay registrations')
+            physical_base = (f'(0x{base:X}u + (uint32_t)spu_code_relocation_bias(ctx))' if pic
+                             else f'0x{base:X}u')
             declarations.append(f'extern void {native}(spu_context*);\n'
                                 f'static void {wrapper}(spu_context* ctx) {{ '
-                                f'fifa_trace_spu_entry(ctx, {slot}u, "{name}", 0x{ea:X}u, 0x{base:X}u); {body} }}')
+                                f'fifa_trace_spu_entry(ctx, {slot}u, "{name}", 0x{ea:X}u, {physical_base}); {body} }}')
             observe = f'spu_register_function(0x{entry:X}u, {wrapper}); '
+            register = 'spu_overlay_register_pic_region_checked' if pic else 'spu_overlay_register_region_checked'
             registration.append(f'    spu_begin_image({image_id}); {observe}{symbol}();\n'
-                                f'    spu_overlay_register_region_checked(0x{ea:X}u, {size}u, 0x{base:X}u, {code_start-base}u, {code_end-code_start}u, {image_id}, 0x{fingerprint:016X}ULL);')
+                                f'    {register}(0x{ea:X}u, {size}u, 0x{base:X}u, {code_start-base}u, {code_end-code_start}u, {image_id}, 0x{fingerprint:016X}ULL);')
             sources.append(destination / name / 'spu_recomp.c')
             inventory['overlays'].append(dict(**item, image_id=image_id, fingerprint=f'{fingerprint:016X}',
                                                functions=len(starts), unsupported=diagnostics['unsupported'],

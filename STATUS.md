@@ -718,3 +718,13 @@ As 37 fontes SPU anteriores permaneceram byte a byte iguais após regeneração.
 A execução 1792881874546096800 parou estritamente após 21,825 s, em outra
 posição ainda não admitida, LS 0xb300. Isso confirma que a ordem do mixer varia;
 não constitui avanço ao menu nem validação de áudio.
+
+## Integração optativa PIC no gerador
+
+relocatable_pic=true gera uma única imagem canônica e mantém as posições
+estáticas históricas no manifesto. O gerador verifica cabeçalho PIC suportado,
+entrada relativa, hashes e limites antes de publicar o código AOT. Os wrappers
+de entrada registram a primeira base física observada por programa. Três testes
+de manifesto passaram; os 51 testes do projeto passaram. Com a flag desligada,
+39 arquivos regenerados (37 fontes, registro e lista CMake) ficaram idênticos.
+Nenhum programa do jogo foi habilitado neste incremento.
