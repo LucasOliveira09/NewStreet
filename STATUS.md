@@ -188,3 +188,15 @@ O LS capturado difere apenas em dados posteriores ao código: o intervalo
 executável coincide byte a byte com a fonte. A tradução tem 42 funções,
 zero instruções recusadas e zero alvos diretos pendentes. O resultado de
 descompactação ainda não foi validado contra um oráculo independente.
+
+### Mixer de áudio SPU
+
+`spumixer.elf` em `0x2006280`, 0x3300 bytes, foi traduzido e ligado.
+A entrada é LS `0xb0`, com código até `0x31d8` e BSS até `0x3730`.
+O salto calculado da limpeza de BSS foi observado em `0x148` e incluído
+como fronteira traduzida; os callbacks publicados pelo próprio código em
+`0x2cb8` também foram identificados. Não houve opcode recusado ou alvo
+direto pendente. A tentativa `1792846844059816000` executou a inicialização
+do mixer até a chamada de seu módulo PIC `spusubmix.elf`, copiado integralmente
+para LS `0x3780`, entrada `0x37b0`, fonte `0x1fb3580`. A parada estrita
+nesse ponto preserva o estado. Áudio audível e correto ainda não foi validado.

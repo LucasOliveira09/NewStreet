@@ -39,6 +39,28 @@
       "extra_entries": [
         "0x134"
       ]
+    },
+    {
+      "name": "audio_spumixer",
+      "source_ea": "0x2006280",
+      "size": "0x3300",
+      "sha256": "33a75d3136a1f2c8859fa0e95a69b9bd6666eb1ab6fcc7dfecfec78a10b8780c",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x31d8",
+      "extra_entries": [
+        "0x148",
+        "0x2ca0",
+        "0x2eb8",
+        "0x2e20",
+        "0x2da8",
+        "0x2d18",
+        "0x2f50",
+        "0x2c20",
+        "0x2ba0",
+        "0x2fc8"
+      ]
     }
   ]
 }

@@ -35,6 +35,21 @@
       "missing_direct_targets": 0,
       "native_run": "private/analysis/runs/1792846643102912600",
       "output_oracle_validated": false
+    },
+    {
+      "name": "spumixer",
+      "source_ea": "0x2006280",
+      "source_bytes": 13056,
+      "sha256": "33a75d3136a1f2c8859fa0e95a69b9bd6666eb1ab6fcc7dfecfec78a10b8780c",
+      "local_store_base": "0x80",
+      "entry": "0xb0",
+      "code_end_exclusive": "0x31d8",
+      "functions": 164,
+      "source_snapshot_byte_differences": 0,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792846844059816000",
+      "audio_validated": false
     }
   ]
 }
