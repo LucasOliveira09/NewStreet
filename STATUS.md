@@ -728,3 +728,12 @@ de entrada registram a primeira base física observada por programa. Três teste
 de manifesto passaram; os 51 testes do projeto passaram. Com a flag desligada,
 39 arquivos regenerados (37 fontes, registro e lista CMake) ficaram idênticos.
 Nenhum programa do jogo foi habilitado neste incremento.
+
+## Diagnóstico das bases físicas de entrada
+
+O observador agora registra a primeira entrada de cada par programa/base,
+inclusive várias posições da mesma imagem PIC. O bitmap é limitado à LS,
+atômico e não altera o contexto guest. A regressão reproduziu a perda das
+segundas posições antes da correção e passou depois. 31 testes de boot,
+52 do projeto e os builds de boot/jogo passaram. A mudança é diagnóstico;
+uma entrada registrada não demonstra conclusão da tarefa.

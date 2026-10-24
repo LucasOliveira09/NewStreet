@@ -12,6 +12,17 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_spu_entry_trace_records_each_physical_base_once(self):
+        result = subprocess.run([str(BOOT), '--test-spu-entry-trace'],
+                                capture_output=True, text=True, timeout=10,
+                                env=dict(os.environ, FIFA_SPU_ENTRY_TRACE='1'))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        entries = [json.loads(line.split('] ', 1)[1]) for line in result.stderr.splitlines()
+                   if line.startswith('[fifa-spu-entry] ')]
+        self.assertEqual([(e['name'], e['ls_base'], e['pc']) for e in entries],
+                         [('fixture', 0, 0x30), ('fixture', 0x7800, 0x7830),
+                          ('fixture', 0x8480, 0x84b0), ('other', 0x7800, 0x7830)])
+
     def test_native_pic_instructions_keep_physical_links_and_relative_and_absolute_memory(self):
         result = subprocess.run([str(BOOT), '--test-spu-pic-lowering'],
                                 capture_output=True, text=True, timeout=10)

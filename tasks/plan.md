@@ -317,3 +317,8 @@ de manifesto passaram e a regeneração com flag desligada preservou 39 arquivos
 byte a byte (37 fontes SPU, registro e lista CMake). Próxima etapa: habilitar
 somente sound player 1, compilar e registrar a entrada física real. A ordem de
 agendamento pode exigir várias observações; não admitir posição por previsão.
+
+O observador passou a deduplicar por programa e base física, com bitmap limitado
+à LS. A regressão falhou antes e passou depois; 31 testes de boot, 52 do projeto
+e ambos os builds passaram. Isso permite conferir posições relocadas reais,
+sem inferir entradas que o log anterior ocultava.
