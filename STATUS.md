@@ -555,3 +555,16 @@ A execução 1792874176576705900 registrou 28 entradas reais de programas/bases
 SPU, incluindo ANT em 0xb0. Parou em seu salto calculado para 0x11c, após
 34,481 s. Isso confirma entrada no ANT, sem comprovar conclusão, áudio ou menu.
 O frame capturado continua sendo o logo original.
+
+## Caminhos com barras iniciais repetidas
+
+O jogo abre //dev_hdd1/replay0.bin e //dev_hdd1/audioreplaydata.dat.
+Os adaptadores não reconheciam o mount e apontavam para o disco. Context HLE,
+generic cellFs e sys_fs agora reduzem somente as barras iniciais repetidas
+antes de selecionar o mount, preservando os diretórios configurados.
+A regressão Windows falhou nos dois cenários repetidos antes da correção;
+os quatro cenários (padrão/override, normal/repetido) e os 24 testes de boot
+passaram depois. O ciclo testa criação/escrita/rename/leitura pelos handlers
+reais e concordância do tradutor syscall; integração no jogo ainda pendente.
+Referência de parsing VFS: RPCS3 aa9ebd2f, VFS.cpp.
+https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/VFS.cpp#L219

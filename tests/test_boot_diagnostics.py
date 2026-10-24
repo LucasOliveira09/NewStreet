@@ -89,12 +89,14 @@ class BootDiagnosticsTests(unittest.TestCase):
             self.assertEqual(snapshots[0].read_bytes(), bytes.fromhex('0012340000006789'))
 
     def test_fs_context_io_and_generic_rename_share_default_and_overridden_cache_roots(self):
-        for override in (False, True):
-            with self.subTest(override=override), tempfile.TemporaryDirectory(prefix='fifa FS ') as folder:
+        for override, repeated in ((False, False), (True, False), (False, True), (True, True)):
+            with self.subTest(override=override, repeated=repeated), tempfile.TemporaryDirectory(prefix='fifa FS ') as folder:
                 disc = Path(folder) / 'disc'; disc.mkdir()
                 storage = Path(folder) / 'cache storage' if override else disc
                 (storage / 'cache/test').mkdir(parents=True)
                 env = os.environ.copy(); env.pop('PS3_HDD1_ROOT', None)
+                env.pop('FIFA_TEST_REPEATED_SLASH', None)
+                if repeated: env['FIFA_TEST_REPEATED_SLASH'] = '1'
                 if override: env['PS3_HDD1_ROOT'] = str(storage)
                 result = subprocess.run([str(BOOT), '--test-fs-mounts', str(disc)],
                                         capture_output=True, text=True, env=env, timeout=10)

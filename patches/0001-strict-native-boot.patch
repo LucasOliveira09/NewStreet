@@ -1,3 +1,16 @@
+diff --git a/libs/filesystem/cellFs.c b/libs/filesystem/cellFs.c
+index 4d916ac..9b2310f 100644
+--- a/libs/filesystem/cellFs.c
++++ b/libs/filesystem/cellFs.c
+@@ -137,6 +137,8 @@ static int translate_path(const char* ps3_path, char* host_buf, size_t buf_size)
+     if (!ps3_path || !host_buf || buf_size == 0)
+         return -1;
+ 
++    while (ps3_path[0] == '/' && ps3_path[1] == '/') ++ps3_path;
++
+     /* Find longest matching prefix */
+     int best = -1;
+     size_t best_len = 0;
 diff --git a/libs/network/cellNetCtl.c b/libs/network/cellNetCtl.c
 index c7926c0..e62bf33 100644
 --- a/libs/network/cellNetCtl.c
@@ -35,10 +48,20 @@ index c7926c0..e62bf33 100644
      memset(info, 0, sizeof(CellNetCtlInfo));
  
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
-index 4d54b72..56b0574 100644
+index 4d54b72..b0e4329 100644
 --- a/runtime/ppu/ppu_fs.cpp
 +++ b/runtime/ppu/ppu_fs.cpp
-@@ -208,6 +208,8 @@ static FILE* g_files[FS_MAX];
+@@ -130,6 +130,9 @@ extern "C" void ps3_vfs_ps3game_fallback(char* path, size_t cap);
+  * prefixes are stripped; the rest is appended to the root. */
+ static void host_path(char* out, size_t cap, const char* guest)
+ {
++    /* Guest paths use POSIX separators; repeated leading slashes still name
++     * the same virtual mount, not a host UNC path. */
++    while (guest[0] == '/' && guest[1] == '/') ++guest;
+     const char* rel = guest;
+     /* /dev_hdd0 overlays the installed game-update dir (a disc title patched to
+      * e.g. v1.30 runs the update's EBOOT and reads its patchN.farc from
+@@ -208,6 +211,8 @@ static FILE* g_files[FS_MAX];
  static uint8_t g_fd_usm[FS_MAX];
  static char    g_fd_path[FS_MAX][192];   /* guest path per fd (diagnostics) */   /* 1 if this fd is an open .usm movie (read tracker) */
  static DIR*  g_dirs[FS_MAX];
@@ -47,7 +70,7 @@ index 4d54b72..56b0574 100644
  static char  g_dir_path[FS_MAX][1024];   /* host path per open dir (for readdir stat) */
  
  static int fd_alloc_file(FILE* f)
-@@ -671,6 +673,8 @@ static void cellFsOpendir(ppu_context* ctx)
+@@ -671,6 +676,8 @@ static void cellFsOpendir(ppu_context* ctx)
      int fd = fd_alloc_dir(d);
      if (fd < 0) { closedir(d); ctx->gpr[3] = (uint64_t)(int64_t)CELL_FS_EIO; return; }
      strncpy(g_dir_path[fd], hpath, sizeof g_dir_path[fd] - 1);
@@ -56,7 +79,7 @@ index 4d54b72..56b0574 100644
      if (fd_ptr) vm_write32(fd_ptr, (uint32_t)fd);
      ctx->gpr[3] = CELL_OK;
  }
-@@ -681,19 +685,34 @@ static void cellFsReaddir(ppu_context* ctx)
+@@ -681,19 +688,34 @@ static void cellFsReaddir(ppu_context* ctx)
      int fd          = (int)(uint32_t)ctx->gpr[3];
      uint32_t dirent = (uint32_t)ctx->gpr[4];
      uint32_t nread_ptr = (uint32_t)ctx->gpr[5];
@@ -695,6 +718,18 @@ index 8815650..443d66d 100644
          if (!fb && getenv("RD_SPU_INTERP") && t->img_ea) {
              /* No lifted fallback: interpret the image instead of instant-
               * completing. Additive + env-gated so it can't destabilize titles
+diff --git a/runtime/syscalls/sys_fs.c b/runtime/syscalls/sys_fs.c
+index f076ef8..16d94e1 100644
+--- a/runtime/syscalls/sys_fs.c
++++ b/runtime/syscalls/sys_fs.c
+@@ -151,6 +151,7 @@ void ps3_vfs_ps3game_fallback(char* path, size_t cap)
+ 
+ void sys_fs_translate_path(const char* ps3_path, char* host_path, int host_path_size)
+ {
++    while (ps3_path[0] == '/' && ps3_path[1] == '/') ++ps3_path;
+     /* Lazily adopt PS3_VFS_ROOT if the root is still the default ".", so this
+      * sys_fs layer points at the same place as the cellFs layer (ppu_vfs_root). */
+     if (g_sys_fs_root[0] == '.' && g_sys_fs_root[1] == '\0') {
 diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
 index 9d9df71..9d22575 100644
 --- a/tools/ppu_lifter.py
