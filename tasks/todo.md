@@ -88,3 +88,11 @@ de funções ou por abrir uma janela.
 - [x] Validar produtor real, acquires e erros de controle de fluxo.
 - [ ] Integrar packet player observado em LS 0x5700 e seguir o boot estrito.
 - [ ] Confirmar avanço visual além do logo e áudio não silencioso.
+
+## PIC relocável (tasks/spu-relocatable-pic.md)
+
+- [ ] Registro/lookup PIC e ownership em duas posições: teste Windows.
+- [ ] Emissão de PC/links/memória relativos: fixture SPU x64 em três bases.
+- [ ] Integração optativa no manifesto/gerador com hashes e limites.
+- [ ] Validar sound player 1 em LS 0x7800 sem nova variante ou JIT.
+- [ ] Ampliar somente após conferir testes, boot e resultados observáveis.

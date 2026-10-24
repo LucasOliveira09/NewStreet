@@ -273,3 +273,13 @@ A tentativa parou após 25,589 s; menu/áudio continuam pendentes. Enumerar
 mais combinações de posições do mixer não escala para todo o conteúdo offline.
 Próxima etapa: suporte AOT relocável para os programas PIC já admitidos,
 com escopo, critérios e verificações em tasks/spu-relocatable-pic.md.
+
+## Plano AOT PIC relocável
+
+Contrato: tasks/spu-relocatable-pic.md. Primeiro ownership/registro e teste
+Windows com dois endereços simultâneos; depois emissão e fixture SPU autoral
+compilada em três bases; depois configuração/geração; por último entrada real
+do sound player 1 em LS 0x7800. Manter a flag desligada até passar os checks.
+O deslocamento será local a cada função; não adicionar base global mutável.
+A decisão preserva os requisitos AOT e de falha explícita já autorizados no
+PROMPT_EXECUCAO_COMPLETA.md. Não há nova etapa de aprovação necessária.
