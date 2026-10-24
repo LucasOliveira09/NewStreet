@@ -245,3 +245,13 @@ all_passed=false. Isso não demonstra erro de descompressão do jogo nem
 aprova a captura interrompida. 44 testes do projeto passaram.
 O primeiro bloqueio continua documentado no stderr original, em LS 0xa300;
 não há result.json recuperado com duração/exit code inventados.
+
+## Packet player em LS 0x5700 e 0xa300
+
+As duas posições foram verificadas byte a byte contra a fonte 0x1febb00 e
+recompiladas com os limites/entradas PIC já auditados, sem instruções ou
+destinos diretos ausentes. Build completo aprovado. A execução
+1792879324358744800 registrou entrada real em LS 0x5700 e parou na carga
+do decoder em LS 0x6700, após 24,816 s. A posição 0xa300 está ligada, mas
+ainda não teve entrada registrada. 64 saídas AssetStream passaram. O perfil
+FIFO continua sem resync de comandos; menu e áudio continuam pendentes.
