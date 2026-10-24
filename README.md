@@ -93,6 +93,20 @@ automatizados exercitam as duas funções. Ele não é um executável jogável.
 
 ## Repetir a preparação dos arquivos
 
+O extrator completo de `PS3_GAME` está disponível:
+
+```powershell
+.\private\python-env\Scripts\python.exe .\tools\extract_disc.py 'CAMINHO\jogo.iso'
+```
+
+A extração local produziu 104 arquivos (4.800.945.013 bytes), com hashes por arquivo
+em `private/disc/extraction-manifest.json`. Os extents repetidos de DATA3.BIG e
+DATA6.BIG foram concatenados na ordem do diretório. O leitor abre a ISO somente
+para leitura, valida os limites e as cópias de endianness dos registros. Cinco
+testes sintéticos exercitam concatenação, corrupção de registros e nomes inválidos.
+O diretório de saída é restrito a `private/` e arquivos existentes são comparados
+com os bytes da ISO antes de serem reutilizados.
+
 Com os checkouts e dependências nas revisões fixadas:
 
 ```powershell
@@ -103,7 +117,7 @@ Com os checkouts e dependências nas revisões fixadas:
 .\tools\build.ps1
 ```
 
-A extração aceita somente os hashes dos dois SELF inspecionados. Outra edição
+A extração limitada de `extract_targets.py` aceita somente os hashes dos dois SELF inspecionados. Outra edição
 exige identificar os endereços novamente. A ISO é aberta somente para leitura.
 `DATA3.BIG` e `DATA6.BIG` têm múltiplos extents ISO9660; o inventário soma os
 registros e a extração atual se limita aos dois executáveis de extent único.

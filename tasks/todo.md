@@ -28,7 +28,7 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [ ] Chamadas diretas/indiretas e módulos necessários resolvidos.
 - [ ] Imports auditados por biblioteca/NID e wrappers de ABI.
 - [ ] Serviços necessários sem sucesso fictício.
-- [ ] Assets necessários extraídos, incluindo múltiplos extents.
+- [x] Assets necessários extraídos, incluindo múltiplos extents.
 - [ ] Tarefas SPU alcançadas executadas com sincronização correta.
 
 ## Jogo observável
