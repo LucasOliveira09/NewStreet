@@ -111,3 +111,8 @@ submix PIC e sample capture foram ligados progressivamente. Foram comparadas
 47 saídas nativas AssetStream contra oráculos independentes, com igualdade
 byte a byte. O próximo bloqueio observado é spugainfader em LS 0x6bb0;
 primeiro frame desenhado, menu, áudio e gameplay continuam pendentes.
+
+O DAC passou até a consulta NP, que agora informa corretamente o estado offline.
+O primeiro frame com desenho foi conferido visualmente (logo FIFA Street).
+Não há menu aceito. Investigar a progressão após o logo com amostras de threads
+e entrada de controle explícita; não inferir travamento apenas do timeout.

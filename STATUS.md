@@ -4,26 +4,31 @@ Atualizado em 24/10/2026 durante a integração de boot nativo.
 
 ## Checkpoint atual
 
-A tentativa `1792869262963781500` executou a cadeia nativa EBOOT/FIFAZF por
-17,2 segundos até a parada estrita no import `sceNpManagerGetAccountRegion`,
-NID `0xb1e0718b`, LR `0xfe3398`, thread principal. O mixer e seus módulos
-submix, sample capture, gain fader, VU e DAC já passaram pela inicialização
-observada. São 14 ELFs SPU e nove overlays raw ligados com hash e base LS
-conferidos no DMA. Isto ainda não valida áudio audível, todos os jobs ou DSP.
+O primeiro frame original foi conferido visualmente: logo FIFA Street sobre
+seu fundo, renderizado em D3D12 pelo fluxo nativo do jogo, 1280x720. O manifesto
+registra DRAW e textura, não apenas clear. A captura mais antiga já estava na
+tentativa `1792846643102912600`; a imagem foi inspecionada somente depois.
+As afirmações históricas abaixo de ausência de frame eram conservadoras e
+ficaram desatualizadas: a inspeção das capturas confirmou o marco, sem menu.
+SHA-256 do BMP: c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f.
 
-A extração UDF corrigiu o nome de DATA0 e conferiu 104 arquivos, 4.800.945.013
-bytes, sem alterar a ISO. As 47 capturas AssetStream observadas (15 RefPack e
-32 DEFLATE, 2.671.706 bytes de saída) coincidiram byte a byte com oráculos
-independentes e não tiveram capturas incompletas. O limite é 32 por codec.
-A última repetição dessas comparações foi `1792869100339436500`.
+A consulta `sceNpManagerGetAccountRegion` agora segue o estado NP: não
+inicializado, argumentos nulos ou serviço offline. Nenhum país/idioma é
+inventado, e os buffers ficam intactos nos erros. A configuração online sem
+provedor de região permanece explícita. O teste reproduziu o import ausente
+antes; os 20 testes de boot passaram após a integração. A tentativa
+`1792869863628851200` rodou por 40 segundos, até o timeout do runner, sem
+novo erro estrito. A amostra de atividade aos 25 segundos mostra main em
+sleep de 10 ms (LR 0x16254), Render/FE/Input threads e DLC em Readdir.
+O renderizador continua apresentando buffers; o avanço após o logo ainda
+precisa ser investigado e não deve ser chamado de menu navegável.
 
-O runtime agora preserva até 128 spans residentes, alinhado às fontes de overlay,
-em vez de perder a identidade depois de quatro módulos. O teste com sete falhava
-antes e passou depois. Os 18 testes de boot e os 16 CTest do runtime passaram.
-O FS compartilha mounts em Open/Write/Rename; HDDs ficam em `private/userdata`.
-Só foram observados clears pretos: nenhum frame com desenho, menu, partida,
-áudio audível, save ou progressão foi validado. O próximo passo é implementar
-a consulta NP conforme seu estado offline, sem inventar país ou perfil.
+Há 14 ELFs SPU e nove overlays raw ligados com identidade e base LS conferidas.
+Os 16 CTest do runtime passaram. A extração UDF verificou 104 arquivos,
+4.800.945.013 bytes, preservando DATA0. As 47 capturas AssetStream observadas
+(15 RefPack, 32 DEFLATE, 2.671.706 bytes de saída) coincidiram integralmente
+com oráculos independentes, sem capturas incompletas; limite de 32 por codec.
+Áudio audível, menu, partida, saves e progressão continuam sem validação.
 
 ## Implementação comprovada
 
@@ -286,3 +291,16 @@ sem instruções recusadas ou alvos diretos pendentes. O callback PIC `0xb098`
 foi identificado no original. O boot passou pelo DAC até o import NP acima.
 O gerador agora detalha seus motivos de rejeição (opcode, alvo direto ou entrada),
 sem publicar uma geração incompleta. Nenhum áudio foi validado.
+
+### Região NP offline e observação de esperas
+
+NID 0xb1e0718b identificado pelo algoritmo de NID e pela assinatura em
+RPCS3 aa9ebd2f, sceNp.cpp. O adaptador usa a inicialização e o modo NP reais
+do runtime; retorna os erros correspondentes e preserva os out params.
+No modo online não suportado, encerra com diagnóstico próprio. Dois testes
+Windows exercitam NID/dispatch, inicializar/terminar, ambos os ponteiros nulos,
+bytes sentinela e a fronteira online, sem conexão de rede.
+`FIFA_WATCHDOG_AFTER_MS=25000` coleta uma amostra de LR/GPR/serviços das
+threads, apenas no FIFAZF, sem suspender nem modificar seu estado. São dados
+de melhor esforço: LR isolado não distingue progresso de loop. O runner agora
+inclui hashes e metadados das capturas D3D12 para não perder evidências de desenho.

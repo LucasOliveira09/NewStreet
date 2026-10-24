@@ -12,6 +12,30 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_account_region_online_provider_absence_stays_explicit(self):
+        env = os.environ.copy()
+        # These enable the runtime mode check; no connection is initiated by
+        # sceNpInit or this account-region query.
+        env.update(PS3_NET_ONLINE='1', PSNR_SERVER='unused.invalid')
+        result = subprocess.run([str(BOOT), '--test-offline-np'], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 90, result.stderr)
+        event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                if line.startswith('[fifa-block] ')))
+        self.assertEqual(event['kind'], 'np-account-region-online')
+
+    def test_account_region_reports_real_offline_state_without_fabricating_profile(self):
+        env = os.environ.copy()
+        env.pop('PS3_NET_ONLINE', None)
+        env.pop('PSNR_SERVER', None)
+        result = subprocess.run([str(BOOT), '--test-offline-np'], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        event = json.loads(result.stdout.splitlines()[-1])
+        self.assertEqual(event, dict(before=0x8002aa01, invalid_country=0x8002aa03,
+                                    invalid_language=0x8002aa03, offline=0x8002aa0c,
+                                    after=0x8002aa01, untouched=True))
+
     def test_job_observer_waits_for_tail_transfers_and_preserves_guest_return(self):
         for depth in (0, 2):
             baseline = None

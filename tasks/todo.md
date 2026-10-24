@@ -58,7 +58,7 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 
 ## Jogo observável
 
-- [ ] Primeiro frame original produzido pelo fluxo do jogo.
+- [x] Primeiro frame original conferido visualmente: logo FIFA Street, D3D12, 1280x720.
 - [ ] Menu original navegável.
 - [ ] Cena e conteúdo de uma partida carregados.
 - [ ] Jogadores/bola/animação/física/regras funcionando.

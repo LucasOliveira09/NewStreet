@@ -42,6 +42,9 @@ int fifa_test_spu_image_mismatch(void);
 int fifa_test_spu_termination(const char*);
 int fifa_test_spu_overlay(const char*);
 int fifa_test_spu_observer(const char*);
+void fifa_register_offline_np(void);
+int fifa_test_offline_np(void);
+void fifa_start_hang_diagnostics(uint32_t);
 void fifa_configure_filesystem_mounts(const char*);
 int fifa_test_filesystem_mounts(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -94,6 +97,7 @@ int main(int argc, char** argv) {
     fifa_install_crash_diagnostics();
     if (argc == 2 && !std::strcmp(argv[1], "--test-prx")) return fifa_test_prx_registry();
     if (argc == 2 && !std::strcmp(argv[1], "--test-callback")) return fifa_test_guest_callbacks();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-offline-np")) return fifa_test_offline_np();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-groups")) return fifa_test_spu_groups();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-image-mismatch")) return fifa_test_spu_image_mismatch();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
@@ -157,6 +161,7 @@ int main(int argc, char** argv) {
     if (std::filesystem::exists(sfo)) cellGame_init_from_paramsfo(sfo.string().c_str());
     ppu_recomp_register();
     ppu_hle_init();
+    fifa_register_offline_np();
     fifa_register_process_spawn();
     fifa_register_prx_handlers();
     ppu_sysprx_register();
@@ -166,6 +171,7 @@ int main(int argc, char** argv) {
     fifa_install_spu_policy();
     std::fprintf(stderr, "[fifa-boot] entry=0x%08X functions=%llu root=%s\n", entry,
                  (unsigned long long)function_table_count, root.c_str());
+    fifa_start_hang_diagnostics(entry);
     int result = ppu_run(entry, 0x0FF00000u);
     std::fprintf(stderr, "[fifa-boot] entry returned rc=%d; gameplay not established\n", result);
     return result ? result : 91;

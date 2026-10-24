@@ -4,8 +4,10 @@ Timeouts terminate only the process tree started by this command. No emulator or
 CPU interpreter is used. Exit 90 is a missing implementation, never boot success.
 """
 import argparse
+import hashlib
 import json
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -78,6 +80,18 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     report = dict(profile=profile, direct=direct, exit_code=code,
                   elapsed_seconds=round(time.monotonic() - started, 3),
                   logs=str(output.relative_to(ROOT)), events=events)
+    captures = []
+    for manifest in sorted((output / 'rsxcap').glob('*/manifest.txt')):
+        bitmap = manifest.with_name('backbuffer.bmp')
+        header = manifest.read_text(encoding='utf-8').splitlines()[0]
+        match = re.fullmatch(r'frame_count=(\d+) draws=(\d+) backbuffer=(\d+)x(\d+)', header)
+        if match and bitmap.is_file():
+            captures.append(dict(frame=int(match[1]), draws=int(match[2]),
+                                 width=int(match[3]), height=int(match[4]),
+                                 bitmap=str(bitmap.relative_to(ROOT)),
+                                 sha256=hashlib.sha256(bitmap.read_bytes()).hexdigest()))
+    # A capture is evidence for visual review, never automatic menu/gameplay success.
+    report['graphics_captures'] = captures
     if observe_assets:
         from validate_asset_jobs import validate
         report['asset_jobs'] = validate(output / 'jobs')
