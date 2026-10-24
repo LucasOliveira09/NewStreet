@@ -39,6 +39,7 @@ void fifa_test_missing_spu(ppu_context*);
 void fifa_test_missing_spu_indirect(ppu_context*);
 int fifa_test_spu_groups(void);
 int fifa_test_spu_image_mismatch(void);
+int fifa_test_spu_termination(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -95,6 +96,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-termination")) return fifa_test_spu_termination(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

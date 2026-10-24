@@ -12,6 +12,23 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_raw_spu_exit_stops_nested_execution_before_any_later_side_effect(self):
+        result = subprocess.run([str(BOOT), '--test-spu-termination', 'exit'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout),
+                         dict(halted=True, continued=False, stop_code=0x102, mailbox=23))
+
+    def test_raw_spu_zero_branch_and_unsupported_stop_cannot_complete_silently(self):
+        for mode, kind in [('zero', 'spu-indirect'), ('fatal', 'spu-stop'), ('fault', 'spu-fault')]:
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-spu-termination', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 90, result.stderr)
+                event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                        if line.startswith('[fifa-block] ')))
+                self.assertEqual(event['kind'], kind)
+
     def test_native_spu_cannot_select_another_program_by_shared_entry_address(self):
         result = subprocess.run([str(BOOT), '--test-spu-image-mismatch'], capture_output=True,
                                 text=True, timeout=10)

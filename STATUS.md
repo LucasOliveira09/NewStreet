@@ -84,6 +84,13 @@ Outro teste reproduziu seleção incorreta de um programa SPU por endereço de
 entrada compartilhado. A política estrita agora exige identidade de conteúdo
 antes dessa seleção. Nove testes de boot passaram, incluindo essa regressão
 (`reports/spu-image-before-fix.log` e `reports/spu-image-after-fix.log`).
+Os testes de terminação SPU também reproduziram continuidade após `stop 0x102`,
+parada sem suporte tratada como retorno e salto a LS zero tratado como conclusão.
+A política estrita agora interrompe toda a cadeia nativa nos exits suportados,
+diagnostica os demais stops e deixa LS zero seguir ao dispatcher real. Uma thread
+que retorna sem protocolo de saída também para com `spu-fault`, em vez de status 0.
+Onze testes de boot e 16 CTest passaram (`reports/spu-stop-before-fix.log`,
+`reports/spu-stop-after-fix.log`, `reports/runtime-after-spu-stop.log`).
 
 ## Primeira tarefa pendente
 

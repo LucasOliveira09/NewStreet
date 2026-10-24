@@ -131,7 +131,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..cfb8b56 100644
+index 59f5e4b..06ef9fa 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -142,7 +142,29 @@ index 59f5e4b..cfb8b56 100644
  #include "spu_interp.h"    /* spu_lifted_fn / spu_lifted_lookup -- defined below */
  #include "ps3emu/ps3_ftrace.h"
  #include <stdint.h>
-@@ -2293,6 +2294,22 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -184,6 +185,21 @@ void spu_dbg_e60(spu_context* ctx)
+  * service. Env YDKJ_STOP_NOHALT restores the old (looping) behavior for A/B. */
+ void spu_stop(spu_context* ctx)
+ {
++    if (spu_missing_execution_hook) {
++        ctx->status = SPU_STATUS_STOPPED_BY_STOP;
++        /* These exit protocols are handled by the raw-thread runner. Halt
++         * the entire native call chain before its callers can keep running. */
++        if (ctx->stop_code == 0x101u || ctx->stop_code == 0x102u) {
++            spu_halt(ctx);
++            return;
++        }
++        fprintf(stderr, "[spu-stop] image=%d tid=0x%X pc=0x%05X code=0x%X\n",
++                ctx->image_id, ctx->spu_id, ctx->pc, ctx->stop_code);
++        fflush(stderr);
++        spu_missing_execution_hook("spu-stop",
++            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->stop_code, NULL);
++        return;
++    }
+     /* A lifted `stop` sets status and RETURNS to its caller -- for a SPURS
+      * policy this is stop-and-signal: it returns up into the kernel/policy
+      * service loop, which continues (i.e. the SPU "resumes" past the stop). That
+@@ -2293,6 +2309,22 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -165,6 +187,56 @@ index 59f5e4b..cfb8b56 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
+@@ -2841,4 +2873,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+ 
+ #ifdef __cplusplus
+ }
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/runtime/spu/spu_drain.c b/runtime/spu/spu_drain.c
+index fc3cea1..9511532 100644
+--- a/runtime/spu/spu_drain.c
++++ b/runtime/spu/spu_drain.c
+@@ -6,6 +6,7 @@
+  * functions (not macros) means the SPU_DRAIN/SPU_RET call sites are already in
+  * place -- later milestones only replace the bodies. */
+ #include "spu_context.h"
++#include "spu_workload.h"
+ #include <setjmp.h>
+ 
+ /* See spu_context.h `irq_frame`. */
+@@ -83,7 +84,7 @@ void spu_task_launch_check(spu_context* ctx, void* fn)
+         s_ring[s_ri++ & 63] = (uint32_t)ctx->pc & SPU_LS_MASK;
+ 
+     if (!s_no_ls0 && ctx->steps++ && (ctx->pc & SPU_LS_MASK) == 0 &&
+-        !ctx->policy_mode && ctx->image_id > 0) {
++        !ctx->policy_mode && ctx->image_id > 0 && !spu_missing_execution_hook) {
+         static int _n = 0;
+         if (PS3_LOG_FIRST(_n, 8))
+             fprintf(stderr, "[spurs-job] img=%d branched to LS 0 -- job complete\n",
+diff --git a/runtime/spu/spu_lifted_thread.c b/runtime/spu/spu_lifted_thread.c
+index a828335..82232d8 100644
+--- a/runtime/spu/spu_lifted_thread.c
++++ b/runtime/spu/spu_lifted_thread.c
+@@ -3,6 +3,7 @@
+ #include "spu_lifted_thread.h"
+ #include "spu_coherency.h"
+ #include "spu_context.h"
++#include "spu_workload.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -151,6 +152,9 @@ void spu_lifted_thread_run(spu_context* ctx, spu_lifted_thread_result* out)
+ 
+     /* This thread run has ended; remove observer references and release its
+      * private engine before restart can reset the context or destroy frees it. */
++    if (r.faulted && spu_missing_execution_hook)
++        spu_missing_execution_hook("spu-fault",
++            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->pc, NULL);
+     spu_coh_unregister(ctx);
+     spu_mfc_release(ctx);
+ 
 diff --git a/runtime/spu/spu_workload.c b/runtime/spu/spu_workload.c
 index 2008961..88525af 100644
 --- a/runtime/spu/spu_workload.c
