@@ -467,3 +467,7 @@ em LS 0x8680 é packet player, não submix. O descriptor real em LS 0x2d9e4
 contém fonte 0x1febb00 e tamanho 0xf70, incluindo a etiqueta BuiltElfName.
 A ordem depende do encadeamento do mixer; não presumir uma lista fixa de
 módulos ou admitir posições somente por uma soma de tamanhos.
+
+Packet player foi recompilado em LS 0x8680 e sua entrada passou no boot.
+Tentativa 1792872903594774400: próxima carga em LS 0x9680, após 26,103 s.
+O dispatcher mantém a seleção por origem/conteúdo/base, sem interpretação.
