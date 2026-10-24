@@ -629,3 +629,14 @@ LS 0x5700, em 22,991 s. ANT e rechannel LS 0x4800 tiveram entradas reais.
 64 saídas AssetStream coincidem; sem conclusão de ANT/menu/gameplay aceita.
 As capturas tardias ainda mostram a abertura, mesmo havendo outros draws.
 Após a mudança do FIFO, os 16 testes CTest do runtime também passaram.
+
+## Rechannel e sound player em outras posições
+
+Rechannel em LS 0x4800 e sound player 1 em LS 0x8480 conferem com as
+fontes originais fixadas. As variantes compilaram sem instruções/destinos
+diretos ausentes. As entradas foram registradas nas tentativas
+1792878833460109400 e 1792878491512590600, respectivamente. O decoder
+LS 0x7500 também entrou em 1792878293511258800. Start foi consumido pelo
+backend nessa tentativa; não demonstra navegação. A captura de áudio contém
+3.410.944 floats finitos, todos zero. O próximo candidato confirmado é
+packet player em LS 0x5700, ainda não ligado neste incremento.

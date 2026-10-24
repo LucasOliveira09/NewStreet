@@ -209,6 +209,9 @@
       "extra_entries": [
         "0x49b0",
         "0x4a48"
+      ],
+      "additional_ls_bases": [
+        "0x4800"
       ]
     },
     {
@@ -262,6 +265,9 @@
         "0x59e0",
         "0x59b0",
         "0x5ff8"
+      ],
+      "additional_ls_bases": [
+        "0x8480"
       ]
     },
     {
