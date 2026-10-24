@@ -499,3 +499,17 @@ Quatro builds Probe completos consecutivos passaram na mesma sessão, com PATH
 estável em 4.719 caracteres e Git encontrado nas quatro chamadas. Cada Probe
 exercitou os 20.020 retornos inteiros; isso valida o build repetido, sem ampliar
 a alegação de conformidade da CPU. Logs privados repeated-build-1..4.log.
+
+## Terceiro DAC e chegada ao ANT kernel
+
+A posição LS 0x10680 do DAC foi conferida e recompilada. A tentativa
+1792873477390004500 avançou para outra thread SPU, 0x2005 (Rendering),
+PC 0xb0/LR 0x3fbb4. O residente corresponde ao `ANT_kernel.elf`, cuja
+tradução anterior foi recusada por 18 palavras não reconhecidas em dados.
+A etiqueta seguinte não delimita esse blob; o cabeçalho e seu ELF embutido
+identificam o segmento LS 0x80..0x122a0 (74.272 bytes), todos iguais ao original.
+SHA-256 do segmento: d68cd459a32c7a136cace588821fbe18accefdd488ae79a2b7961d5f50576ed0.
+O código termina em 0x109e8; há tabelas/constantes depois. Próximo passo:
+recompilar o intervalo real, preservando dados e BSS e a parada estrita.
+Nesta tentativa, 64 saídas AssetStream capturadas passaram (limite 32 por
+codec, não exaustivo). O mix de 1.710.592 floats ainda é inteiramente zero.
