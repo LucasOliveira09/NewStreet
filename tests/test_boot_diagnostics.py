@@ -12,6 +12,18 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_fifo_host_callback_setter_is_not_registered_as_a_guest_import(self):
+        with tempfile.TemporaryDirectory(prefix='fifa HLE ') as folder:
+            table = Path(folder) / 'hle.cpp'
+            result = subprocess.run([sys.executable, str(ROOT / 'vendor/ps3recomp/tools/gen_hle_nids.py'),
+                                     '--out', str(table), 'cellGcmSys'],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            registrations = table.read_text()
+            self.assertIn('cellGcmGetControlRegister', registrations)
+            self.assertFalse('fifo_set_fault_handler' in registrations,
+                             'Host callback setter leaked into the guest NID table')
+
     def test_rsx_fifo_rejects_unmapped_jumps_and_unknown_words_before_recovery(self):
         for mode, reason in [('invalid-jump', 'unmapped-JUMP'), ('unknown-word', 'unknown-word')]:
             with self.subTest(mode=mode):

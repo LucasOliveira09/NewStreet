@@ -48,7 +48,7 @@ index c7926c0..e62bf33 100644
      memset(info, 0, sizeof(CellNetCtlInfo));
  
 diff --git a/libs/video/cellGcmSys.c b/libs/video/cellGcmSys.c
-index efad9b9..9d176b9 100644
+index efad9b9..a4131ee 100644
 --- a/libs/video/cellGcmSys.c
 +++ b/libs/video/cellGcmSys.c
 @@ -888,6 +888,18 @@ unsigned long long ps3_ms_now(void)
@@ -57,7 +57,7 @@ index efad9b9..9d176b9 100644
  static int s_park_pass = 0;           /* this drain stopped on a self-JUMP park */
 +static void (*s_fifo_fault_handler)(const char*, u32, u32);
 +
-+void cellGcm_fifo_set_fault_handler(void (*handler)(const char*, u32, u32))
++void ps3recomp_gcm_fifo_set_fault_handler(void (*handler)(const char*, u32, u32))
 +{
 +    s_fifo_fault_handler = handler;
 +}
@@ -131,7 +131,7 @@ index efad9b9..9d176b9 100644
          u32 begin = ctx ? vm_read32(ctx + 0x0) : 0;
          u32 end   = ctx ? vm_read32(ctx + 0x4) : 0;
 diff --git a/libs/video/cellGcmSys.h b/libs/video/cellGcmSys.h
-index eab83e1..3397269 100644
+index eab83e1..30ce48f 100644
 --- a/libs/video/cellGcmSys.h
 +++ b/libs/video/cellGcmSys.h
 @@ -98,6 +98,12 @@ typedef struct CellGcmControl {
@@ -142,7 +142,7 @@ index eab83e1..3397269 100644
 + * valid parks/acquires wait for their real producers; recovery paths that
 + * would discard commands report a fault instead. The handler must not return.
 + * NULL preserves the legacy recovery mode. This is not a guest GCM export. */
-+void cellGcm_fifo_set_fault_handler(void (*handler)(const char*, u32, u32));
++void ps3recomp_gcm_fifo_set_fault_handler(void (*handler)(const char*, u32, u32));
 +
  /* GCM context data — the game reads/writes this to submit RSX commands.
   * On PS3, gCellGcmCurrentContext points to one of these.

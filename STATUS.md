@@ -640,3 +640,12 @@ LS 0x7500 também entrou em 1792878293511258800. Start foi consumido pelo
 backend nessa tentativa; não demonstra navegação. A captura de áudio contém
 3.410.944 floats finitos, todos zero. O próximo candidato confirmado é
 packet player em LS 0x5700, ainda não ligado neste incremento.
+
+## API de política FIFO restrita ao host
+
+O gerador de NIDs identifica definições cujo nome começa por cell/sys/sce.
+A configuração do callback foi renomeada para
+ps3recomp_gcm_fifo_set_fault_handler, evitando registro guest indevido de um
+ponteiro de função host. A regressão da tabela real falhou antes e passou
+depois. 27 testes de boot e os dois builds passaram; a tabela voltou a 1.201
+handlers. Os exports originais permanecem cobertos pela geração existente.
