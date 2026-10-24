@@ -4,32 +4,23 @@ Atualizado em 24/10/2026 durante a integração de boot nativo.
 
 ## Checkpoint atual
 
-Tentativa `1792843990811259000`: executou nativamente por 60 segundos, sem emulador
-ou interpretação de CPU, até o timeout do diagnóstico. Duas tarefas raw SPU foram
-ligadas: `AssetStream_zlib` e `sportsrna_default_spupatch_job`. Sua identidade é
-conferida no DMA, incluindo conteúdo e base LS. Escritas em dados/BSS preservam a
-tradução; sobrescrever instruções invalida sua propriedade e impede código antigo.
-Os testes cobrem conteúdo alterado, base incorreta, DMA em chunks, dados mutáveis,
-função ausente e região substituída. Foram apresentados pelo menos três buffers
-do jogo; só há clears pretos, sem frame com desenho/menu validado.
+A extração foi corrigida para a visão UDF 2.50: o nome original é
+`data0.big.sdat`, enquanto ISO9660 o representa como `DATA0_BIG.SDAT`.
+A conferência completa leu 104 arquivos, 4.800.945.013 bytes, sem alterar a ISO.
+Três testes UDF verificam nomes distintos, bytes reais, mapeamento fragmentado,
+limites e alocação esparsa rejeitada; os cinco testes ISO9660 também passaram.
+A tentativa `1792846418492465200` abriu DATA0, descriptografou 7.467.087 bytes
+com magic BIG4 e iniciou tarefas antes ausentes. O novo bloqueio estrito é
+SPU PC `0xb0`, thread `0x2004`: overlay `AssetStream_refpack.elf`, fonte
+`0x1e59200`, que ainda precisa ser ligado e validado. A tabela de input vazia
+foi observada antes desta correção; sua resolução ainda não foi confirmada.
 
-O boot iniciou controles, abriu DATA1–DATA7 e copiou os 30.585.168 bytes de
-DATA4.BIG para o cache temporário. A espera posterior inclui uma chamada PPU nula
-em LR `0x11a9f50`. A tentativa posterior `1792844577790102200` confirmou a parada
-estrita `indirect-null`, com argumentos/contexto, antes de devolver resultado
-sem chamar função alguma. Os 14 testes de boot passaram com essa fronteira.
-Também há divergência de mounts entre as camadas FS: o
-`cellFsRename` genérico não conhece `/dev_hdd1/`, embora o adaptador de Open/Write
-o use para criar o cache; o arquivo continua `.tmp`. Não presumir rename concluído.
-Essa divergência foi corrigida no host: as APIs compartilham as raízes de disc,
-app_home, hdd0 e hdd1. Um teste Windows executa Open/Write/Close/Rename/Open/Read
-pelos handlers reais e confirma o arquivo no host, inclusive com raiz HDD1 própria
-e caminho com espaços. Quinze testes de boot passaram. O runner agora mantém os
-HDDs em `private/userdata`; a conclusão do cache no jogo continua pendente porque
-o processo ainda para na chamada nula de input. A tentativa com os mounts
-corrigidos é `1792845015908878500`.
-Nenhuma partida ou menu foi validado. A saída do descompactador ainda precisa ser
-comparada byte a byte com um oráculo zlib, mesmo com a execução nativa avançando.
+A implementação já liga 14 ELFs SPU e os overlays zlib/SportsRNA, com validação
+de identidade no DMA e invalidação de código sobrescrito. Dezesseis testes de
+boot passaram. O FS agora usa os mesmos mounts em Open/Write/Rename, e o runner
+mantém HDD0/HDD1 em `private/userdata`. No jogo só foram observados clears pretos:
+nenhum frame com desenho, menu, partida, áudio, save ou progressão foi validado.
+As saídas dos descompactadores ainda precisam de comparação byte a byte.
 
 ## Implementação comprovada
 

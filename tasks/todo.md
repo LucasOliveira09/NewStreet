@@ -53,7 +53,7 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [ ] Chamadas diretas/indiretas e módulos necessários resolvidos.
 - [ ] Imports auditados por biblioteca/NID e wrappers de ABI.
 - [ ] Serviços necessários sem sucesso fictício.
-- [x] Assets necessários extraídos, incluindo múltiplos extents.
+- [x] Árvore do disco extraída e conferida em UDF, com nomes originais e múltiplos extents.
 - [ ] Tarefas SPU alcançadas executadas com sincronização correta.
 
 ## Jogo observável

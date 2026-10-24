@@ -1,0 +1,20 @@
+{
+  "filesystem": "UDF 2.50 metadata partition",
+  "parser": "pycdlib 1.22.0 structural parsers plus project read-only mapping",
+  "files": 104,
+  "bytes": 4800945013,
+  "iso_modified": false,
+  "filename_evidence": {
+    "udf": "PS3_GAME/USRDIR/data0.big.sdat",
+    "iso9660": "PS3_GAME/USRDIR/DATA0_BIG.SDAT",
+    "physical_offset": 4756324352,
+    "bytes": 7481952,
+    "sha256": "95537d6310f2bd68d9fbaa9062efd01932c1a535b6922784289d44ae52a59f8f"
+  },
+  "native_run": "private/analysis/runs/1792846418492465200",
+  "native_open": true,
+  "plaintext_bytes": 7467087,
+  "plaintext_magic": "BIG4",
+  "unit_tests": 8,
+  "menu_validated": false
+}

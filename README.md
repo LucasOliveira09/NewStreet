@@ -99,6 +99,10 @@ O extrator completo de `PS3_GAME` está disponível:
 .\private\python-env\Scripts\python.exe .\tools\extract_disc.py 'CAMINHO\jogo.iso'
 ```
 
+A extração usa a visão UDF, incluindo a partição de metadados UDF 2.50 do disco.
+Ela preserva `data0.big.sdat`; a visão ISO9660 chama esse mesmo conteúdo de
+`DATA0_BIG.SDAT`, nome que o jogo não encontra. Não renomeie arquivos por palpite.
+`--filesystem iso9660` permanece disponível para diagnóstico explícito.
 A extração local produziu 104 arquivos (4.800.945.013 bytes), com hashes por arquivo
 em `private/disc/extraction-manifest.json`. Os extents repetidos de DATA3.BIG e
 DATA6.BIG foram concatenados na ordem do diretório. O leitor abre a ISO somente
@@ -120,7 +124,7 @@ Com os checkouts e dependências nas revisões fixadas:
 A extração limitada de `extract_targets.py` aceita somente os hashes dos dois SELF inspecionados. Outra edição
 exige identificar os endereços novamente. A ISO é aberta somente para leitura.
 `DATA3.BIG` e `DATA6.BIG` têm múltiplos extents ISO9660; o inventário soma os
-registros e a extração atual se limita aos dois executáveis de extent único.
+registros; `extract_disc.py` extrai a árvore inteira, preservando os nomes UDF.
 
 Node 24.22.1 e LLVM 23.1.4 foram instalados de forma portátil dentro de `private/`.
 O SDK e os headers de Windows vêm do Visual Studio 2026 já instalado.

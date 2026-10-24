@@ -22,3 +22,4 @@ reports/*
 !reports/runtime-tests.log
 !reports/native-boot-checkpoint.json
 !reports/spu-overlay-identification.json
+!reports/disc-filesystem-validation.json
