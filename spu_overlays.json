@@ -80,7 +80,8 @@
       "additional_ls_bases": [
         "0x7800",
         "0x9680"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spusamplecapture",
@@ -98,7 +99,8 @@
       "additional_ls_bases": [
         "0x8900",
         "0xa780"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spugainfader",
@@ -120,7 +122,8 @@
       "additional_ls_bases": [
         "0xac00",
         "0xca80"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spuvumeter",
@@ -142,7 +145,8 @@
       "additional_ls_bases": [
         "0xd480",
         "0xf300"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spudac",
@@ -159,7 +163,8 @@
       "additional_ls_bases": [
         "0xe800",
         "0x10680"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spupause",
@@ -176,7 +181,8 @@
       ],
       "additional_ls_bases": [
         "0x7680"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spuresample",
@@ -198,7 +204,8 @@
       ],
       "additional_ls_bases": [
         "0x3780"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spurechannel",
@@ -215,7 +222,8 @@
       ],
       "additional_ls_bases": [
         "0x4800"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spupacketplayer",
@@ -235,7 +243,8 @@
         "0x8680",
         "0x5700",
         "0xa300"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spudecoder",
@@ -256,7 +265,8 @@
         "0x7700",
         "0x7500",
         "0x6700"
-      ]
+      ],
+      "relocatable_pic": true
     },
     {
       "name": "audio_spusndplayer1",
@@ -275,6 +285,20 @@
       ],
       "additional_ls_bases": [
         "0x8480"
+      ]
+    },
+    {
+      "name": "audio_spudecpcmfloatnative",
+      "relocatable_pic": true,
+      "source_ea": "0x1fa3a00",
+      "size": "0xb80",
+      "sha256": "f1d9790891394b24161e8998aeeda641a7b00281bde75daf0ed5d0511937aec0",
+      "ls_base": "0x7680",
+      "entry": "0x7b60",
+      "code_start": "0x76b0",
+      "code_end": "0x81d0",
+      "extra_entries": [
+        "0x76b0"
       ]
     },
     {
@@ -304,7 +328,8 @@
         "0x5ad0",
         "0x59b0",
         "0x6070"
-      ]
+      ],
+      "relocatable_pic": true
     }
   ]
 }

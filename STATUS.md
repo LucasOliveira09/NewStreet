@@ -749,3 +749,18 @@ SHA f1d9790891394b24161e8998aeeda641a7b00281bde75daf0ed5d0511937aec0.
 As 64 saídas AssetStream capturadas passaram. Entrada do sound player foi
 validada; conclusão, áudio audível e menu continuam pendentes. Próxima etapa:
 traduzir o decoder PCM float original e ampliar o PIC aos módulos já auditados.
+
+## Cadeias de áudio com AOT PIC e decoder PCM float
+
+Integrado spudecpcmfloatnative, com código 0x76b0..0x81d0, entrada 0x7b60
+e callback 0x76b0, conferidos no original. Treze módulos usam agora uma tradução
+PIC cada; mixer residente conserva o layout fixo distinto em 0x80. O gerador
+recusou esse layout ao selecioná-lo indevidamente; a seleção foi corrigida sem
+afrouxar a validação. Os 18 registros resultantes não têm instruções nem
+destinos diretos ausentes. Build completo aprovado.
+Em 1792882263069156500, houve entradas reais em novas bases, inclusive submix
+0xb300, e no decoder PCM float 0x7680. Após 20,862 s, a próxima falta é spusend,
+fonte 0x1fc4b80, base 0xac00, entrada 0xac30, 0x1400 bytes iguais ao original.
+64 saídas AssetStream passaram. O frame 801 segue com o mesmo logo (42 draws);
+1.519.616 amostras de áudio capturadas são finitas e zero. Menu e som continuam
+pendentes, sem concluir a execução dos módulos apenas por observar entrada.

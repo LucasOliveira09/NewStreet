@@ -332,3 +332,13 @@ não adicionar entrada ao sound player por simples aritmética. Fonte 0x1fa3a00,
 0xb80 bytes, conferida contra o snapshot. 64 saídas AssetStream passaram.
 Próximo: admitir o código original desse decoder e habilitar PIC nos módulos
 de áudio já auditados. Menu e áudio ainda não validados.
+
+## Ampliação PIC e próximo módulo real
+
+Treze módulos PIC e 18 registros totais compilados, sem operações/destinos
+diretos ausentes. O mixer permaneceu fixo por layout distinto. A execução
+1792882263069156500 validou entrada do decoder PCM float e novas bases de
+vários módulos (submix 0xb300 entre elas), depois faltou spusend em 0xac30.
+Seu blob 0x1400, fonte 0x1fc4b80, coincide com o original. Próximo: conferir
+limites/callbacks e traduzir esse módulo. Captura tardia continua no logo e
+áudio final continua zero; não marcar menu/áudio como resolvidos.

@@ -11,10 +11,12 @@ Escopo autorizado pelo PROMPT_EXECUCAO_COMPLETA.md: implementação autônoma do
 runtime e compilador, mantendo AOT, conteúdo original e falhas explícitas. Esta
 mudança não adiciona um emulador de CPU nem conclui o port por si só.
 
-Premissas conferidas: os 13 programas de áudio configurados têm cabeçalho PIC
-(bit 31 do campo em +28), base alinhada a 16 e nenhum BRA/BRASL no intervalo de
-código verificado. Fontes, hashes e limites continuam em spu_overlays.json.
-ANT e demais programas absolutos permanecem no caminho atual.
+Premissas conferidas: os módulos de áudio selecionados têm cabeçalho PIC
+0x80000000 em +28, modo 1 em +40, base alinhada a 16 e nenhum BRA/BRASL no
+intervalo de código verificado. Fontes, hashes e limites continuam em
+spu_overlays.json. O mixer residente tem layout distinto (0x80000080/modo 0)
+e mantém a tradução fixa em 0x80; ANT e os codecs AssetStream também
+permanecem no caminho atual.
 
 ## Contrato
 

@@ -95,4 +95,5 @@ de funções ou por abrir uma janela.
 - [x] Emissão de PC/links/memória relativos: fixture SPU x64 em quatro bases.
 - [x] Integração optativa no manifesto/gerador com hashes e limites.
 - [x] Validar entrada do sound player 1 em LS 0x7800 sem nova variante ou JIT.
-- [ ] Ampliar somente após conferir testes, boot e resultados observáveis.
+- [x] Ampliar somente após conferir testes, boot e resultados observáveis.
+- [ ] Integrar spusend identificado em 0xac00 e continuar o boot estrito.
