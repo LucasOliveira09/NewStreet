@@ -1,15 +1,15 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "native EBOOT to FIFAZF process handoff and real main startup",
+  "stage": "full native lift passed constructors and registered real CRT library exports",
   "native_process": true,
   "emulator_launched": false,
-  "main_native_entries": 512,
+  "main_native_entries": 98776,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
     "kind": "indirect",
-    "value": 24658656,
-    "guest_lr": 146332,
+    "value": 276280,
+    "guest_lr": 272932,
     "guest_pc": 0,
     "thread_id": 1
   },
@@ -33,5 +33,19 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792822910068414400"
+  "logs": "private\\analysis\\runs\\1792823627838065400",
+  "registered_exports": {
+    "sys_libc": {
+      "functions": 560,
+      "variables": 48
+    },
+    "sys_libm": {
+      "functions": 503,
+      "variables": 10
+    },
+    "sys_libstdcxx": {
+      "functions": 510,
+      "variables": 275
+    }
+  }
 }

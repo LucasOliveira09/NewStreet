@@ -16,17 +16,25 @@ integrado chegou à entrada `0x23770`, com TOC `0x21d5370`, TLS de 684 bytes e
 e 369 stubs de importação. O primeiro alvo ausente nessa cobertura é `0x17841e0`
 (LR `0x23b9c`); a execução para com código 90. Não houve frame, menu ou partida.
 
-A geração ampliada contém 98.776 entradas/trechos e está sendo compilada em
-`private/build/fifazf_full`. Isso não comprova correção ou cobertura completa:
+A geração ampliada contém 98.776 entradas/trechos e compilou/executou em
+`private/build/fifazf_full`. Passou pelos 12 alvos observados na cobertura menor.
+O serviço `sys_prx_register_library` agora registra os exports reais de
+`sys_libc` (560 funções/48 variáveis), `sys_libm` (503/10) e
+`sys_libstdcxx` (510/275). A inicialização avançou para criação de threads e
+consultas do conteúdo do jogo. O bloqueio atual é um salto computado para
+`0x43738`, dentro da função de formatação `0x43244` (LR `0x42a24`).
+Isso não comprova correção ou cobertura completa:
 304 referências diretas permanecem com diagnóstico explícito. Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
 
 As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
 (HLE, syscall, chamada indireta e função não traduzida). Todas param explicitamente.
 O patch do SDK está versionado e sua aplicação é idempotente. Baseline reproduzido.
-Cinco testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
+Seis testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
 ponteiros de 32 bits, os argumentos exatos e o transporte para processo filho
-nativo com propagação de seu código de saída, além do diagnóstico de exceção nativa.
+nativo com propagação de seu código de saída, o diagnóstico de exceção nativa e
+o registro/despacho de exports com TOC e argumentos preservados. O registro
+distingue biblioteca, NID e função/variável; valida antes de publicar a tabela.
 O perfil ampliado usa `/Od` na investigação; `/O1` pode ser ativado para medição
 posterior. A geração SPU não produziu um registro utilizável: seis imagens têm
 palavras não decodificadas e uma tem três segmentos executáveis. O inventário
@@ -34,7 +42,10 @@ de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao
 
 ## Primeira tarefa pendente
 
-Concluir o build ampliado e executar `tools/run_native.py --profile full`.
+Integrar a descoberta de jump tables do SDK à geração em memória limitada.
+O lifter já oferece `discover_jump_tables`, mas o gerador incremental ainda
+não a chama; por isso um `bctr` de switch foi enviado ao dispatcher de funções.
+Validar a correção com execução nativa, sem transformar cases em no-ops.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.
 Usar os dados reais de `private/disc`; conferir `reports/native-boot-checkpoint.json`.

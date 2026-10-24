@@ -167,6 +167,13 @@ O perfil `FullGame` usa `/Od` para reduzir o ciclo de investigação inicial.
 caminho funcional. O host também registra exceções nativas em `[fifa-crash]`,
 incluindo símbolo/endereço do Windows e o contexto PPU disponível.
 
+O registro PRX mantém os exports reais por biblioteca, NID e tipo (função ou
+variável). A chamada de uma função exportada usa seu OPD, preserva os argumentos
+do contexto e restaura o TOC do chamador. Isso ainda não implementa o carregamento
+e as relocações de um SPRX adicional. ABI consultada no
+[loader de módulos do RPCS3 aa9ebd2f](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/PPUModule.cpp)
+e no [serviço de registro](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_prx.cpp).
+
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho
 configurado. A ferramenta de diagnóstico registra esses resultados sem declará-los

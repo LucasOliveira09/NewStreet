@@ -30,6 +30,8 @@ int fifa_configure_guest_arguments(int, char**);
 void fifa_dump_guest_arguments(void);
 void fifa_set_disc_root(const char*);
 void fifa_install_crash_diagnostics(void);
+void fifa_register_prx_handlers(void);
+int fifa_test_prx_registry(void);
 }
 
 static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
@@ -63,6 +65,7 @@ int main(int argc, char** argv) {
     setvbuf(stdout, nullptr, _IONBF, 0);
     setvbuf(stderr, nullptr, _IONBF, 0);
     fifa_install_crash_diagnostics();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-prx")) return fifa_test_prx_registry();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
         RaiseException(0xE0464946u, EXCEPTION_NONCONTINUABLE, 0, nullptr);
         return 1;
@@ -120,6 +123,7 @@ int main(int argc, char** argv) {
     ppu_recomp_register();
     ppu_hle_init();
     fifa_register_process_spawn();
+    fifa_register_prx_handlers();
     ppu_sysprx_register();
     ppu_fs_register();
     lv2_init_syscalls();

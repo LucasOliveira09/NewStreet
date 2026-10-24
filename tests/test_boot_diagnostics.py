@@ -12,6 +12,20 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_prx_exports_keep_library_nid_kind_and_guest_context(self):
+        result = subprocess.run([str(BOOT), '--test-prx'], capture_output=True,
+                                text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        event = json.loads(result.stdout)
+        self.assertEqual(event['register_result'], 0)
+        self.assertEqual(event['function'], 0x12000)
+        self.assertEqual(event['variable'], 0x15000)
+        self.assertEqual(event['other_library'], 0)
+        self.assertEqual(event['call_result'], 42)
+        self.assertEqual(event['restored_toc'], 0xABCDE)
+        self.assertEqual(event['bad_header_result'], 0x80010002)
+        self.assertEqual(event['after_bad_header'], 0x12000)
+
     def test_native_crash_keeps_exception_diagnostics(self):
         result = subprocess.run([str(BOOT), '--test-native-crash'], capture_output=True,
                                 text=True, timeout=10)
