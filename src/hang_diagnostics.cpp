@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
-#include "ppu_recomp.h"
+#include "sys_mutex.h"
 
 extern "C" void ppu_report_guest_lrs(void);
 extern "C" void fifa_dump_guest_ranges(void);
@@ -23,6 +23,12 @@ static DWORD WINAPI report_activity(void* delay) {
         if (name) std::fprintf(stderr, "[fifa-watchdog] guest_thread=%u in_hle=%s\n", tid, name);
     }
     ppu_report_guest_lrs();
+    for (unsigned id = 1; id <= SYS_MUTEX_MAX; ++id) {
+        const sys_mutex_info& mutex = g_sys_mutexes[id - 1];
+        if (mutex.active && mutex.lock_count > 0)
+            std::fprintf(stderr, "[fifa-watchdog] mutex=%u owner=%llu depth=%d name=%.8s\n",
+                id, (unsigned long long)mutex.owner_tid, mutex.lock_count, mutex.name);
+    }
     fifa_dump_guest_ranges();
     std::fflush(stderr);
     return 0;

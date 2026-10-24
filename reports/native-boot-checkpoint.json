@@ -1,12 +1,20 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Both observed audio chains admitted; title logo persists; main waits on mutex 8",
+  "stage": "Second DAC initialization passed; next strict sound player entry at LS 0x5a88",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": "timeout",
-  "block": null,
+  "exit_code": 90,
+  "block": {
+    "kind": "spu-indirect",
+    "image": 526190333,
+    "thread": 8195,
+    "pc": 23176,
+    "lr": 10952,
+    "local_store_bytes": 262144,
+    "stem": "spu-8195-526190333-23176"
+  },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -27,7 +35,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792871899123215200",
+  "logs": "private\\analysis\\runs\\1792872486371238400",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -83,7 +91,9 @@
     ],
     "strict_content_identity": true,
     "previous_spu_fault_reproduced": false,
-    "observed_thread": "0x2003"
+    "observed_thread": "0x2003",
+    "observed_pc": "0x5a88",
+    "observed_lr": "0x2ac8"
   },
   "resolved_ppu_targets": [
     "0x13a796c",
@@ -103,7 +113,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 18,
+  "raw_spu_overlays": 19,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -125,7 +135,7 @@
     "menu_validated": false
   },
   "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
-  "project_tests": 39,
+  "project_tests": 40,
   "cache_data4_verified": true,
   "raw_spu_distinct_sources": 14,
   "audio_capture": {
@@ -133,11 +143,5 @@
     "peak": 0.0,
     "nonzero": 0,
     "audible_validated": false
-  },
-  "observed_wait": {
-    "lr": "0xdce220",
-    "mutex_id": 8,
-    "owner_not_yet_identified": true,
-    "evidence": "1792872007341002900"
   }
 }

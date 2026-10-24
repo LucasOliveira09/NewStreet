@@ -151,6 +151,9 @@
       "code_end": "0xcbd8",
       "extra_entries": [
         "0xb098"
+      ],
+      "additional_ls_bases": [
+        "0xe800"
       ]
     },
     {

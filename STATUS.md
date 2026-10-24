@@ -17,8 +17,8 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e 14 programas raw ligados, mais quatro posições PIC
-adicionais compiladas estaticamente (18 registros raw no total). Submix,
+Há 14 ELFs SPU e 14 programas raw ligados, mais cinco posições PIC
+adicionais compiladas estaticamente (19 registros raw no total). Submix,
 sample capture, gain fader e VU meter passaram pelas segundas posições
 observadas. A execução 1792871899123215200 chegou a 90,238 s sem nova
 fronteira estrita; ainda no logo, sem menu aceito.
@@ -26,7 +26,8 @@ A amostra posterior 1792872007341002900 mostra main esperando mutex 8,
 LR 0xdce220. Ainda falta identificar seu dono e a dependência da espera.
 A captura de 1.542.656 floats do mix de áudio é inteiramente zero: áudio audível
 continua pendente. 24 testes de boot passaram após a correção NetCtl abaixo;
-o teste integrado dessa correção ainda está em execução/build.
+o teste integrado alcançou a segunda carga do DAC, e as 47 saídas de assets
+continuaram iguais às referências. A espera amostrada não prova deadlock.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -436,3 +437,16 @@ retornos, escrita big-endian e buffers preservados nos erros; 24 testes de boot
 aprovados. Build completo/teste integrado em andamento, sem concluir que isso
 resolva a espera no mutex. Fonte: RPCS3 aa9ebd2f, cellNetCtl.cpp linhas 125–142.
 https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/cellNetCtl.cpp#L125
+
+## DAC na segunda cadeia e próximo sound player
+
+O DAC original foi conferido integralmente em LS 0xe800, fonte 0x1fb4600,
+SHA-256 5a756bdec8d54872b5f8084554796b34168d7ed2b56e8a432ab57a682b37f8f5.
+A variante estática compila e sua entrada passa no boot. Tentativa
+1792872486371238400: próxima parada estrita em 0x5a88, após 31,714 s,
+`spusndplayer1.elf`, fonte 0x1fca800, LS 0x5880, 7.648 bytes iguais.
+Os frames 1, 101 e 201 ainda mostram um draw de abertura; menu não aceito.
+O watchdog optativo também informa donos/depth dos mutexes ativos, sem
+suspender threads, adquirir seus locks ou alterar o guest. A nova coleta
+ainda não foi necessária nesta tentativa, que para antes dos 45 segundos.
+24 testes de boot e 40 do projeto passaram após as mudanças.
