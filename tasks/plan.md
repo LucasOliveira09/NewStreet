@@ -255,3 +255,11 @@ destinos diretos ausentes. Build completo aprovado. A execução
 do decoder em LS 0x6700, após 24,816 s. A posição 0xa300 está ligada, mas
 ainda não teve entrada registrada. 64 saídas AssetStream passaram. O perfil
 FIFO continua sem resync de comandos; menu e áudio continuam pendentes.
+
+## Decoder em LS 0x6700
+
+O decoder foi conferido integralmente nessa posição e recompilado. Build
+aprovado; entrada registrada em 1792879595172586800. A parada seguinte,
+após 25,646 s, é o pause em LS 0x7680, fonte 0x1ff3480 (208 bytes iguais),
+e não se pode deduzir o módulo seguinte apenas pela ordem de outra cadeia.
+A próxima etapa mantém a identificação por conteúdo antes de compilar.
