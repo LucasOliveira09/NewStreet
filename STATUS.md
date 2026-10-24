@@ -704,3 +704,17 @@ recusa de fonte alterada/layout absoluto/base desalinhada/estouro de LS.
 Cinco cenários falharam antes da implementação; depois os 29 testes de boot,
 46 do projeto e 16 CTest do runtime passaram. Modo ainda não habilitado no jogo: falta
 validar a emissão de instruções relativas e integrar o gerador.
+
+## Emissão PIC compilada e fixture nativa
+
+O lifter agora tem modo optativo que desloca PC, links e LQR/STQR por uma
+constante local a cada função, preservando operandos absolutos e registradores.
+BRA/BRASL são recusados neste modo inicial. Dois programas SPU autorais foram
+traduzidos e compilados para x64: oito execuções em quatro bases, incluindo
+deslocamento negativo, branches, fallthrough, links e callback entre programas,
+passaram. A fixture falhava em base diferente da canônica antes da correção.
+Os 30 testes de boot passaram e o build completo com a opção desligada passou.
+As 37 fontes SPU anteriores permaneceram byte a byte iguais após regeneração.
+A execução 1792881874546096800 parou estritamente após 21,825 s, em outra
+posição ainda não admitida, LS 0xb300. Isso confirma que a ordem do mixer varia;
+não constitui avanço ao menu nem validação de áudio.

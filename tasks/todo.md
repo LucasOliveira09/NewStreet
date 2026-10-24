@@ -92,7 +92,7 @@ de funções ou por abrir uma janela.
 ## PIC relocável (tasks/spu-relocatable-pic.md)
 
 - [x] Registro/lookup PIC e ownership em duas posições: teste Windows.
-- [ ] Emissão de PC/links/memória relativos: fixture SPU x64 em três bases.
+- [x] Emissão de PC/links/memória relativos: fixture SPU x64 em quatro bases.
 - [ ] Integração optativa no manifesto/gerador com hashes e limites.
 - [ ] Validar sound player 1 em LS 0x7800 sem nova variante ou JIT.
 - [ ] Ampliar somente após conferir testes, boot e resultados observáveis.

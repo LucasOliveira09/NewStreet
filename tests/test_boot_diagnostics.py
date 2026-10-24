@@ -12,6 +12,13 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_native_pic_instructions_keep_physical_links_and_relative_and_absolute_memory(self):
+        result = subprocess.run([str(BOOT), '--test-spu-pic-lowering'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout), dict(positions=4, event_paths=2, runs=8, relative_memory=True,
+            absolute_memory=True, physical_links=True, cross_program_call=True))
+
     def test_pic_program_keeps_three_physical_positions_and_negative_bias_independent(self):
         result = subprocess.run([str(BOOT), '--test-spu-overlay', 'pic'],
                                 capture_output=True, text=True, timeout=10)

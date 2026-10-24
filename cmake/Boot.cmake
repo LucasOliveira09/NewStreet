@@ -25,6 +25,9 @@ if(NOT FIFA_LIFT_OPTIMIZATION MATCHES "^/O(1|d)$")
 endif()
 set_source_files_properties(${BOOT_GENERATED} PROPERTIES LANGUAGE CXX COMPILE_OPTIONS "/w;/bigobj;${FIFA_LIFT_OPTIMIZATION}")
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+set(SPU_PIC_FIXTURE_DIR "${CMAKE_SOURCE_DIR}/private/generated/spu_pic_fixture")
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/tools/build_spu_pic_fixture.py"
+    COMMAND_ERROR_IS_FATAL ANY)
 set(HLE_TABLE "${CMAKE_CURRENT_BINARY_DIR}/ppu_hle_nids.cpp")
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${PS3_SDK}/tools/gen_hle_nids.py" --all --out "${HLE_TABLE}"
     COMMAND_ERROR_IS_FATAL ANY)
@@ -49,10 +52,18 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     tests/spu_group_probe.cpp
     tests/spu_overlay_probe.cpp
     tests/spu_job_observer_probe.cpp
+    tests/spu_pic_lowering_probe.cpp
+    "${SPU_PIC_FIXTURE_DIR}/main/spu_recomp.c"
+    "${SPU_PIC_FIXTURE_DIR}/other/spu_recomp.c"
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
 
 option(FIFA_BUILD_SPU "Link the generated native SPU programs" OFF)
+set_source_files_properties("${SPU_PIC_FIXTURE_DIR}/main/spu_recomp.c"
+    "${SPU_PIC_FIXTURE_DIR}/other/spu_recomp.c" PROPERTIES
+    COMPILE_DEFINITIONS SPU_USE_DISPATCH_MT COMPILE_OPTIONS "/O2;/w")
+set_source_files_properties(tests/spu_pic_lowering_probe.cpp PROPERTIES
+    INCLUDE_DIRECTORIES "${SPU_PIC_FIXTURE_DIR}")
 if(FIFA_BUILD_SPU)
     set(FIFA_SPU_DIR "${CMAKE_SOURCE_DIR}/private/generated/spu")
     if(NOT EXISTS "${FIFA_SPU_DIR}/sources.cmake")

@@ -297,3 +297,14 @@ recusa de fonte alterada/layout absoluto/base desalinhada/estouro de LS.
 Cinco cenários falharam antes da implementação; depois os 29 testes de boot,
 46 do projeto e 16 CTest do runtime passaram. Modo ainda não habilitado no jogo: falta
 validar a emissão de instruções relativas e integrar o gerador.
+
+## Emissão PIC verificada
+
+Concluída a segunda etapa do contrato: emissão de endereços relativos com
+deslocamento local e fixture SPU autoral traduzida para x64. Oito execuções
+em quatro posições passaram, incluindo links físicos, memória absoluta/relativa
+e callback entre programas. BRA/BRASL são recusados. 30 testes de boot e o
+build completo passaram; as 37 fontes antigas ficaram idênticas com a opção
+desligada. O baseline real 1792881874546096800 parou em LS 0xb300 após 21,825 s;
+a concorrência muda a cadeia observada. Próximo: integrar o manifesto e medir
+uma entrada PIC real fora das posições estáticas já existentes.
