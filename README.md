@@ -4,6 +4,13 @@ Alvo: FIFA Street (2012), PS3 **BLUS30882, versão 1.00**. Prioridade do Lucas:
 rodar o jogo nativamente no Windows; depois melhorar gráficos e adicionar funções.
 Multiplayer fica para uma etapa posterior. A investigação começou em 24/10/2026.
 
+## Prompt de continuidade
+
+O [prompt completo de execução](PROMPT_EXECUCAO_COMPLETA.md) reúne contexto,
+requisitos, marcos, validação e disciplina de commits para o agente que assumir
+o port. O [plano](tasks/plan.md) e o [checklist](tasks/todo.md) organizam a retomada.
+Preparar esses documentos não altera o estado de implementação descrito abaixo.
+
 ## Resultado atual
 
 - Os dois executáveis foram extraídos da ISO para `private/`, com SHA-256 conferido.
