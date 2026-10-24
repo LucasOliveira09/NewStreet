@@ -263,3 +263,13 @@ aprovado; entrada registrada em 1792879595172586800. A parada seguinte,
 após 25,646 s, é o pause em LS 0x7680, fonte 0x1ff3480 (208 bytes iguais),
 e não se pode deduzir o módulo seguinte apenas pela ordem de outra cadeia.
 A próxima etapa mantém a identificação por conteúdo antes de compilar.
+
+## Pause em LS 0x7680 e limite da enumeração de posições
+
+Pause foi conferido, compilado e entrou em 1792879747630265800. A próxima
+carga, LS 0x7800, contém sound player 1, não submix. São os mesmos bytes da
+fonte 0x1fca800, hash a02440fa022f36c82fabb5fc967c18425ae77dbd3cf76fa3e876a408a28ae3bf.
+A tentativa parou após 25,589 s; menu/áudio continuam pendentes. Enumerar
+mais combinações de posições do mixer não escala para todo o conteúdo offline.
+Próxima etapa: suporte AOT relocável para os programas PIC já admitidos,
+com escopo, critérios e verificações em tasks/spu-relocatable-pic.md.
