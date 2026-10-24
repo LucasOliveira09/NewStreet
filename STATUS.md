@@ -460,3 +460,10 @@ Callbacks 0x59e0/0x59b0/0x5ff8 revisados na inicialização PIC; código até
 ou destinos diretos ausentes, build aprovado. Tentativa 1792872592369669300
 passou por sua entrada e pediu o decoder em outra posição: LS 0x7700.
 O novo snapshot confere os 3.648 bytes do mesmo decoder original.
+
+A posição do decoder em LS 0x7700 foi recompilada a partir dos mesmos bytes
+e passou pela inicialização. Tentativa 1792872755839411100: próxima carga
+em LS 0x8680 é packet player, não submix. O descriptor real em LS 0x2d9e4
+contém fonte 0x1febb00 e tamanho 0xf70, incluindo a etiqueta BuiltElfName.
+A ordem depende do encadeamento do mixer; não presumir uma lista fixa de
+módulos ou admitir posições somente por uma soma de tamanhos.
