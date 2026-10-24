@@ -154,6 +154,25 @@
         "0x37b0",
         "0x37b8"
       ]
+    },
+    {
+      "name": "audio_spuresample",
+      "source_ea": "0x1fc6f00",
+      "size": "0xff0",
+      "sha256": "783135b9116bf79bc0ccdde85755b8acf4fa58650dd3da20eee3147f70d9680b",
+      "ls_base": "0x3900",
+      "entry": "0x3930",
+      "code_start": "0x3930",
+      "code_end": "0x47d4",
+      "extra_entries": [
+        "0x39c0",
+        "0x3b68",
+        "0x4778",
+        "0x4770",
+        "0x47c0",
+        "0x47a8",
+        "0x4790"
+      ]
     }
   ]
 }

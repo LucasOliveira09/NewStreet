@@ -1,12 +1,20 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Directory EOF semantics corrected; title frame renders and post-logo initialization under observation",
+  "stage": "Original title frame rendered; native audio resample passed; next strict stop in rechannel plugin",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": "timeout",
-  "block": null,
+  "exit_code": 90,
+  "block": {
+    "kind": "spu-indirect",
+    "image": 526190333,
+    "thread": 8195,
+    "pc": 18872,
+    "lr": 10952,
+    "local_store_bytes": 262144,
+    "stem": "spu-8195-526190333-18872"
+  },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -27,7 +35,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private/analysis/runs/1792870440169761500",
+  "logs": "private\\analysis\\runs\\1792870968800232800",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -49,10 +57,6 @@
     "io_size": "0x700000",
     "io_address": "0x13f00000"
   },
-  "observed_wait": {
-    "function": "0x18ec7c",
-    "lr": "0x18ecb4"
-  },
   "window_created": true,
   "graphics": {
     "backend": "Direct3D 12",
@@ -61,22 +65,22 @@
     "height": 720,
     "guest_flips_observed": 3,
     "guest_flips_count_is_lower_bound": true,
-    "draw_frame_validated": false
+    "draw_frame_validated": true
   },
   "spu_gap": {
     "fingerprint": "22F896FE3B85A8C7",
     "bytes": 5140,
     "executable_segments": 3,
-    "upstream_skipped_execution": true,
+    "upstream_skipped_execution": false,
     "native_programs_registered": 14,
     "programs_discovered": 20,
     "inventory_complete": false,
     "strict_missing_program": true,
     "strict_missing_branch": true,
     "observed_image": 526190333,
-    "observed_pc": "0x100",
-    "observed_lr": "0x3fbb4",
-    "task_completion_validated": false,
+    "observed_pc": "0x49b8",
+    "observed_lr": "0x2ac8",
+    "task_completion_validated": "47 captured AssetStream outputs match independent oracles; not all tasks",
     "group_isolation_requires_investigation": false,
     "boot_threads": 6,
     "boot_thread_ids": [
@@ -89,7 +93,7 @@
     ],
     "strict_content_identity": true,
     "previous_spu_fault_reproduced": false,
-    "observed_thread": "0x2005"
+    "observed_thread": "0x2003"
   },
   "resolved_ppu_targets": [
     "0x13a796c",
@@ -97,7 +101,7 @@
   ],
   "pending_direct_targets": 0,
   "discovery_regression_tests": 3,
-  "boot_regression_tests": 14,
+  "boot_regression_tests": 21,
   "observed_null_call": {
     "lr": "0x11a9f50",
     "thread": 1,
@@ -109,7 +113,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 9,
+  "raw_spu_overlays": 11,
   "asset_jobs": {
     "total": 47,
     "passed": 47,

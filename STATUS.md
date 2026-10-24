@@ -17,13 +17,13 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e dez overlays raw ligados com identidade e base LS conferidas.
+Há 14 ELFs SPU e onze overlays raw ligados com identidade e base LS conferidas.
 O novo `audio_spupause` (208 bytes, LS 0x3780) foi recompilado com suas duas
 entradas de callback, sem instruções ou destinos diretos ausentes. A tentativa
 `1792870717480694500` passou por ele e parou estritamente, código 90, em
 SPU 0x3930, thread 0x2003, após 27,006 segundos. O snapshot identifica o próximo
 programa como `spuresample.elf`, fonte 0x1fc6f00, LS 0x3900, 4.080 bytes iguais
-aos originais; sua integração é a próxima etapa.
+aos originais; ele foi integrado na etapa seguinte.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -335,3 +335,15 @@ Há uma observação mais longa em andamento; menu ainda não foi validado.
 O cache DATA4.BIG foi conferido: 30.585.168 bytes, SHA-256
 4b32a59c753d11c77e67cfbe9ac4e0374b97039717a744bb1f8a897884f2c53b,
 igual ao arquivo original do disco. A hipótese de cache truncado foi descartada.
+
+## Reamostragem de áudio nativa
+
+O plugin `audio_spuresample` foi identificado por cabeçalho e 4.080 bytes
+iguais ao original: fonte 0x1fc6f00, SHA-256 783135b9116bf79bc0ccdde85755b8acf4fa58650dd3da20eee3147f70d9680b.
+A inicialização PIC calcula callbacks 0x39c0/0x3b68. A tabela relativa em
+0x4754 tem cinco destinos distintos conferidos; todos foram incluídos.
+A geração contém 41 entradas, zero instruções ou destinos diretos ausentes.
+Build Windows aprovado; tentativa 1792870968800232800: os 47 jobs AssetStream
+continuam iguais aos oráculos, a captura tem o mesmo logo, e a parada estrita
+avançou para o próximo plugin, rechannel em LS 0x49b8, após 30,266 s.
+Próximo passo: recompilar o módulo observado sem substituir processamento.
