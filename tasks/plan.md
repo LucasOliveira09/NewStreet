@@ -152,3 +152,18 @@ passaram depois. O ciclo testa criação/escrita/rename/leitura pelos handlers
 reais e concordância do tradutor syscall; integração no jogo ainda pendente.
 Referência de parsing VFS: RPCS3 aa9ebd2f, VFS.cpp.
 https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/VFS.cpp#L219
+
+## Entrada calculada do ANT e acompanhamento ao vivo
+
+A limpeza da BSS calcula 0x154 - ((0x3b180-0x122a0)&255)/4 = 0x11c.
+O destino contém os stores originais do bloco parcial, conferidos no snapshot
+1792874176576705900; foi incluído na tradução estática (804 entradas, zero
+instruções/destinos diretos ausentes), com build completo aprovado. Não há
+conclusão do ANT validada: as tentativas seguintes aguardaram trabalho da
+renderização ou pararam antes na thread de áudio. A tentativa com SPU_PCSAMPLE=5
+1792877484736736600 confirmou entrada real do generic player, depois exigiu
+o mesmo decoder em LS 0x7500 (ainda não admitido neste incremento).
+O runner grava stdout/stderr direto em arquivos privados, legíveis durante
+a execução. Leitura ao vivo e coleta final de parada estrita foram conferidas
+nessa tentativa; a política de timeout continua limitada à árvore iniciada.
+40 testes do projeto aprovados após a correção de caminhos.

@@ -58,20 +58,21 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     else:
         env.update(FIFA_NEXT_EXE=str(main_exe), FIFA_NEXT_ELF=str(ROOT / 'private/FIFAZF.elf'))
     started = time.monotonic()
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, cwd=ROOT)
-    try:
-        stdout, stderr = process.communicate(timeout=timeout)
-        code = process.returncode
-    except subprocess.TimeoutExpired:
-        # The EBOOT host waits for its native child. Kill descendants before
-        # closing the parent so the child cannot survive an unattended timeout.
-        cleanup = subprocess.run(['taskkill.exe', '/PID', str(process.pid), '/T', '/F'],
-                                 capture_output=True, timeout=10)
-        (output / 'timeout-cleanup.log').write_bytes(cleanup.stdout + cleanup.stderr)
-        stdout, stderr = process.communicate(timeout=10)
-        code = 'timeout'
-    (output / 'stdout.log').write_bytes(stdout)
-    (output / 'stderr.log').write_bytes(stderr)
+    # Keep diagnostics readable while the game is running. Large traces should
+    # go to disk directly, rather than accumulate in communicate()'s buffers.
+    with (output / 'stdout.log').open('wb') as stdout_file, (output / 'stderr.log').open('wb') as stderr_file:
+        process = subprocess.Popen(command, stdout=stdout_file, stderr=stderr_file, env=env, cwd=ROOT)
+        try:
+            code = process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            # The EBOOT host waits for its native child. Kill descendants before
+            # closing the parent so the child cannot survive an unattended timeout.
+            cleanup = subprocess.run(['taskkill.exe', '/PID', str(process.pid), '/T', '/F'],
+                                     capture_output=True, timeout=10)
+            (output / 'timeout-cleanup.log').write_bytes(cleanup.stdout + cleanup.stderr)
+            process.wait(timeout=10)
+            code = 'timeout'
+    stderr = (output / 'stderr.log').read_bytes()
     events = []
     for line in stderr.decode('utf-8', errors='replace').splitlines():
         for prefix in ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] ', '[fifa-spu-state] ', '[fifa-memory] ', '[fifa-spu-entry] '):

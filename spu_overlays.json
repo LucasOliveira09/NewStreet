@@ -270,7 +270,8 @@
       "code_start": "0xb0",
       "code_end": "0x109e8",
       "extra_entries": [
-        "0x154"
+        "0x154",
+        "0x11c"
       ]
     },
     {
