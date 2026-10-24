@@ -1,6 +1,7 @@
 #include "spu_workload.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 // The runner provides an existing private directory. Preserve the original
@@ -8,7 +9,7 @@
 extern "C" void fifa_dump_spu_state(const char* kind, spu_context* ctx) {
     const char* directory = std::getenv("FIFA_SPU_DUMP_DIR");
     if (!directory || !*directory || !ctx || !ctx->ls) return;
-    std::string stem = "spu-" + std::to_string(ctx->spu_id) + "-" +
+    std::string stem = std::string(std::strcmp(kind, "spu-sample") ? "spu-" : "sample-spu-") + std::to_string(ctx->spu_id) + "-" +
         std::to_string(ctx->image_id) + "-" + std::to_string(ctx->pc);
     std::string prefix = std::string(directory) + "/" + stem;
     size_t written = 0;

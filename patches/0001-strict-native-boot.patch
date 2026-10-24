@@ -260,7 +260,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..e458afb 100644
+index 59f5e4b..c14ab9e 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -294,7 +294,39 @@ index 59f5e4b..e458afb 100644
      /* A lifted `stop` sets status and RETURNS to its caller -- for a SPURS
       * policy this is stop-and-signal: it returns up into the kernel/policy
       * service loop, which continues (i.e. the SPU "resumes" past the stop). That
-@@ -1522,7 +1539,7 @@ spu_lifted_fn spu_lifted_lookup(const spu_context* ctx, uint32_t lsa)
+@@ -300,8 +317,19 @@ static SRWLOCK s_mfc_claim_lock = SRWLOCK_INIT;
+ static DWORD WINAPI spu_pcsample_thread(LPVOID p)
+ {
+     const DWORD ms = (DWORD)(uintptr_t)p;
++    /* Optional one-shot diagnostic of live contexts, not just a faulted one.
++     * The registry read lock pins their lifetimes during the callback. This
++     * does not suspend execution: register/LS contents remain best-effort. */
++    const char* dump_value = getenv("SPU_PCSAMPLE_DUMP_AFTER");
++    char* dump_end = NULL;
++    unsigned long dump_after = dump_value ? strtoul(dump_value, &dump_end, 10) : 0;
++    if (!dump_value || *dump_end || dump_after > 300) dump_after = 0;
++    const unsigned long long started = GetTickCount64();
++    int dumped = 0;
+     for (;;) {
+         Sleep(ms);
++        const int dump_now = dump_after && !dumped &&
++            GetTickCount64() - started >= (unsigned long long)dump_after * 1000u;
+         int i = 0;
+         AcquireSRWLockShared(&s_mfc_claim_lock);
+         for (spu_mfc_slot* slot = s_mfc_slots; slot; slot = slot->next, i++) {
+@@ -311,8 +339,11 @@ static DWORD WINAPI spu_pcsample_thread(LPVOID p)
+                            i, c->image_id, c->spu_id, (unsigned)(c->pc & SPU_LS_MASK),
+                            (unsigned)(c->gpr[0]._u32[0] & SPU_LS_MASK), c->gpr[3]._u32[0],
+                            c->gpr[81]._u32[0], c->gpr[84]._u32[0], c->gpr[13]._u32[0], c->gpr[14]._u32[0]);
++            if (c && dump_now && spu_execution_diagnostic_hook)
++                spu_execution_diagnostic_hook("spu-sample", c);
+         }
+         ReleaseSRWLockShared(&s_mfc_claim_lock);
++        if (dump_now) dumped = 1;
+         fflush(stderr);
+     }
+ }
+@@ -1522,7 +1553,7 @@ spu_lifted_fn spu_lifted_lookup(const spu_context* ctx, uint32_t lsa)
   * the image id its lifted functions were registered under. The MFC GET path
   * marks that overlay resident in the streaming context; dispatch retries a
   * primary-image miss against the resident overlay's registry. */
@@ -303,7 +335,7 @@ index 59f5e4b..e458afb 100644
  /* 6 FMOD codec/DSP overlays + up to 89 WWS job-code modules (all stream into
   * the same job code buffer at LS 0x4000, dispatched by content signature). */
  #define SPU_OVL_SRC_MAX 128
-@@ -1548,6 +1565,24 @@ void spu_overlay_register_region(uint32_t content_ea, uint32_t span, int image_i
+@@ -1548,6 +1579,24 @@ void spu_overlay_register_region(uint32_t content_ea, uint32_t span, int image_i
      s_ovl_src[s_ovl_src_count - 1].span = span;
  }
  
@@ -328,7 +360,7 @@ index 59f5e4b..e458afb 100644
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1695,35 +1730,99 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
+@@ -1695,35 +1744,99 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
                  ea, size, os, on, ns, nn); }
  }
  
@@ -443,7 +475,7 @@ index 59f5e4b..e458afb 100644
                  return;
              }
              if (ctx->resident_ovl != o->image_id) {
-@@ -1737,6 +1836,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+@@ -1737,6 +1850,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
              return;
          }
      }
@@ -454,7 +486,7 @@ index 59f5e4b..e458afb 100644
  }
  
  /* Match a 16-byte module header against the registered content signatures.
-@@ -2278,7 +2381,7 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2278,7 +2395,7 @@ void spu_indirect_branch(spu_context* ctx)
       * is 0 outside the region, so this only ever fires for genuine task code.) */
      spu_fn fn = NULL;
      int code_owner = 0;
@@ -463,7 +495,7 @@ index 59f5e4b..e458afb 100644
          if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
              ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
              code_owner = ctx->resident_code[slot].image_id;
-@@ -2293,6 +2396,23 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2293,6 +2410,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -487,7 +519,7 @@ index 59f5e4b..e458afb 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2961,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +2975,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }

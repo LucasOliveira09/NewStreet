@@ -167,3 +167,18 @@ O runner grava stdout/stderr direto em arquivos privados, legíveis durante
 a execução. Leitura ao vivo e coleta final de parada estrita foram conferidas
 nessa tentativa; a política de timeout continua limitada à árvore iniciada.
 40 testes do projeto aprovados após a correção de caminhos.
+
+## Captura optativa de SPUs durante uma espera
+
+SPU_PCSAMPLE já existia e foi reutilizado. SPU_PCSAMPLE_DUMP_AFTER=1..300
+segundos chama uma vez o observador de diagnóstico em cada contexto com MFC
+vivo. O lock compartilhado do registro impede destruição durante a coleta;
+a execução não é suspensa, portanto LS/registradores são best-effort.
+Arquivos sample-spu-* ficam separados dos snapshots de falha. Sem as variáveis
+a coleta permanece desativada. Na execução 1792877940393047300, seis pares
+JSON/LS de 262.144 bytes foram registrados uma única vez, sem falha estrita.
+Timeout de 65 s encerrou a árvore iniciada; 24 testes de boot aprovados.
+A pilha de RenderThread em 45 s passa por 0x18d668/0x18d090/0x18e0c4,
+espera por espaço em buffer circular. Investigar os ponteiros/control registers
+que esse objeto lê; a captura gráfica continua na abertura, sem menu aceito.
+O frame do watchdog e os samples SPU ocorrem em momentos diferentes.
