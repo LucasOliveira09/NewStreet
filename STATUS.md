@@ -598,3 +598,13 @@ A pilha de RenderThread em 45 s passa por 0x18d668/0x18d090/0x18e0c4,
 espera por espaço em buffer circular. Investigar os ponteiros/control registers
 que esse objeto lê; a captura gráfica continua na abertura, sem menu aceito.
 O frame do watchdog e os samples SPU ocorrem em momentos diferentes.
+
+## Posições adicionais conferidas do áudio
+
+Decoder em LS 0x7500 (snapshot 1792877484736736600) e resample em LS
+0x3780 (1792877825163692200) conferem integralmente com as fontes já fixadas
+em spu_overlays.json. Ambas posições foram recompiladas estaticamente, com
+zero instruções/destinos diretos ausentes, e build completo aprovado. Não houve
+entrada registrada nessas variantes nas últimas tentativas, que aguardaram
+na inicialização antes delas. Não confundir posição admitida com tarefa concluída.
+A tentativa 1792877825163692200 também registrou a entrada real do ANT.
