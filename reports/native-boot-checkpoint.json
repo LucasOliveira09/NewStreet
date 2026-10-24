@@ -1,18 +1,37 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "real EBOOT startup reached process-spawn import",
+  "stage": "native EBOOT to FIFAZF process handoff and real main startup",
   "native_process": true,
   "emulator_launched": false,
-  "translated_functions": 152,
+  "main_native_entries": 512,
+  "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "hle",
-    "value": 1744436955,
-    "guest_lr": 85868,
+    "kind": "indirect",
+    "value": 24658656,
+    "guest_lr": 146332,
     "guest_pc": 0,
     "thread_id": 1
   },
+  "spawn": {
+    "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
+    "argv": [
+      "/dev_bdvd/PS3_GAME/USRDIR/EBOOT.BIN"
+    ],
+    "envp": [],
+    "data_address": 0,
+    "data_size": 0,
+    "priority": 1000,
+    "flags": 32
+  },
+  "main_entry_code": "0x23770",
+  "main_toc": "0x21d5370",
+  "main_argc": 2,
   "frames_rendered": 0,
   "gameplay_tested": false,
-  "source_elf": "private/EBOOT.elf"
+  "source_elf": [
+    "private/EBOOT.elf",
+    "private/FIFAZF.elf"
+  ],
+  "logs": "private\\analysis\\runs\\1792822910068414400"
 }

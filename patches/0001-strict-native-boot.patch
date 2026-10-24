@@ -23,20 +23,21 @@ index b44816b..2638dcb 100644
           * early. An import moving between resolved and unresolved is exactly the
           * kind of change the gate exists to catch. */
 diff --git a/runtime/ppu/ppu_loader.cpp b/runtime/ppu/ppu_loader.cpp
-index f54150d..b4d399b 100644
+index f54150d..612b2c7 100644
 --- a/runtime/ppu/ppu_loader.cpp
 +++ b/runtime/ppu/ppu_loader.cpp
-@@ -34,6 +34,9 @@
+@@ -34,6 +34,10 @@
  #include "ppu_tls.h"   /* PPU_THREAD_LOCAL, without a second ppu_context */
  #define PPU_NO_INLINE_LOADS   /* this file defines the out-of-line accessors */
  #include "ppu_recomp.h"
 +#ifdef FIFA_STRICT_BOOT
 +extern "C" __declspec(noreturn) void fifa_boot_missing(const char*, uint64_t, ppu_context*);
++extern "C" const char* const* fifa_boot_arguments(uint32_t*);
 +#endif
  #include "ps3emu/ps3_ftrace.h"   /* PS3_FTRACE timeline */
  #include "ps3emu/milestone.h"   /* ps3_ms / ps3_msf -- boot milestone log */     /* ppu_context, func decls, ppu_recomp_register */
  #include "../memory/vm.h"   /* vm_commit -- sys_mmapper_search_and_map maps for real */
-@@ -2723,6 +2726,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
+@@ -2723,6 +2727,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
  
      ppu_fn fn = ppu_lookup(addr);
      if (!fn) {
@@ -46,7 +47,7 @@ index f54150d..b4d399b 100644
          /* OPD-swap clobber fixup: a malformed memcpy (game func_0036FA74) writes
           * some handler/vtable OPDs as {TOC, func} (code & toc SWAPPED), so lifted
           * code loads ctr = TOC base and r2 = the real function. If ctr is not a
-@@ -3035,6 +3041,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
+@@ -3035,6 +3042,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
   * continue (the result is undefined, but it won't crash the link). */
  extern "C" void ppu_unlifted_stub(uint64_t addr, ppu_context* ctx)
  {
@@ -56,7 +57,7 @@ index f54150d..b4d399b 100644
      (void)ctx;
      static int logged = 0;
      if (logged < 20) {
-@@ -3360,6 +3369,9 @@ extern "C" void lv2_syscall(ppu_context* ctx)
+@@ -3360,6 +3370,9 @@ extern "C" void lv2_syscall(ppu_context* ctx)
                  return;
              }
          }
@@ -66,8 +67,24 @@ index f54150d..b4d399b 100644
          static int logged = 0;
          if (logged < 30) {
              fprintf(stderr, "[ppu] lv2_syscall %llu (stub)\n", (unsigned long long)num);
+@@ -3889,6 +3902,15 @@ extern "C" int ppu_run(uint32_t entry_opd, uint32_t stack_top)
+             }
+         }
+ 
++#ifdef FIFA_STRICT_BOOT
++        uint32_t native_argc = 0;
++        const char* const* native_argv = fifa_boot_arguments(&native_argc);
++        if (native_argv) {
++            if (native_argc > 31) fifa_boot_missing("entry-arguments", native_argc, &ctx);
++            argc_n = native_argc;
++            for (uint32_t i = 0; i < native_argc; ++i) argp[i] = native_argv[i];
++        }
++#endif
+         /* Reserve entry arguments at the top of the caller-provided main
+          * stack, above a fresh ABI frame. Guest frames grow down from the new
+          * SP, so the strings live until process exit without claiming a fixed
 diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
-index 9d9df71..f3655e6 100644
+index 9d9df71..8c70caf 100644
 --- a/tools/ppu_lifter.py
 +++ b/tools/ppu_lifter.py
 @@ -109,6 +109,14 @@ typedef struct ppu_context {
@@ -96,3 +113,15 @@ index 9d9df71..f3655e6 100644
  
      def _branch_condition(self, mnemonic: str, ops: list[str], raw: int | None = None) -> str:
          """Generate a C condition expression for a conditional branch.
+@@ -3999,7 +4009,11 @@ class PPULifter:
+             else:
+                 print(f"  WARNING: {func.name} has no continuation at "
+                       f"0x{func.fallthrough_to:08X}; emitting halt", flush=True)
++                lines.append("#ifdef FIFA_STRICT_BOOT")
++                lines.append(f"        fifa_boot_missing(\"continuation\", 0x{func.fallthrough_to:08X}ULL, ctx);")
++                lines.append("#else")
+                 lines.append(f"        /* missing continuation 0x{func.fallthrough_to:08X}: halt */ return;")
++                lines.append("#endif")
+ 
+         lines.append("}")
+         lines.append("")

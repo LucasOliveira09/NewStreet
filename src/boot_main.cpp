@@ -5,6 +5,7 @@
 #include "ppu_recomp.h"
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
 #include <filesystem>
 #include <string>
 
@@ -23,6 +24,11 @@ void ps3_indirect_call(ppu_context*);
 void ppu_unlifted_stub(uint64_t, ppu_context*);
 int ppu_run(uint32_t, uint32_t);
 void cellGame_init_from_paramsfo(const char*);
+void fifa_register_process_spawn(void);
+void fifa_capture_spawn(ppu_context*);
+int fifa_configure_guest_arguments(int, char**);
+void fifa_dump_guest_arguments(void);
+void fifa_set_disc_root(const char*);
 }
 
 static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
@@ -52,10 +58,35 @@ static int test_missing(const char* kind) {
 }
 
 int main(int argc, char** argv) {
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     setvbuf(stdout, nullptr, _IONBF, 0);
     setvbuf(stderr, nullptr, _IONBF, 0);
     if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
-    if (argc != 3) {
+    if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
+        bool child = !std::strcmp(argv[1], "--test-spawn-child");
+        vm_base = (uint8_t*)std::calloc(1, 0x20000);
+        if (!vm_base) return 3;
+        std::strcpy((char*)vm_base + 0x10000, "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self");
+        std::strcpy((char*)vm_base + 0x10100, "hello world");
+        std::strcpy((char*)vm_base + 0x10200, "quote\"slash\\");
+        std::strcpy((char*)vm_base + 0x10300, "TEST=1");
+        std::strcpy((char*)vm_base + 0x10400, "a;b");
+        vm_write32(0x11000, 0x10100); vm_write32(0x11004, 0x10200);
+        vm_write32(0x11100, 0x10300);
+        ppu_context ctx{}; ctx.gpr[3]=0x10000; ctx.gpr[4]=0x11000;
+        ctx.gpr[5]=child ? 0 : 0x11100; ctx.gpr[8]=1001;
+        if (child) {
+            vm_write32(0x11008, 0x10400); vm_write32(0x1100c, 0x10500);
+            fifa_set_disc_root("C:/disc with spaces/");
+        }
+        fifa_capture_spawn(&ctx);
+        return 1;
+    }
+    if (argc >= 3 && !std::strcmp(argv[1], "--test-argv")) {
+        if (fifa_configure_guest_arguments(argc, argv)) return 2;
+        fifa_dump_guest_arguments(); return 0;
+    }
+    if (argc < 3 || fifa_configure_guest_arguments(argc, argv)) {
         std::fprintf(stderr, "Usage: fifa_boot.exe <decrypted-elf> <disc-root>\n");
         return 2;
     }
@@ -74,6 +105,7 @@ int main(int argc, char** argv) {
     ppu_vm_size = 0; // 0 denotes the full 4 GB guest address space in this SDK.
     AddVectoredExceptionHandler(1, commit_guest_page);
     std::string root = disc.generic_string();
+    fifa_set_disc_root(root.c_str());
     ppu_vfs_root = root.c_str();
     uint32_t entry = ppu_load_elf(elf.string().c_str());
     if (!entry) return 4;
@@ -81,6 +113,7 @@ int main(int argc, char** argv) {
     if (std::filesystem::exists(sfo)) cellGame_init_from_paramsfo(sfo.string().c_str());
     ppu_recomp_register();
     ppu_hle_init();
+    fifa_register_process_spawn();
     ppu_sysprx_register();
     ppu_fs_register();
     lv2_init_syscalls();

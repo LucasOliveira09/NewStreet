@@ -139,13 +139,35 @@ Não há instalador automático para uma máquina vazia nesta etapa.
 3. **Validação:** tentamos Unicorn 2.1.4 como referência PowerPC64, mas ele não
    completou a função no perfil testado. A prova aceita usa o oráculo matemático
    descrito nos testes; não declaramos comparação completa contra CPU de PS3.
-4. **Game runtime:** serviços, entrada real, arquivos, SPUs e renderização ainda
-   não foram integrados ao FIFA Street. Passar testes do runtime não prova o jogo.
+4. **Game runtime:** o EBOOT e o início do FIFAZF executam em processos Windows
+   nativos. A inicialização ainda para em funções/serviços sem suporte; SPUs,
+   renderização e gameplay não foram validados. Passar testes não prova o jogo.
 
 ## Próximo marco técnico
 
-Executar a inicialização real com diagnósticos que parem no primeiro serviço ou
-instrução sem suporte, mantendo o ELF e os assets locais como entrada. Antes disso:
+O boot nativo já executa a troca EBOOT -> FIFAZF. O host usa `CreateProcessW`,
+preserva o vetor de argumentos e propaga o código de saída do filho. Nenhum
+emulador é iniciado. O callback de encerramento do EBOOT também é executado.
+
+```powershell
+.\tools\build.ps1 -Target Boot
+.\tools\build.ps1 -Target Game -StartupLimit 512
+.\private\python-env\Scripts\python.exe tools/run_native.py --profile startup
+
+# Cobertura ampliada por OPD + chamadas e fronteiras descobertas.
+.\tools\build.ps1 -Target FullGame -Jobs 6
+.\private\python-env\Scripts\python.exe tools/run_native.py --profile full
+
+# Recompilar adaptadores sem repetir a geração já existente.
+.\tools\build.ps1 -Target FullGame -SkipLift -Jobs 6
+```
+
+As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
+bloqueio explícito; 92 é somente captura da solicitação de troca sem filho
+configurado. A ferramenta de diagnóstico registra esses resultados sem declará-los
+como sucesso do jogo. O perfil ampliado não prova cobertura de todo código indireto.
+
+Próximos passos, mantendo o ELF e os assets locais como entrada:
 
 1. Revisar o fluxo `EBOOT -> FIFAZF`, as entradas e as importações do boot.
 2. Traduzir a cadeia necessária ao boot e ligar os handlers e o dispatcher.

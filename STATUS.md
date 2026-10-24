@@ -9,19 +9,31 @@ Baseline técnico no commit `e96e614`: duas funções reais compiladas para Wind
 As evidências e limites estão em `README.md` e `reports/validation.json`.
 O novo executável `private/build/boot/fifa_boot.exe` executa a inicialização real
 do EBOOT: TLS, mutexes, módulos, callbacks, consultas de PARAM.SFO e filesystem.
-O caminho observado termina no import `sys_game_process_exitspawn2`, NID
-`0x67f9fedb`, chamado em `0x14f68` (LR `0x14f6c`). A execução encerra com código 90
-e diagnóstico estruturado. Ainda não houve entrada em FIFAZF, frame ou partida.
+O EBOOT captura `sys_game_process_exitspawn2`, executa seu callback de encerramento
+e inicia outro executável Windows com o código recompilado do FIFAZF. O teste
+integrado chegou à entrada `0x23770`, com TOC `0x21d5370`, TLS de 684 bytes e
+`argc=2` preservado. A cobertura incremental contém 512 funções/trechos do jogo
+e 369 stubs de importação. O primeiro alvo ausente nessa cobertura é `0x17841e0`
+(LR `0x23b9c`); a execução para com código 90. Não houve frame, menu ou partida.
+
+A geração ampliada contém 98.776 entradas/trechos e está sendo compilada em
+`private/build/fifazf_full`. Isso não comprova correção ou cobertura completa:
+304 referências diretas permanecem com diagnóstico explícito. Foram identificados
+20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
 
 As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
 (HLE, syscall, chamada indireta e função não traduzida). Todas param explicitamente.
 O patch do SDK está versionado e sua aplicação é idempotente. Baseline reproduzido.
+Quatro testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
+ponteiros de 32 bits, os argumentos exatos e o transporte para processo filho
+nativo com propagação de seu código de saída.
 
 ## Primeira tarefa pendente
 
-Capturar e validar os argumentos da troca de processo EBOOT -> FIFAZF; traduzir
-a inicialização do executável maior e integrar seu processo nativo. Usar os dados
-reais extraídos em `private/disc`; conferir `reports/native-boot-checkpoint.json`.
+Concluir o build ampliado e executar `tools/run_native.py --profile full`.
+Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
+em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.
+Usar os dados reais de `private/disc`; conferir `reports/native-boot-checkpoint.json`.
 
 ## Dependências conhecidas
 

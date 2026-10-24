@@ -1,4 +1,10 @@
-param([ValidateSet('All', 'Probe', 'Runtime', 'Boot')][string]$Target = 'All')
+param(
+    [ValidateSet('All', 'Probe', 'Runtime', 'Boot', 'Game', 'FullGame')][string]$Target = 'All',
+    [int]$StartupLimit = 256,
+    [string[]]$AddFunction = @(),
+    [switch]$SkipLift,
+    [ValidateRange(1, 12)][int]$Jobs = 2
+)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $projectRoot
@@ -53,4 +59,25 @@ if ($Target -in @('All', 'Boot')) {
         '-DFIFA_BUILD_BOOT=ON',"-DPython3_EXECUTABLE=$python")
     Invoke-Checked $cmake @('--build','private/build/boot','--target','fifa_boot','--parallel','2')
     Invoke-Checked $python @('-m','unittest','discover','-s','tests','-p','test_boot_diagnostics.py')
+}
+if ($Target -in @('All', 'Game', 'FullGame')) {
+    $liftArguments = @('tools/lift_startup.py','--limit',"$StartupLimit")
+    $profile = 'fifazf_startup'
+    $buildDirectory = 'private/build/fifazf'
+    if ($Target -eq 'FullGame') {
+        $liftArguments += '--all-opd'
+        $profile = 'fifazf_full'
+        $buildDirectory = 'private/build/fifazf_full'
+    }
+    foreach ($guestAddress in $AddFunction) { $liftArguments += @('--add', $guestAddress) }
+    if ($SkipLift -and $AddFunction.Count) { throw '-AddFunction requires lifting.' }
+    if (-not $SkipLift) { Invoke-Checked $python $liftArguments }
+    $runtimeArchive = Join-Path $projectRoot 'private\build\boot\sdk\ps3recomp_runtime.lib'
+    if (-not (Test-Path -LiteralPath $runtimeArchive)) { throw 'Run -Target Boot first to build the shared runtime.' }
+    Invoke-Checked $cmake @('-S','.','-B',$buildDirectory,'-G','Ninja',
+        '-DCMAKE_C_COMPILER=clang-cl','-DCMAKE_CXX_COMPILER=clang-cl','-DCMAKE_BUILD_TYPE=RelWithDebInfo',
+        '-DFIFA_BUILD_BOOT=ON',"-DPython3_EXECUTABLE=$python",
+        "-DBOOT_RECOMP_DIR=$projectRoot/private/generated/$profile",
+        "-DFIFA_RUNTIME_ARCHIVE=$runtimeArchive")
+    Invoke-Checked $cmake @('--build',$buildDirectory,'--target','fifa_boot','--parallel',"$Jobs")
 }
