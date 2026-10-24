@@ -135,6 +135,9 @@
         "0xa640",
         "0xa6b4",
         "0xa688"
+      ],
+      "additional_ls_bases": [
+        "0xd480"
       ]
     },
     {

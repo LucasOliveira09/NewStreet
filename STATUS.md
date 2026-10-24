@@ -415,3 +415,9 @@ recusada por base ainda não admitida. O logo mantém o hash anterior.
 A posição adicional de gain fader em LS 0xac00 foi conferida integralmente,
 compilada e alcançada. Tentativa 1792871837562167900: próxima recusa de base
 em 0xd480, após 30,225 s. Geração sem instruções/destinos diretos ausentes.
+
+A segunda posição de VU meter, LS 0xd480, também foi conferida e compilada.
+Tentativa 1792871899123215200: 90,238 s até o timeout controlado, sem nova
+fronteira estrita. O jogo ainda apresenta o logo; chamadas repetidas de NetCtl
+são observadas, sem atribuir a elas a causa da espera antes da amostragem.
+Próximo passo: watchdog, profiler e capturas posteriores para localizar o fluxo.
