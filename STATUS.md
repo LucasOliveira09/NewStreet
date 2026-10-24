@@ -105,8 +105,21 @@ Onze testes de boot e 16 CTest passaram (`reports/spu-stop-before-fix.log`,
 A tentativa `1792841573057646600`, após a correção da descoberta, avançou para
 consultas de scripts `data/fifarna/lua/...` e parou em salto SPU: imagem 526190333,
 thread `0x2005`, LS PC `0x100`, link `0x3fbb4`. É necessário capturar o local store
-e os registradores para identificar se há código carregado por DMA/overlay e
+e os registradores para identificar código carregado por DMA/overlay e
 traduzir seu caminho real. Nenhum flip/frame foi observado.
+
+A captura foi implementada e validada: 256 KB de local store e os 128 registros,
+separados por thread/imagem/PC no diretório privado da tentativa. A execução
+`1792842082406795800` capturou a tarefa real. Seu bloco de 25.776 bytes em LS
+`0x80` coincide byte a byte com o conteúdo original em EA `0x1e59c80`; contém a
+etiqueta `AssetStream_zlib.elf`. O código começa em `0x100`; o `bi $r0` em
+`0x573c` precede os textos de dados em `0x5740`. A tradução exploratória, ainda
+sem integração/execução, produziu 406 entradas, zero instruções desconhecidas e
+zero referências diretas pendentes. Registrar e executar esse overlay com
+identidade/ownership corretos é a próxima tarefa. Não substituir a descompressão
+por retorno de sucesso. Evidências em `reports/spu-overlay-identification.json`.
+Após o incremento de captura, passaram 12 testes de boot, os 16 CTest e os 12
+testes de geração SPU. Os dumps continuam excluídos do Git.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

@@ -12,6 +12,23 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_spu_failure_preserves_actual_local_store_and_registers_in_private_diagnostics(self):
+        with tempfile.TemporaryDirectory(prefix='fifa SPU ') as folder:
+            env = os.environ.copy()
+            env['FIFA_SPU_DUMP_DIR'] = folder
+            result = subprocess.run([str(BOOT), '--test-missing', 'spu-indirect'],
+                                    env=env, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 90, result.stderr)
+            states = list(Path(folder).glob('*.json'))
+            self.assertEqual(len(states), 1)
+            state = json.loads(states[0].read_text())
+            local_store = states[0].with_suffix('.ls').read_bytes()
+            self.assertEqual(len(local_store), 256 * 1024)
+            self.assertEqual(local_store[0x300], 0xa5)
+            self.assertEqual(state['pc'], 0x3ff00)
+            self.assertEqual(state['gpr'][0][0], 0x1234)
+            self.assertEqual(state['image'], 987654321)
+
     def test_raw_spu_exit_stops_nested_execution_before_any_later_side_effect(self):
         result = subprocess.run([str(BOOT), '--test-spu-termination', 'exit'],
                                 capture_output=True, text=True, timeout=10)

@@ -5,6 +5,7 @@
 #include <cstring>
 
 extern "C" PPU_THREAD_LOCAL ppu_context* g_active_ctx;
+extern "C" void fifa_dump_spu_state(const char*, spu_context*);
 #ifdef FIFA_HAS_SPU
 extern "C" void fifa_spu_register_all(void);
 #endif
@@ -14,6 +15,7 @@ static void missing_spu(const char* kind, uint64_t value, void* context) {
 
 extern "C" void fifa_install_spu_policy(void) {
     spu_missing_execution_hook = missing_spu;
+    spu_execution_diagnostic_hook = fifa_dump_spu_state;
 #ifdef FIFA_HAS_SPU
     fifa_spu_register_all();
 #endif
@@ -29,9 +31,11 @@ extern "C" void fifa_test_missing_spu(ppu_context* ctx) {
 extern "C" void spu_indirect_branch(spu_context*);
 extern "C" void fifa_test_missing_spu_indirect(ppu_context* ctx) {
     static spu_context spu{};
+    spu_context_init(&spu, 0);
     spu.image_id = 987654321;
     spu.pc = 0x3ff00; // Unregistered high LS; must not become interpreted stop.
     spu.gpr[0]._u32[0] = 0x1234;
+    spu.ls[0x300] = 0xa5;
     g_active_ctx = ctx;
     fifa_install_spu_policy();
     spu_indirect_branch(&spu);
@@ -58,6 +62,7 @@ static void test_stopping_entry(spu_context* ctx) {
 }
 extern "C" int fifa_test_spu_termination(const char* mode) {
     static spu_context spu{};
+    spu_context_init(&spu, 0);
     spu.image_id = 987654321;
     spu.spu_id = 77;
     fifa_install_spu_policy();

@@ -198,6 +198,8 @@ O jogo começou a ler seus assets; ainda não produziu um frame validado.
 `tools/run_native.py --capture` habilita readback do primeiro frame do backend
 com operações de desenho. As capturas ficam no diretório privado da tentativa.
 `--syscall-trace` habilita o log detalhado de syscalls, desativado por padrão.
+Em uma falha SPU, a tentativa preserva o local store e os registradores em
+`private/analysis/runs/<tentativa>/spu`, sem alterar ou interpretar seu código.
 
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho

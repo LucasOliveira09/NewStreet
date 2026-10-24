@@ -131,7 +131,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..06ef9fa 100644
+index 59f5e4b..23dcd5a 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -142,7 +142,7 @@ index 59f5e4b..06ef9fa 100644
  #include "spu_interp.h"    /* spu_lifted_fn / spu_lifted_lookup -- defined below */
  #include "ps3emu/ps3_ftrace.h"
  #include <stdint.h>
-@@ -184,6 +185,21 @@ void spu_dbg_e60(spu_context* ctx)
+@@ -184,6 +185,22 @@ void spu_dbg_e60(spu_context* ctx)
   * service. Env YDKJ_STOP_NOHALT restores the old (looping) behavior for A/B. */
  void spu_stop(spu_context* ctx)
  {
@@ -157,6 +157,7 @@ index 59f5e4b..06ef9fa 100644
 +        fprintf(stderr, "[spu-stop] image=%d tid=0x%X pc=0x%05X code=0x%X\n",
 +                ctx->image_id, ctx->spu_id, ctx->pc, ctx->stop_code);
 +        fflush(stderr);
++        if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-stop", ctx);
 +        spu_missing_execution_hook("spu-stop",
 +            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->stop_code, NULL);
 +        return;
@@ -164,7 +165,7 @@ index 59f5e4b..06ef9fa 100644
      /* A lifted `stop` sets status and RETURNS to its caller -- for a SPURS
       * policy this is stop-and-signal: it returns up into the kernel/policy
       * service loop, which continues (i.e. the SPU "resumes" past the stop). That
-@@ -2293,6 +2309,22 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2293,6 +2310,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -180,6 +181,7 @@ index 59f5e4b..06ef9fa 100644
 +                ctx->gpr[5]._u32[0], ctx->gpr[5]._u32[1],
 +                ctx->gpr[6]._u32[0], ctx->gpr[6]._u32[1]);
 +        fflush(stderr);
++        if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-indirect", ctx);
 +        spu_missing_execution_hook("spu-indirect",
 +            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->pc, NULL);
 +        return;
@@ -187,7 +189,7 @@ index 59f5e4b..06ef9fa 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2873,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +2875,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }
@@ -216,7 +218,7 @@ index fc3cea1..9511532 100644
          if (PS3_LOG_FIRST(_n, 8))
              fprintf(stderr, "[spurs-job] img=%d branched to LS 0 -- job complete\n",
 diff --git a/runtime/spu/spu_lifted_thread.c b/runtime/spu/spu_lifted_thread.c
-index a828335..82232d8 100644
+index a828335..7d68a32 100644
 --- a/runtime/spu/spu_lifted_thread.c
 +++ b/runtime/spu/spu_lifted_thread.c
 @@ -3,6 +3,7 @@
@@ -227,29 +229,32 @@ index a828335..82232d8 100644
  
  #include <stdio.h>
  #include <stdlib.h>
-@@ -151,6 +152,9 @@ void spu_lifted_thread_run(spu_context* ctx, spu_lifted_thread_result* out)
+@@ -151,6 +152,11 @@ void spu_lifted_thread_run(spu_context* ctx, spu_lifted_thread_result* out)
  
      /* This thread run has ended; remove observer references and release its
       * private engine before restart can reset the context or destroy frees it. */
-+    if (r.faulted && spu_missing_execution_hook)
++    if (r.faulted && spu_missing_execution_hook) {
++        if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-fault", ctx);
 +        spu_missing_execution_hook("spu-fault",
 +            ((uint64_t)(uint32_t)ctx->image_id << 32) | ctx->pc, NULL);
++    }
      spu_coh_unregister(ctx);
      spu_mfc_release(ctx);
  
 diff --git a/runtime/spu/spu_workload.c b/runtime/spu/spu_workload.c
-index 2008961..88525af 100644
+index 2008961..2f2aa3c 100644
 --- a/runtime/spu/spu_workload.c
 +++ b/runtime/spu/spu_workload.c
-@@ -6,6 +6,7 @@
+@@ -6,6 +6,8 @@
   * spu_workload_dispatch(); the registry is populated by the title's lifted set.
   */
  #include "spu_workload.h"
 +void (*spu_missing_execution_hook)(const char*, uint64_t, void*) = NULL;
++void (*spu_execution_diagnostic_hook)(const char*, spu_context*) = NULL;
  #include "spu_lifted_job.h"   /* spu_run_lifted_job */
  #include "../ps3_log.h"      /* ps3_log_verbose */
  #include <stdio.h>
-@@ -211,6 +212,7 @@ int spu_workload_dispatch(const uint8_t* image, uint32_t image_size,
+@@ -211,6 +213,7 @@ int spu_workload_dispatch(const uint8_t* image, uint32_t image_size,
              "[spu_workload] dispatch MISS fp=0x%016llX size=%u "
              "(no lifted SPU binary registered for this image)\n",
              (unsigned long long)fp, image_size);
@@ -257,7 +262,7 @@ index 2008961..88525af 100644
          return 0;
      }
  
-@@ -890,6 +892,7 @@ int spu_workload_dispatch_job(const uint8_t* image, uint32_t image_size,
+@@ -890,6 +893,7 @@ int spu_workload_dispatch_job(const uint8_t* image, uint32_t image_size,
      for (unsigned i = 0; i < s_registry_count; i++)
          if (s_registry[i].fp == fp) { fn = s_registry[i].fn; image_id = s_registry[i].image_id; break; }
      if (!fn) {
@@ -265,7 +270,7 @@ index 2008961..88525af 100644
          /* Capped: an unlifted job a title dispatches every frame (Tornado
           * Outbreak's Wwise audio jobs) wrote 2 GB of these in three minutes,
           * and the logging itself distorts guest timing. */
-@@ -1328,6 +1331,7 @@ int spu_workload_dispatch_async(const uint8_t* image, uint32_t image_size,
+@@ -1328,6 +1332,7 @@ int spu_workload_dispatch_async(const uint8_t* image, uint32_t image_size,
            } }
          fprintf(stderr, "[spu_workload] async dispatch MISS fp=0x%016llX size=%u\n",
                  (unsigned long long)fp, image_size);
@@ -274,10 +279,10 @@ index 2008961..88525af 100644
      }
  
 diff --git a/runtime/spu/spu_workload.h b/runtime/spu/spu_workload.h
-index f8a726e..dbdb68c 100644
+index f8a726e..34436f2 100644
 --- a/runtime/spu/spu_workload.h
 +++ b/runtime/spu/spu_workload.h
-@@ -34,6 +34,11 @@ extern "C" {
+@@ -34,6 +34,12 @@ extern "C" {
  
  typedef void (*spu_lifted_entry_fn)(spu_context*);
  
@@ -285,6 +290,7 @@ index f8a726e..dbdb68c 100644
 + * workload as complete or selecting a CPU interpreter. NULL preserves the
 + * upstream diagnostic behavior for existing hosts. */
 +extern void (*spu_missing_execution_hook)(const char* kind, uint64_t value, void* ppu_ctx);
++extern void (*spu_execution_diagnostic_hook)(const char* kind, spu_context* ctx);
 +
  /* FNV-1a 64-bit over a byte range. The canonical workload fingerprint; the
   * offline extractor computes the same value so registrations and the images a
