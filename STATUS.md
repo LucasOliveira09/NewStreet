@@ -266,3 +266,16 @@ passou pelo ganho/volume até o módulo VU em LS `0x9430`, fonte `0x2004e00`.
 Os 18 testes de boot e os 16 CTest do runtime passaram. O rebuild sequencial
 completou; a tentativa sobreposta não foi usada como evidência. O link local
 foi limitado a quatro threads no cache CMake, sem alterar código de produção.
+
+### Medidor VU
+
+`spuvumeter.elf`, fonte `0x2004e00`, 0x12e0 bytes, está ligado em LS
+`0x9400`, entrada `0x9430`, código até `0xa6e0`. O callback PIC em
+`0xa160` e os cinco destinos distintos da tabela em `0xa624` foram
+conferidos no original. A tradução tem 54 funções, sem instruções recusadas
+ou alvos diretos pendentes. A tentativa `1792869100339436500` passou pelo
+VU e alcançou o DAC SPU, fonte `0x1fb4600`, carregado em LS `0xa780`,
+entrada `0xa860`. O cabeçalho desse módulo tem entrada offset 0xe0,
+diferente dos anteriores; não presumir offset 0x30 ou tamanho pelo nome.
+A tentativa também repetiu as 47 comparações de assets sem diferenças
+e sem capturas incompletas. Ainda não há áudio audível validado.

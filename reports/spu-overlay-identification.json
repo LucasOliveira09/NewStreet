@@ -95,6 +95,21 @@
       "missing_direct_targets": 0,
       "native_run": "private/analysis/runs/1792869024593523500",
       "audio_validated": false
+    },
+    {
+      "name": "spuvumeter",
+      "source_ea": "0x2004e00",
+      "source_bytes": 4832,
+      "sha256": "85448ebfa0678fe1d84f65c1b83449a48f0f13304bae219047d7bfd84650564e",
+      "local_store_base": "0x9400",
+      "entry": "0x9430",
+      "code_end_exclusive": "0xa6e0",
+      "functions": 54,
+      "source_snapshot_byte_differences": 0,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792869100339436500",
+      "audio_validated": false
     }
   ]
 }

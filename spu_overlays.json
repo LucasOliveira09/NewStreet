@@ -109,6 +109,24 @@
         "0x8dfc",
         "0x8dd0"
       ]
+    },
+    {
+      "name": "audio_spuvumeter",
+      "source_ea": "0x2004e00",
+      "size": "0x12e0",
+      "sha256": "85448ebfa0678fe1d84f65c1b83449a48f0f13304bae219047d7bfd84650564e",
+      "ls_base": "0x9400",
+      "entry": "0x9430",
+      "code_start": "0x9430",
+      "code_end": "0xa6e0",
+      "extra_entries": [
+        "0xa160",
+        "0xa670",
+        "0xa66c",
+        "0xa640",
+        "0xa6b4",
+        "0xa688"
+      ]
     }
   ]
 }
