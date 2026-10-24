@@ -272,6 +272,21 @@
       "extra_entries": [
         "0x154"
       ]
+    },
+    {
+      "name": "audio_spugenericplayer",
+      "source_ea": "0x1fdd100",
+      "size": "0x1bb0",
+      "sha256": "ffee4cb8e3baabeaa85751f34483b3b835ef7f2143681a063fcafb94cb5614a3",
+      "ls_base": "0x5880",
+      "entry": "0x59e0",
+      "code_start": "0x58b0",
+      "code_end": "0x7404",
+      "extra_entries": [
+        "0x5ad0",
+        "0x59b0",
+        "0x6070"
+      ]
     }
   ]
 }

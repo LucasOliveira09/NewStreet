@@ -17,15 +17,18 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e 15 programas raw ligados, mais onze posições PIC
-adicionais compiladas estaticamente (26 registros raw no total). As cargas
-conferidas mais recentes são submix 0x9680, sample capture 0xa780, gain fader
-0xca80 e VU meter 0xf300. Todas avançaram no boot, mantendo hash/base/limites.
-A tentativa 1792873318036992900 parou estritamente ao carregar outro módulo
-em LS 0x10680, após 28,699 s. Identificar o residente antes de admiti-lo.
-O logo original continua validado; menu, som audível e partida permanecem
-pendentes. 24 testes de boot e 40 do projeto passaram; os 16 CTest do runtime
-passaram na revisão de seleção PIC. Não há validação geral de todos os DSPs.
+Há 14 ELFs SPU e 17 programas raw compilados, incluindo ANT kernel e generic
+player, mais doze posições adicionais (29 registros raw no total). O build
+passa, mas o alcance varia entre tentativas concorrentes. A execução mais
+recente, 1792873875418408300, foi encerrada aos 75,265 s sem fronteira estrita.
+O registro optativo confirmou entradas reais de nove programas da primeira
+cadeia (AssetStream, patch, mixer, submix, sample capture, gain, VU e DAC).
+ANT e generic player ainda não tiveram suas entradas confirmadas nessa coleta.
+
+O watchdog mostra main em sleep, mutex 8 com dono thread 22 e outra thread
+esperando esse mutex. Próximo passo: examinar a stack do dono e as consultas
+NetCtl offline restantes, sem forçar flags/callbacks. Logo original validado;
+menu, som audível e partida pendentes. 24 testes de boot e 40 do projeto passam.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -525,3 +528,17 @@ não comprova conclusão do ANT: adicionar registro optativo de entradas nativas
 para distinguir carga, início de execução e conclusão de tarefa. Nesta execução
 49 saídas AssetStream coincidiram com as referências; em 1792873477390004500
 foram 64. A quantidade varia com o primeiro bloqueio concorrente.
+
+## Generic player e evidência de entradas
+
+O generic player (fonte 0x1fdd100, LS 0x5880, 7.088 bytes) foi conferido
+inteiro. SHA-256 ffee4cb8e3baabeaa85751f34483b3b835ef7f2143681a063fcafb94cb5614a3.
+Callbacks 0x5ad0/0x59b0/0x6070, código até 0x7404. Geração de 82 entradas,
+zero instruções/destinos diretos ausentes; compilação aprovada.
+`FIFA_SPU_ENTRY_TRACE=1` registra uma vez por programa/base a entrada real,
+antes de delegar ao código original. Registro usa atomic_flag, limite 128,
+e não escreve estado guest; o observador de assets mantém seu comportamento.
+O runner preserva essas entradas no result.json. A execução de 75 s registrou
+nove programas da primeira cadeia, sem comprovar entrada/conclusão do ANT ou
+do generic player. As 47 saídas AssetStream capturadas continuaram corretas.
+40 testes do projeto passaram.

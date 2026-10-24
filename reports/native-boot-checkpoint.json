@@ -1,20 +1,12 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "More observed mixer positions passed; next strict load at LS 0x10680",
+  "stage": "Entry observation confirms initial audio chain; initialization waits under investigation",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": 90,
-  "block": {
-    "kind": "spu-overlay-base",
-    "image": 526190333,
-    "thread": 8195,
-    "pc": 12604,
-    "lr": 11768,
-    "local_store_bytes": 262144,
-    "stem": "spu-8195-526190333-12604"
-  },
+  "exit_code": "timeout",
+  "block": null,
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -35,7 +27,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792873318036992900",
+  "logs": "private\\analysis\\runs\\1792873875418408300",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -91,9 +83,7 @@
     ],
     "strict_content_identity": true,
     "previous_spu_fault_reproduced": false,
-    "observed_thread": "0x2003",
-    "observed_pc": "0x5a88",
-    "observed_lr": "0x2ac8"
+    "observed_thread": "0x2003"
   },
   "resolved_ppu_targets": [
     "0x13a796c",
@@ -113,7 +103,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 26,
+  "raw_spu_overlays": 29,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -137,11 +127,84 @@
   "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
   "project_tests": 40,
   "cache_data4_verified": true,
-  "raw_spu_distinct_sources": 15,
+  "raw_spu_distinct_sources": 17,
   "audio_capture": {
     "samples": 1542656,
     "peak": 0.0,
     "nonzero": 0,
     "audible_validated": false
+  },
+  "observed_native_spu_entries": [
+    {
+      "name": "assetstream_zlib",
+      "source_ea": 31825024,
+      "ls_base": 128,
+      "thread": 8197,
+      "pc": 256
+    },
+    {
+      "name": "assetstream_refpack",
+      "source_ea": 31822336,
+      "ls_base": 128,
+      "thread": 8197,
+      "pc": 176
+    },
+    {
+      "name": "sportsrna_spupatch",
+      "source_ea": 32657152,
+      "ls_base": 128,
+      "thread": 8197,
+      "pc": 176
+    },
+    {
+      "name": "audio_spumixer",
+      "source_ea": 33579648,
+      "ls_base": 128,
+      "thread": 8195,
+      "pc": 176
+    },
+    {
+      "name": "audio_spusubmix",
+      "source_ea": 33240448,
+      "ls_base": 14208,
+      "thread": 8195,
+      "pc": 14256
+    },
+    {
+      "name": "audio_spusamplecapture",
+      "source_ea": 33540096,
+      "ls_base": 18560,
+      "thread": 8195,
+      "pc": 18608
+    },
+    {
+      "name": "audio_spugainfader",
+      "source_ea": 33401088,
+      "ls_base": 27520,
+      "thread": 8195,
+      "pc": 27568
+    },
+    {
+      "name": "audio_spuvumeter",
+      "source_ea": 33574400,
+      "ls_base": 37888,
+      "thread": 8195,
+      "pc": 37936
+    },
+    {
+      "name": "audio_spudac",
+      "source_ea": 33244672,
+      "ls_base": 42880,
+      "thread": 8195,
+      "pc": 43104
+    }
+  ],
+  "observed_wait": {
+    "mutex": 8,
+    "owner_thread": 22,
+    "waiting_thread": 32,
+    "main_lr": "0x11a28",
+    "owner_lr": "0xdc95b8",
+    "sample_ms": 45000
   }
 }

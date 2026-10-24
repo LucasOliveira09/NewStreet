@@ -114,14 +114,19 @@ def main():
             fingerprint = fnv1a64(blob)
             symbol = prefix + 'spu_recomp_register'
             declarations.append(f'extern void {symbol}(void);')
-            observe = ''
+            native = prefix + f'spu_func_{entry:08X}'
+            wrapper = prefix + 'observed_entry'
+            body = f'{native}(ctx);'
             if 'io_layout' in item:
                 codec = {'zlib': 0, 'refpack': 1}[item['io_layout']]
-                native = prefix + f'spu_func_{entry:08X}'
-                wrapper = prefix + 'observed_entry'
-                declarations.append(f'extern void {native}(spu_context*);\n'
-                                    f'static void {wrapper}(spu_context* ctx) {{ fifa_observe_spu_job(ctx, {native}, {codec}); }}')
-                observe = f'spu_register_function(0x{entry:X}u, {wrapper}); '
+                body = f'fifa_observe_spu_job(ctx, {native}, {codec});'
+            slot = len(inventory['overlays'])
+            if slot >= 128:
+                raise ValueError('Too many native overlay registrations')
+            declarations.append(f'extern void {native}(spu_context*);\n'
+                                f'static void {wrapper}(spu_context* ctx) {{ '
+                                f'fifa_trace_spu_entry(ctx, {slot}u, "{name}", 0x{ea:X}u, 0x{base:X}u); {body} }}')
+            observe = f'spu_register_function(0x{entry:X}u, {wrapper}); '
             registration.append(f'    spu_begin_image({image_id}); {observe}{symbol}();\n'
                                 f'    spu_overlay_register_region_checked(0x{ea:X}u, {size}u, 0x{base:X}u, {code_start-base}u, {code_end-code_start}u, {image_id}, 0x{fingerprint:016X}ULL);')
             sources.append(destination / name / 'spu_recomp.c')
@@ -131,6 +136,7 @@ def main():
         registry = ('#include "spu_workload.h"\nextern void spu_begin_image(int);\n'
                     'extern void spu_register_function(uint32_t,spu_lifted_entry_fn);\n'
                     'extern void fifa_observe_spu_job(spu_context*,spu_lifted_entry_fn,int);\n'
+                    'extern void fifa_trace_spu_entry(spu_context*,unsigned,const char*,unsigned,unsigned);\n'
                     'extern void spu_overlay_register_region_checked(uint32_t,uint32_t,uint32_t,uint32_t,uint32_t,int,uint64_t);\n' +
                     '\n'.join(declarations) + '\nvoid fifa_spu_register_overlays(void) {\n' +
                     '\n'.join(registration) + '\n    spu_begin_image(0);\n}\n')
