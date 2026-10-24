@@ -61,6 +61,20 @@
         "0x2ba0",
         "0x2fc8"
       ]
+    },
+    {
+      "name": "audio_spusubmix",
+      "source_ea": "0x1fb3580",
+      "size": "0x1050",
+      "sha256": "b1a63be6973eeb7176b2a8a19961c30d21c79b66928e8df2392b028208924191",
+      "ls_base": "0x3780",
+      "entry": "0x37b0",
+      "code_start": "0x37b0",
+      "code_end": "0x46b8",
+      "extra_entries": [
+        "0x3848",
+        "0x38c0"
+      ]
     }
   ]
 }

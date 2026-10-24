@@ -200,3 +200,17 @@ direto pendente. A tentativa `1792846844059816000` executou a inicialização
 do mixer até a chamada de seu módulo PIC `spusubmix.elf`, copiado integralmente
 para LS `0x3780`, entrada `0x37b0`, fonte `0x1fb3580`. A parada estrita
 nesse ponto preserva o estado. Áudio audível e correto ainda não foi validado.
+
+### Submix PIC e build incremental
+
+O módulo `spusubmix.elf` foi traduzido para a base LS observada `0x3780`,
+com hash da fonte e callbacks PIC `0x3848`/`0x38c0` verificados. A tentativa
+`1792847030174348200` passou por sua inicialização e alcançou o próximo
+módulo do mixer, `spusamplecapture.elf`, carregado em LS `0x4880`, entrada
+`0x48b0`, fonte `0x1ffc800`; todos os bytes capturados coincidem com a fonte.
+Essa tradução ainda usa a base observada; outra posição precisa ser admitida
+explicitamente. Não há relocação dinâmica/JIT de CPU.
+O gerador agora preserva mtime apenas para arquivos regenerados idênticos
+byte a byte, mantendo a publicação completa e a remoção de saídas antigas.
+O rebuild do callback compilou somente submix e a tabela HLE, sem recompilar
+zlib, RefPack ou o mixer inalterados. Nenhum áudio foi validado.

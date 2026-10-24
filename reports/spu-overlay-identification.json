@@ -50,6 +50,21 @@
       "missing_direct_targets": 0,
       "native_run": "private/analysis/runs/1792846844059816000",
       "audio_validated": false
+    },
+    {
+      "name": "spusubmix",
+      "source_ea": "0x1fb3580",
+      "source_bytes": 4176,
+      "sha256": "b1a63be6973eeb7176b2a8a19961c30d21c79b66928e8df2392b028208924191",
+      "local_store_base": "0x3780",
+      "entry": "0x37b0",
+      "code_end_exclusive": "0x46b8",
+      "functions": 47,
+      "source_snapshot_byte_differences": 0,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792847030174348200",
+      "audio_validated": false
     }
   ]
 }

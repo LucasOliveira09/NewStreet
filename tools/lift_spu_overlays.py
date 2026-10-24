@@ -1,6 +1,7 @@
 """Translate identified raw SPU overlays from the locked PPU ELF, without JIT."""
 import hashlib
 import json
+import shutil
 from pathlib import Path
 import re
 import subprocess
@@ -101,6 +102,13 @@ def main():
         (stage / 'sources.cmake').write_text('set(FIFA_SPU_OVERLAY_SOURCES\n' +
             ''.join(f'  [==[{p.as_posix()}]==]\n' for p in sources) + ')\n')
         (stage / 'inventory.json').write_text(json.dumps(inventory, indent=2) + '\n')
+        # Preserve timestamps only after freshly regenerating and comparing the
+        # complete bytes. One added overlay must not recompile unchanged jobs.
+        if destination.exists():
+            for path in stage.rglob('*'):
+                previous = destination / path.relative_to(stage)
+                if path.is_file() and previous.is_file() and path.read_bytes() == previous.read_bytes():
+                    shutil.copystat(previous, path)
         publish(stage, destination)
     print(json.dumps(inventory, indent=2))
 
