@@ -127,6 +127,19 @@
         "0xa6b4",
         "0xa688"
       ]
+    },
+    {
+      "name": "audio_spudac",
+      "source_ea": "0x1fb4600",
+      "size": "0x2690",
+      "sha256": "5a756bdec8d54872b5f8084554796b34168d7ed2b56e8a432ab57a682b37f8f5",
+      "ls_base": "0xa780",
+      "entry": "0xa860",
+      "code_start": "0xa7b0",
+      "code_end": "0xcbd8",
+      "extra_entries": [
+        "0xb098"
+      ]
     }
   ]
 }

@@ -4,32 +4,26 @@ Atualizado em 24/10/2026 durante a integração de boot nativo.
 
 ## Checkpoint atual
 
-A extração foi corrigida para a visão UDF 2.50: o nome original é
-`data0.big.sdat`, enquanto ISO9660 o representa como `DATA0_BIG.SDAT`.
-A conferência completa leu 104 arquivos, 4.800.945.013 bytes, sem alterar a ISO.
-Três testes UDF verificam nomes distintos, bytes reais, mapeamento fragmentado,
-limites e alocação esparsa rejeitada; os cinco testes ISO9660 também passaram.
-A tentativa `1792846418492465200` abriu DATA0, descriptografou 7.467.087 bytes
-com magic BIG4 e iniciou tarefas antes ausentes. O novo bloqueio estrito é
-SPU PC `0xb0`, thread `0x2004`: overlay `AssetStream_refpack.elf`, fonte
-`0x1e59200`, que foi ligado em tradução nativa (42 funções, nenhuma instrução recusada ou
-alvo direto pendente). A tentativa seguinte `1792846643102912600` passou por
-essa tarefa e iniciou as threads Filesystem, DLC e EAAudioCore Dac. Parou em
-outra tarefa SPU ainda ausente: `spumixer.elf`, fonte `0x2006280`, LS `0xb0`;
-a cópia de 0x3300 bytes no LS coincide integralmente com a fonte.
-A tabela de input vazia
-foi observada antes desta correção; sua resolução ainda não foi confirmada.
+A tentativa `1792869262963781500` executou a cadeia nativa EBOOT/FIFAZF por
+17,2 segundos até a parada estrita no import `sceNpManagerGetAccountRegion`,
+NID `0xb1e0718b`, LR `0xfe3398`, thread principal. O mixer e seus módulos
+submix, sample capture, gain fader, VU e DAC já passaram pela inicialização
+observada. São 14 ELFs SPU e nove overlays raw ligados com hash e base LS
+conferidos no DMA. Isto ainda não valida áudio audível, todos os jobs ou DSP.
 
-A implementação já liga 14 ELFs SPU e os overlays zlib/SportsRNA, com validação
-de identidade no DMA e invalidação de código sobrescrito. Dezesseis testes de
-boot passaram. O FS agora usa os mesmos mounts em Open/Write/Rename, e o runner
-mantém HDD0/HDD1 em `private/userdata`. No jogo só foram observados clears pretos:
-nenhum frame com desenho, menu, partida, áudio, save ou progressão foi validado.
-A tentativa `1792847466283405700` comparou byte a byte 47 saídas nativas
-(15 RefPack e 32 DEFLATE, 2.671.706 bytes) com oráculos independentes: todas
-coincidiram e não houve captura incompleta. O limite é 32 por codec; isto não
-valida automaticamente todos os jobs. O bloqueio agora é o módulo de áudio
-`spugainfader.elf` em LS `0x6bb0`, ainda sem tradução ligada.
+A extração UDF corrigiu o nome de DATA0 e conferiu 104 arquivos, 4.800.945.013
+bytes, sem alterar a ISO. As 47 capturas AssetStream observadas (15 RefPack e
+32 DEFLATE, 2.671.706 bytes de saída) coincidiram byte a byte com oráculos
+independentes e não tiveram capturas incompletas. O limite é 32 por codec.
+A última repetição dessas comparações foi `1792869100339436500`.
+
+O runtime agora preserva até 128 spans residentes, alinhado às fontes de overlay,
+em vez de perder a identidade depois de quatro módulos. O teste com sete falhava
+antes e passou depois. Os 18 testes de boot e os 16 CTest do runtime passaram.
+O FS compartilha mounts em Open/Write/Rename; HDDs ficam em `private/userdata`.
+Só foram observados clears pretos: nenhum frame com desenho, menu, partida,
+áudio audível, save ou progressão foi validado. O próximo passo é implementar
+a consulta NP conforme seu estado offline, sem inventar país ou perfil.
 
 ## Implementação comprovada
 
@@ -279,3 +273,16 @@ entrada `0xa860`. O cabeçalho desse módulo tem entrada offset 0xe0,
 diferente dos anteriores; não presumir offset 0x30 ou tamanho pelo nome.
 A tentativa também repetiu as 47 comparações de assets sem diferenças
 e sem capturas incompletas. Ainda não há áudio audível validado.
+
+### DAC SPU
+
+`spudac.elf`, fonte `0x1fb4600`, foi conferido integralmente em 0x2690
+bytes no LS e traduzido para a base observada `0xa780`. A entrada fica
+em `0xa860`, mas existe uma função real anterior em `0xa7b0`, chamada
+diretamente; o verificador recusou a primeira fronteira que a excluía.
+A fronteira correta começa nessa função e termina em `0xcbd8`, após o
+retorno em `0xcbd4` e antes das constantes. A tradução tem 117 funções,
+sem instruções recusadas ou alvos diretos pendentes. O callback PIC `0xb098`
+foi identificado no original. O boot passou pelo DAC até o import NP acima.
+O gerador agora detalha seus motivos de rejeição (opcode, alvo direto ou entrada),
+sem publicar uma geração incompleta. Nenhum áudio foi validado.

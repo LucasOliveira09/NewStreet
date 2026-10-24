@@ -1,27 +1,27 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Native DATA0 assets match independent decompression; audio mixer awaits gain fader module",
+  "stage": "Native boot initializes original SPU audio modules; NP account region import awaits offline service",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "spu-indirect",
-    "value": 2259970271706377136,
-    "guest_lr": 0,
+    "kind": "hle",
+    "value": 2984276363,
+    "guest_lr": 16659352,
     "guest_pc": 0,
-    "thread_id": 0,
-    "guest_toc": 0,
+    "thread_id": 1,
+    "guest_toc": 35476336,
     "arguments": [
+      267383860,
+      267383856,
       0,
+      18446744073709551609,
+      7,
+      30244418,
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
+      373860288
     ]
   },
   "spawn": {
@@ -44,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792847466283405700",
+  "logs": "private\\analysis\\runs\\1792869262963781500",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -126,44 +126,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": [
-    {
-      "name": "assetstream_zlib",
-      "source_ea": "0x1e59c80",
-      "size": "0x64b0",
-      "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
-      "ls_base": "0x80",
-      "entry": "0x100",
-      "code_start": "0x100",
-      "code_end": "0x5740",
-      "extra_entries": [
-        "0x18c"
-      ],
-      "image_id": 766581997,
-      "fingerprint": "8DAF32871DE165D9",
-      "functions": 407,
-      "unsupported": {},
-      "missing_direct_targets": 0
-    },
-    {
-      "name": "sportsrna_spupatch",
-      "source_ea": "0x1f24f00",
-      "size": "0x1690",
-      "sha256": "35274f8f1f03b6918a9e981b830a8100f92ea185775fc1e91d7d2290e22aeeae",
-      "ls_base": "0x80",
-      "entry": "0xb0",
-      "code_start": "0xb0",
-      "code_end": "0x1608",
-      "extra_entries": [
-        "0x134"
-      ],
-      "image_id": 592606456,
-      "fingerprint": "627E7A7DAC32A74D",
-      "functions": 59,
-      "unsupported": {},
-      "missing_direct_targets": 0
-    }
-  ],
+  "raw_spu_overlays": 9,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -172,5 +135,6 @@
     "deflate": 32,
     "exhaustive": false
   },
-  "boot_tests": 17
+  "boot_tests": 18,
+  "runtime_tests": 16
 }

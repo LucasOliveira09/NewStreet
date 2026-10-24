@@ -75,7 +75,9 @@ def main():
             starts = {s for s, _ in diagnostics['functions']}
             missing = (set(diagnostics['call_targets']) | set(diagnostics['branch_targets'])) - starts
             if diagnostics['unsupported'] or missing or entry not in starts:
-                raise RuntimeError('Incomplete native overlay: ' + name)
+                raise RuntimeError(f'Incomplete native overlay {name}: unsupported={diagnostics["unsupported"]}, '
+                                   f'missing_direct_targets={[hex(a) for a in sorted(missing)]}, '
+                                   f'entry_present={entry in starts}')
             if any(not code_start <= s < e <= code_end for s, e in diagnostics['functions']):
                 raise RuntimeError('Generated code outside verified bounds: ' + name)
             for filename in ('spu_recomp.h', 'spu_recomp.c'):
