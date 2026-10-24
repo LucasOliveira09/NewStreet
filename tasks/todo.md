@@ -33,7 +33,9 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Bloquear programa/salto SPU ausente antes de fallback ou interpretação.
 - [x] Recompilar e ligar a primeira imagem SPU multi-segmento solicitada.
 - [x] Validar handlers de grupos SPU com números não contíguos em teste Windows.
-- [ ] Confirmar o isolamento corrigido no carregamento real do jogo.
+- [x] Confirmar seis threads SPU distintas no carregamento real do jogo.
+- [x] Recusar programa SPU desconhecido antes de lookup por entrada compartilhada.
+- [ ] Fechar a descoberta de blocos PPU após mudanças nas fronteiras das funções.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 

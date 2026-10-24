@@ -47,8 +47,10 @@ Logs: `reports/spu-group-before-fix.log` e `reports/spu-group-after-fix.log`.
 O novo teste usa os handlers reais do SDK em Windows, sem interpretação de CPU.
 Fonte do mapeamento: [RPCS3 aa9ebd2f, sys_spu.cpp](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_spu.cpp)
 e sua tabela de números em [sys_spu.h](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_spu.h).
-Há ainda uma referência PPU não emitida em `0x13a796c` (LR `0x139c444`), observada
-na tentativa anterior. Nenhuma conclusão correta de tarefa SPU foi validada.
+A tentativa `1792840726917801500` confirmou no jogo seis grupos com threads
+distintas `0x2000`–`0x2005` e argumentos próprios, sem a falha SPU anterior.
+Também passou por `0x13a796c`. O bloqueio atual é PPU `0x138a208`, LR `0x138a1b8`.
+Nenhuma conclusão correta de tarefa SPU foi validada.
 Isso não comprova correção ou cobertura completa:
 304 referências diretas permanecem com diagnóstico explícito. Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
@@ -78,12 +80,16 @@ Após a correção dos grupos, passaram oito testes de boot e os 16 CTest
 (`reports/runtime-after-spu-group.log`). A nova geração também emitiu `0x13a796c`.
 O cache de fontes geradas foi ajustado para UTF-8 explícito, migrando fontes
 legadas sem falhar na leitura nem regravar saídas idênticas.
+Outro teste reproduziu seleção incorreta de um programa SPU por endereço de
+entrada compartilhado. A política estrita agora exige identidade de conteúdo
+antes dessa seleção. Nove testes de boot passaram, incluindo essa regressão
+(`reports/spu-image-before-fix.log` e `reports/spu-image-after-fix.log`).
 
 ## Primeira tarefa pendente
 
-Validar o mapeamento corrigido no jogo e investigar o próximo salto/serviço
-necessário. Rebuild ampliado com SPUs e `0x13a796c` em andamento nesta sessão;
-não assumir execução validada apenas porque a função foi emitida.
+Resolver a cobertura do alvo `0x138a208`. É um bloco após o retorno em
+`0x138a204`, alcançado pelo `bne` em `0x138a1d4`. Investigar por que a descoberta
+não o selecionou quando fronteiras posteriores dividiram a função original.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

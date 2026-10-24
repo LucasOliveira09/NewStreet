@@ -218,7 +218,7 @@ index f8a726e..dbdb68c 100644
   * offline extractor computes the same value so registrations and the images a
   * title passes to cellSpurs line up. */
 diff --git a/runtime/syscalls/lv2_register.c b/runtime/syscalls/lv2_register.c
-index 8815650..fc3931a 100644
+index 8815650..443d66d 100644
 --- a/runtime/syscalls/lv2_register.c
 +++ b/runtime/syscalls/lv2_register.c
 @@ -345,6 +345,7 @@ typedef struct {
@@ -284,7 +284,29 @@ index 8815650..fc3931a 100644
      g->state = SPU_GROUP_STATE_RUNNING;
      /* This run has produced no cause yet. group_join now preserves a cause a
       * thread reported, so a group id started a second time has to begin with a
-@@ -1113,9 +1137,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+@@ -1032,6 +1056,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+          * as a real SPU would, with group_join waiting on it exactly as it
+          * waits on a fallback thread. Images with no lifted code fall through
+          * to the fallback and interpreter paths below, unchanged. */
++        int native_image_id = spu_thread_image_id(t);
++        /* Shared LS entry addresses do not identify a program. In a strict
++         * native host, reject an unknown image before any entry-only lookup
++         * can select another program's code (image 0 is a registry wildcard). */
++        if (spu_missing_execution_hook && native_image_id <= 0)
++            spu_missing_execution_hook("spu-program", t->img_ea, ctx);
+         if (spu_lifted_thread_available(t->entry_point)) {
+             if (!t->sctx) t->sctx = (spu_context*)calloc(1, sizeof(spu_context));
+             if (t->sctx) {
+@@ -1040,7 +1070,7 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+                 d.group_id = id;
+                 d.entry    = t->entry_point;
+                 d.img_ea   = t->img_ea;
+-                d.image_id = spu_thread_image_id(t);
++                d.image_id = native_image_id;
+                 for (int a = 0; a < 4; a++) d.args[a] = t->args[a];
+                 spu_lifted_thread_setup(t->sctx, &d);
+                 t->running = 1;
+@@ -1113,9 +1143,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
                        if (ls && spu_elf_load_to_ls(vm_base + src, isz, ls, &ls_entry))
                            fprintf(stderr, "[SPU] thread tid=0x%X local store loaded "
                                    "(entry 0x%05X)\n", t->tid, ls_entry);
@@ -298,7 +320,7 @@ index 8815650..fc3931a 100644
                      }
                  } else {
                      fprintf(stderr, "[SPU] thread tid=0x%X image @0x%08X (%u bytes) "
-@@ -1124,6 +1151,8 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+@@ -1124,6 +1157,8 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
                  }
              }
          }

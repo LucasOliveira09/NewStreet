@@ -9,6 +9,7 @@ extern "C" void lv2_init_syscalls(void);
 extern "C" void spu_begin_image(int);
 extern "C" void spu_register_function(uint32_t, void (*)(spu_context*));
 extern "C" void spu_stop(spu_context*);
+extern "C" void fifa_install_spu_policy(void);
 extern "C" uint8_t* vm_base;
 extern "C" uint32_t ppu_vm_size;
 
@@ -50,6 +51,26 @@ uint32_t call(uint32_t syscall, std::initializer_list<uint64_t> args) {
     lv2_syscall_dispatch(&g_lv2_syscalls, &ctx);
     return (uint32_t)ctx.gpr[3];
 }
+}
+
+extern "C" int fifa_test_spu_image_mismatch(void) {
+    vm_base = (uint8_t*)std::calloc(1, 0x100000);
+    if (!vm_base) return 3;
+    ppu_vm_size = 0x100000;
+    lv2_init_syscalls();
+    fifa_install_spu_policy();
+    spu_begin_image(12345);
+    spu_register_function(entry, worker);
+    spu_begin_image(0);
+    // An unrelated native image happens to use the requested entry address.
+    // This image has no matching content registration and must not run it.
+    vm_write32(0x10004, entry);
+    if (call(SYS_SPU_THREAD_GROUP_CREATE, {0x11000, 1, 100, 0})) return 4;
+    auto group = vm_read32(0x11000);
+    if (call(SYS_SPU_THREAD_INITIALIZE, {0x11004, group, 0, 0x10000, 0, 0x12000})) return 5;
+    call(SYS_SPU_THREAD_GROUP_START, {group});
+    call(SYS_SPU_THREAD_GROUP_JOIN, {group, 0x11008, 0x1100c});
+    return 19; // The strict image boundary should terminate with code 90 first.
 }
 
 extern "C" int fifa_test_spu_groups(void) {

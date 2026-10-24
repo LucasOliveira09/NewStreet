@@ -12,6 +12,16 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_native_spu_cannot_select_another_program_by_shared_entry_address(self):
+        result = subprocess.run([str(BOOT), '--test-spu-image-mismatch'], capture_output=True,
+                                text=True, timeout=10)
+        self.assertEqual(result.returncode, 90, result.stderr)
+        event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                if line.startswith('[fifa-block] ')))
+        self.assertEqual(event['kind'], 'spu-program')
+        self.assertEqual(event['value'], 0x10000)
+        self.assertNotIn('RUNNING lifted image', result.stderr)
+
     def test_spu_groups_keep_sparse_numbers_arguments_and_local_store_isolated(self):
         result = subprocess.run([str(BOOT), '--test-spu-groups'], capture_output=True,
                                 text=True, timeout=15)
