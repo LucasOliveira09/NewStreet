@@ -27,6 +27,8 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     env.pop('PS3_SCTRACE', None)
     (output / 'spu').mkdir()
     env['FIFA_SPU_DUMP_DIR'] = str(output / 'spu')
+    (output / 'ppu').mkdir()
+    env['FIFA_PPU_DUMP_DIR'] = str(output / 'ppu')
     for mount in ('HDD0', 'HDD1'):
         key = 'PS3_' + mount + '_ROOT'
         if not env.get(key):
@@ -67,7 +69,7 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     (output / 'stderr.log').write_bytes(stderr)
     events = []
     for line in stderr.decode('utf-8', errors='replace').splitlines():
-        for prefix in ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] ', '[fifa-spu-state] '):
+        for prefix in ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] ', '[fifa-spu-state] ', '[fifa-memory] '):
             if line.startswith(prefix):
                 events.append({'type': prefix[1:prefix.index(']')], 'data': json.loads(line[len(prefix):])})
     report = dict(profile=profile, direct=direct, exit_code=code,

@@ -12,6 +12,17 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_failure_memory_snapshot_contains_real_guest_opd_bytes(self):
+        with tempfile.TemporaryDirectory(prefix='fifa PPU ') as folder:
+            env = os.environ.copy()
+            env.update(FIFA_PPU_DUMP_DIR=folder, FIFA_PPU_DUMP_RANGES='0x10000:0x8')
+            result = subprocess.run([str(BOOT), '--test-missing', 'callback'],
+                                    env=env, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 90, result.stderr)
+            snapshots = list(Path(folder).glob('*.bin'))
+            self.assertEqual(len(snapshots), 1)
+            self.assertEqual(snapshots[0].read_bytes(), bytes.fromhex('0012340000006789'))
+
     def test_fs_context_io_and_generic_rename_share_default_and_overridden_cache_roots(self):
         for override in (False, True):
             with self.subTest(override=override), tempfile.TemporaryDirectory(prefix='fifa FS ') as folder:

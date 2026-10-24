@@ -1,6 +1,7 @@
 #include "ppu_recomp.h"
 #include <cstdio>
 #include <cstdlib>
+extern "C" void fifa_dump_guest_ranges(void);
 
 // Unsupported paths terminate before guest code can consume fabricated state.
 extern "C" __declspec(noreturn)
@@ -22,5 +23,6 @@ void fifa_boot_missing(const char* kind, uint64_t value, ppu_context* ctx) {
         (unsigned long long)(ctx ? ctx->gpr[9] : 0),
         (unsigned long long)(ctx ? ctx->gpr[10] : 0));
     std::fflush(stderr);
+    fifa_dump_guest_ranges();
     std::_Exit(90);
 }

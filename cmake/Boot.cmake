@@ -36,6 +36,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     src/spu_policy.cpp
     src/spu_diagnostics.cpp
     src/filesystem_mounts.cpp
+    src/guest_memory_diagnostics.cpp
     tests/fs_mount_probe.cpp
     tests/spu_group_probe.cpp
     tests/spu_overlay_probe.cpp

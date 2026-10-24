@@ -169,3 +169,16 @@ Usar os dados reais de `private/disc`; conferir `reports/native-boot-checkpoint.
 
 Mantenha código autoral, scripts e patches em commits; preserve os dados privados
 fora do histórico. Atualize este estado após o próximo incremento validado.
+
+### Diagnóstico da tabela de controles
+
+Capturas opcionais de memória PPU foram integradas ao encerramento estrito.
+Os dumps ficam em `private/analysis/runs/<id>/ppu`; somente páginas realmente
+comprometidas e legíveis são copiadas, com limite de 16 ranges de 4 MiB.
+O teste captura bytes OPD conhecidos pelo runtime real; 16 testes de boot passaram.
+A tentativa `1792845878958364600` confirmou o manager `0x1070e4b0`, tabela
+`0x10cbf3a0`, 137 buckets e zero entradas. A tentativa `1792846051784727600`
+identificou requisições de `buttonData.ini` e `buttonDataKeyBoardMouse.ini` antes
+da chamada nula. A ISO foi extraída pela visão primária ISO9660, que contém
+`DATA0_BIG.SDAT`; o jogo procura `data0.big.sdat`. A relação com o nome UDF
+e a leitura/descriptografia do arquivo ainda precisam ser verificadas.
