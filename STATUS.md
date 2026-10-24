@@ -36,9 +36,17 @@ segmento pequeno. A integração é ativada com `-Target Spu` e `-WithSpu` no bu
 Isso não comprova que as tarefas funcionam: o runtime foi instrumentado para
 parar em programa/salto ausente antes de interpretar instruções ou concluir uma
 tarefa sem executá-la. A tentativa estrita em `private/analysis/runs/1792839751667270900`
-parou com `spu-indirect`, imagem 526190333, PC/LR `0x3f00c`. O trace mostra também
-grupos distintos iniciando a mesma thread `0x2000`: investigar o mapeamento entre
-número de SPU e índice da tabela antes de atribuir a falha ao código do jogo.
+parou com `spu-indirect`, imagem 526190333, PC/LR `0x3f00c`. O trace mostrou também
+grupos distintos iniciando a mesma thread `0x2000`. A causa foi reproduzida e
+corrigida: `spu_num` é um número selecionado pelo chamador, separado do ordinal
+compacto da thread no grupo. O teste usa três grupos e quatro threads, com números
+1, 255, 7 e 2; verifica identidade, argumentos copiados, stores independentes,
+status de saída individual e rejeição de requisições inválidas. Antes da correção,
+a primeira thread era executada quatro vezes; depois, cada thread executou uma vez.
+Logs: `reports/spu-group-before-fix.log` e `reports/spu-group-after-fix.log`.
+O novo teste usa os handlers reais do SDK em Windows, sem interpretação de CPU.
+Fonte do mapeamento: [RPCS3 aa9ebd2f, sys_spu.cpp](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_spu.cpp)
+e sua tabela de números em [sys_spu.h](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_spu.h).
 Há ainda uma referência PPU não emitida em `0x13a796c` (LR `0x139c444`), observada
 na tentativa anterior. Nenhuma conclusão correta de tarefa SPU foi validada.
 Isso não comprova correção ou cobertura completa:
@@ -66,11 +74,16 @@ Os 12 testes do pipeline SPU passaram, incluindo execução compilada através d
 dois segmentos separados. Os sete testes de boot e os 16 CTest passaram após a
 política de execução nativa; logs em `reports/spu-pipeline-tests.log`,
 `reports/spu-strict-build.log` e `reports/runtime-after-spu-dispatch.log`.
+Após a correção dos grupos, passaram oito testes de boot e os 16 CTest
+(`reports/runtime-after-spu-group.log`). A nova geração também emitiu `0x13a796c`.
+O cache de fontes geradas foi ajustado para UTF-8 explícito, migrando fontes
+legadas sem falhar na leitura nem regravar saídas idênticas.
 
 ## Primeira tarefa pendente
 
-Corrigir/validar o mapeamento dos grupos SPU e investigar o salto para `0x3f00c`.
-Depois, emitir e validar o alvo PPU `0x13a796c`.
+Validar o mapeamento corrigido no jogo e investigar o próximo salto/serviço
+necessário. Rebuild ampliado com SPUs e `0x13a796c` em andamento nesta sessão;
+não assumir execução validada apenas porque a função foi emitida.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

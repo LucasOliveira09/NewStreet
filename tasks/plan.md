@@ -94,3 +94,8 @@ Doze testes de geração, sete de boot e 16 do runtime aprovados. A tentativa es
 Antes de expandir sua cobertura, verificar por que três grupos distintos iniciam
 a mesma thread `0x2000`; isso pode compartilhar e corromper seu contexto nativo.
 Nenhum resultado de tarefa, frame ou gameplay aceito por esse incremento.
+
+O mapeamento de números SPU foi corrigido e aprovado em teste Windows dos handlers
+reais: três grupos, quatro threads, números não contíguos e argumentos preservados.
+O teste falhou antes da correção (quatro visitas à primeira thread) e passou
+depois. Oito testes de boot e 16 do runtime aprovados; validação no jogo pendente.

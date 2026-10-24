@@ -218,10 +218,73 @@ index f8a726e..dbdb68c 100644
   * offline extractor computes the same value so registrations and the images a
   * title passes to cellSpurs line up. */
 diff --git a/runtime/syscalls/lv2_register.c b/runtime/syscalls/lv2_register.c
-index 8815650..02b5d9e 100644
+index 8815650..fc3931a 100644
 --- a/runtime/syscalls/lv2_register.c
 +++ b/runtime/syscalls/lv2_register.c
-@@ -1113,9 +1113,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+@@ -345,6 +345,7 @@ typedef struct {
+     uint32_t id;
+     int      state;
+     uint32_t num_threads;
++    uint32_t initialized_threads;
+     uint32_t thread_indices[8];  /* table index into s_spu_threads */
+     char     name[32];
+     int32_t  exit_status;        /* final ppu-side status the group reports */
+@@ -382,6 +383,8 @@ static spu_group_t* spu_alloc_group(void)
+             s_spu_groups[i].state  = SPU_GROUP_STATE_INITIALIZED;
+             s_spu_groups[i].exit_status = 0;
+             s_spu_groups[i].cause  = SPU_GROUP_CAUSE_ALL_THREADS_EXIT;
++            for (unsigned j = 0; j < 8; ++j)
++                s_spu_groups[i].thread_indices[j] = MAX_SPU_THREADS;
+             return &s_spu_groups[i];
+         }
+     }
+@@ -594,6 +597,24 @@ static int64_t sys_spu_thread_initialize_handler(ppu_context* ctx)
+         ctx->gpr[3] = (uint64_t)(int64_t)-1;
+         return -1;
+     }
++    /* spu_num is a caller-selected number (0..255), not the ordinal in
++     * this group's compact thread list. See RPCS3 aa9ebd2f sys_spu.cpp:
++     * threads[inited] and threads_map[spu_num] are separate mappings. */
++    if (thread_num >= 256) {
++        ctx->gpr[3] = (uint64_t)(int64_t)(int32_t)CELL_EINVAL;
++        return (int64_t)(int32_t)CELL_EINVAL;
++    }
++    for (uint32_t i = 0; i < g->initialized_threads; ++i) {
++        uint32_t idx = g->thread_indices[i];
++        if (idx < MAX_SPU_THREADS && s_spu_threads[idx].index == thread_num) {
++            ctx->gpr[3] = (uint64_t)(int64_t)(int32_t)CELL_EBUSY;
++            return (int64_t)(int32_t)CELL_EBUSY;
++        }
++    }
++    if (g->initialized_threads >= g->num_threads || g->initialized_threads >= 8) {
++        ctx->gpr[3] = (uint64_t)(int64_t)(int32_t)CELL_EBUSY;
++        return (int64_t)(int32_t)CELL_EBUSY;
++    }
+     spu_thread_t* t = spu_alloc_thread();
+     if (!t) {
+         ctx->gpr[3] = (uint64_t)(int64_t)-1;
+@@ -648,8 +669,7 @@ static int64_t sys_spu_thread_initialize_handler(ppu_context* ctx)
+         fflush(stderr);
+     }
+ 
+-    if (thread_num < 8)
+-        g->thread_indices[thread_num] = (uint32_t)(t - s_spu_threads);
++    g->thread_indices[g->initialized_threads++] = (uint32_t)(t - s_spu_threads);
+ 
+     /* EXPERIMENT (YDKJ_SPUREADY): the lifted libsre cellSpursInitialize busy-polls the
+      * SPU-thread descriptor field at img_ea+0x38 (e.g. 0x101671A8) for a non-zero
+@@ -962,6 +982,10 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+     uint32_t id = (uint32_t)ctx->gpr[3];
+     spu_group_t* g = spu_find_group(id);
+     if (!g) { ctx->gpr[3] = (uint64_t)(int64_t)-1; return -1; }
++    if (g->initialized_threads != g->num_threads) {
++        ctx->gpr[3] = (uint64_t)(int64_t)(int32_t)CELL_ESTAT;
++        return (int64_t)(int32_t)CELL_ESTAT;
++    }
+     g->state = SPU_GROUP_STATE_RUNNING;
+     /* This run has produced no cause yet. group_join now preserves a cause a
+      * thread reported, so a group id started a second time has to begin with a
+@@ -1113,9 +1137,12 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
                        if (ls && spu_elf_load_to_ls(vm_base + src, isz, ls, &ls_entry))
                            fprintf(stderr, "[SPU] thread tid=0x%X local store loaded "
                                    "(entry 0x%05X)\n", t->tid, ls_entry);
@@ -235,7 +298,7 @@ index 8815650..02b5d9e 100644
                      }
                  } else {
                      fprintf(stderr, "[SPU] thread tid=0x%X image @0x%08X (%u bytes) "
-@@ -1124,6 +1127,8 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
+@@ -1124,6 +1151,8 @@ static int64_t sys_spu_thread_group_start_handler(ppu_context* ctx)
                  }
              }
          }
@@ -245,7 +308,7 @@ index 8815650..02b5d9e 100644
              /* No lifted fallback: interpret the image instead of instant-
               * completing. Additive + env-gated so it can't destabilize titles
 diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
-index 9d9df71..8c70caf 100644
+index 9d9df71..9d22575 100644
 --- a/tools/ppu_lifter.py
 +++ b/tools/ppu_lifter.py
 @@ -109,6 +109,14 @@ typedef struct ppu_context {
@@ -286,6 +349,23 @@ index 9d9df71..8c70caf 100644
  
          lines.append("}")
          lines.append("")
+@@ -4040,13 +4054,13 @@ class PPULifter:
+         unchanged file keeps its mtime and the build leaves its object alone.
+         Returns True when the file was written."""
+         try:
+-            with open(path, "r") as f:
++            with open(path, "r", encoding="utf-8") as f:
+                 if f.read() == text:
+                     return False
+-        except OSError:
++        except (OSError, UnicodeDecodeError):
+             pass
+         tmp = path + ".tmp"
+-        with open(tmp, "w") as f:
++        with open(tmp, "w", encoding="utf-8") as f:
+             f.write(text)
+         os.replace(tmp, path)
+         return True
 diff --git a/tools/spu_program_pipeline.py b/tools/spu_program_pipeline.py
 index 2b8984d..c3b62cf 100644
 --- a/tools/spu_program_pipeline.py

@@ -32,7 +32,8 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Observar leitura real de locale.big e threads de carregamento.
 - [x] Bloquear programa/salto SPU ausente antes de fallback ou interpretação.
 - [x] Recompilar e ligar a primeira imagem SPU multi-segmento solicitada.
-- [ ] Validar isolamento das threads SPU entre grupos com números não contíguos.
+- [x] Validar handlers de grupos SPU com números não contíguos em teste Windows.
+- [ ] Confirmar o isolamento corrigido no carregamento real do jogo.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 

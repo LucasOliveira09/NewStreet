@@ -34,6 +34,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     src/guest_callbacks.cpp tests/callback_probe.cpp
     src/graphics.cpp
     src/spu_policy.cpp
+    tests/spu_group_probe.cpp
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
 

@@ -12,6 +12,13 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_spu_groups_keep_sparse_numbers_arguments_and_local_store_isolated(self):
+        result = subprocess.run([str(BOOT), '--test-spu-groups'], capture_output=True,
+                                text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), dict(groups=3, threads=4,
+            isolated=True, copied_arguments=True, invalid_requests_rejected=True))
+
     def test_hle_callback_enters_guest_code_with_64bit_arguments_and_thread_identity(self):
         result = subprocess.run([str(BOOT), '--test-callback'], capture_output=True,
                                 text=True, timeout=10)
