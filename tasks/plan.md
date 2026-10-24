@@ -322,3 +322,13 @@ O observador passou a deduplicar por programa e base física, com bitmap limitad
 à LS. A regressão falhou antes e passou depois; 31 testes de boot, 52 do projeto
 e ambos os builds passaram. Isso permite conferir posições relocadas reais,
 sem inferir entradas que o log anterior ocultava.
+
+## Entrada real relocada do sound player
+
+Com relocatable_pic habilitado somente no sound player 1, a tentativa
+1792882100622595900 entrou em base 0x7800 sem variante estática. O bloqueio
+seguinte, PC 0x7b60, pertence ao decoder PCM float carregado em 0x7680;
+não adicionar entrada ao sound player por simples aritmética. Fonte 0x1fa3a00,
+0xb80 bytes, conferida contra o snapshot. 64 saídas AssetStream passaram.
+Próximo: admitir o código original desse decoder e habilitar PIC nos módulos
+de áudio já auditados. Menu e áudio ainda não validados.

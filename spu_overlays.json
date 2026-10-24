@@ -260,6 +260,7 @@
     },
     {
       "name": "audio_spusndplayer1",
+      "relocatable_pic": true,
       "source_ea": "0x1fca800",
       "size": "0x1de0",
       "sha256": "a02440fa022f36c82fabb5fc967c18425ae77dbd3cf76fa3e876a408a28ae3bf",

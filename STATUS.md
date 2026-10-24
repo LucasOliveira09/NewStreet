@@ -737,3 +737,15 @@ atômico e não altera o contexto guest. A regressão reproduziu a perda das
 segundas posições antes da correção e passou depois. 31 testes de boot,
 52 do projeto e os builds de boot/jogo passaram. A mudança é diagnóstico;
 uma entrada registrada não demonstra conclusão da tarefa.
+
+## Primeira entrada PIC relocada no jogo
+
+Somente sound player 1 foi habilitado. A execução 1792882100622595900 entrou
+em LS 0x5880 e 0x7800 usando a mesma tradução canônica. Não existe variante
+estática 0x7800. Após 25,227 s, a falha estrita foi em PC 0x7b60: o conteúdo
+nesse endereço já pertencia a outro programa, spudecpcmfloatnative. O snapshot
+em base 0x7680 coincide integralmente com a fonte 0x1fa3a00, 0xb80 bytes,
+SHA f1d9790891394b24161e8998aeeda641a7b00281bde75daf0ed5d0511937aec0.
+As 64 saídas AssetStream capturadas passaram. Entrada do sound player foi
+validada; conclusão, áudio audível e menu continuam pendentes. Próxima etapa:
+traduzir o decoder PCM float original e ampliar o PIC aos módulos já auditados.
