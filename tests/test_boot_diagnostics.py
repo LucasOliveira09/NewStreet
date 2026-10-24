@@ -127,7 +127,9 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
                          dict(before=0x80130101, duplicate=0x80130102,
                               invalid=0x80130107, result=0, state=0,
-                              after=0x80130101, untouched=True))
+                              after=0x80130101, untouched=True,
+                              invalid_info=0x80130107, offline_info=0x80130108,
+                              untouched_info=True))
 
     def test_same_spu_source_selects_the_static_translation_for_its_ls_base(self):
         result = subprocess.run([str(BOOT), '--test-spu-overlay', 'relocated'],

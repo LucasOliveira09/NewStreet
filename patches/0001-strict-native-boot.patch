@@ -1,5 +1,5 @@
 diff --git a/libs/network/cellNetCtl.c b/libs/network/cellNetCtl.c
-index c7926c0..d039802 100644
+index c7926c0..e62bf33 100644
 --- a/libs/network/cellNetCtl.c
 +++ b/libs/network/cellNetCtl.c
 @@ -155,15 +155,11 @@ s32 cellNetCtlGetState(s32* state)
@@ -22,6 +22,18 @@ index c7926c0..d039802 100644
      }
  
      vm_write32((uint32_t)(uintptr_t)state, CELL_NET_CTL_STATE_IPObtained);
+@@ -179,6 +175,11 @@ s32 cellNetCtlGetInfo(s32 code, CellNetCtlInfo* info)
+     if (!info)
+         return CELL_NET_CTL_ERROR_INVALID_ADDR;
+ 
++    /* A disconnected interface has no connection information. The local
++     * Ethernet identifier is the API's exception, available without a link. */
++    if (!netctl_online() && code != CELL_NET_CTL_INFO_ETHER_ADDR)
++        return CELL_NET_CTL_ERROR_NOT_CONNECTED;
++
+     info = GUEST_PTR(info, CellNetCtlInfo*);
+     memset(info, 0, sizeof(CellNetCtlInfo));
+ 
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
 index 4d54b72..56b0574 100644
 --- a/runtime/ppu/ppu_fs.cpp

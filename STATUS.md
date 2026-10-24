@@ -542,3 +542,16 @@ O runner preserva essas entradas no result.json. A execução de 75 s registrou
 nove programas da primeira cadeia, sem comprovar entrada/conclusão do ANT ou
 do generic player. As 47 saídas AssetStream capturadas continuaram corretas.
 40 testes do projeto passaram.
+
+## Consulta de IP no modo offline
+
+O handler cellNetCtlGetInfo(16) devolvia sucesso/IP mesmo desconectado.
+Agora retorna NOT_CONNECTED, preservando o buffer, e mantém INVALID_ADDR
+para ponteiro nulo. A regressão pelos handlers reais falhou antes e passou
+depois; 24 testes de boot e build completo aprovados. Não altera o caminho
+online. Referência fixada: RPCS3 aa9ebd2f, cellNetCtl.cpp, GetInfo.
+https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/cellNetCtl.cpp#L224
+A execução 1792874176576705900 registrou 28 entradas reais de programas/bases
+SPU, incluindo ANT em 0xb0. Parou em seu salto calculado para 0x11c, após
+34,481 s. Isso confirma entrada no ANT, sem comprovar conclusão, áudio ou menu.
+O frame capturado continua sendo o logo original.
