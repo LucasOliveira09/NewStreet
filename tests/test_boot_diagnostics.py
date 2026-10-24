@@ -12,6 +12,15 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_native_crash_keeps_exception_diagnostics(self):
+        result = subprocess.run([str(BOOT), '--test-native-crash'], capture_output=True,
+                                text=True, timeout=10)
+        self.assertNotEqual(result.returncode, 0)
+        event = json.loads(next(line.removeprefix('[fifa-crash] ') for line in result.stderr.splitlines()
+                                if line.startswith('[fifa-crash] ')))
+        self.assertEqual(event['exception'], 0xE0464946)
+        self.assertGreater(event['host_rip'], 0)
+
     def test_native_child_receives_exact_arguments_and_propagates_exit_code(self):
         with tempfile.TemporaryDirectory(prefix='fifa child ') as folder:
             script = Path(folder) / 'capture args.py'

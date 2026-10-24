@@ -162,6 +162,11 @@ emulador é iniciado. O callback de encerramento do EBOOT também é executado.
 .\tools\build.ps1 -Target FullGame -SkipLift -Jobs 6
 ```
 
+O perfil `FullGame` usa `/Od` para reduzir o ciclo de investigação inicial.
+`-OptimizeFullGame` seleciona `/O1`; medir desempenho somente após validar o
+caminho funcional. O host também registra exceções nativas em `[fifa-crash]`,
+incluindo símbolo/endereço do Windows e o contexto PPU disponível.
+
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho
 configurado. A ferramenta de diagnóstico registra esses resultados sem declará-los

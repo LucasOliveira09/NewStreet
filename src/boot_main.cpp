@@ -29,6 +29,7 @@ void fifa_capture_spawn(ppu_context*);
 int fifa_configure_guest_arguments(int, char**);
 void fifa_dump_guest_arguments(void);
 void fifa_set_disc_root(const char*);
+void fifa_install_crash_diagnostics(void);
 }
 
 static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
@@ -61,6 +62,11 @@ int main(int argc, char** argv) {
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     setvbuf(stdout, nullptr, _IONBF, 0);
     setvbuf(stderr, nullptr, _IONBF, 0);
+    fifa_install_crash_diagnostics();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
+        RaiseException(0xE0464946u, EXCEPTION_NONCONTINUABLE, 0, nullptr);
+        return 1;
+    }
     if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");

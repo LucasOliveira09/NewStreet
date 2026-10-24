@@ -18,13 +18,18 @@ else()
     add_subdirectory("${PS3_SDK}" "${CMAKE_BINARY_DIR}/sdk" EXCLUDE_FROM_ALL)
 endif()
 file(GLOB BOOT_GENERATED CONFIGURE_DEPENDS "${BOOT_RECOMP_DIR}/ppu_recomp*.c" "${BOOT_RECOMP_DIR}/ppu_recomp*.cpp")
-set_source_files_properties(${BOOT_GENERATED} PROPERTIES LANGUAGE CXX COMPILE_OPTIONS "/w;/bigobj;/O1")
+set(FIFA_LIFT_OPTIMIZATION "/O1" CACHE STRING "Compiler mode for translated game code: /O1 or /Od")
+set_property(CACHE FIFA_LIFT_OPTIMIZATION PROPERTY STRINGS "/O1" "/Od")
+if(NOT FIFA_LIFT_OPTIMIZATION MATCHES "^/O(1|d)$")
+    message(FATAL_ERROR "Unsupported FIFA_LIFT_OPTIMIZATION")
+endif()
+set_source_files_properties(${BOOT_GENERATED} PROPERTIES LANGUAGE CXX COMPILE_OPTIONS "/w;/bigobj;${FIFA_LIFT_OPTIMIZATION}")
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 set(HLE_TABLE "${CMAKE_CURRENT_BINARY_DIR}/ppu_hle_nids.cpp")
 execute_process(COMMAND "${Python3_EXECUTABLE}" "${PS3_SDK}/tools/gen_hle_nids.py" --all --out "${HLE_TABLE}"
     COMMAND_ERROR_IS_FATAL ANY)
 add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_spawn.cpp ${BOOT_GENERATED} "${HLE_TABLE}"
-    src/native_process.cpp src/guest_arguments.cpp
+    src/native_process.cpp src/guest_arguments.cpp src/crash_diagnostics.cpp
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
 target_include_directories(fifa_boot PRIVATE "${BOOT_RECOMP_DIR}" "${PS3_SDK}/include"

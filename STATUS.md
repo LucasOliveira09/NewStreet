@@ -24,9 +24,13 @@ A geração ampliada contém 98.776 entradas/trechos e está sendo compilada em
 As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
 (HLE, syscall, chamada indireta e função não traduzida). Todas param explicitamente.
 O patch do SDK está versionado e sua aplicação é idempotente. Baseline reproduzido.
-Quatro testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
+Cinco testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
 ponteiros de 32 bits, os argumentos exatos e o transporte para processo filho
-nativo com propagação de seu código de saída.
+nativo com propagação de seu código de saída, além do diagnóstico de exceção nativa.
+O perfil ampliado usa `/Od` na investigação; `/O1` pode ser ativado para medição
+posterior. A geração SPU não produziu um registro utilizável: seis imagens têm
+palavras não decodificadas e uma tem três segmentos executáveis. O inventário
+de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao jogo.
 
 ## Primeira tarefa pendente
 

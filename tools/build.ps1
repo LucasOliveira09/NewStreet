@@ -3,6 +3,7 @@ param(
     [int]$StartupLimit = 256,
     [string[]]$AddFunction = @(),
     [switch]$SkipLift,
+    [switch]$OptimizeFullGame,
     [ValidateRange(1, 12)][int]$Jobs = 2
 )
 $ErrorActionPreference = 'Stop'
@@ -64,10 +65,12 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
     $liftArguments = @('tools/lift_startup.py','--limit',"$StartupLimit")
     $profile = 'fifazf_startup'
     $buildDirectory = 'private/build/fifazf'
+    $liftOptimization = '/O1'
     if ($Target -eq 'FullGame') {
         $liftArguments += '--all-opd'
         $profile = 'fifazf_full'
         $buildDirectory = 'private/build/fifazf_full'
+        if (-not $OptimizeFullGame) { $liftOptimization = '/Od' }
     }
     foreach ($guestAddress in $AddFunction) { $liftArguments += @('--add', $guestAddress) }
     if ($SkipLift -and $AddFunction.Count) { throw '-AddFunction requires lifting.' }
@@ -78,6 +81,7 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
         '-DCMAKE_C_COMPILER=clang-cl','-DCMAKE_CXX_COMPILER=clang-cl','-DCMAKE_BUILD_TYPE=RelWithDebInfo',
         '-DFIFA_BUILD_BOOT=ON',"-DPython3_EXECUTABLE=$python",
         "-DBOOT_RECOMP_DIR=$projectRoot/private/generated/$profile",
+        "-DFIFA_LIFT_OPTIMIZATION=$liftOptimization",
         "-DFIFA_RUNTIME_ARCHIVE=$runtimeArchive")
     Invoke-Checked $cmake @('--build',$buildDirectory,'--target','fifa_boot','--parallel',"$Jobs")
 }

@@ -54,7 +54,7 @@ def run_native(profile='full', timeout=30, direct=False):
     (output / 'stderr.log').write_bytes(stderr)
     events = []
     for line in stderr.decode('utf-8', errors='replace').splitlines():
-        for prefix in ('[fifa-block] ', '[fifa-spawn] '):
+        for prefix in ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] '):
             if line.startswith(prefix):
                 events.append({'type': prefix[1:prefix.index(']')], 'data': json.loads(line[len(prefix):])})
     report = dict(profile=profile, direct=direct, exit_code=code,
