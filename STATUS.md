@@ -450,3 +450,13 @@ O watchdog optativo também informa donos/depth dos mutexes ativos, sem
 suspender threads, adquirir seus locks ou alterar o guest. A nova coleta
 ainda não foi necessária nesta tentativa, que para antes dos 45 segundos.
 24 testes de boot e 40 do projeto passaram após as mudanças.
+
+## Sound player 1
+
+`spusndplayer1.elf`: fonte 0x1fca800, LS 0x5880, 7.648 bytes iguais,
+hash a02440fa022f36c82fabb5fc967c18425ae77dbd3cf76fa3e876a408a28ae3bf.
+Callbacks 0x59e0/0x59b0/0x5ff8 revisados na inicialização PIC; código até
+0x7634, incluindo os tail branches finais. 87 entradas, zero instruções
+ou destinos diretos ausentes, build aprovado. Tentativa 1792872592369669300
+passou por sua entrada e pediu o decoder em outra posição: LS 0x7700.
+O novo snapshot confere os 3.648 bytes do mesmo decoder original.
