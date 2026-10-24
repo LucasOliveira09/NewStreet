@@ -21,6 +21,13 @@ sem chamar função alguma. Os 14 testes de boot passaram com essa fronteira.
 Também há divergência de mounts entre as camadas FS: o
 `cellFsRename` genérico não conhece `/dev_hdd1/`, embora o adaptador de Open/Write
 o use para criar o cache; o arquivo continua `.tmp`. Não presumir rename concluído.
+Essa divergência foi corrigida no host: as APIs compartilham as raízes de disc,
+app_home, hdd0 e hdd1. Um teste Windows executa Open/Write/Close/Rename/Open/Read
+pelos handlers reais e confirma o arquivo no host, inclusive com raiz HDD1 própria
+e caminho com espaços. Quinze testes de boot passaram. O runner agora mantém os
+HDDs em `private/userdata`; a conclusão do cache no jogo continua pendente porque
+o processo ainda para na chamada nula de input. A tentativa com os mounts
+corrigidos é `1792845015908878500`.
 Nenhuma partida ou menu foi validado. A saída do descompactador ainda precisa ser
 comparada byte a byte com um oráculo zlib, mesmo com a execução nativa avançando.
 

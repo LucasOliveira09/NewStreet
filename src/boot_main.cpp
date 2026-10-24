@@ -41,6 +41,8 @@ int fifa_test_spu_groups(void);
 int fifa_test_spu_image_mismatch(void);
 int fifa_test_spu_termination(const char*);
 int fifa_test_spu_overlay(const char*);
+void fifa_configure_filesystem_mounts(const char*);
+int fifa_test_filesystem_mounts(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -100,6 +102,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-termination")) return fifa_test_spu_termination(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-overlay")) return fifa_test_spu_overlay(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-fs-mounts")) return fifa_test_filesystem_mounts(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);
@@ -145,6 +148,7 @@ int main(int argc, char** argv) {
     std::string root = disc.generic_string();
     fifa_set_disc_root(root.c_str());
     ppu_vfs_root = root.c_str();
+    fifa_configure_filesystem_mounts(root.c_str());
     uint32_t entry = ppu_load_elf(elf.string().c_str());
     if (!entry) return 4;
     auto sfo = disc / "PS3_GAME/PARAM.SFO";

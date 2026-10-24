@@ -203,6 +203,9 @@ com operações de desenho. As capturas ficam no diretório privado da tentativa
 `--syscall-trace` habilita o log detalhado de syscalls, desativado por padrão.
 Em uma falha SPU, a tentativa preserva o local store e os registradores em
 `private/analysis/runs/<tentativa>/spu`, sem alterar ou interpretar seu código.
+O runner mantém cache e dados graváveis em `private/userdata/dev_hdd0` e
+`dev_hdd1`. `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` podem selecionar outras raízes;
+o host aplica os mesmos mounts ao adaptador PPU e às APIs genéricas de arquivos.
 
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho

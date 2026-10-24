@@ -42,7 +42,8 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [ ] Comparar a saída nativa da tarefa zlib com descompressão de referência.
 - [x] Interromper chamadas PPU nulas com diagnóstico completo.
 - [ ] Investigar o objeto/chamada em LR `0x11a9f50`.
-- [ ] Unificar mounts dos serviços FS usados na finalização do cache.
+- [x] Unificar mounts de Open/Write/Rename e testar o ciclo real de arquivos.
+- [ ] Confirmar finalização do cache do jogo após resolver o bloqueio de input.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 

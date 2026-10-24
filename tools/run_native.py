@@ -27,6 +27,12 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     env.pop('PS3_SCTRACE', None)
     (output / 'spu').mkdir()
     env['FIFA_SPU_DUMP_DIR'] = str(output / 'spu')
+    for mount in ('HDD0', 'HDD1'):
+        key = 'PS3_' + mount + '_ROOT'
+        if not env.get(key):
+            storage = ROOT / 'private/userdata' / ('dev_' + mount.lower())
+            storage.mkdir(parents=True, exist_ok=True)
+            env[key] = str(storage)
     if syscall_trace:
         env['PS3_SCTRACE'] = '1'
     if capture:
