@@ -214,3 +214,12 @@ O gerador agora preserva mtime apenas para arquivos regenerados idênticos
 byte a byte, mantendo a publicação completa e a remoção de saídas antigas.
 O rebuild do callback compilou somente submix e a tabela HLE, sem recompilar
 zlib, RefPack ou o mixer inalterados. Nenhum áudio foi validado.
+
+### Captura de amostras do mixer
+
+`spusamplecapture.elf`, fonte `0x1ffc800`, 0x2260 bytes, foi traduzido
+para LS `0x4880`, com código até `0x68e0` e callbacks PIC identificados.
+O módulo executou até o mixer carregar `spugainfader.elf` em LS `0x6b80`,
+entrada `0x6bb0`, fonte `0x1fda900`. A tentativa é `1792847260676890600`.
+O dump dessa nova região coincide integralmente com a fonte original.
+Nenhuma amostra de áudio audível foi validada.

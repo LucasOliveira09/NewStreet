@@ -65,6 +65,21 @@
       "missing_direct_targets": 0,
       "native_run": "private/analysis/runs/1792847030174348200",
       "audio_validated": false
+    },
+    {
+      "name": "spusamplecapture",
+      "source_ea": "0x1ffc800",
+      "source_bytes": 8800,
+      "sha256": "51c852cc3de82ca079a38a51ee25234ebf994774ddd1e788cbe591c7a7183a35",
+      "local_store_base": "0x4880",
+      "entry": "0x48b0",
+      "code_end_exclusive": "0x68e0",
+      "functions": 101,
+      "source_snapshot_byte_differences": 0,
+      "unsupported_instructions": 0,
+      "missing_direct_targets": 0,
+      "native_run": "private/analysis/runs/1792847260676890600",
+      "audio_validated": false
     }
   ]
 }

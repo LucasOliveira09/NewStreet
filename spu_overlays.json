@@ -75,6 +75,20 @@
         "0x3848",
         "0x38c0"
       ]
+    },
+    {
+      "name": "audio_spusamplecapture",
+      "source_ea": "0x1ffc800",
+      "size": "0x2260",
+      "sha256": "51c852cc3de82ca079a38a51ee25234ebf994774ddd1e788cbe591c7a7183a35",
+      "ls_base": "0x4880",
+      "entry": "0x48b0",
+      "code_start": "0x48b0",
+      "code_end": "0x68e0",
+      "extra_entries": [
+        "0x4948",
+        "0x5148"
+      ]
     }
   ]
 }
