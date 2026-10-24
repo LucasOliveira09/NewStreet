@@ -20,3 +20,4 @@ reports/*
 !reports/validation.json
 !reports/probe-tests.log
 !reports/runtime-tests.log
+!reports/native-boot-checkpoint.json

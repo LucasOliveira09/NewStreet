@@ -1,0 +1,3 @@
+# Patch context lines intentionally contain one leading space on blank lines.
+# Preserve the exact patch bytes across Windows checkouts.
+patches/*.patch -text whitespace=-blank-at-eol

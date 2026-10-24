@@ -1,0 +1,98 @@
+diff --git a/runtime/ppu/ppu_hle.cpp b/runtime/ppu/ppu_hle.cpp
+index b44816b..2638dcb 100644
+--- a/runtime/ppu/ppu_hle.cpp
++++ b/runtime/ppu/ppu_hle.cpp
+@@ -19,6 +19,9 @@
+ #define PPU_NO_INLINE_LOADS   /* declares its own out-of-line vm_read* below */
+ #include <chrono>
+ #include "ppu_recomp.h"   /* ppu_context */
++#ifdef FIFA_STRICT_BOOT
++extern "C" __declspec(noreturn) void fifa_boot_missing(const char*, uint64_t, ppu_context*);
++#endif
+ #include "ps3emu/nid.h"   /* ps3_nid_table, ps3_nid_entry */
+ #include "ps3emu/milestone.h" /* ps3_msf -- boot milestone log */
+ #include <stdlib.h>       /* getenv */
+@@ -685,6 +688,9 @@ extern "C" void ps3_hle_call(uint32_t nid, ppu_context* ctx)
+ 
+     ps3_nid_entry* e = g_hle_inited ? ps3_nid_table_find(&g_hle_nids, nid) : nullptr;
+     if (!e || !e->handler) {
++#ifdef FIFA_STRICT_BOOT
++        fifa_boot_missing("hle", nid, ctx);
++#endif
+         /* Recorded before the diagnostic paths below, several of which return
+          * early. An import moving between resolved and unresolved is exactly the
+          * kind of change the gate exists to catch. */
+diff --git a/runtime/ppu/ppu_loader.cpp b/runtime/ppu/ppu_loader.cpp
+index f54150d..b4d399b 100644
+--- a/runtime/ppu/ppu_loader.cpp
++++ b/runtime/ppu/ppu_loader.cpp
+@@ -34,6 +34,9 @@
+ #include "ppu_tls.h"   /* PPU_THREAD_LOCAL, without a second ppu_context */
+ #define PPU_NO_INLINE_LOADS   /* this file defines the out-of-line accessors */
+ #include "ppu_recomp.h"
++#ifdef FIFA_STRICT_BOOT
++extern "C" __declspec(noreturn) void fifa_boot_missing(const char*, uint64_t, ppu_context*);
++#endif
+ #include "ps3emu/ps3_ftrace.h"   /* PS3_FTRACE timeline */
+ #include "ps3emu/milestone.h"   /* ps3_ms / ps3_msf -- boot milestone log */     /* ppu_context, func decls, ppu_recomp_register */
+ #include "../memory/vm.h"   /* vm_commit -- sys_mmapper_search_and_map maps for real */
+@@ -2723,6 +2726,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
+ 
+     ppu_fn fn = ppu_lookup(addr);
+     if (!fn) {
++#ifdef FIFA_STRICT_BOOT
++        fifa_boot_missing("indirect", addr, ctx);
++#endif
+         /* OPD-swap clobber fixup: a malformed memcpy (game func_0036FA74) writes
+          * some handler/vtable OPDs as {TOC, func} (code & toc SWAPPED), so lifted
+          * code loads ctr = TOC base and r2 = the real function. If ctr is not a
+@@ -3035,6 +3041,9 @@ static void ps3_indirect_call_impl(ppu_context* ctx)
+  * continue (the result is undefined, but it won't crash the link). */
+ extern "C" void ppu_unlifted_stub(uint64_t addr, ppu_context* ctx)
+ {
++#ifdef FIFA_STRICT_BOOT
++    fifa_boot_missing("unlifted", addr, ctx);
++#endif
+     (void)ctx;
+     static int logged = 0;
+     if (logged < 20) {
+@@ -3360,6 +3369,9 @@ extern "C" void lv2_syscall(ppu_context* ctx)
+                 return;
+             }
+         }
++#ifdef FIFA_STRICT_BOOT
++        fifa_boot_missing("syscall", num, ctx);
++#endif
+         static int logged = 0;
+         if (logged < 30) {
+             fprintf(stderr, "[ppu] lv2_syscall %llu (stub)\n", (unsigned long long)num);
+diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
+index 9d9df71..f3655e6 100644
+--- a/tools/ppu_lifter.py
++++ b/tools/ppu_lifter.py
+@@ -109,6 +109,14 @@ typedef struct ppu_context {
+     uint32_t vrsave;        /* VRSAVE (SPR 256): plain state      */
+ } ppu_context;
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
++void fifa_boot_missing(const char* kind, uint64_t value, ppu_context* ctx);
++#ifdef __cplusplus
++}
++#endif
++
+ /* Memory access helpers (provided by runtime) */
+ #ifdef __cplusplus
+ extern "C" {
+@@ -3584,7 +3592,9 @@ class PPULifter:
+         # Merge high halfword / low halfword (vmrghh, vmrglh — already in vmrg* handler above)
+ 
+         # ------- Default: emit as comment -------
+-        return f"/* TODO: {mn} {insn.operands} */;"
++        return (f"#ifdef FIFA_STRICT_BOOT\n"
++                f"fifa_boot_missing(\"instruction\", 0x{insn.addr:X}ULL, ctx);\n"
++                f"#else\n/* TODO: {mn} {insn.operands} */;\n#endif")
+ 
+     def _branch_condition(self, mnemonic: str, ops: list[str], raw: int | None = None) -> str:
+         """Generate a C condition expression for a conditional branch.

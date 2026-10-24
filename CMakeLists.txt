@@ -25,3 +25,8 @@ target_include_directories(fifa_function_probe PRIVATE
     vendor/ps3recomp/include
 )
 target_compile_definitions(fifa_function_probe PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+option(FIFA_BUILD_BOOT "Build the real-game native startup diagnostic" OFF)
+if(FIFA_BUILD_BOOT)
+    include(cmake/Boot.cmake)
+endif()

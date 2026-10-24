@@ -1,0 +1,92 @@
+// Initial headless native boot: no renderer or fake success paths.
+// Runtime interface: vendor/ps3recomp/runtime/ppu/tests/boot_main.cpp.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "ppu_recomp.h"
+#include <cstdio>
+#include <cstring>
+#include <filesystem>
+#include <string>
+
+extern "C" {
+uint8_t* vm_base = nullptr;
+extern uint32_t ppu_vm_size;
+extern const char* ppu_vfs_root;
+uint32_t ppu_load_elf(const char*);
+void ppu_recomp_register(void);
+void ppu_hle_init(void);
+void ppu_sysprx_register(void);
+void ppu_fs_register(void);
+void lv2_init_syscalls(void);
+void ps3_hle_call(uint32_t, ppu_context*);
+void ps3_indirect_call(ppu_context*);
+void ppu_unlifted_stub(uint64_t, ppu_context*);
+int ppu_run(uint32_t, uint32_t);
+void cellGame_init_from_paramsfo(const char*);
+}
+
+static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
+    auto* record = exception->ExceptionRecord;
+    if (record->ExceptionCode != EXCEPTION_ACCESS_VIOLATION || record->NumberParameters < 2)
+        return EXCEPTION_CONTINUE_SEARCH;
+    uintptr_t fault = record->ExceptionInformation[1], base = (uintptr_t)vm_base;
+    if (!vm_base || fault < base || fault - base >= 0x100000000ULL)
+        return EXCEPTION_CONTINUE_SEARCH;
+    // Only back valid reserved guest pages. Never turn execute faults into data.
+    if (record->ExceptionInformation[0] == 8) return EXCEPTION_CONTINUE_SEARCH;
+    void* page = (void*)(fault & ~uintptr_t(0xFFFF));
+    if (VirtualAlloc(page, 0x10000, MEM_COMMIT, PAGE_READWRITE))
+        return EXCEPTION_CONTINUE_EXECUTION;
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static int test_missing(const char* kind) {
+    ppu_context context{};
+    context.lr = 0x12345678;
+    if (!std::strcmp(kind, "hle")) ps3_hle_call(0xDEADBEEFu, &context);
+    else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
+    else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }
+    else if (!std::strcmp(kind, "unlifted")) ppu_unlifted_stub(0x123400, &context);
+    else return 2;
+    return 1; // Unsupported boundaries must terminate, never return success.
+}
+
+int main(int argc, char** argv) {
+    setvbuf(stdout, nullptr, _IONBF, 0);
+    setvbuf(stderr, nullptr, _IONBF, 0);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
+    if (argc != 3) {
+        std::fprintf(stderr, "Usage: fifa_boot.exe <decrypted-elf> <disc-root>\n");
+        return 2;
+    }
+    std::filesystem::path elf = std::filesystem::absolute(argv[1]);
+    std::filesystem::path disc = std::filesystem::absolute(argv[2]);
+    if (!std::filesystem::is_regular_file(elf) || !std::filesystem::is_directory(disc)) return 2;
+    // A 4 GB-aligned base is required by upstream host-to-guest pointer recovery.
+    for (int attempt = 0; attempt < 8 && !vm_base; ++attempt) {
+        void* reservation = VirtualAlloc(nullptr, 0x200000000ULL, MEM_RESERVE, PAGE_NOACCESS);
+        if (!reservation) return 3;
+        uintptr_t aligned = ((uintptr_t)reservation + 0xFFFFFFFFULL) & ~uintptr_t(0xFFFFFFFFULL);
+        VirtualFree(reservation, 0, MEM_RELEASE);
+        vm_base = (uint8_t*)VirtualAlloc((void*)aligned, 0x100000000ULL, MEM_RESERVE, PAGE_READWRITE);
+    }
+    if (!vm_base) return 3;
+    ppu_vm_size = 0; // 0 denotes the full 4 GB guest address space in this SDK.
+    AddVectoredExceptionHandler(1, commit_guest_page);
+    std::string root = disc.generic_string();
+    ppu_vfs_root = root.c_str();
+    uint32_t entry = ppu_load_elf(elf.string().c_str());
+    if (!entry) return 4;
+    auto sfo = disc / "PS3_GAME/PARAM.SFO";
+    if (std::filesystem::exists(sfo)) cellGame_init_from_paramsfo(sfo.string().c_str());
+    ppu_recomp_register();
+    ppu_hle_init();
+    ppu_sysprx_register();
+    ppu_fs_register();
+    lv2_init_syscalls();
+    std::fprintf(stderr, "[fifa-boot] entry=0x%08X functions=%llu root=%s\n", entry,
+                 (unsigned long long)function_table_count, root.c_str());
+    int result = ppu_run(entry, 0x0FF00000u);
+    std::fprintf(stderr, "[fifa-boot] entry returned rc=%d; gameplay not established\n", result);
+    return result ? result : 91;
+}

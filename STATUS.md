@@ -1,23 +1,27 @@
 # Estado para retomada
 
-Atualizado em 24/10/2026 ao preparar o prompt de execução completa.
+Atualizado em 24/10/2026 durante a integração de boot nativo.
 
 ## Implementação comprovada
 
 Baseline técnico no commit `e96e614`: duas funções reais compiladas para Windows,
 20.020 retornos inteiros aprovados e 16 testes do runtime aprovados.
 As evidências e limites estão em `README.md` e `reports/validation.json`.
-Ainda não houve boot nativo do jogo, primeiro frame, menu ou partida.
+O novo executável `private/build/boot/fifa_boot.exe` executa a inicialização real
+do EBOOT: TLS, mutexes, módulos, callbacks, consultas de PARAM.SFO e filesystem.
+O caminho observado termina no import `sys_game_process_exitspawn2`, NID
+`0x67f9fedb`, chamado em `0x14f68` (LR `0x14f6c`). A execução encerra com código 90
+e diagnóstico estruturado. Ainda não houve entrada em FIFAZF, frame ou partida.
 
-Esta atualização acrescenta somente prompt, plano, checklist e documentação.
-Não houve nova execução dos testes de código: a alteração é documental.
+As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
+(HLE, syscall, chamada indireta e função não traduzida). Todas param explicitamente.
+O patch do SDK está versionado e sua aplicação é idempotente. Baseline reproduzido.
 
 ## Primeira tarefa pendente
 
-Ler `PROMPT_EXECUCAO_COMPLETA.md`, conferir HEAD e mudanças existentes e reproduzir
-o baseline com `tools/build.ps1`. Depois revisar EBOOT/FIFAZF e implementar uma
-integração mínima que execute startup real da PPU com diagnóstico do primeiro
-serviço, instrução ou alvo de chamada sem suporte.
+Capturar e validar os argumentos da troca de processo EBOOT -> FIFAZF; traduzir
+a inicialização do executável maior e integrar seu processo nativo. Usar os dados
+reais extraídos em `private/disc`; conferir `reports/native-boot-checkpoint.json`.
 
 ## Dependências conhecidas
 

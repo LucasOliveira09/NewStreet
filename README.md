@@ -13,6 +13,16 @@ Preparar esses documentos não altera o estado de implementação descrito abaix
 
 ## Resultado atual
 
+**Avanço de boot:** `tools/build.ps1 -Target Boot` compila o EBOOT traduzido e o
+scaffold PPU num executável Windows. A inicialização real alcançou a troca de
+processo `sys_game_process_exitspawn2` (NID `0x67f9fedb`). Essa chamada ainda é um
+bloqueio explícito. O diagnóstico está em `reports/native-boot-checkpoint.json`.
+Não houve ainda entrada em FIFAZF nem renderização de frame ou partida.
+
+O patch em `patches/0001-strict-native-boot.patch` faz o alvo de boot parar em
+imports, syscalls, funções e instruções sem suporte, em vez de fabricar sucesso.
+`tools/apply_patches.py` aplica o patch à revisão fixada e aceita reaplicação.
+
 - Os dois executáveis foram extraídos da ISO para `private/`, com SHA-256 conferido.
 - RPCS3 foi usado somente como ferramenta de obtenção dos ELF via `--decrypt`.
 - O loader de ps3recomp abriu `EBOOT.elf` e `FIFAZF.elf`.
@@ -21,8 +31,8 @@ Preparar esses documentos não altera o estado de implementação descrito abaix
 - O runtime de ps3recomp compilou com clang-cl e seus **16 testes CTest passaram**.
 - REA 6.7.0 foi instalado e executado. Recusou o ELF por arquitetura não suportada.
 
-**O jogo completo ainda não inicia nativamente.** O executável atual é uma prova
-de funções sem interface, sem partida e sem gráficos. Os testes aritméticos não
+**O jogo completo ainda não inicia nativamente.** Há uma prova de funções e um
+diagnóstico de startup, ambos sem partida ou gráficos. Os testes aritméticos não
 validam registradores completos, flags da CPU, SPU, RSX ou o restante do jogo.
 
 ## Evidências

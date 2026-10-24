@@ -16,10 +16,10 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 ## Próxima sessão
 
 - [ ] Ler instruções aplicáveis e conferir branch/HEAD/mudanças existentes.
-- [ ] Reproduzir baseline e registrar hardware e configuração.
+- [x] Reproduzir baseline e registrar hardware e configuração.
 - [ ] Revisar EBOOT/FIFAZF, contexto de entrada e dependências do startup.
 - [ ] Dividir a integração de boot em tarefas pequenas com arquivos e aceite.
-- [ ] Executar inicialização real da PPU e registrar o primeiro bloqueio.
+- [x] Executar inicialização real da PPU e registrar o primeiro bloqueio.
 - [ ] Commitar o incremento validado e atualizar `STATUS.md`.
 
 ## Inicialização e plataforma
