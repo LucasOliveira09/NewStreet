@@ -118,9 +118,15 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), dict(modules=7, dispatched=7))
 
+    def test_nested_spu_plugin_preserves_outer_code_and_can_be_reloaded(self):
+        result = subprocess.run([str(BOOT), '--test-spu-overlay', 'overlap'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), dict(nested=9, outer=7, reloaded=7))
+
     def test_modified_missing_or_evicted_spu_overlay_cannot_run_stale_code(self):
         for mode, kind in [('tamper', 'spu-overlay-source'), ('base', 'spu-overlay-base'), ('overwrite', 'spu-indirect'),
-                           ('missing', 'spu-indirect')]:
+                           ('missing', 'spu-indirect'), ('overlap-unknown', 'spu-indirect')]:
             with self.subTest(mode=mode):
                 result = subprocess.run([str(BOOT), '--test-spu-overlay', mode],
                                         capture_output=True, text=True, timeout=10)
@@ -128,6 +134,9 @@ class BootDiagnosticsTests(unittest.TestCase):
                 event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
                                         if line.startswith('[fifa-block] ')))
                 self.assertEqual(event['kind'], kind)
+
+                if mode == 'overlap-unknown':
+                    self.assertEqual(event['value'] & 0xffffffff, 0x1a0)
 
     def test_spu_failure_preserves_actual_local_store_and_registers_in_private_diagnostics(self):
         with tempfile.TemporaryDirectory(prefix='fifa SPU ') as folder:

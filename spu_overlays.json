@@ -173,6 +173,20 @@
         "0x47a8",
         "0x4790"
       ]
+    },
+    {
+      "name": "audio_spurechannel",
+      "source_ea": "0x1fc6000",
+      "size": "0xe50",
+      "sha256": "2d067497ef05949454811eda45594b786459d3f4e2ff1c5fc6139454fd0cb48f",
+      "ls_base": "0x4980",
+      "entry": "0x49b8",
+      "code_start": "0x49b0",
+      "code_end": "0x56d8",
+      "extra_entries": [
+        "0x49b0",
+        "0x4a48"
+      ]
     }
   ]
 }

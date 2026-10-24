@@ -201,7 +201,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..9efd7bd 100644
+index 59f5e4b..81f0c59 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -269,47 +269,104 @@ index 59f5e4b..9efd7bd 100644
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1699,22 +1734,52 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+@@ -1695,35 +1730,100 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
+                 ea, size, os, on, ns, nn); }
+ }
+ 
++/* Store disjoint instruction ranges: replacing a nested module must preserve
++ * valid outer code and never let an older unknown-owner span hide new code. */
++static int spu_code_replace(spu_context* ctx, uint32_t lsa, uint32_t size,
++                            uint32_t source_ea, int image_id)
++{
++    const unsigned capacity = sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]);
++    uint32_t end = lsa + size;
++    if (!size || lsa >= SPU_LS_SIZE || size > SPU_LS_SIZE - lsa) return 0;
++    for (unsigned i = 0; i < capacity; ++i) {
++        uint32_t old_base = ctx->resident_code[i].lsa;
++        uint32_t old_end = old_base + ctx->resident_code[i].size;
++        if (!ctx->resident_code[i].image_id || old_base >= end || old_end <= lsa) continue;
++        if (old_base < lsa && old_end > end) {
++            unsigned free_slot;
++            for (free_slot = 0; free_slot < capacity; ++free_slot)
++                if (!ctx->resident_code[free_slot].image_id) break;
++            if (free_slot == capacity) goto exhausted;
++            ctx->resident_code[free_slot] = ctx->resident_code[i];
++            ctx->resident_code[free_slot].lsa = end;
++            ctx->resident_code[free_slot].size = old_end - end;
++            ctx->resident_code[free_slot].source_ea += end - old_base;
++            ctx->resident_code[i].size = lsa - old_base;
++        } else if (old_base < lsa) {
++            ctx->resident_code[i].size = lsa - old_base;
++        } else if (old_end > end) {
++            ctx->resident_code[i].lsa = end;
++            ctx->resident_code[i].size = old_end - end;
++            ctx->resident_code[i].source_ea += end - old_base;
++        } else {
++            ctx->resident_code[i].image_id = 0;
++        }
++    }
++    for (unsigned i = 0; i < capacity; ++i) {
++        if (ctx->resident_code[i].image_id) continue;
++        ctx->resident_code[i].lsa = lsa;
++        ctx->resident_code[i].size = size;
++        ctx->resident_code[i].source_ea = source_ea;
++        ctx->resident_code[i].image_id = image_id;
++        return 1;
++    }
++exhausted:
++    fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", image_id);
++    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-capacity", ctx);
++    if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-capacity", image_id, NULL);
++    return 0;
++}
++
+ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint32_t size)
  {
      uint32_t lsa = (uint32_t)(ls - ctx->ls);
      spu_ovl_dump(ctx, ea, lsa, ls, size);
 -    for (unsigned slot = 0; slot < 4; ++slot) {
+-        if (!ctx->resident_code[slot].image_id) continue;
 +    for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
-         if (!ctx->resident_code[slot].image_id) continue;
++        if (!ctx->resident_code[slot].image_id || ctx->resident_code[slot].image_id == -1) continue;
          uint32_t base = ctx->resident_code[slot].lsa;
--        uint32_t end = base + ctx->resident_code[slot].size;
+         uint32_t end = base + ctx->resident_code[slot].size;
 -        if (lsa < end && lsa + size > base &&
-+        uint32_t protected_base = base, protected_end = base + ctx->resident_code[slot].size;
-+        for (int i = 0; i < s_ovl_src_count; ++i) {
-+            const spu_ovl_src* resident = &s_ovl_src[i];
-+            if (resident->checked && resident->image_id == ctx->resident_code[slot].image_id) {
-+                protected_base = base + resident->code_offset;
-+                protected_end = protected_base + resident->code_size;
-+                break;
-+            }
-+        }
-+        /* Overlay headers, BSS and scratch data may change normally. Only
-+         * replacing actual instructions invalidates their native translation. */
-+        if (lsa < protected_end && lsa + size > protected_base &&
-             (lsa < base || ea != ctx->resident_code[slot].source_ea + (lsa - base)))
+-            (lsa < base || ea != ctx->resident_code[slot].source_ea + (lsa - base)))
 -            ctx->resident_code[slot].image_id = 0;
-+            /* Preserve an unknown-owner tombstone in native-only hosts.
-+             * Clearing it would let stale base-image functions run here. */
-+            ctx->resident_code[slot].image_id = spu_missing_execution_hook ? -1 : 0;
++        if (lsa >= end || lsa + size <= base) continue;
++        uint32_t overlap = lsa > base ? lsa : base;
++        uint32_t overlap_end = lsa + size < end ? lsa + size : end;
++        if ((uint64_t)ea + overlap - lsa !=
++            (uint64_t)ctx->resident_code[slot].source_ea + overlap - base) {
++            /* Unknown incoming instructions cannot fall through to stale base
++             * code. Preserve unaffected pieces, including smaller known images. */
++            if (!spu_code_replace(ctx, overlap, overlap_end - overlap, ea + overlap - lsa,
++                                  spu_missing_execution_hook ? -1 : 0)) return;
++        }
      }
      for (int i = 0; i < s_ovl_src_count; i++) {
          const spu_ovl_src* o = &s_ovl_src[i];
          int hit = o->has_sig ? (size >= 512 && memcmp(ls, o->sig, 16) == 0)
                               : (o->src_ea == ea);
          if (hit) {
+-            if (o->span) {
+-                if (lsa + o->span > SPU_LS_SIZE) return;
+-                for (unsigned slot = 0; slot < 4; ++slot) {
+-                    if (ctx->resident_code[slot].image_id && ctx->resident_code[slot].lsa != lsa)
+-                        continue;
+-                    ctx->resident_code[slot].lsa = lsa;
+-                    ctx->resident_code[slot].size = o->span;
+-                    ctx->resident_code[slot].source_ea = ea;
+-                    ctx->resident_code[slot].image_id = o->image_id;
 +            if (o->checked) {
 +                extern uint8_t* vm_base;
 +                if (lsa != o->expected_lsa) {
 +                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-base", ctx);
 +                    if (spu_missing_execution_hook)
 +                        spu_missing_execution_hook("spu-overlay-base", lsa, NULL);
-+                    return;
-+                }
+                     return;
+                 }
+-                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
 +                if (!vm_base || (uint64_t)o->src_ea + o->span > 0x100000000ull ||
 +                    spu_workload_fingerprint(vm_base + o->src_ea, o->span) != o->fingerprint) {
 +                    fprintf(stderr, "[spu-ovl] content mismatch src=0x%08X image=%d\n",
@@ -320,25 +377,15 @@ index 59f5e4b..9efd7bd 100644
 +                    return;
 +                }
 +            }
-             if (o->span) {
-                 if (lsa + o->span > SPU_LS_SIZE) return;
--                for (unsigned slot = 0; slot < 4; ++slot) {
-+                for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
-                     if (ctx->resident_code[slot].image_id && ctx->resident_code[slot].lsa != lsa)
-                         continue;
-                     ctx->resident_code[slot].lsa = lsa;
-@@ -1723,7 +1788,9 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
-                     ctx->resident_code[slot].image_id = o->image_id;
-                     return;
-                 }
--                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
-+                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
-+                if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-capacity", ctx);
-+                if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-capacity", o->image_id, NULL);
++            if (o->span) {
++                if (lsa + o->span > SPU_LS_SIZE) return;
++                uint32_t code_offset = o->checked ? o->code_offset : 0;
++                uint32_t code_size = o->checked ? o->code_size : o->span;
++                spu_code_replace(ctx, lsa + code_offset, code_size, ea + code_offset, o->image_id);
                  return;
              }
              if (ctx->resident_ovl != o->image_id) {
-@@ -2278,7 +2345,7 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2278,7 +2378,7 @@ void spu_indirect_branch(spu_context* ctx)
       * is 0 outside the region, so this only ever fires for genuine task code.) */
      spu_fn fn = NULL;
      int code_owner = 0;
@@ -347,7 +394,7 @@ index 59f5e4b..9efd7bd 100644
          if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
              ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
              code_owner = ctx->resident_code[slot].image_id;
-@@ -2293,6 +2360,23 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2293,6 +2393,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -371,7 +418,7 @@ index 59f5e4b..9efd7bd 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2925,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +2958,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }

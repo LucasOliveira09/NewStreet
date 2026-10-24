@@ -121,3 +121,8 @@ A espera em Readdir foi reproduzida: o jogo usa d_type como sentinela de EOF.
 O adaptador agora reproduz a distinção HDD0/HDD1 observada na referência.
 Os quatro cenários Windows passam, e DLC saiu desse loop no novo boot.
 Investigar o carregamento seguinte sem forçar a flag de inicialização do jogo.
+
+Os módulos pause, resample e rechannel foram ligados e suas entradas alcançadas.
+A sobreposição parcial de imagens SPU exigiu intervalos de código disjuntos;
+regressão antes/depois aprovada, 22 testes de boot e 16 do runtime. O próximo
+PC estrito é 0x5970 na thread de áudio; identificar e recompilar o residente.

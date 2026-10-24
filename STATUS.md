@@ -17,7 +17,7 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e onze overlays raw ligados com identidade e base LS conferidas.
+Há 14 ELFs SPU e doze overlays raw ligados com identidade e base LS conferidas.
 O novo `audio_spupause` (208 bytes, LS 0x3780) foi recompilado com suas duas
 entradas de callback, sem instruções ou destinos diretos ausentes. A tentativa
 `1792870717480694500` passou por ele e parou estritamente, código 90, em
@@ -347,3 +347,24 @@ Build Windows aprovado; tentativa 1792870968800232800: os 47 jobs AssetStream
 continuam iguais aos oráculos, a captura tem o mesmo logo, e a parada estrita
 avançou para o próximo plugin, rechannel em LS 0x49b8, após 30,266 s.
 Próximo passo: recompilar o módulo observado sem substituir processamento.
+
+## Sobreposição de módulos SPU e rechannel
+
+O plugin rechannel (fonte 0x1fc6000, 3.664 bytes, SHA-256
+2d067497ef05949454811eda45594b786459d3f4e2ff1c5fc6139454fd0cb48f)
+foi recompilado em 56 entradas, com callbacks 0x49b0/0x4a48 e código até
+0x56d8, incluindo os tail branches após o último retorno. A primeira execução
+repetiu a parada em 0x49b8 apesar de todos os bytes coincidirem.
+
+Causa: o tombstone de sample capture cobria uma região maior que o novo módulo
+e era escolhido antes dele. O runtime agora mantém intervalos de instruções
+disjuntos: divide os trechos atingidos por DMA, preserva código externo, ajusta
+a origem de cada trecho e substitui somente a região do módulo novo. Código
+desconhecido continua recusado; recarregar o módulo maior retoma sua identidade.
+Uma regressão Windows com imagem aninhada falhou antes e passou depois; inclui
+DMA em chunks e sobrescrita desconhecida de uma entrada traduzida.
+
+22 testes de boot e 16 CTest do runtime aprovados. Build completo aprovado.
+Tentativa 1792871321610938400 passou por 0x49b8 e parou em outro módulo,
+PC 0x5970, após 33,070 s; as 47 saídas de assets continuam iguais aos oráculos.
+O logo conserva o mesmo hash. Não comprova menu, áudio audível ou gameplay.
