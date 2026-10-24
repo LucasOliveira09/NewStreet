@@ -404,3 +404,10 @@ A regressão Windows da segunda base falhou antes e passou depois. 23 testes de
 boot, 39 do projeto e 16 CTest aprovados. Build e execução reais alcançaram
 sample capture em LS 0x8900 (fonte 0x1ffc800, todos os 8.800 bytes iguais).
 A nova posição é o próximo incremento, sem afrouxar a seleção por identidade.
+
+## Sample capture na segunda cadeia de áudio
+
+A segunda posição, LS 0x8900, foi conferida no snapshot e compilada
+estaticamente a partir do mesmo blob. Geração/build aprovados; tentativa
+1792871762724335900 avançou para outra carga de módulo em LS 0xac00,
+recusada por base ainda não admitida. O logo mantém o hash anterior.

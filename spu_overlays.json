@@ -93,6 +93,9 @@
       "extra_entries": [
         "0x4948",
         "0x5148"
+      ],
+      "additional_ls_bases": [
+        "0x8900"
       ]
     },
     {
