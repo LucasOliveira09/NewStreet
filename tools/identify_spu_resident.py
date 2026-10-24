@@ -31,7 +31,9 @@ def identify(run):
         ls = metadata.with_suffix('.ls').read_bytes()
         if len(ls) != 0x40000 or not 0 <= state['pc'] < len(ls):
             raise ValueError('Invalid SPU snapshot bounds')
-        for base in range(0, state['pc'], 16):
+        # A DMA failure happens in the loader, before it jumps to the new code.
+        # The loaded module can therefore be above the current PC.
+        for base in range(0, len(ls) - 47, 16):
             header = ls[base:base + 48]
             if len(header) != 48 or header[44:] != b'\x55\x01\x10\x55':
                 continue

@@ -17,7 +17,7 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e treze overlays raw ligados com identidade e base LS conferidas.
+Há 14 ELFs SPU e quatorze overlays raw ligados com identidade e base LS conferidas.
 Pause, resample, rechannel e packet player passaram suas entradas observadas.
 A sobreposição parcial entre módulos agora preserva intervalos disjuntos de
 instruções, com regressão antes/depois e 22 testes de boot aprovados.
@@ -376,3 +376,17 @@ A inicialização PIC usa callbacks 0x58e0, 0x58b0 e 0x5d58, todos revisados.
 Geração com 35 entradas, sem instruções ou destinos diretos ausentes; build
 aprovado e boot avançou de 0x5970 para 0x6a10 no próximo programa residente.
 Evidência: tentativa 1792871415455714000; logo com o mesmo SHA-256.
+
+## Inicialização do decoder e segunda posição PIC
+
+`audio_spudecoder`: fonte 0x1f8f880, LS 0x6880, tamanho 3.648, hash
+2f734f872a4578670362e43683e8e2df2e30ccc0b61ba63aaec1bd070075279a.
+Os callbacks PIC 0x68b0/0x69a8/0x6968/0x6c08 foram conferidos, com código
+até 0x75ac. Geração de 38 entradas sem instruções/destinos diretos ausentes.
+Build aprovado; tentativa 1792871490342211600 passou por sua inicialização e
+parou no loader ao carregar o submix original em uma nova base LS, 0x7800.
+A fonte e o cabeçalho correspondem a 0x1fb3580, já traduzido em LS 0x3780;
+a base inesperada é corretamente recusada. Próximo incremento: admitir essa
+posição observada, recompilar estaticamente e testar a seleção por base.
+O identificador agora examina toda a LS: uma falha de DMA ocorre antes do salto
+e o novo módulo pode estar acima do PC do loader. Não há JIT/interpretação.
