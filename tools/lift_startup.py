@@ -17,7 +17,22 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'vendor/ps3recomp/tools'))
 from elf_parser import ELFFile, PT_LOAD
 from ppu_disasm import disassemble_bytes
-from ppu_lifter import PPULifter
+from ppu_lifter import PPULifter, discover_jump_tables
+
+
+def startup_jump_tables(instructions, segments, toc, code_lo, code_hi):
+    """Recover computed switch targets with the SDK's bounded per-function pass."""
+    if not instructions or not any(ins.mnemonic == 'bctr' for ins in instructions):
+        return {}
+
+    def read_u32(address):
+        for base, blob in segments:
+            if base <= address and address + 4 <= base + len(blob):
+                return int.from_bytes(blob[address - base:address - base + 4], 'big')
+        return None
+
+    return discover_jump_tables(instructions, read_u32, [toc], code_lo, code_hi,
+                                func_starts=[instructions[0].addr])
 
 
 def main():
@@ -43,6 +58,8 @@ def main():
                   if s.sh_flags & 4 and s.sh_size]
     segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
                 if p.p_type == PT_LOAD and p.p_flags & 1]
+    data_segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
+                     if p.p_type == PT_LOAD]
     records = json.loads((analysis / f'{args.module}.functions.json').read_text())
     imports = json.loads((analysis / f'{args.module}.imports.json').read_text())
     loader = json.loads((analysis / f'{args.module}.loader.json').read_text())
@@ -50,6 +67,9 @@ def main():
     starts = {int(item['start'], 16) for item in records} | set(stubs)
     ordered = sorted(starts)
     selected = set()
+    jump_tables = {}
+    toc = int(loader['module_toc'], 16)
+    code_lo, code_hi = min(a for a, _ in executable), max(b for _, b in executable)
     queue = deque([int(loader['entry_code'], 16)] + required + (ordered if args.all_opd else []))
     limit = 100000 if args.all_opd else args.limit
 
@@ -88,6 +108,12 @@ def main():
         if len(selected) % 2000 == 0:
             print(f'Discovered {len(selected)} function entries; queue={len(queue)}', flush=True)
         end = instructions[-1].addr + 4
+        tables = startup_jump_tables(instructions, data_segments, toc, code_lo, code_hi)
+        jump_tables.update(tables)
+        for cases in tables.values():
+            for target in cases:
+                if not start <= target < end and code_end(target) is not None:
+                    add_start(target); queue.append(target)
         for ins in instructions:
             if ins.mnemonic in ('bl', 'bla') or (ins.mnemonic.startswith('b') and ins.mnemonic not in ('blr','blrl','bctr','bctrl')):
                 targets = re.findall(r'0x[0-9A-Fa-f]+', ins.operands)
@@ -114,10 +140,12 @@ def main():
     lifter.function_entries = starts
     lifter.code_lo = min(begin for begin, _ in executable)
     lifter.code_hi = max(end for _, end in executable)
-    lifter.toc_base = int(loader['module_toc'], 16)
+    lifter.toc_base = toc
     for start in sorted(selected | set(stubs)):
         instructions = decode(start)
         if instructions:
+            lifter.jump_tables = startup_jump_tables(instructions, data_segments, toc, code_lo, code_hi)
+            jump_tables.update(lifter.jump_tables)
             lifter.lift_function(instructions, start, instructions[-1].addr + 4)
     output = ROOT / ('private/generated/fifazf_full' if args.all_opd else 'private/generated/fifazf_startup')
     output.mkdir(parents=True, exist_ok=True)
@@ -128,7 +156,9 @@ def main():
         fallback.append(f'void {name}(ppu_context* ctx) {{ fifa_boot_missing("unlifted", 0x{address}ULL, ctx); }}')
     lifter.write_if_changed(str(output / 'ppu_recomp.h'), header)
     lifter.write_if_changed(str(output / 'ppu_recomp_missing.cpp'), '\n'.join(fallback) + '\n')
-    written = lifter.write_source_files(str(output), base='ppu_recomp', max_lines=25000)
+    # Stable guest-byte partitions avoid moving every later chunk when one
+    # switch body changes length. The SDK emits the address table separately.
+    written = lifter.write_source_files(str(output), base='ppu_recomp', chunks=384 if args.all_opd else 8)
     keep = {Path(path).resolve() for path in written}
     for previous in output.glob('ppu_recomp_[0-9]*.cpp'):
         if previous.resolve() not in keep:
@@ -137,6 +167,7 @@ def main():
     manifest = dict(elf_sha256=digest, selected=len(selected), import_stubs=len(stubs),
                     profile='all-opd' if args.all_opd else 'startup', selection_limit_reached=bool(queue),
                     pending_direct_targets=len(external), required=required,
+                    jump_table_dispatchers=len(jump_tables),
                     functions=[hex(f.start_addr) for f in lifter.functions])
     (output / 'startup-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps({key: value for key, value in manifest.items() if key != 'functions'}, indent=2))

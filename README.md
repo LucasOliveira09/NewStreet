@@ -174,6 +174,13 @@ e as relocações de um SPRX adicional. ABI consultada no
 [loader de módulos do RPCS3 aa9ebd2f](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/PPUModule.cpp)
 e no [serviço de registro](https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/lv2/sys_prx.cpp).
 
+O gerador usa a descoberta de jump tables do SDK para manter cases internos e
+seu epílogo compartilhado. `tools/check_switch_lowering.py` monta uma rotina
+PowerPC autoral com Keystone 0.9.2, recompila para x64 e testa seis entradas,
+incluindo o caminho padrão e a preservação de pilha/r31. Esse teste faz parte
+de `-Target Boot`; Keystone é dependência de teste, não intérprete do jogo.
+Os chunks do FIFAZF seguem faixas de bytes do guest, com tabela separada.
+
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho
 configurado. A ferramenta de diagnóstico registra esses resultados sem declará-los

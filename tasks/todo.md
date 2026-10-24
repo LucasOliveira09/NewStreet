@@ -17,13 +17,18 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 
 - [x] Ler instruções aplicáveis e conferir branch/HEAD/mudanças existentes.
 - [x] Reproduzir baseline e registrar hardware e configuração.
-- [ ] Revisar EBOOT/FIFAZF, contexto de entrada e dependências do startup.
-- [ ] Dividir a integração de boot em tarefas pequenas com arquivos e aceite.
+- [x] Revisar EBOOT/FIFAZF, contexto de entrada e dependências iniciais do startup.
+- [x] Dividir a integração de boot em tarefas pequenas com arquivos e aceite.
 - [x] Executar inicialização real da PPU e registrar o primeiro bloqueio.
 - [x] Preservar argumentos e executar troca nativa EBOOT -> FIFAZF.
 - [x] Exercitar fronteiras sem suporte e transporte de argumentos em testes.
 - [ ] Validar a cobertura ampliada do FIFAZF e resolver o próximo bloqueio.
-- [ ] Commitar o incremento validado e atualizar `STATUS.md`.
+- [x] Commitar os incrementos validados e atualizar `STATUS.md`.
+- [x] Registrar exports reais de sys_libc, sys_libm e sys_libstdcxx.
+- [x] Validar um switch PowerPC recompilado e seu retorno compartilhado.
+- [x] Validar a correção do switch no caminho real de inicialização.
+- [x] Alcançar inicialização GCM com command buffer e região IO reais.
+- [ ] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 
 ## Inicialização e plataforma
 

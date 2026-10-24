@@ -1,18 +1,12 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "full native lift passed constructors and registered real CRT library exports",
+  "stage": "real native game startup reached GCM; waiting for RSX control progress",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 98776,
   "main_import_stubs": 369,
-  "exit_code": 90,
-  "block": {
-    "kind": "indirect",
-    "value": 276280,
-    "guest_lr": 272932,
-    "guest_pc": 0,
-    "thread_id": 1
-  },
+  "exit_code": "timeout",
+  "block": null,
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -33,7 +27,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792823627838065400",
+  "logs": "private\\analysis\\runs\\1792824605344714100",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -47,5 +41,17 @@
       "functions": 510,
       "variables": 275
     }
-  }
+  },
+  "jump_table_dispatchers": 20,
+  "gcm": {
+    "context_out": "0x22f9370",
+    "command_size": "0x200000",
+    "io_size": "0x700000",
+    "io_address": "0x13f00000"
+  },
+  "observed_wait": {
+    "function": "0x18ec7c",
+    "lr": "0x18ecb4"
+  },
+  "window_created": false
 }

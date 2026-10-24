@@ -13,6 +13,22 @@ Commit `e96e614`: extração dos dois SELF, obtenção dos ELF, loader PPU, duas
 traduzidas com 20.020 retornos testados e 16 testes do runtime aprovados.
 Jogo, boot, gráficos e partida ainda não validados. Reproduzir antes de implementar.
 
+## Avanço validado em 24/10/2026
+
+Baseline reproduzido. Commits `29faa79`, `247aae2`, `774a345`, `8469e05`,
+`8ade95c` e `c90424b` registram o boot real, a extração completa, a troca nativa
+EBOOT -> FIFAZF, os diagnósticos e o registro dos exports reais de três
+bibliotecas CRT. O FIFAZF já criou threads e consultou o conteúdo do jogo.
+Seis testes do boot passaram. O estado detalhado está em `STATUS.md`;
+primeiro frame, menu e partida continuam sem validação.
+
+A integração de jump tables passou no teste sintético e o jogo ultrapassou
+`0x432cc -> 0x43738`, chegando à inicialização GCM. O incremento em andamento
+liga os callbacks HLE ao dispatcher e o consumidor FIFO/relógio RSX ao host.
+Aceite: argumentos/identidade de callback preservados; janela D3D12 inicializada
+no hardware local; o FIFO avança por comandos reais, com próximo resultado
+registrado. Um flip/uma janela ainda exigem validar a imagem do jogo.
+
 ## Decisões
 
 - Reutilizar o repositório existente e a revisão fixada de ps3recomp.

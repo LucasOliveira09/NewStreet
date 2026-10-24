@@ -51,6 +51,7 @@ if ($Target -in @('All', 'Probe')) {
     Invoke-Checked $python @('-m','unittest','discover','-s','tests','-p','test_native_probe.py')
 }
 if ($Target -in @('All', 'Boot')) {
+    Invoke-Checked $python @('tools/check_switch_lowering.py')
     Invoke-Checked $python @('vendor/ps3recomp/tools/ppu_lifter.py','private/EBOOT.elf',
         '--functions','private/analysis/eboot/EBOOT.functions.json',
         '--hle-stubs','private/analysis/eboot/EBOOT.imports.json',

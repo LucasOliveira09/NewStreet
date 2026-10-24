@@ -21,8 +21,12 @@ A geração ampliada contém 98.776 entradas/trechos e compilou/executou em
 O serviço `sys_prx_register_library` agora registra os exports reais de
 `sys_libc` (560 funções/48 variáveis), `sys_libm` (503/10) e
 `sys_libstdcxx` (510/275). A inicialização avançou para criação de threads e
-consultas do conteúdo do jogo. O bloqueio atual é um salto computado para
-`0x43738`, dentro da função de formatação `0x43244` (LR `0x42a24`).
+consultas do conteúdo do jogo. O salto computado para `0x43738` foi corrigido
+com a descoberta de jump tables do SDK. O jogo avançou até `_cellGcmInitBody`:
+context-out `0x22f9370`, command buffer `0x200000`, IO `0x700000` em `0x13f00000`.
+O teste seguinte encerrou por timeout de 30 segundos, esperando o registro de
+controle RSX em `0x18ec7c` (LR de espera `0x18ecb4`). O host ainda não tem
+consumidor FIFO/relógio gráfico ativo. Não houve janela ou frame nesta tentativa.
 Isso não comprova correção ou cobertura completa:
 304 referências diretas permanecem com diagnóstico explícito. Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
@@ -33,7 +37,9 @@ O patch do SDK está versionado e sua aplicação é idempotente. Baseline repro
 Seis testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
 ponteiros de 32 bits, os argumentos exatos e o transporte para processo filho
 nativo com propagação de seu código de saída, o diagnóstico de exceção nativa e
-o registro/despacho de exports com TOC e argumentos preservados. O registro
+o registro/despacho de exports com TOC e argumentos preservados. Outro teste
+compila uma rotina PowerPC sintética para x64: seis entradas do switch aprovadas,
+com pilha e r31 preservados. O registro
 distingue biblioteca, NID e função/variável; valida antes de publicar a tabela.
 O perfil ampliado usa `/Od` na investigação; `/O1` pode ser ativado para medição
 posterior. A geração SPU não produziu um registro utilizável: seis imagens têm
@@ -42,10 +48,9 @@ de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao
 
 ## Primeira tarefa pendente
 
-Integrar a descoberta de jump tables do SDK à geração em memória limitada.
-O lifter já oferece `discover_jump_tables`, mas o gerador incremental ainda
-não a chama; por isso um `bctr` de switch foi enviado ao dispatcher de funções.
-Validar a correção com execução nativa, sem transformar cases em no-ops.
+Ligar callbacks HLE ao dispatcher e iniciar o consumidor FIFO/relógio RSX após
+a inicialização GCM. Integrar apresentação D3D12, validar hardware e observar
+o próximo resultado. Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.
 Usar os dados reais de `private/disc`; conferir `reports/native-boot-checkpoint.json`.
