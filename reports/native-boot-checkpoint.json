@@ -1,19 +1,19 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Second DAC initialization passed; next strict sound player entry at LS 0x5a88",
+  "stage": "More observed mixer positions passed; next strict load at LS 0x10680",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "spu-indirect",
+    "kind": "spu-overlay-base",
     "image": 526190333,
     "thread": 8195,
-    "pc": 23176,
-    "lr": 10952,
+    "pc": 12604,
+    "lr": 11768,
     "local_store_bytes": 262144,
-    "stem": "spu-8195-526190333-23176"
+    "stem": "spu-8195-526190333-12604"
   },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
@@ -35,7 +35,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792872486371238400",
+  "logs": "private\\analysis\\runs\\1792873318036992900",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -113,7 +113,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 19,
+  "raw_spu_overlays": 26,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -137,7 +137,7 @@
   "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
   "project_tests": 40,
   "cache_data4_verified": true,
-  "raw_spu_distinct_sources": 14,
+  "raw_spu_distinct_sources": 15,
   "audio_capture": {
     "samples": 1542656,
     "peak": 0.0,

@@ -17,17 +17,15 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e 14 programas raw ligados, mais cinco posições PIC
-adicionais compiladas estaticamente (19 registros raw no total). Submix,
-sample capture, gain fader e VU meter passaram pelas segundas posições
-observadas. A execução 1792871899123215200 chegou a 90,238 s sem nova
-fronteira estrita; ainda no logo, sem menu aceito.
-A amostra posterior 1792872007341002900 mostra main esperando mutex 8,
-LR 0xdce220. Ainda falta identificar seu dono e a dependência da espera.
-A captura de 1.542.656 floats do mix de áudio é inteiramente zero: áudio audível
-continua pendente. 24 testes de boot passaram após a correção NetCtl abaixo;
-o teste integrado alcançou a segunda carga do DAC, e as 47 saídas de assets
-continuaram iguais às referências. A espera amostrada não prova deadlock.
+Há 14 ELFs SPU e 15 programas raw ligados, mais onze posições PIC
+adicionais compiladas estaticamente (26 registros raw no total). As cargas
+conferidas mais recentes são submix 0x9680, sample capture 0xa780, gain fader
+0xca80 e VU meter 0xf300. Todas avançaram no boot, mantendo hash/base/limites.
+A tentativa 1792873318036992900 parou estritamente ao carregar outro módulo
+em LS 0x10680, após 28,699 s. Identificar o residente antes de admiti-lo.
+O logo original continua validado; menu, som audível e partida permanecem
+pendentes. 24 testes de boot e 40 do projeto passaram; os 16 CTest do runtime
+passaram na revisão de seleção PIC. Não há validação geral de todos os DSPs.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -471,3 +469,22 @@ módulos ou admitir posições somente por uma soma de tamanhos.
 Packet player foi recompilado em LS 0x8680 e sua entrada passou no boot.
 Tentativa 1792872903594774400: próxima carga em LS 0x9680, após 26,103 s.
 O dispatcher mantém a seleção por origem/conteúdo/base, sem interpretação.
+
+## Outras posições observadas do mixer
+
+Cada posição foi admitida somente depois de um snapshot com o programa
+inteiro igual à origem e a um programa já conhecido com variantes PIC testadas.
+O gerador recompilou suas entradas e limites para a base física, com zero
+instruções/destinos diretos ausentes. Build e boot foram repetidos em sequência.
+
+| Programa/base | Tentativa após integrar | Próxima base estrita |
+| --- | --- | --- |
+| submix 0x9680 | 1792873107009892400 | 0xa780 |
+| sample capture 0xa780 | 1792873163895030300 | 0xca80 |
+| gain fader 0xca80 | 1792873225651043600 | 0xf300 |
+| VU meter 0xf300 | 1792873318036992900 | 0x10680 |
+
+A primeira preparação do quarto build falhou antes de compilar porque o
+ambiente VS, reinicializado repetidamente na mesma sessão PowerShell, estourou
+o limite de linha do cmd. A execução em processo limpo compilou e validou
+o quarto incremento. A correção de reuso do ambiente é uma etapa separada.

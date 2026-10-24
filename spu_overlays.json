@@ -78,7 +78,8 @@
         "0x38c0"
       ],
       "additional_ls_bases": [
-        "0x7800"
+        "0x7800",
+        "0x9680"
       ]
     },
     {
@@ -95,7 +96,8 @@
         "0x5148"
       ],
       "additional_ls_bases": [
-        "0x8900"
+        "0x8900",
+        "0xa780"
       ]
     },
     {
@@ -116,7 +118,8 @@
         "0x8dd0"
       ],
       "additional_ls_bases": [
-        "0xac00"
+        "0xac00",
+        "0xca80"
       ]
     },
     {
@@ -137,7 +140,8 @@
         "0xa688"
       ],
       "additional_ls_bases": [
-        "0xd480"
+        "0xd480",
+        "0xf300"
       ]
     },
     {
