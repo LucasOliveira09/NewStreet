@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdio>
+#include <string>
 
 extern "C" {
 int rsx_d3d12_backend_init(uint32_t, uint32_t, const char*);
@@ -18,9 +19,17 @@ void cellGcmTickFlip(void);
 int cellGcm_take_flip_pending(void);
 void cellGcm_rsx_process_fifo(void);
 void cellGcm_fifo_kick_wait(unsigned);
+void cellGcm_fifo_set_fault_handler(void (*)(const char*, uint32_t, uint32_t));
 }
 
 static std::atomic<bool> started{false};
+static void fifo_fault(const char* reason, uint32_t get, uint32_t put) {
+    const std::string kind = std::string("rsx-fifo-") + reason;
+    fifa_boot_missing(kind.c_str(), ((uint64_t)get << 32) | put, nullptr);
+}
+extern "C" void fifa_install_fifo_policy(void) {
+    cellGcm_fifo_set_fault_handler(fifo_fault);
+}
 static HANDLE ready = nullptr;
 static uint64_t guest_flips = 0; // Renderer-thread owned; no empty-window presents counted.
 
@@ -67,6 +76,7 @@ static DWORD WINAPI frame_clock(void*) {
 
 extern "C" void fifa_start_graphics(ppu_context* ctx) {
     if (started.exchange(true)) return;
+    fifa_install_fifo_policy();
     ready = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     if (!ready) fifa_boot_missing("rsx-event", GetLastError(), ctx);
     HANDLE renderer = CreateThread(nullptr, 4u * 1024 * 1024, frame_clock, nullptr, 0, nullptr);

@@ -48,6 +48,7 @@ int fifa_test_offline_netctl(void);
 void fifa_start_hang_diagnostics(uint32_t);
 void fifa_configure_filesystem_mounts(const char*);
 int fifa_test_filesystem_mounts(const char*);
+int fifa_test_rsx_fifo(const char*);
 int fifa_test_fs_readdir(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -112,6 +113,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-overlay")) return fifa_test_spu_overlay(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-observer")) return fifa_test_spu_observer(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-mounts")) return fifa_test_filesystem_mounts(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-rsx-fifo")) return fifa_test_rsx_fifo(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-readdir")) return fifa_test_fs_readdir(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");

@@ -192,3 +192,23 @@ zero instruções/destinos diretos ausentes, e build completo aprovado. Não hou
 entrada registrada nessas variantes nas últimas tentativas, que aguardaram
 na inicialização antes delas. Não confundir posição admitida com tarefa concluída.
 A tentativa 1792877825163692200 também registrou a entrada real do ANT.
+
+## FIFO gráfico sem descarte de comandos
+
+A execução 1792878491512590600 registrou resync jump-park de GET 0x41750
+para PUT 0x621b0: o runtime abandona um self-JUMP após 50 ms. A memória
+mostra escritas de label 0x400 com 0x2b22/0x2b23 antes de PUT, enquanto o
+label permanece 0x2b1f e RenderThread espera os tokens 0x2b20..0x2b22.
+O resync preservava referências, mas descartava comandos necessários.
+O host FIFA agora instala cellGcm_fifo_set_fault_handler antes de iniciar
+o consumidor. Parks e acquires aguardam o produtor real, sem timeout/bypass;
+recuperações que descartariam comandos e palavras desconhecidas param com
+GET/PUT. A reciclagem automática que reescreve o contexto do título fica
+desativada nesse perfil. O modo legado permanece quando o handler é NULL.
+A regressão do walker real falhou antes (park perdeu label, acquire ignorado)
+e passou depois, incluindo atualização real do produtor e recusa de JUMP
+não mapeado/palavra desconhecida. 26 testes de boot e 42 do projeto passaram.
+O boot 1792878833460109400 não fez resync e avançou até outro packet player,
+LS 0x5700, em 22,991 s. ANT e rechannel LS 0x4800 tiveram entradas reais.
+64 saídas AssetStream coincidem; sem conclusão de ANT/menu/gameplay aceita.
+As capturas tardias ainda mostram a abertura, mesmo havendo outros draws.

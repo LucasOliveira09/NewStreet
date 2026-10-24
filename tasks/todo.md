@@ -80,3 +80,11 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 Online, novas funções e melhorias gráficas avançadas permanecem posteriores ao
 port offline funcional. Não marcar esta entrega como completa por passar testes
 de funções ou por abrir uma janela.
+
+## Continuação do FIFO e áudio
+
+- [x] Reproduzir descarte de comandos ao abandonar park/acquire.
+- [x] Instalar política FIFO do host sem resync ou reciclagem artificial.
+- [x] Validar produtor real, acquires e erros de controle de fluxo.
+- [ ] Integrar packet player observado em LS 0x5700 e seguir o boot estrito.
+- [ ] Confirmar avanço visual além do logo e áudio não silencioso.

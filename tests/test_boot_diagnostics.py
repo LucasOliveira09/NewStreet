@@ -12,6 +12,29 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_rsx_fifo_rejects_unmapped_jumps_and_unknown_words_before_recovery(self):
+        for mode, reason in [('invalid-jump', 'unmapped-JUMP'), ('unknown-word', 'unknown-word')]:
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-rsx-fifo', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 90, result.stderr + result.stdout)
+                event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                        if line.startswith('[fifa-block] ')))
+                self.assertEqual(event['kind'], 'rsx-fifo-' + reason)
+                self.assertEqual(event['value'], 4) # GET=0, PUT=4, no forced advance.
+
+    def test_rsx_fifo_waits_for_real_producer_updates_without_skipping_commands(self):
+        for mode, waiting, end, label in [('park', 0, 0x50, 7), ('acquire', 8, 0x20, 9)]:
+            with self.subTest(mode=mode):
+                env = os.environ.copy()
+                env.pop('GCM_SEMA_ACQUIRE', None)
+                env['GCM_SEMA_ACQUIRE_MS'] = '1'
+                result = subprocess.run([str(BOOT), '--test-rsx-fifo', mode],
+                                        env=env, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+                self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                                 dict(waiting_get=waiting, untouched=True, final_get=end, label=label))
+
     def test_directory_eof_clears_hdd0_header_and_preserves_hdd1_last_entry(self):
         for disk in ('hdd0', 'hdd1'):
             for populated in (False, True):
