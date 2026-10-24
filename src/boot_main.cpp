@@ -52,6 +52,7 @@ static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
 static int test_missing(const char* kind) {
     ppu_context context{};
     context.lr = 0x12345678;
+    context.gpr[3] = 0x1122334455667788ULL;
     if (!std::strcmp(kind, "hle")) ps3_hle_call(0xDEADBEEFu, &context);
     else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
     else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }

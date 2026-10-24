@@ -82,6 +82,7 @@ class BootDiagnosticsTests(unittest.TestCase):
                 event = json.loads(lines[0].removeprefix('[fifa-block] '))
                 self.assertEqual(event['kind'], boundary)
                 self.assertEqual(event['guest_lr'], 0x12345678)
+                self.assertEqual(event['arguments'][0], 0x1122334455667788)
                 self.assertNotIn('faking CELL_OK', result.stderr)
 
 
