@@ -12,6 +12,25 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_streamed_spu_code_owns_its_region_across_dma_chunks(self):
+        for mode in ('valid', 'data'):
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-spu-overlay', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout), dict(value=7, owner=222))
+
+    def test_modified_missing_or_evicted_spu_overlay_cannot_run_stale_code(self):
+        for mode, kind in [('tamper', 'spu-overlay-source'), ('base', 'spu-overlay-base'), ('overwrite', 'spu-indirect'),
+                           ('missing', 'spu-indirect')]:
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-spu-overlay', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 90, result.stderr)
+                event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                        if line.startswith('[fifa-block] ')))
+                self.assertEqual(event['kind'], kind)
+
     def test_spu_failure_preserves_actual_local_store_and_registers_in_private_diagnostics(self):
         with tempfile.TemporaryDirectory(prefix='fifa SPU ') as folder:
             env = os.environ.copy()

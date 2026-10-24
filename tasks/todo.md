@@ -37,7 +37,11 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Recusar programa SPU desconhecido antes de lookup por entrada compartilhada.
 - [x] Testar stops, saída real e retorno indevido de threads SPU sem conclusão fictícia.
 - [x] Fechar a descoberta de blocos PPU após mudanças nas fronteiras das funções.
-- [ ] Identificar o código SPU alcançado por chamada indireta em LS `0x100`.
+- [x] Identificar e ligar as tarefas raw zlib e SportsRNA patch alcançadas no boot.
+- [x] Validar conteúdo/base e distinguir dados mutáveis de instruções de overlays.
+- [ ] Comparar a saída nativa da tarefa zlib com descompressão de referência.
+- [ ] Interromper chamadas PPU nulas e investigar LR `0x11a9f50`.
+- [ ] Unificar mounts dos serviços FS usados na finalização do cache.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 

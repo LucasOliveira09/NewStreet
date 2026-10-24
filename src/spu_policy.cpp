@@ -8,6 +8,7 @@ extern "C" PPU_THREAD_LOCAL ppu_context* g_active_ctx;
 extern "C" void fifa_dump_spu_state(const char*, spu_context*);
 #ifdef FIFA_HAS_SPU
 extern "C" void fifa_spu_register_all(void);
+extern "C" void fifa_spu_register_overlays(void);
 #endif
 static void missing_spu(const char* kind, uint64_t value, void* context) {
     fifa_boot_missing(kind, value, context ? (ppu_context*)context : g_active_ctx);
@@ -18,6 +19,7 @@ extern "C" void fifa_install_spu_policy(void) {
     spu_execution_diagnostic_hook = fifa_dump_spu_state;
 #ifdef FIFA_HAS_SPU
     fifa_spu_register_all();
+    fifa_spu_register_overlays();
 #endif
 }
 

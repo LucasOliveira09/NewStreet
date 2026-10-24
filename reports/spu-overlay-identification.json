@@ -1,0 +1,22 @@
+{
+  "name": "AssetStream_zlib",
+  "source_elf_sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+  "source_ea": "0x1e59c80",
+  "source_bytes": 25776,
+  "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
+  "local_store_base": "0x80",
+  "entry": "0x100",
+  "code_end_exclusive": "0x5740",
+  "code_boundary_evidence": {
+    "return_at": "0x573c",
+    "data_string_at": "0x5740"
+  },
+  "runtime_snapshot": "private/analysis/runs/1792842082406795800/spu/spu-8197-526190333-256",
+  "source_snapshot_byte_differences": 0,
+  "exploratory_translation": {
+    "functions": 406,
+    "unsupported_instructions": 0,
+    "missing_direct_targets": 0,
+    "native_execution_validated": false
+  }
+}

@@ -43,6 +43,7 @@ if ($Target -in @('All', 'Spu')) {
     Invoke-Checked $python @('vendor/ps3recomp/tools/build_spu_workloads.py', '--input', 'private/FIFAZF.elf',
         '--lifted', $spuOutput, '--out', "$spuOutput/spu_workloads.c", '--register-fn', 'fifa_spu_register_all',
         '--title', 'FIFA-Street', '--allow-partial')
+    Invoke-Checked $python @('tools/lift_spu_overlays.py')
 }
 
 if ($Target -in @('All', 'Runtime')) {

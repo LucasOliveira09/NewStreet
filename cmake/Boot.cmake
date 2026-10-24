@@ -36,6 +36,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     src/spu_policy.cpp
     src/spu_diagnostics.cpp
     tests/spu_group_probe.cpp
+    tests/spu_overlay_probe.cpp
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
 
@@ -46,8 +47,13 @@ if(FIFA_BUILD_SPU)
         message(FATAL_ERROR "Run tools/build.ps1 -Target Spu before enabling native SPU programs")
     endif()
     include("${FIFA_SPU_DIR}/sources.cmake")
-    target_sources(fifa_boot PRIVATE ${SPU_GENERATED_SOURCES})
-    set_source_files_properties(${SPU_GENERATED_SOURCES} PROPERTIES
+    set(FIFA_OVERLAY_DIR "${CMAKE_SOURCE_DIR}/private/generated/spu_overlays")
+    if(NOT EXISTS "${FIFA_OVERLAY_DIR}/sources.cmake")
+        message(FATAL_ERROR "Generate raw SPU overlays with tools/build.ps1 -Target Spu")
+    endif()
+    include("${FIFA_OVERLAY_DIR}/sources.cmake")
+    target_sources(fifa_boot PRIVATE ${SPU_GENERATED_SOURCES} ${FIFA_SPU_OVERLAY_SOURCES})
+    set_source_files_properties(${SPU_GENERATED_SOURCES} ${FIFA_SPU_OVERLAY_SOURCES} PROPERTIES
         COMPILE_DEFINITIONS SPU_USE_DISPATCH_MT COMPILE_OPTIONS "/O2;/w")
     # Scope this define to its consumer; changing it must not rebuild the
     # hundreds of unrelated generated PPU translation units.

@@ -21,3 +21,4 @@ reports/*
 !reports/probe-tests.log
 !reports/runtime-tests.log
 !reports/native-boot-checkpoint.json
+!reports/spu-overlay-identification.json

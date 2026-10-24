@@ -173,6 +173,9 @@ não decodificadas. O inventário parcial é explícito. O runtime para em progr
 ou salto SPU ausente antes de usar interpretação ou concluir uma tarefa sem código.
 O teste compilado do gerador cobre dois segmentos separados e seu salto entre
 segmentos. Ligar essas imagens ao executável ainda não valida sua execução no jogo.
+O mesmo alvo `Spu` gera os dois overlays raw identificados no boot, com hashes e
+limites em `spu_overlays.json`. O registro verifica bytes e endereço de carga antes
+de permitir a execução e invalida traduções quando as instruções são substituídas.
 
 O registro PRX mantém os exports reais por biblioteca, NID e tipo (função ou
 variável). A chamada de uma função exportada usa seu OPD, preserva os argumentos

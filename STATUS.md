@@ -2,6 +2,26 @@
 
 Atualizado em 24/10/2026 durante a integração de boot nativo.
 
+## Checkpoint atual
+
+Tentativa `1792843990811259000`: executou nativamente por 60 segundos, sem emulador
+ou interpretação de CPU, até o timeout do diagnóstico. Duas tarefas raw SPU foram
+ligadas: `AssetStream_zlib` e `sportsrna_default_spupatch_job`. Sua identidade é
+conferida no DMA, incluindo conteúdo e base LS. Escritas em dados/BSS preservam a
+tradução; sobrescrever instruções invalida sua propriedade e impede código antigo.
+Os testes cobrem conteúdo alterado, base incorreta, DMA em chunks, dados mutáveis,
+função ausente e região substituída. Foram apresentados pelo menos três buffers
+do jogo; só há clears pretos, sem frame com desenho/menu validado.
+
+O boot iniciou controles, abriu DATA1–DATA7 e copiou os 30.585.168 bytes de
+DATA4.BIG para o cache temporário. A espera posterior inclui uma chamada PPU nula
+em LR `0x11a9f50` que o upstream ainda deixa retornar. Torná-la um bloqueio estrito
+é a próxima correção. Também há divergência de mounts entre as camadas FS: o
+`cellFsRename` genérico não conhece `/dev_hdd1/`, embora o adaptador de Open/Write
+o use para criar o cache; o arquivo continua `.tmp`. Não presumir rename concluído.
+Nenhuma partida ou menu foi validado. A saída do descompactador ainda precisa ser
+comparada byte a byte com um oráculo zlib, mesmo com a execução nativa avançando.
+
 ## Implementação comprovada
 
 Baseline técnico no commit `e96e614`: duas funções reais compiladas para Windows,
@@ -120,6 +140,12 @@ identidade/ownership corretos é a próxima tarefa. Não substituir a descompres
 por retorno de sucesso. Evidências em `reports/spu-overlay-identification.json`.
 Após o incremento de captura, passaram 12 testes de boot, os 16 CTest e os 12
 testes de geração SPU. Os dumps continuam excluídos do Git.
+
+Os overlays raw agora são reproduzidos por `tools/lift_spu_overlays.py` a partir
+de `spu_overlays.json`, sem transformar dados de strings em instruções. A função
+extra `0x18c` (zlib) e `0x134` (patch) cobre os saltos calculados da limpeza de BSS.
+O jogo chegou a um novo estágio de arquivos/cache. Quatorze testes de boot passaram
+após o registro protegido dos overlays; logs em `reports/spu-overlay-ownership-build.log`.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

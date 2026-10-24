@@ -1,29 +1,12 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "PPU direct-target discovery closed; DMA/overlay SPU target reached",
+  "stage": "Native raw SPU tasks integrated; cache copied; black buffer presents; null PPU call and wait remain",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": 90,
-  "block": {
-    "kind": "spu-indirect",
-    "value": 2259970271706349824,
-    "guest_lr": 0,
-    "guest_pc": 0,
-    "thread_id": 0,
-    "guest_toc": 0,
-    "arguments": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ]
-  },
+  "exit_code": "timeout",
+  "block": null,
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -44,7 +27,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792841573057646600",
+  "logs": "private\\analysis\\runs\\1792843990811259000",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -76,7 +59,9 @@
     "adapter": "AMD Radeon RX 580 2048SP",
     "width": 1280,
     "height": 720,
-    "guest_flips_observed": 0
+    "guest_flips_observed": 3,
+    "guest_flips_count_is_lower_bound": true,
+    "draw_frame_validated": false
   },
   "spu_gap": {
     "fingerprint": "22F896FE3B85A8C7",
@@ -112,5 +97,54 @@
   ],
   "pending_direct_targets": 0,
   "discovery_regression_tests": 3,
-  "boot_regression_tests": 11
+  "boot_regression_tests": 14,
+  "observed_null_call": {
+    "lr": "0x11a9f50",
+    "thread": 1,
+    "strict_guard_pending": true
+  },
+  "cache": {
+    "source": "DATA4.BIG",
+    "source_bytes": 30585168,
+    "temporary_bytes": 30585168,
+    "rename_validated": false
+  },
+  "raw_spu_overlays": [
+    {
+      "name": "assetstream_zlib",
+      "source_ea": "0x1e59c80",
+      "size": "0x64b0",
+      "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
+      "ls_base": "0x80",
+      "entry": "0x100",
+      "code_start": "0x100",
+      "code_end": "0x5740",
+      "extra_entries": [
+        "0x18c"
+      ],
+      "image_id": 766581997,
+      "fingerprint": "8DAF32871DE165D9",
+      "functions": 407,
+      "unsupported": {},
+      "missing_direct_targets": 0
+    },
+    {
+      "name": "sportsrna_spupatch",
+      "source_ea": "0x1f24f00",
+      "size": "0x1690",
+      "sha256": "35274f8f1f03b6918a9e981b830a8100f92ea185775fc1e91d7d2290e22aeeae",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x1608",
+      "extra_entries": [
+        "0x134"
+      ],
+      "image_id": 592606456,
+      "fingerprint": "627E7A7DAC32A74D",
+      "functions": 59,
+      "unsupported": {},
+      "missing_direct_targets": 0
+    }
+  ]
 }

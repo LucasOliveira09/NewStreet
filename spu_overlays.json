@@ -1,0 +1,31 @@
+{
+  "elf_sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+  "overlays": [
+    {
+      "name": "assetstream_zlib",
+      "source_ea": "0x1e59c80",
+      "size": "0x64b0",
+      "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
+      "ls_base": "0x80",
+      "entry": "0x100",
+      "code_start": "0x100",
+      "code_end": "0x5740",
+      "extra_entries": [
+        "0x18c"
+      ]
+    },
+    {
+      "name": "sportsrna_spupatch",
+      "source_ea": "0x1f24f00",
+      "size": "0x1690",
+      "sha256": "35274f8f1f03b6918a9e981b830a8100f92ea185775fc1e91d7d2290e22aeeae",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x1608",
+      "extra_entries": [
+        "0x134"
+      ]
+    }
+  ]
+}
