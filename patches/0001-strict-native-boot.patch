@@ -360,7 +360,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..c14ab9e 100644
+index 59f5e4b..d32cf29 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -426,16 +426,56 @@ index 59f5e4b..c14ab9e 100644
          fflush(stderr);
      }
  }
-@@ -1522,7 +1553,7 @@ spu_lifted_fn spu_lifted_lookup(const spu_context* ctx, uint32_t lsa)
+@@ -1512,9 +1543,29 @@ int spu_have_function(uint32_t addr)
+  * (spu_interp.c, rejoin path). It IS the registry lookup, so overlay eviction and
+  * self-modifying-code invalidation are honored automatically. Lived in
+  * spu_fn_registry.c before the registry was consolidated into this TU. */
++static spu_fn spu_lookup_resident(const spu_context* ctx, uint32_t lsa, int* owner)
++{
++    *owner = 0;
++    if (!ctx) return NULL;
++    for (unsigned i = 0; i < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++i) {
++        if (ctx->resident_code[i].image_id && lsa >= ctx->resident_code[i].lsa &&
++            lsa - ctx->resident_code[i].lsa < ctx->resident_code[i].size) {
++            *owner = ctx->resident_code[i].image_id;
++            return *owner > 0 ? spu_lookup(lsa - (uint32_t)ctx->resident_code[i].relocation_bias,
++                                           *owner) : NULL;
++        }
++    }
++    return NULL;
++}
++
+ spu_lifted_fn spu_lifted_lookup(const spu_context* ctx, uint32_t lsa)
+ {
+-    return (spu_lifted_fn)spu_lookup(lsa, ctx ? ctx->image_id : 0);
++    int owner;
++    spu_fn fn = spu_lookup_resident(ctx, lsa, &owner);
++    if (owner) return (spu_lifted_fn)fn; /* Includes unknown/overwritten code. */
++    if (ctx && ctx->resident_ovl) fn = spu_lookup(lsa, ctx->resident_ovl);
++    if (!fn) fn = spu_lookup(lsa, ctx ? ctx->image_id : 0);
++    return (spu_lifted_fn)fn;
+ }
+ 
+ /* ---- Swappable code overlays (see spu_context.resident_ovl) --------------
+@@ -1522,7 +1573,16 @@ spu_lifted_fn spu_lifted_lookup(const spu_context* ctx, uint32_t lsa)
   * the image id its lifted functions were registered under. The MFC GET path
   * marks that overlay resident in the streaming context; dispatch retries a
   * primary-image miss against the resident overlay's registry. */
 -typedef struct { uint32_t src_ea; int image_id; uint8_t sig[16]; int has_sig; uint32_t span; } spu_ovl_src;
++int32_t spu_code_relocation_bias(const spu_context* ctx)
++{
++    if (!ctx) return 0;
++    for (unsigned i = 0; i < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++i)
++        if (ctx->resident_code[i].image_id > 0 && ctx->pc >= ctx->resident_code[i].lsa &&
++            ctx->pc - ctx->resident_code[i].lsa < ctx->resident_code[i].size)
++            return ctx->resident_code[i].relocation_bias;
++    return 0;
++}
 +typedef struct { uint32_t src_ea; int image_id; uint8_t sig[16]; int has_sig; uint32_t span; uint64_t fingerprint; uint32_t expected_lsa, code_offset, code_size; int checked; } spu_ovl_src;
  /* 6 FMOD codec/DSP overlays + up to 89 WWS job-code modules (all stream into
   * the same job code buffer at LS 0x4000, dispatched by content signature). */
  #define SPU_OVL_SRC_MAX 128
-@@ -1548,6 +1579,24 @@ void spu_overlay_register_region(uint32_t content_ea, uint32_t span, int image_i
+@@ -1548,6 +1608,36 @@ void spu_overlay_register_region(uint32_t content_ea, uint32_t span, int image_i
      s_ovl_src[s_ovl_src_count - 1].span = span;
  }
  
@@ -457,17 +497,29 @@ index 59f5e4b..c14ab9e 100644
 +    }
 +}
 +
++void spu_overlay_register_pic_region_checked(uint32_t source_ea, uint32_t span,
++    uint32_t canonical_base, uint32_t code_offset, uint32_t code_size,
++    int image_id, uint64_t fingerprint)
++{
++    if ((canonical_base & 15u) || canonical_base >= SPU_LS_SIZE ||
++        span > SPU_LS_SIZE - canonical_base) return;
++    const int before = s_ovl_src_count;
++    spu_overlay_register_region_checked(source_ea, span, canonical_base,
++        code_offset, code_size, image_id, fingerprint);
++    if (s_ovl_src_count != before) s_ovl_src[s_ovl_src_count - 1].checked = 2;
++}
++
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1695,35 +1744,99 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
+@@ -1695,35 +1785,108 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
                  ea, size, os, on, ns, nn); }
  }
  
 +/* Store disjoint instruction ranges: replacing a nested module must preserve
 + * valid outer code and never let an older unknown-owner span hide new code. */
 +static int spu_code_replace(spu_context* ctx, uint32_t lsa, uint32_t size,
-+                            uint32_t source_ea, int image_id)
++                            uint32_t source_ea, int image_id, int32_t relocation_bias)
 +{
 +    const unsigned capacity = sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]);
 +    uint32_t end = lsa + size;
@@ -502,6 +554,7 @@ index 59f5e4b..c14ab9e 100644
 +        ctx->resident_code[i].size = size;
 +        ctx->resident_code[i].source_ea = source_ea;
 +        ctx->resident_code[i].image_id = image_id;
++        ctx->resident_code[i].relocation_bias = relocation_bias;
 +        return 1;
 +    }
 +exhausted:
@@ -532,7 +585,7 @@ index 59f5e4b..c14ab9e 100644
 +            /* Unknown incoming instructions cannot fall through to stale base
 +             * code. Preserve unaffected pieces, including smaller known images. */
 +            if (!spu_code_replace(ctx, overlap, overlap_end - overlap, ea + overlap - lsa,
-+                                  spu_missing_execution_hook ? -1 : 0)) return;
++                                  spu_missing_execution_hook ? -1 : 0, 0)) return;
 +        }
      }
 +    int unmatched_checked_base = 0;
@@ -552,7 +605,7 @@ index 59f5e4b..c14ab9e 100644
 -                    ctx->resident_code[slot].image_id = o->image_id;
 +            if (o->checked) {
 +                extern uint8_t* vm_base;
-+                if (lsa != o->expected_lsa) {
++                if (o->checked == 1 && lsa != o->expected_lsa) {
 +                    unmatched_checked_base = 1;
 +                    continue; /* Another static variant may admit this base. */
 +                }
@@ -563,6 +616,13 @@ index 59f5e4b..c14ab9e 100644
 +                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-source", ctx);
 +                    if (spu_missing_execution_hook)
 +                        spu_missing_execution_hook("spu-overlay-source", o->src_ea, NULL);
++                    return;
++                }
++                if (o->checked == 2 && ((lsa & 15u) || lsa >= SPU_LS_SIZE ||
++                    o->span > SPU_LS_SIZE - lsa || o->span < 32 ||
++                    !(vm_base[o->src_ea + 28] & 0x80u))) {
++                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-layout", ctx);
++                    if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-layout", lsa, NULL);
                      return;
                  }
 -                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
@@ -571,11 +631,12 @@ index 59f5e4b..c14ab9e 100644
 +                if (lsa + o->span > SPU_LS_SIZE) return;
 +                uint32_t code_offset = o->checked ? o->code_offset : 0;
 +                uint32_t code_size = o->checked ? o->code_size : o->span;
-+                spu_code_replace(ctx, lsa + code_offset, code_size, ea + code_offset, o->image_id);
++                const int32_t bias = o->checked == 2 ? (int32_t)lsa - (int32_t)o->expected_lsa : 0;
++                spu_code_replace(ctx, lsa + code_offset, code_size, ea + code_offset, o->image_id, bias);
                  return;
              }
              if (ctx->resident_ovl != o->image_id) {
-@@ -1737,6 +1850,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+@@ -1737,6 +1900,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
              return;
          }
      }
@@ -586,16 +647,23 @@ index 59f5e4b..c14ab9e 100644
  }
  
  /* Match a 16-byte module header against the registered content signatures.
-@@ -2278,7 +2395,7 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2278,14 +2445,7 @@ void spu_indirect_branch(spu_context* ctx)
       * is 0 outside the region, so this only ever fires for genuine task code.) */
      spu_fn fn = NULL;
      int code_owner = 0;
 -    for (unsigned slot = 0; slot < 4; ++slot) {
-+    for (unsigned slot = 0; slot < sizeof(ctx->resident_code) / sizeof(ctx->resident_code[0]); ++slot) {
-         if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
-             ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
-             code_owner = ctx->resident_code[slot].image_id;
-@@ -2293,6 +2410,23 @@ void spu_indirect_branch(spu_context* ctx)
+-        if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
+-            ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
+-            code_owner = ctx->resident_code[slot].image_id;
+-            fn = spu_lookup(ctx->pc, code_owner);
+-            break;
+-        }
+-    }
++    fn = spu_lookup_resident(ctx, ctx->pc, &code_owner);
+     if (!code_owner && ctx->resident_task)
+         fn = spu_lookup(ctx->pc, ctx->resident_task);
+     /* Resident overlay next: streamed code overwrote that LS range, so its lift
+@@ -2293,6 +2453,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -619,7 +687,7 @@ index 59f5e4b..c14ab9e 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2975,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +3018,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }
@@ -627,20 +695,31 @@ index 59f5e4b..c14ab9e 100644
 \ No newline at end of file
 +#endif
 diff --git a/runtime/spu/spu_context.h b/runtime/spu/spu_context.h
-index f46d415..bbedf13 100644
+index f46d415..3d72cab 100644
 --- a/runtime/spu/spu_context.h
 +++ b/runtime/spu/spu_context.h
-@@ -289,7 +289,7 @@ typedef struct spu_context {
+@@ -289,7 +289,8 @@ typedef struct spu_context {
      struct {
          uint32_t lsa, size, source_ea;
          int image_id;
 -    } resident_code[4];
++        int32_t relocation_bias; /* physical address minus canonical AOT address */
 +    } resident_code[128];
  
      /* Resident SPURS-taskset TASK image id (0 = none) retires the id-0 wildcard
       * for co-resident tasks. A taskset may hold several tasks that all lift at the
+@@ -786,6 +787,9 @@ void spu_task_launch_check(spu_context* ctx, void* fn); /* SPURS task-launch
+ /* Restore image_id after a call-bracket (adopt-on-serve); re-applies the
+  * persistent LS-0xA00 workload module if one is set. */
+ void spu_img_restore(spu_context* ctx, int32_t saved_img);
++/* Canonical-to-physical displacement of the instruction interval containing
++ * ctx->pc. Read-only; zero for fixed code or no resident interval. */
++int32_t spu_code_relocation_bias(const spu_context* ctx);
+ /* Wake a host thread blocked in a channel wait (channel-stall milestone). */
+ void spu_ch_wake(spu_context* ctx);
+ /* Runaway lifted-call recursion guard. A lifted brsl/bisl nests a real host
 diff --git a/runtime/spu/spu_drain.c b/runtime/spu/spu_drain.c
-index fc3cea1..9511532 100644
+index fc3cea1..9873262 100644
 --- a/runtime/spu/spu_drain.c
 +++ b/runtime/spu/spu_drain.c
 @@ -6,6 +6,7 @@
@@ -660,6 +739,24 @@ index fc3cea1..9511532 100644
          static int _n = 0;
          if (PS3_LOG_FIRST(_n, 8))
              fprintf(stderr, "[spurs-job] img=%d branched to LS 0 -- job complete\n",
+@@ -395,6 +396,7 @@ int spu_tailret_enabled(void)
+  * reaches return_pc; only a pc with no lifted code behind it is unwound. */
+ typedef void (*spu_drain_fn)(spu_context*);
+ extern spu_drain_fn spu_lookup(uint32_t addr, int image_id);
++extern spu_drain_fn spu_lifted_lookup(const spu_context* ctx, uint32_t addr);
+ 
+ void spu_drain_call(spu_context* ctx, uint32_t return_pc)
+ {
+@@ -450,8 +452,7 @@ void spu_drain_call(spu_context* ctx, uint32_t return_pc)
+         }
+         {
+             uint32_t pc = ctx->pc & SPU_LS_MASK;
+-            spu_drain_fn fn = ctx->resident_ovl ? spu_lookup(pc, ctx->resident_ovl) : 0;
+-            if (!fn) fn = spu_lookup(pc, ctx->image_id);
++            spu_drain_fn fn = spu_lifted_lookup(ctx, pc);
+             if (fn) {
+                 { static int _n = 0; if (PS3_LOG_FIRST(_n, 8))
+                     fprintf(stderr, "[spu] drain-resume return_pc=0x%05X at lifted entry 0x%05X img=%d depth=%d ovl=%d\n",
 diff --git a/runtime/spu/spu_lifted_thread.c b/runtime/spu/spu_lifted_thread.c
 index a828335..7d68a32 100644
 --- a/runtime/spu/spu_lifted_thread.c
@@ -722,10 +819,10 @@ index 2008961..2f2aa3c 100644
      }
  
 diff --git a/runtime/spu/spu_workload.h b/runtime/spu/spu_workload.h
-index f8a726e..34436f2 100644
+index f8a726e..ec6e7d0 100644
 --- a/runtime/spu/spu_workload.h
 +++ b/runtime/spu/spu_workload.h
-@@ -34,6 +34,12 @@ extern "C" {
+@@ -34,11 +34,24 @@ extern "C" {
  
  typedef void (*spu_lifted_entry_fn)(spu_context*);
  
@@ -738,6 +835,18 @@ index f8a726e..34436f2 100644
  /* FNV-1a 64-bit over a byte range. The canonical workload fingerprint; the
   * offline extractor computes the same value so registrations and the images a
   * title passes to cellSpurs line up. */
+ uint64_t spu_workload_fingerprint(const void* data, size_t n);
+ 
++/* Host-only registration of an already translated raw PIC program. A GET
++ * must validate its original source/fingerprint, PIC header and physical LS
++ * bounds before dispatch may map a physical PC to a canonical native entry. */
++void spu_overlay_register_pic_region_checked(uint32_t source_ea, uint32_t span,
++    uint32_t canonical_base, uint32_t code_offset, uint32_t code_size,
++    int image_id, uint64_t fingerprint);
++
+ /* Register one lifted SPU binary under its image fingerprint. `name` is borrowed
+  * (kept by pointer for logging — pass a string literal / static). Idempotent on
+  * fingerprint: a second register of the same fp updates the entry. */
 diff --git a/runtime/syscalls/lv2_register.c b/runtime/syscalls/lv2_register.c
 index 8815650..443d66d 100644
 --- a/runtime/syscalls/lv2_register.c

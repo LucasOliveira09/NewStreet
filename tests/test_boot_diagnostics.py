@@ -12,6 +12,27 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_pic_program_keeps_three_physical_positions_and_negative_bias_independent(self):
+        result = subprocess.run([str(BOOT), '--test-spu-overlay', 'pic'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout), dict(positions=3, isolated=True,
+                                                       negative_bias=True, split_preserved=True))
+
+    def test_pic_admission_rejects_modified_source_invalid_layout_and_overwritten_code(self):
+        for mode, kind in [('pic-source', 'spu-overlay-source'),
+                           ('pic-unaligned', 'spu-overlay-layout'),
+                           ('pic-boundary', 'spu-overlay-layout'),
+                           ('pic-absolute-source', 'spu-overlay-layout'),
+                           ('pic-overwrite', 'spu-indirect')]:
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-spu-overlay', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 90, result.stderr + result.stdout)
+                event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                        if line.startswith('[fifa-block] ')))
+                self.assertEqual(event['kind'], kind)
+
     def test_fifo_host_callback_setter_is_not_registered_as_a_guest_import(self):
         with tempfile.TemporaryDirectory(prefix='fifa HLE ') as folder:
             table = Path(folder) / 'hle.cpp'

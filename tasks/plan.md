@@ -283,3 +283,17 @@ do sound player 1 em LS 0x7800. Manter a flag desligada até passar os checks.
 O deslocamento será local a cada função; não adicionar base global mutável.
 A decisão preserva os requisitos AOT e de falha explícita já autorizados no
 PROMPT_EXECUCAO_COMPLETA.md. Não há nova etapa de aprovação necessária.
+
+## Runtime para regiões PIC canônicas
+
+Adicionado registro optativo para programas PIC já traduzidos, com validação
+de origem/fingerprint, flag PIC, alinhamento e limites físicos. Cada intervalo
+residente guarda physical-minus-canonical; recortes preservam o deslocamento.
+O dispatcher e a retomada pelo drain consultam ownership antes da imagem base,
+incluindo tombstones. A consulta de deslocamento é somente leitura.
+A fixture Windows exercita o mesmo programa em três posições simultâneas,
+incluindo deslocamento negativo, alteração de dados, recorte de instruções e
+recusa de fonte alterada/layout absoluto/base desalinhada/estouro de LS.
+Cinco cenários falharam antes da implementação; depois os 29 testes de boot,
+46 do projeto e 16 CTest do runtime passaram. Modo ainda não habilitado no jogo: falta
+validar a emissão de instruções relativas e integrar o gerador.

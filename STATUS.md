@@ -690,3 +690,17 @@ A tentativa parou após 25,589 s; menu/áudio continuam pendentes. Enumerar
 mais combinações de posições do mixer não escala para todo o conteúdo offline.
 Próxima etapa: suporte AOT relocável para os programas PIC já admitidos,
 com escopo, critérios e verificações em tasks/spu-relocatable-pic.md.
+
+## Runtime para regiões PIC canônicas
+
+Adicionado registro optativo para programas PIC já traduzidos, com validação
+de origem/fingerprint, flag PIC, alinhamento e limites físicos. Cada intervalo
+residente guarda physical-minus-canonical; recortes preservam o deslocamento.
+O dispatcher e a retomada pelo drain consultam ownership antes da imagem base,
+incluindo tombstones. A consulta de deslocamento é somente leitura.
+A fixture Windows exercita o mesmo programa em três posições simultâneas,
+incluindo deslocamento negativo, alteração de dados, recorte de instruções e
+recusa de fonte alterada/layout absoluto/base desalinhada/estouro de LS.
+Cinco cenários falharam antes da implementação; depois os 29 testes de boot,
+46 do projeto e 16 CTest do runtime passaram. Modo ainda não habilitado no jogo: falta
+validar a emissão de instruções relativas e integrar o gerador.

@@ -14,6 +14,13 @@ extern "C" void spu_overlay_note_get(spu_context*, uint32_t, const uint8_t*, uin
 static void base_entry(spu_context* ctx) { ctx->gpr[3]._u32[0] = 1; }
 static void overlay_entry(spu_context* ctx) { ctx->gpr[3]._u32[0] = 7; }
 static void replacement_entry(spu_context* ctx) { ctx->gpr[3]._u32[0] = 9; }
+static void pic_entry(spu_context* ctx) {
+    const int32_t bias = spu_code_relocation_bias(ctx);
+    ctx->gpr[3]._u32[0] = spu_ls_read32(ctx, 0x120u + (uint32_t)bias);
+    ctx->gpr[4]._u32[0] = (uint32_t)bias;
+}
+using test_spu_fn = void (*)(spu_context*);
+extern "C" test_spu_fn spu_lifted_lookup(const spu_context*, uint32_t);
 
 extern "C" int fifa_test_spu_overlay(const char* mode) {
     vm_base = (uint8_t*)std::calloc(1, 0x30000);
@@ -25,6 +32,60 @@ extern "C" int fifa_test_spu_overlay(const char* mode) {
     spu_begin_image(222);
     spu_register_function(0x100, overlay_entry);
     spu_begin_image(0);
+    if (!std::strncmp(mode, "pic", 3)) {
+        static spu_context pic;
+        spu_context_init(&pic, 77);
+        pic.image_id = 111;
+        for (unsigned i = 0; i < 0x180; ++i) vm_base[0x10000 + i] = (uint8_t)(i * 19);
+        std::memset(vm_base + 0x1001c, 0, 4);
+        vm_base[0x1001c] = std::strcmp(mode, "pic-absolute-source") ? 0x80 : 0;
+        spu_begin_image(444);
+        spu_register_function(0x100, pic_entry);
+        spu_register_function(0x110, pic_entry);
+        spu_overlay_register_pic_region_checked(0x10000, 0x180, 0x80, 0x80, 0x20, 444,
+            spu_workload_fingerprint(vm_base + 0x10000, 0x180));
+        spu_begin_image(0);
+        if (!std::strcmp(mode, "pic-source")) vm_base[0x10060] ^= 1;
+        if (!std::strcmp(mode, "pic-boundary")) {
+            std::memcpy(pic.ls + 0x3fff0, vm_base + 0x10000, 16);
+            spu_overlay_note_get(&pic, 0x10000, pic.ls + 0x3fff0, 16);
+            return 34;
+        }
+        const uint32_t bases[] = {!std::strcmp(mode, "pic-unaligned") ? 0x801u : 0x800u, 0x1800, 0};
+        for (uint32_t base : bases) {
+            std::memcpy(pic.ls + base, vm_base + 0x10000, 0x180);
+            spu_overlay_note_get(&pic, 0x10000, pic.ls + base, 0x180);
+            spu_ls_write32(&pic, base + 0xa0, 0x12340000u + base);
+            spu_overlay_note_get(&pic, 0x20000, pic.ls + base + 0xa0, 4);
+        }
+        // An unknown middle instruction splits a PIC interval; both retained
+        // sides keep the original displacement and independent data address.
+        std::memcpy(pic.ls + 0x1888, vm_base + 0x20000, 4);
+        spu_overlay_note_get(&pic, 0x20000, pic.ls + 0x1888, 4);
+        for (uint32_t pc : {0x1880u, 0x1890u}) {
+            pic.pc = pc;
+            if (spu_lifted_lookup(&pic, pc) != pic_entry) return 35;
+            spu_indirect_branch(&pic);
+            if (pic.gpr[3]._u32[0] != 0x12341800 || pic.gpr[4]._u32[0] != 0x1780) return 36;
+        }
+        for (uint32_t base : bases) {
+            pic.pc = base + 0x80;
+            if (spu_lifted_lookup(&pic, pic.pc) != pic_entry) return 30;
+            spu_indirect_branch(&pic);
+            if (pic.gpr[3]._u32[0] != 0x12340000u + base ||
+                pic.gpr[4]._u32[0] != base - 0x80u) return 31;
+        }
+        if (!std::strcmp(mode, "pic-overwrite")) {
+            std::memcpy(pic.ls + 0x1880, vm_base + 0x20000, 4);
+            spu_overlay_note_get(&pic, 0x20000, pic.ls + 0x1880, 4);
+            if (spu_lifted_lookup(&pic, 0x1880)) return 32;
+            pic.pc = 0x1880;
+            spu_indirect_branch(&pic);
+            return 33;
+        }
+        std::puts("{\"positions\":3,\"isolated\":true,\"negative_bias\":true,\"split_preserved\":true}");
+        return 0;
+    }
     if (!std::strcmp(mode, "overlap") || !std::strcmp(mode, "overlap-unknown")) {
         // A smaller plugin replaces the middle of an earlier plugin's code.
         // Header and body arrive separately; the valid outer code must survive.
