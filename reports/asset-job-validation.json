@@ -1,0 +1,434 @@
+{
+  "jobs": [
+    {
+      "job": "refpack-0",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 15326,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "39aa4e1d7bb51e045665b1489f802e3a45ab9f75de1d42686a9a9921aeb3870c"
+    },
+    {
+      "job": "refpack-1",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 14545,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "0065ad0a9ce5c85006bbc099959cb361dac16e0ab19b8b0e5dfdfe7226881635"
+    },
+    {
+      "job": "refpack-10",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13298,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "c0b12de9d8c0f18a22a1e586afff757061bf23e26bd90375505f163e21a94509"
+    },
+    {
+      "job": "refpack-11",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13849,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "ecf1f84b9ab80e13031be495beac7c7f891d4782e998737c6ba19759efce72da"
+    },
+    {
+      "job": "refpack-12",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13933,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "a75801278f6f565901a995c3bc51e110792175e1c78c88ee7814b339a11b94ac"
+    },
+    {
+      "job": "refpack-13",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 14404,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "3c4227a3e1650adb912cde2fb2cc45abb5a2b0e9fae837c252e988c5ad660dea"
+    },
+    {
+      "job": "refpack-14",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 12619,
+      "output_bytes": 110368,
+      "expected_bytes": 110368,
+      "sha256": "e0059306865de0466f9799dd51683ce2ee392bed67b81b4e9ede5a619327d1b4"
+    },
+    {
+      "job": "refpack-2",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 15411,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "f805f2149312e6fc193367e725f631dae208a86e5ef1b9a6254a70fdd9571471"
+    },
+    {
+      "job": "refpack-3",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13779,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "696ef1c9f4a8896b66093dc21990ebdf49cf7277661746e283386a7aae9d044b"
+    },
+    {
+      "job": "refpack-4",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13128,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "762aef6396a7952eb9e087a26b643091835252caf52525a9eaa84824c1bcc721"
+    },
+    {
+      "job": "refpack-5",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13607,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "077804cccab346f005528faa80722b145da181fabb16fa7e933b1e76396e460c"
+    },
+    {
+      "job": "refpack-6",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 14454,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "4eea9abda552acbcc7a717daedcd8798371f0bd22ffc1c78e3e972c1cef2dc0d"
+    },
+    {
+      "job": "refpack-7",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13578,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "703d1ea03cb6e3af4cd82c99350faac300bac260c859e757c8b720e9477a0afd"
+    },
+    {
+      "job": "refpack-8",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13993,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "2f6acbd3fd74f0396fea90369637a6b8dc0aff463267a9443feb447f264bc7cf"
+    },
+    {
+      "job": "refpack-9",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 13422,
+      "output_bytes": 131072,
+      "expected_bytes": 131072,
+      "sha256": "00e409f15df957bdceee1ba88473360b632acbe20bae9962511c6a26e9be1d9b"
+    },
+    {
+      "job": "zlib-0",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 4605,
+      "output_bytes": 17559,
+      "expected_bytes": 17559,
+      "sha256": "66640cd053d98c27df360b7fe5fb0d84c67bcdab348a497b621a2ecfa718e149"
+    },
+    {
+      "job": "zlib-1",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 2088,
+      "output_bytes": 4232,
+      "expected_bytes": 4232,
+      "sha256": "494d5809f39e240ac527e639be0d9821c315db288e02fac18687841c4f1d1008"
+    },
+    {
+      "job": "zlib-10",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 22439,
+      "output_bytes": 184320,
+      "expected_bytes": 184320,
+      "sha256": "7867b140af091fe1d8e2a49b2f403e1fe8a0a41a6c8ea9f2e5ec648915e0b362"
+    },
+    {
+      "job": "zlib-11",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 1867,
+      "output_bytes": 25252,
+      "expected_bytes": 25252,
+      "sha256": "c16307dc33ec247e5c2d5fe5e34c3962041c4946cd83a3c4f29da351b8cf6a70"
+    },
+    {
+      "job": "zlib-12",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 36843,
+      "output_bytes": 39760,
+      "expected_bytes": 39760,
+      "sha256": "1483850cb2cd10b8fd8cc8c071eb41838e26df7e351f00f18454a2de45e2c198"
+    },
+    {
+      "job": "zlib-13",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 40812,
+      "output_bytes": 170112,
+      "expected_bytes": 170112,
+      "sha256": "47606a2b0c38976e8e25a8facf87d5baae0ea0c603e2b7d2b88944d609298fb1"
+    },
+    {
+      "job": "zlib-14",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 27166,
+      "output_bytes": 71664,
+      "expected_bytes": 71664,
+      "sha256": "7068d1c9a7200094d10bfc81830cfcc06136c624c8fb230937370249c2b8e082"
+    },
+    {
+      "job": "zlib-15",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 9607,
+      "output_bytes": 73402,
+      "expected_bytes": 73402,
+      "sha256": "5984d41d16995505946b2ecd35288be7c0b97f6bb429277941534d082a3e864f"
+    },
+    {
+      "job": "zlib-16",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 2227,
+      "output_bytes": 10375,
+      "expected_bytes": 10375,
+      "sha256": "f3e9d4eb9c91be3b2e6d6141277dbfa655bf47099f6358392c77f0f5fb602df5"
+    },
+    {
+      "job": "zlib-17",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 1442,
+      "output_bytes": 5301,
+      "expected_bytes": 5301,
+      "sha256": "cb565a997d37614cea19c07790df25adfc1c7ef830b11e32609198db0d34d906"
+    },
+    {
+      "job": "zlib-18",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 573,
+      "output_bytes": 1888,
+      "expected_bytes": 1888,
+      "sha256": "ac3bded90b747050a732e253a823388656a9d08c6deab5898986f68d51382d42"
+    },
+    {
+      "job": "zlib-19",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 301,
+      "output_bytes": 636,
+      "expected_bytes": 636,
+      "sha256": "b1ad05291525f00f7e87785e47632e520d4429754f45efd83645592ee25d84f1"
+    },
+    {
+      "job": "zlib-2",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 307,
+      "output_bytes": 548,
+      "expected_bytes": 548,
+      "sha256": "333c71ec082f7f5599c08de4548020481de25a7021947fd9f879481ae963fc63"
+    },
+    {
+      "job": "zlib-20",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 724,
+      "output_bytes": 2346,
+      "expected_bytes": 2346,
+      "sha256": "3aa2a44327c5c7cfe7f10ac5a81b63a327ba8b3bd5680faf990713bda6c3873d"
+    },
+    {
+      "job": "zlib-21",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 955,
+      "output_bytes": 3501,
+      "expected_bytes": 3501,
+      "sha256": "621bcb67cbfc445aa17bd1eb137c7d2b0dd66a4f1cf61c105b6956c19670a070"
+    },
+    {
+      "job": "zlib-22",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 483,
+      "output_bytes": 1544,
+      "expected_bytes": 1544,
+      "sha256": "9938d574cf1738c59b9cfc7fa44eebe1b9099cbe88075cb08dada40c02079261"
+    },
+    {
+      "job": "zlib-23",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 468,
+      "output_bytes": 1506,
+      "expected_bytes": 1506,
+      "sha256": "ca8061c60122baf5bfc4e1a8d81445db11a8ddadecbb8cd4951c07c1d49a0c17"
+    },
+    {
+      "job": "zlib-24",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 256,
+      "output_bytes": 752,
+      "expected_bytes": 752,
+      "sha256": "5693121ec007f7b485bacb12044c89a73392fdc5680ebcbf7a261862b7999170"
+    },
+    {
+      "job": "zlib-25",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 536,
+      "output_bytes": 1832,
+      "expected_bytes": 1832,
+      "sha256": "8917b18ca8c0c497d6d572a809934d225fbea8026551b2c842683b3cf7c8577c"
+    },
+    {
+      "job": "zlib-26",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 6972,
+      "output_bytes": 64098,
+      "expected_bytes": 64098,
+      "sha256": "0280e0ce63bc5bdbdd0726841edc6ee24a31b49c853856545ea4c8f25c4a22f0"
+    },
+    {
+      "job": "zlib-27",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 282,
+      "output_bytes": 662,
+      "expected_bytes": 662,
+      "sha256": "dbb23ca1d24ae62f8fef3146274869503a9e85222bdd8398c871adb95fa6f078"
+    },
+    {
+      "job": "zlib-28",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 390,
+      "output_bytes": 933,
+      "expected_bytes": 933,
+      "sha256": "bfa3321d97da35b8f2b15b2533949650a458518eb603caae842b407a78f8fc0f"
+    },
+    {
+      "job": "zlib-29",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 839,
+      "output_bytes": 2700,
+      "expected_bytes": 2700,
+      "sha256": "2ca356e820ef748dee56d75ebcbf6e799c3a491c1e5c05b063e89dd75617d930"
+    },
+    {
+      "job": "zlib-3",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 374,
+      "output_bytes": 1951,
+      "expected_bytes": 1951,
+      "sha256": "a384987771af72026938eb94c402fccfe1d5a1c645bf3cb26bc9e84ea6bcce21"
+    },
+    {
+      "job": "zlib-30",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 496,
+      "output_bytes": 1354,
+      "expected_bytes": 1354,
+      "sha256": "b58b26e003bffdf6f25e3a32bc6d131bdfbe7511cdbb6ffa5d33230c96149db3"
+    },
+    {
+      "job": "zlib-31",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 553,
+      "output_bytes": 1795,
+      "expected_bytes": 1795,
+      "sha256": "626db36b826afcd26ccbeec119bd5382538991153b5f226b845649f575c22194"
+    },
+    {
+      "job": "zlib-4",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 226,
+      "output_bytes": 314,
+      "expected_bytes": 314,
+      "sha256": "2a5ef8821955daeec109ac8ae9832611f1896e3ab02602e19fee0a94f158bbd2"
+    },
+    {
+      "job": "zlib-5",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 1758,
+      "output_bytes": 16498,
+      "expected_bytes": 16498,
+      "sha256": "dba2a683b03c4994326ca6b628cde2fbf6bd1d0a416134ad836b60260153ba1e"
+    },
+    {
+      "job": "zlib-6",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 1206,
+      "output_bytes": 5892,
+      "expected_bytes": 5892,
+      "sha256": "0659e11adf1791832b075b84c747bc5eb21729ecffb23d48f97615837730e057"
+    },
+    {
+      "job": "zlib-7",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 3037,
+      "output_bytes": 7725,
+      "expected_bytes": 7725,
+      "sha256": "656dc508f1b912effcdc921537356eaebab2677af4129195d323d36408ed826e"
+    },
+    {
+      "job": "zlib-8",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 1159,
+      "output_bytes": 4134,
+      "expected_bytes": 4134,
+      "sha256": "3f93761dab37c4979f63bf34bd22f6167f3cc4533a3643a56e172b49351bdc5d"
+    },
+    {
+      "job": "zlib-9",
+      "codec": "zlib",
+      "matches": true,
+      "input_bytes": 341,
+      "output_bytes": 1744,
+      "expected_bytes": 1744,
+      "sha256": "b4e8b36473b730f45bb80e7a4c35b4f199d55c4a048768eca560757c058a229b"
+    }
+  ],
+  "total": 47,
+  "passed": 47,
+  "incomplete": [],
+  "all_passed": true,
+  "capture_limit_per_codec": 32,
+  "exhaustive": false,
+  "native_run": "private\\analysis\\runs\\1792847466283405700"
+}

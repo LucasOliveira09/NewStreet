@@ -12,7 +12,8 @@
       "code_end": "0xa70",
       "extra_entries": [
         "0x154"
-      ]
+      ],
+      "io_layout": "refpack"
     },
     {
       "name": "assetstream_zlib",
@@ -25,7 +26,8 @@
       "code_end": "0x5740",
       "extra_entries": [
         "0x18c"
-      ]
+      ],
+      "io_layout": "zlib"
     },
     {
       "name": "sportsrna_spupatch",

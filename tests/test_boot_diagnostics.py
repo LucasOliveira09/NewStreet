@@ -12,6 +12,29 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_job_observer_waits_for_tail_transfers_and_preserves_guest_return(self):
+        for depth in (0, 2):
+            baseline = None
+            for enabled in (False, True):
+                with self.subTest(depth=depth, enabled=enabled), tempfile.TemporaryDirectory(prefix='fifa jobs ') as folder:
+                    env = os.environ.copy()
+                    env.pop('FIFA_SPU_JOB_TRACE_DIR', None)
+                    if enabled:
+                        env['FIFA_SPU_JOB_TRACE_DIR'] = folder
+                    result = subprocess.run([str(BOOT), '--test-spu-observer', str(depth)],
+                                            env=env, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    observed = json.loads(result.stdout)
+                    self.assertEqual(observed, dict(pc=0x300, depth=depth, result=7, pending=False, output='OUT!'))
+                    if enabled:
+                        self.assertEqual(observed, baseline)
+                        self.assertEqual((Path(folder) / 'zlib-0.input').read_bytes(), b'IN!!')
+                        self.assertEqual((Path(folder) / 'zlib-0.output').read_bytes(), b'OUT!\x00')
+                        self.assertTrue(json.loads((Path(folder) / 'zlib-0.json').read_text())['captured'])
+                    else:
+                        baseline = observed
+                        self.assertEqual(list(Path(folder).iterdir()), [])
+
     def test_failure_memory_snapshot_contains_real_guest_opd_bytes(self):
         with tempfile.TemporaryDirectory(prefix='fifa PPU ') as folder:
             env = os.environ.copy()

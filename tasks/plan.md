@@ -105,3 +105,9 @@ passou a revisitar ranges divididos; 351 entradas adicionais e zero referências
 diretas pendentes na geração completa (99.127 + 369 imports). Três regressões
 sintéticas passaram. O rebuild executou até consultas Lua e salto SPU em LS
 `0x100`; capturar o código residente antes de decidir qual imagem traduzir.
+
+O boot passou a carregar DATA0 após preservar o nome UDF. RefPack, mixer,
+submix PIC e sample capture foram ligados progressivamente. Foram comparadas
+47 saídas nativas AssetStream contra oráculos independentes, com igualdade
+byte a byte. O próximo bloqueio observado é spugainfader em LS 0x6bb0;
+primeiro frame desenhado, menu, áudio e gameplay continuam pendentes.

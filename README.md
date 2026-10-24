@@ -103,6 +103,14 @@ A extração usa a visão UDF, incluindo a partição de metadados UDF 2.50 do d
 Ela preserva `data0.big.sdat`; a visão ISO9660 chama esse mesmo conteúdo de
 `DATA0_BIG.SDAT`, nome que o jogo não encontra. Não renomeie arquivos por palpite.
 `--filesystem iso9660` permanece disponível para diagnóstico explícito.
+
+`tools/run_native.py --timeout 30 --capture --observe-assets` grava entradas e
+saídas de até 32 tarefas por codec na pasta privada de cada tentativa. O relatório
+compara os bytes produzidos pelas traduções SPU com RefPack independente e zlib
+do Python (DEFLATE raw). O observador não fornece dados ao jogo. A execução de
+referência conferiu 47 tarefas, totalizando 2.671.706 bytes de saída, sem diferenças;
+isso cobre essas capturas, sem provar todos os jobs ou os caminhos de gameplay.
+
 A extração local produziu 104 arquivos (4.800.945.013 bytes), com hashes por arquivo
 em `private/disc/extraction-manifest.json`. Os extents repetidos de DATA3.BIG e
 DATA6.BIG foram concatenados na ordem do diretório. O leitor abre a ISO somente

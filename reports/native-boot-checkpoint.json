@@ -1,27 +1,27 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Native boot reaches input setup; strict null PPU call diagnosed",
+  "stage": "Native DATA0 assets match independent decompression; audio mixer awaits gain fader module",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "indirect-null",
-    "value": 0,
-    "guest_lr": 18521936,
+    "kind": "spu-indirect",
+    "value": 2259970271706377136,
+    "guest_lr": 0,
     "guest_pc": 0,
-    "thread_id": 1,
-    "guest_toc": 35476336,
+    "thread_id": 0,
+    "guest_toc": 0,
     "arguments": [
       0,
-      267383888,
-      267383892,
       0,
-      88,
-      275864504,
       0,
-      267384560
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   },
   "spawn": {
@@ -44,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792844577790102200",
+  "logs": "private\\analysis\\runs\\1792847466283405700",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -163,5 +163,14 @@
       "unsupported": {},
       "missing_direct_targets": 0
     }
-  ]
+  ],
+  "asset_jobs": {
+    "total": 47,
+    "passed": 47,
+    "bytes": 2671706,
+    "refpack": 15,
+    "deflate": 32,
+    "exhaustive": false
+  },
+  "boot_tests": 17
 }

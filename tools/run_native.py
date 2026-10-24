@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, capture=False):
+def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, capture=False, observe_assets=False):
     build = 'fifazf_full' if profile == 'full' else 'fifazf'
     main_exe = ROOT / 'private/build' / build / 'fifa_boot.exe'
     boot_exe = ROOT / 'private/build/boot/fifa_boot.exe'
@@ -29,6 +29,9 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     env['FIFA_SPU_DUMP_DIR'] = str(output / 'spu')
     (output / 'ppu').mkdir()
     env['FIFA_PPU_DUMP_DIR'] = str(output / 'ppu')
+    if observe_assets:
+        (output / 'jobs').mkdir()
+        env['FIFA_SPU_JOB_TRACE_DIR'] = str(output / 'jobs')
     for mount in ('HDD0', 'HDD1'):
         key = 'PS3_' + mount + '_ROOT'
         if not env.get(key):
@@ -75,6 +78,9 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     report = dict(profile=profile, direct=direct, exit_code=code,
                   elapsed_seconds=round(time.monotonic() - started, 3),
                   logs=str(output.relative_to(ROOT)), events=events)
+    if observe_assets:
+        from validate_asset_jobs import validate
+        report['asset_jobs'] = validate(output / 'jobs')
     (output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
     return report
 
@@ -86,10 +92,11 @@ def main():
     parser.add_argument('--direct', action='store_true')
     parser.add_argument('--syscall-trace', action='store_true')
     parser.add_argument('--capture', action='store_true', help='Read back the first backend frame with draw operations')
+    parser.add_argument('--observe-assets', action='store_true', help='Capture completed native decompression jobs and compare independent output')
     args = parser.parse_args()
     if args.timeout < 1:
         parser.error('timeout must be positive')
-    report = run_native(args.profile, args.timeout, args.direct, args.syscall_trace, args.capture)
+    report = run_native(args.profile, args.timeout, args.direct, args.syscall_trace, args.capture, args.observe_assets)
     print(json.dumps(report, indent=2))
     # Returning zero here only means the diagnostic run was recorded. Inspect
     # exit_code and game evidence; this tool cannot declare gameplay success.

@@ -25,7 +25,11 @@ de identidade no DMA e invalidação de código sobrescrito. Dezesseis testes de
 boot passaram. O FS agora usa os mesmos mounts em Open/Write/Rename, e o runner
 mantém HDD0/HDD1 em `private/userdata`. No jogo só foram observados clears pretos:
 nenhum frame com desenho, menu, partida, áudio, save ou progressão foi validado.
-As saídas dos descompactadores ainda precisam de comparação byte a byte.
+A tentativa `1792847466283405700` comparou byte a byte 47 saídas nativas
+(15 RefPack e 32 DEFLATE, 2.671.706 bytes) com oráculos independentes: todas
+coincidiram e não houve captura incompleta. O limite é 32 por codec; isto não
+valida automaticamente todos os jobs. O bloqueio agora é o módulo de áudio
+`spugainfader.elf` em LS `0x6bb0`, ainda sem tradução ligada.
 
 ## Implementação comprovada
 
@@ -223,3 +227,17 @@ O módulo executou até o mixer carregar `spugainfader.elf` em LS `0x6b80`,
 entrada `0x6bb0`, fonte `0x1fda900`. A tentativa é `1792847260676890600`.
 O dump dessa nova região coincide integralmente com a fonte original.
 Nenhuma amostra de áudio audível foi validada.
+
+### Oráculos dos dados AssetStream
+
+O observador opcional registra input antes e output depois do retorno real,
+incluindo tail transfers nativos. O teste Windows compara execução observada
+e sem observação, com e sem frame host já ativo, conferindo GPR de retorno,
+PC, profundidade, pendência e bytes produzidos após o tail. Os 17 testes de
+boot passaram. O decoder diagnóstico RefPack cobre as cinco classes de comando,
+lookbacks sobrepostos, headers de 24/32 bits, tamanho comprimido opcional,
+limites e entradas truncadas (três testes adicionais aprovados).
+`--observe-assets` isola dados por tentativa e acusa inputs sem retorno capturado.
+Os 47 jobs comparados passaram integralmente; relatório autoral em
+`reports/asset-job-validation.json`, dados privados na tentativa acima.
+O host não usa o oráculo para executar ou substituir os descompactadores SPU.

@@ -41,6 +41,7 @@ int fifa_test_spu_groups(void);
 int fifa_test_spu_image_mismatch(void);
 int fifa_test_spu_termination(const char*);
 int fifa_test_spu_overlay(const char*);
+int fifa_test_spu_observer(const char*);
 void fifa_configure_filesystem_mounts(const char*);
 int fifa_test_filesystem_mounts(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -102,6 +103,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-missing")) return test_missing(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-termination")) return fifa_test_spu_termination(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-overlay")) return fifa_test_spu_overlay(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-observer")) return fifa_test_spu_observer(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-mounts")) return fifa_test_filesystem_mounts(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
