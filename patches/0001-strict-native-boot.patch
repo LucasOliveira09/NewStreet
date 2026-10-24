@@ -103,6 +103,33 @@ index f54150d..a9d4c26 100644
          /* Reserve entry arguments at the top of the caller-provided main
           * stack, above a fresh ABI frame. Guest frames grow down from the new
           * SP, so the strings live until process exit without claiming a fixed
+diff --git a/runtime/ppu/ppu_sysprx.cpp b/runtime/ppu/ppu_sysprx.cpp
+index 1a393fd..5a276c6 100644
+--- a/runtime/ppu/ppu_sysprx.cpp
++++ b/runtime/ppu/ppu_sysprx.cpp
+@@ -12,6 +12,9 @@
+  */
+ #define PPU_NO_INLINE_LOADS   /* declares its own out-of-line vm_read* below */
+ #include "ppu_recomp.h"     /* ppu_context */
++#ifdef FIFA_STRICT_BOOT
++extern "C" void fifa_start_graphics(ppu_context*);
++#endif
+ #include "ps3emu/nid.h"     /* ps3_compute_nid */
+ #include <stdint.h>
+ #include <stdio.h>
+@@ -510,7 +513,11 @@ static void hle_cellGcmInitBody(ppu_context* ctx)
+     uint32_t ioAddr  = (uint32_t)ctx->gpr[6];
+     fprintf(stderr, "[HLE] _cellGcmInitBody(ctx_out=0x%08X, cmdSize=0x%X, ioSize=0x%X, ioAddr=0x%X)\n",
+             ctx_out, cmdSize, ioSize, ioAddr);
+-    cellGcmSetupContext(ctx_out, cmdSize, ioSize, ioAddr, gcm_guest_alloc, gcm_guest_write32);
++    uint32_t context = cellGcmSetupContext(ctx_out, cmdSize, ioSize, ioAddr, gcm_guest_alloc, gcm_guest_write32);
++#ifdef FIFA_STRICT_BOOT
++    if (!context || vm_read32(ctx_out) != context) fifa_boot_missing("gcm-context", context, ctx);
++    fifa_start_graphics(ctx);
++#endif
+     ctx->gpr[3] = 0;   /* CELL_OK */
+ }
+ 
 diff --git a/tools/ppu_lifter.py b/tools/ppu_lifter.py
 index 9d9df71..8c70caf 100644
 --- a/tools/ppu_lifter.py

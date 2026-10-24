@@ -181,6 +181,13 @@ incluindo o caminho padrão e a preservação de pilha/r31. Esse teste faz parte
 de `-Target Boot`; Keystone é dependência de teste, não intérprete do jogo.
 Os chunks do FIFAZF seguem faixas de bytes do guest, com tabela separada.
 
+O host inicia D3D12 e o relógio/consumidor FIFO somente após o GCM do jogo.
+A inicialização do backend foi confirmada na RX 580 2048SP, a 1280x720.
+O jogo começou a ler seus assets; ainda não produziu um frame validado.
+`tools/run_native.py --capture` habilita readback do primeiro frame do backend
+com operações de desenho. As capturas ficam no diretório privado da tentativa.
+`--syscall-trace` habilita o log detalhado de syscalls, desativado por padrão.
+
 As saídas por tentativa ficam em `private/analysis/runs`. Código 90 sinaliza um
 bloqueio explícito; 92 é somente captura da solicitação de troca sem filho
 configurado. A ferramenta de diagnóstico registra esses resultados sem declará-los

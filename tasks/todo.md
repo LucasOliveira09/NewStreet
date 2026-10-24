@@ -28,6 +28,10 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Validar um switch PowerPC recompilado e seu retorno compartilhado.
 - [x] Validar a correção do switch no caminho real de inicialização.
 - [x] Alcançar inicialização GCM com command buffer e região IO reais.
+- [x] Inicializar D3D12 no hardware local e consumir a fila RSX do jogo.
+- [x] Observar leitura real de locale.big e threads de carregamento.
+- [ ] Bloquear conclusão silenciosa de SPUs ausentes no runtime.
+- [ ] Recompilar e integrar a primeira imagem SPU multi-segmento solicitada.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 
 ## Inicialização e plataforma

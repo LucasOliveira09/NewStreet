@@ -24,9 +24,17 @@ O serviço `sys_prx_register_library` agora registra os exports reais de
 consultas do conteúdo do jogo. O salto computado para `0x43738` foi corrigido
 com a descoberta de jump tables do SDK. O jogo avançou até `_cellGcmInitBody`:
 context-out `0x22f9370`, command buffer `0x200000`, IO `0x700000` em `0x13f00000`.
-O teste seguinte encerrou por timeout de 30 segundos, esperando o registro de
-controle RSX em `0x18ec7c` (LR de espera `0x18ecb4`). O host ainda não tem
-consumidor FIFO/relógio gráfico ativo. Não houve janela ou frame nesta tentativa.
+O timeout seguinte no controle RSX foi resolvido com consumidor FIFO e relógio
+gráfico, iniciados após GCM. D3D12 inicializou na AMD RX 580 2048SP e criou sua
+janela de 1280x720. A execução passou a ler `data/loc/locale.big` e iniciou threads
+AssetStream::Load/Unpack/Translate. Nenhum flip/frame do jogo foi observado.
+
+O trace revelou dois problemas concretos: grupos SPU solicitam a imagem de 5.140
+bytes, fingerprint `22F896FE3B85A8C7`, que tem três segmentos executáveis e ainda
+não está recompilada; o upstream a tratou como concluída sem execução. É necessário
+bloquear isso e integrar sua tradução real. Depois disso, há também uma referência
+PPU não emitida em `0x13a796c` (LR `0x139c444`). Os logs da tentativa estão em
+`private/analysis/runs/1792825061374831800`.
 Isso não comprova correção ou cobertura completa:
 304 referências diretas permanecem com diagnóstico explícito. Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
@@ -51,9 +59,9 @@ de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao
 
 ## Primeira tarefa pendente
 
-Iniciar o consumidor FIFO/relógio RSX após
-a inicialização GCM. Integrar apresentação D3D12, validar hardware e observar
-o próximo resultado. Janela ou flip, isoladamente, não provam frame correto.
+Impedir conclusão silenciosa de SPUs sem código nativo e traduzir a imagem
+multi-segmento efetivamente solicitada. Depois, emitir o alvo PPU `0x13a796c`.
+Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.
 Usar os dados reais de `private/disc`; conferir `reports/native-boot-checkpoint.json`.

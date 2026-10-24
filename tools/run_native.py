@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_native(profile='full', timeout=30, direct=False):
+def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, capture=False):
     build = 'fifazf_full' if profile == 'full' else 'fifazf'
     main_exe = ROOT / 'private/build' / build / 'fifa_boot.exe'
     boot_exe = ROOT / 'private/build/boot/fifa_boot.exe'
@@ -23,7 +23,12 @@ def run_native(profile='full', timeout=30, direct=False):
     output = ROOT / 'private/analysis/runs' / str(time.time_ns())
     output.mkdir(parents=True)
     env = os.environ.copy()
-    env.update(PS3_HLE_TRACE='200', PS3_SCTRACE='1')
+    env['PS3_HLE_TRACE'] = '200'
+    env.pop('PS3_SCTRACE', None)
+    if syscall_trace:
+        env['PS3_SCTRACE'] = '1'
+    if capture:
+        env.update(RSX_CAP='1:1', RSX_CAP_DIR=str(output / 'rsxcap'))
     command = [str(boot_exe), str(ROOT / 'private/EBOOT.elf'), str(ROOT / 'private/disc')]
     if direct:
         request = json.loads((ROOT / 'private/analysis/spawn-request.json').read_text())
@@ -69,10 +74,12 @@ def main():
     parser.add_argument('--profile', choices=['startup', 'full'], default='full')
     parser.add_argument('--timeout', type=int, default=30)
     parser.add_argument('--direct', action='store_true')
+    parser.add_argument('--syscall-trace', action='store_true')
+    parser.add_argument('--capture', action='store_true', help='Read back the first backend frame with draw operations')
     args = parser.parse_args()
     if args.timeout < 1:
         parser.error('timeout must be positive')
-    report = run_native(args.profile, args.timeout, args.direct)
+    report = run_native(args.profile, args.timeout, args.direct, args.syscall_trace, args.capture)
     print(json.dumps(report, indent=2))
     # Returning zero here only means the diagnostic run was recorded. Inspect
     # exit_code and game evidence; this tool cannot declare gameplay success.

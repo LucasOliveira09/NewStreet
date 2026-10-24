@@ -1,12 +1,29 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "real native game startup reached GCM; waiting for RSX control progress",
+  "stage": "D3D12 backend initialized; real asset reads; missing SPU execution and PPU target observed",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 98776,
   "main_import_stubs": 369,
-  "exit_code": "timeout",
-  "block": null,
+  "exit_code": 90,
+  "block": {
+    "kind": "unlifted",
+    "value": 20609388,
+    "guest_lr": 20563012,
+    "guest_pc": 0,
+    "thread_id": 1,
+    "guest_toc": 35476336,
+    "arguments": [
+      0,
+      10240,
+      0,
+      1,
+      18446744073709496400,
+      301511056,
+      301511134,
+      301511128
+    ]
+  },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -27,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792824605344714100",
+  "logs": "private\\analysis\\runs\\1792825061374831800",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -53,5 +70,18 @@
     "function": "0x18ec7c",
     "lr": "0x18ecb4"
   },
-  "window_created": false
+  "window_created": true,
+  "graphics": {
+    "backend": "Direct3D 12",
+    "adapter": "AMD Radeon RX 580 2048SP",
+    "width": 1280,
+    "height": 720,
+    "guest_flips_observed": 0
+  },
+  "spu_gap": {
+    "fingerprint": "22F896FE3B85A8C7",
+    "bytes": 5140,
+    "executable_segments": 3,
+    "upstream_skipped_execution": true
+  }
 }
