@@ -97,6 +97,20 @@ extern "C" int fifa_test_spu_overlay(const char* mode) {
     for (unsigned i = 0; i < 256; ++i) vm_base[0x10000 + i] = (uint8_t)(i * 37 + 3);
     uint64_t fp = spu_workload_fingerprint(vm_base + 0x10000, 256);
     spu_overlay_register_region_checked(0x10000, 256, 0x80, 0x80, 0x20, 222, fp);
+    if (!std::strcmp(mode, "relocated")) {
+        spu_begin_image(333);
+        spu_register_function(0x500, replacement_entry);
+        spu_overlay_register_region_checked(0x10000, 256, 0x480, 0x80, 0x20, 333, fp);
+        static spu_context relocated;
+        spu_context_init(&relocated, 77);
+        relocated.image_id = 111;
+        std::memcpy(relocated.ls + 0x480, vm_base + 0x10000, 256);
+        spu_overlay_note_get(&relocated, 0x10000, relocated.ls + 0x480, 256);
+        relocated.pc = 0x500;
+        spu_indirect_branch(&relocated);
+        std::printf("{\"value\":%u,\"owner\":%d}\n", relocated.gpr[3]._u32[0], relocated.resident_code[0].image_id);
+        return 0;
+    }
     static spu_context ctx;
     spu_context_init(&ctx, 77);
     ctx.image_id = 111;

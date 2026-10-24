@@ -118,6 +118,12 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), dict(modules=7, dispatched=7))
 
+    def test_same_spu_source_selects_the_static_translation_for_its_ls_base(self):
+        result = subprocess.run([str(BOOT), '--test-spu-overlay', 'relocated'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), dict(value=9, owner=333))
+
     def test_nested_spu_plugin_preserves_outer_code_and_can_be_reloaded(self):
         result = subprocess.run([str(BOOT), '--test-spu-overlay', 'overlap'],
                                 capture_output=True, text=True, timeout=10)

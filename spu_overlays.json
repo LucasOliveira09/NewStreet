@@ -76,6 +76,9 @@
       "extra_entries": [
         "0x3848",
         "0x38c0"
+      ],
+      "additional_ls_bases": [
+        "0x7800"
       ]
     },
     {

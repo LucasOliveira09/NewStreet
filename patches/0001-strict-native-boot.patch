@@ -201,7 +201,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..81f0c59 100644
+index 59f5e4b..e458afb 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -269,7 +269,7 @@ index 59f5e4b..81f0c59 100644
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1695,35 +1730,100 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
+@@ -1695,35 +1730,99 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
                  ea, size, os, on, ns, nn); }
  }
  
@@ -344,6 +344,7 @@ index 59f5e4b..81f0c59 100644
 +                                  spu_missing_execution_hook ? -1 : 0)) return;
 +        }
      }
++    int unmatched_checked_base = 0;
      for (int i = 0; i < s_ovl_src_count; i++) {
          const spu_ovl_src* o = &s_ovl_src[i];
          int hit = o->has_sig ? (size >= 512 && memcmp(ls, o->sig, 16) == 0)
@@ -361,12 +362,9 @@ index 59f5e4b..81f0c59 100644
 +            if (o->checked) {
 +                extern uint8_t* vm_base;
 +                if (lsa != o->expected_lsa) {
-+                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-base", ctx);
-+                    if (spu_missing_execution_hook)
-+                        spu_missing_execution_hook("spu-overlay-base", lsa, NULL);
-                     return;
-                 }
--                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
++                    unmatched_checked_base = 1;
++                    continue; /* Another static variant may admit this base. */
++                }
 +                if (!vm_base || (uint64_t)o->src_ea + o->span > 0x100000000ull ||
 +                    spu_workload_fingerprint(vm_base + o->src_ea, o->span) != o->fingerprint) {
 +                    fprintf(stderr, "[spu-ovl] content mismatch src=0x%08X image=%d\n",
@@ -374,8 +372,9 @@ index 59f5e4b..81f0c59 100644
 +                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-source", ctx);
 +                    if (spu_missing_execution_hook)
 +                        spu_missing_execution_hook("spu-overlay-source", o->src_ea, NULL);
-+                    return;
-+                }
+                     return;
+                 }
+-                fprintf(stderr, "[spu-ovl] no free resident code span for image %d\n", o->image_id);
 +            }
 +            if (o->span) {
 +                if (lsa + o->span > SPU_LS_SIZE) return;
@@ -385,7 +384,18 @@ index 59f5e4b..81f0c59 100644
                  return;
              }
              if (ctx->resident_ovl != o->image_id) {
-@@ -2278,7 +2378,7 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -1737,6 +1836,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+             return;
+         }
+     }
++    if (unmatched_checked_base) {
++        if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-base", ctx);
++        if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-base", lsa, NULL);
++    }
+ }
+ 
+ /* Match a 16-byte module header against the registered content signatures.
+@@ -2278,7 +2381,7 @@ void spu_indirect_branch(spu_context* ctx)
       * is 0 outside the region, so this only ever fires for genuine task code.) */
      spu_fn fn = NULL;
      int code_owner = 0;
@@ -394,7 +404,7 @@ index 59f5e4b..81f0c59 100644
          if (ctx->resident_code[slot].image_id && ctx->pc >= ctx->resident_code[slot].lsa &&
              ctx->pc - ctx->resident_code[slot].lsa < ctx->resident_code[slot].size) {
              code_owner = ctx->resident_code[slot].image_id;
-@@ -2293,6 +2393,23 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2293,6 +2396,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -418,7 +428,7 @@ index 59f5e4b..81f0c59 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +2958,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +2961,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }

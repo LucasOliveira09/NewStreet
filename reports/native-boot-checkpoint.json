@@ -1,6 +1,6 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Decoder initialization passed; submix requested at a second observed LS base 0x7800",
+  "stage": "Second static submix position passed; sample capture requested at LS 0x8900",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
@@ -35,7 +35,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792871490342211600",
+  "logs": "private\\analysis\\runs\\1792871664851996100",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -101,7 +101,7 @@
   ],
   "pending_direct_targets": 0,
   "discovery_regression_tests": 3,
-  "boot_regression_tests": 22,
+  "boot_regression_tests": 23,
   "observed_null_call": {
     "lr": "0x11a9f50",
     "thread": 1,
@@ -113,7 +113,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 14,
+  "raw_spu_overlays": 15,
   "asset_jobs": {
     "total": 47,
     "passed": 47,
@@ -122,7 +122,7 @@
     "deflate": 32,
     "exhaustive": false
   },
-  "boot_tests": 22,
+  "boot_tests": 23,
   "runtime_tests": 16,
   "first_frame": {
     "visually_reviewed": true,
@@ -135,6 +135,13 @@
     "menu_validated": false
   },
   "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
-  "project_tests": 38,
-  "cache_data4_verified": true
+  "project_tests": 39,
+  "cache_data4_verified": true,
+  "raw_spu_distinct_sources": 14,
+  "audio_capture": {
+    "samples": 1542656,
+    "peak": 0.0,
+    "nonzero": 0,
+    "audible_validated": false
+  }
 }

@@ -17,12 +17,14 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e quatorze overlays raw ligados com identidade e base LS conferidas.
-Pause, resample, rechannel e packet player passaram suas entradas observadas.
-A sobreposição parcial entre módulos agora preserva intervalos disjuntos de
-instruções, com regressão antes/depois e 22 testes de boot aprovados.
-A tentativa `1792871415455714000` avançou para outro programa SPU ainda ausente:
-PC 0x6a10, thread 0x2003, após 25,380 segundos; saída estrita 90.
+Há 14 ELFs SPU e 14 programas raw ligados, incluindo uma segunda compilação
+estática do submix para LS 0x7800 (15 registros raw no total). As posições PIC
+são admitidas explicitamente em `spu_overlays.json`; nenhuma tradução ocorre
+durante a execução. 23 testes de boot, 39 do projeto e 16 do runtime passaram.
+A tentativa `1792871664851996100` passou pela segunda base do submix e parou
+ao carregar sample capture em LS 0x8900, ainda não admitida; saída estrita 90.
+A captura de 1.542.656 floats do mix de áudio é inteiramente zero: áudio audível
+continua pendente. A tela conferida continua sendo o logo original.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -390,3 +392,15 @@ a base inesperada é corretamente recusada. Próximo incremento: admitir essa
 posição observada, recompilar estaticamente e testar a seleção por base.
 O identificador agora examina toda a LS: uma falha de DMA ocorre antes do salto
 e o novo módulo pode estar acima do PC do loader. Não há JIT/interpretação.
+
+## Segunda base estática de submix
+
+`additional_ls_bases` admite posições adicionais conferidas. O gerador desloca
+as entradas/limites e recompila o mesmo blob original para cada posição, com
+símbolos e registro de imagem distintos. Hash e verificação de origem continuam
+obrigatórios. O runtime procura a variante da origem/base efetivamente pedida;
+se nenhuma existir, preserva o diagnóstico `spu-overlay-base`.
+A regressão Windows da segunda base falhou antes e passou depois. 23 testes de
+boot, 39 do projeto e 16 CTest aprovados. Build e execução reais alcançaram
+sample capture em LS 0x8900 (fonte 0x1ffc800, todos os 8.800 bytes iguais).
+A nova posição é o próximo incremento, sem afrouxar a seleção por identidade.

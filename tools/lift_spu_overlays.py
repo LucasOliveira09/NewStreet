@@ -18,6 +18,28 @@ from spu_program_pipeline import publish
 from spu_elf import fnv1a64
 
 
+def expand_overlays(items):
+    """Compile only explicitly admitted PIC positions, before execution."""
+    for item in items:
+        yield item
+        original_base = int(item['ls_base'], 0)
+        seen = {original_base}
+        for value in item.get('additional_ls_bases', []):
+            base = int(value, 0)
+            if base in seen or base & 15 or not 0 <= base < 0x40000:
+                raise ValueError('Duplicate, unaligned or invalid PIC base')
+            seen.add(base)
+            delta = base - original_base
+            variant = dict(item)
+            variant.pop('additional_ls_bases')
+            variant.update(name=f'{item["name"]}_ls{base:x}', variant_of=item['name'])
+            for key in ('ls_base', 'entry', 'code_start', 'code_end'):
+                variant[key] = hex(int(item[key], 0) + delta)
+            variant['extra_entries'] = [hex(int(entry, 0) + delta)
+                                        for entry in item.get('extra_entries', [])]
+            yield variant
+
+
 def main():
     config_path = ROOT / 'spu_overlays.json'
     config = json.loads(config_path.read_text(encoding='utf-8'))
@@ -38,7 +60,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='fifa_overlays_', dir=destination.parent) as temporary:
         stage = Path(temporary) / 'output'; stage.mkdir()
         sources, declarations, registration, image_ids = [], [], [], set()
-        for item in config['overlays']:
+        for item in expand_overlays(config['overlays']):
             name = item['name']
             if not re.fullmatch('[a-z][a-z0-9_]*', name):
                 raise ValueError('Overlay name is not a safe C identifier')
@@ -83,6 +105,9 @@ def main():
             for filename in ('spu_recomp.h', 'spu_recomp.c'):
                 debase_includes(str(folder / filename))
             image_id = 0x20000000 | int(item['sha256'][:7], 16)
+            if 'variant_of' in item:
+                identity = f'{item["sha256"]}:{base:x}'.encode('ascii')
+                image_id = 0x30000000 | int(hashlib.sha256(identity).hexdigest()[:7], 16)
             if image_id in image_ids:
                 raise RuntimeError('Ambiguous raw overlay image id: ' + name)
             image_ids.add(image_id)
