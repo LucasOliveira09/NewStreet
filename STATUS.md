@@ -34,13 +34,16 @@ Isso não comprova correção ou cobertura completa:
 As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
 (HLE, syscall, chamada indireta e função não traduzida). Todas param explicitamente.
 O patch do SDK está versionado e sua aplicação é idempotente. Baseline reproduzido.
-Seis testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
+Sete testes adicionais de boot aprovam as fronteiras sem suporte, a leitura de
 ponteiros de 32 bits, os argumentos exatos e o transporte para processo filho
 nativo com propagação de seu código de saída, o diagnóstico de exceção nativa e
 o registro/despacho de exports com TOC e argumentos preservados. Outro teste
 compila uma rotina PowerPC sintética para x64: seis entradas do switch aprovadas,
 com pilha e r31 preservados. O registro
 distingue biblioteca, NID e função/variável; valida antes de publicar a tabela.
+O hook HLE de callbacks foi ligado ao dispatcher OPD real. O teste passa oito
+argumentos de 64 bits, preserva a identidade da thread e restaura o contexto
+do chamador. Callbacks sem função recompilada agora também param explicitamente.
 O perfil ampliado usa `/Od` na investigação; `/O1` pode ser ativado para medição
 posterior. A geração SPU não produziu um registro utilizável: seis imagens têm
 palavras não decodificadas e uma tem três segmentos executáveis. O inventário
@@ -48,7 +51,7 @@ de falhas está em `private/generated/spu/inventory.json`; não foi integrado ao
 
 ## Primeira tarefa pendente
 
-Ligar callbacks HLE ao dispatcher e iniciar o consumidor FIFO/relógio RSX após
+Iniciar o consumidor FIFO/relógio RSX após
 a inicialização GCM. Integrar apresentação D3D12, validar hardware e observar
 o próximo resultado. Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs

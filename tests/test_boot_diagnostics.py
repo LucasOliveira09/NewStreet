@@ -12,6 +12,16 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_hle_callback_enters_guest_code_with_64bit_arguments_and_thread_identity(self):
+        result = subprocess.run([str(BOOT), '--test-callback'], capture_output=True,
+                                text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        event = json.loads(result.stdout)
+        self.assertEqual(event['argument_sum'], 0x100000024)
+        self.assertEqual(event['identity'], 77)
+        self.assertEqual(event['toc'], 0x6789)
+        self.assertTrue(event['caller_restored'])
+
     def test_prx_exports_keep_library_nid_kind_and_guest_context(self):
         result = subprocess.run([str(BOOT), '--test-prx'], capture_output=True,
                                 text=True, timeout=10)
@@ -71,7 +81,7 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(event['priority'], 1001)
 
     def test_missing_runtime_work_cannot_report_success(self):
-        for boundary in ('hle', 'syscall', 'indirect', 'unlifted'):
+        for boundary in ('hle', 'syscall', 'indirect', 'unlifted', 'callback', 'callback-ct'):
             with self.subTest(boundary=boundary):
                 result = subprocess.run([str(BOOT), '--test-missing', boundary],
                                         capture_output=True, text=True, timeout=10)

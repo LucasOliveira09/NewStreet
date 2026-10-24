@@ -32,6 +32,11 @@ void fifa_set_disc_root(const char*);
 void fifa_install_crash_diagnostics(void);
 void fifa_register_prx_handlers(void);
 int fifa_test_prx_registry(void);
+void fifa_install_guest_callbacks(void);
+int fifa_test_guest_callbacks(void);
+uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
 }
 
 static LONG CALLBACK commit_guest_page(EXCEPTION_POINTERS* exception) {
@@ -57,6 +62,14 @@ static int test_missing(const char* kind) {
     else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
     else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }
     else if (!std::strcmp(kind, "unlifted")) ppu_unlifted_stub(0x123400, &context);
+    else if (!std::strcmp(kind, "callback") || !std::strcmp(kind, "callback-ct")) {
+        vm_base = (uint8_t*)std::calloc(1, 0x20000);
+        if (!vm_base) return 3;
+        g_active_ctx = &context;
+        vm_write32(0x10000, 0x123400); vm_write32(0x10004, 0x6789);
+        if (!std::strcmp(kind, "callback")) ppu_guest_call(0x10000, 0, 0, 0, 0, 0, 0, 0, 0);
+        else ppu_guest_call_ct(0x123400, 0x6789, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
     else return 2;
     return 1; // Unsupported boundaries must terminate, never return success.
 }
@@ -67,6 +80,7 @@ int main(int argc, char** argv) {
     setvbuf(stderr, nullptr, _IONBF, 0);
     fifa_install_crash_diagnostics();
     if (argc == 2 && !std::strcmp(argv[1], "--test-prx")) return fifa_test_prx_registry();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-callback")) return fifa_test_guest_callbacks();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
         RaiseException(0xE0464946u, EXCEPTION_NONCONTINUABLE, 0, nullptr);
         return 1;
@@ -128,6 +142,7 @@ int main(int argc, char** argv) {
     ppu_sysprx_register();
     ppu_fs_register();
     lv2_init_syscalls();
+    fifa_install_guest_callbacks();
     std::fprintf(stderr, "[fifa-boot] entry=0x%08X functions=%llu root=%s\n", entry,
                  (unsigned long long)function_table_count, root.c_str());
     int result = ppu_run(entry, 0x0FF00000u);

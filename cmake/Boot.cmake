@@ -31,6 +31,7 @@ execute_process(COMMAND "${Python3_EXECUTABLE}" "${PS3_SDK}/tools/gen_hle_nids.p
 add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_spawn.cpp ${BOOT_GENERATED} "${HLE_TABLE}"
     src/native_process.cpp src/guest_arguments.cpp src/crash_diagnostics.cpp
     src/prx_registry.cpp src/prx_registry_test.cpp
+    src/guest_callbacks.cpp tests/callback_probe.cpp
     "${PS3_SDK}/runtime/ppu/ppu_loader.cpp" "${PS3_SDK}/runtime/ppu/ppu_hle.cpp"
     "${PS3_SDK}/runtime/ppu/ppu_fs.cpp" "${PS3_SDK}/runtime/ppu/ppu_sysprx.cpp")
 target_include_directories(fifa_boot PRIVATE "${BOOT_RECOMP_DIR}" "${PS3_SDK}/include"

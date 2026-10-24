@@ -23,7 +23,7 @@ index b44816b..2638dcb 100644
           * early. An import moving between resolved and unresolved is exactly the
           * kind of change the gate exists to catch. */
 diff --git a/runtime/ppu/ppu_loader.cpp b/runtime/ppu/ppu_loader.cpp
-index f54150d..612b2c7 100644
+index f54150d..a9d4c26 100644
 --- a/runtime/ppu/ppu_loader.cpp
 +++ b/runtime/ppu/ppu_loader.cpp
 @@ -34,6 +34,10 @@
@@ -67,7 +67,27 @@ index f54150d..612b2c7 100644
          static int logged = 0;
          if (logged < 30) {
              fprintf(stderr, "[ppu] lv2_syscall %llu (stub)\n", (unsigned long long)num);
-@@ -3889,6 +3902,15 @@ extern "C" int ppu_run(uint32_t entry_opd, uint32_t stack_top)
+@@ -3702,6 +3715,9 @@ extern "C" uint64_t ppu_guest_call(uint32_t opd_addr,
+     uint32_t code = 0, toc = 0;
+     ppu_opd_resolve(opd_addr, &code, &toc);
+     ppu_fn fn = ppu_lookup(code);
++#ifdef FIFA_STRICT_BOOT
++    if (!fn) fifa_boot_missing("callback", code, g_active_ctx);
++#endif
+     if (!fn) {  /* OPD code clobbered? fall back to a captured fixup */
+         for (int i = 0; i < s_opd_fixup_n; i++)
+             if (s_opd_fixups[i].opd == opd_addr) {
+@@ -3763,6 +3779,9 @@ extern "C" uint64_t ppu_guest_call_ct(uint32_t code, uint32_t toc,
+ {
+     if (!code) return 0;
+     ppu_fn fn = ppu_lookup(code);
++#ifdef FIFA_STRICT_BOOT
++    if (!fn) fifa_boot_missing("callback-ct", code, g_active_ctx);
++#endif
+     if (!fn) { fprintf(stderr, "[ppu] guest_call_ct: code 0x%08X not registered\n", code); return 0; }
+ 
+     static PPU_THREAD_LOCAL uint32_t s_cb_sp = 0;
+@@ -3889,6 +3908,15 @@ extern "C" int ppu_run(uint32_t entry_opd, uint32_t stack_top)
              }
          }
  

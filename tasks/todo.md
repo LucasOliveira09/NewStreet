@@ -28,7 +28,7 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Validar um switch PowerPC recompilado e seu retorno compartilhado.
 - [x] Validar a correção do switch no caminho real de inicialização.
 - [x] Alcançar inicialização GCM com command buffer e região IO reais.
-- [ ] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
+- [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 
 ## Inicialização e plataforma
 
