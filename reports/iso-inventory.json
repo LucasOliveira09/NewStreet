@@ -1,0 +1,128 @@
+[
+  {
+    "name": "DATA",
+    "size": 2048,
+    "extent_count": 1,
+    "directory": true
+  },
+  {
+    "name": "DATA0.BH",
+    "size": 5356,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA0_BIG.SDAT",
+    "size": 7481952,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA1.BH",
+    "size": 384656,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA1.BIG",
+    "size": 554069100,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA2.BH",
+    "size": 1316,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA2.BIG",
+    "size": 392415550,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA3.BH",
+    "size": 314176,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA3.BIG",
+    "size": 1262198703,
+    "extent_count": 2,
+    "directory": false
+  },
+  {
+    "name": "DATA4.BH",
+    "size": 36,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA4.BIG",
+    "size": 30585168,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA5.BH",
+    "size": 36,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA5.BIG",
+    "size": 373141536,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA6.BH",
+    "size": 516,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA6.BIG",
+    "size": 1174537800,
+    "extent_count": 2,
+    "directory": false
+  },
+  {
+    "name": "DATA7.BH",
+    "size": 66696,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DATA7.BIG",
+    "size": 315973888,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "DLC",
+    "size": 2048,
+    "extent_count": 1,
+    "directory": true
+  },
+  {
+    "name": "EBOOT.BIN",
+    "size": 77088,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "FIFAZF.SELF",
+    "size": 36130840,
+    "extent_count": 1,
+    "directory": false
+  },
+  {
+    "name": "OPTIONS.VIV",
+    "size": 284,
+    "extent_count": 1,
+    "directory": false
+  }
+]

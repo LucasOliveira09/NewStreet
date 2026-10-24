@@ -1,0 +1,743 @@
+{
+  "method": "Compare imported NIDs against export-name NIDs computed by the upstream scanner. A match does not prove implementation, linkage, correctness or game compatibility; unmatched entries may require aliases or other registration paths.",
+  "elf_sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+  "ps3recomp_revision": "a6d76c895f77eb30b90a806c830544e61821b77f",
+  "total_imports": 369,
+  "matched_name_nids": 224,
+  "libraries": {
+    "sceNp": {
+      "total": 48,
+      "matched_name": 27,
+      "unmatched": [
+        {
+          "nid": "0x968aa36",
+          "name": "sceNpManagerGetTicket"
+        },
+        {
+          "nid": "0x27c69eba",
+          "name": "sceNpBasicAddFriend"
+        },
+        {
+          "nid": "0x4210c462",
+          "name": "sceNpManagerGetSigninId"
+        },
+        {
+          "nid": "0x58fa4fcd",
+          "name": "sceNpManagerGetTicketParam"
+        },
+        {
+          "nid": "0x8297f1ec",
+          "name": "sceNpManagerRequestTicket2"
+        },
+        {
+          "nid": "0xb1e0718b",
+          "name": "sceNpManagerGetAccountRegion"
+        },
+        {
+          "nid": "0xe6c8f3f9",
+          "name": "sceNpDrmProcessExitSpawn2"
+        },
+        {
+          "nid": "0x1fbbc9b",
+          "name": "sceNpBasicSendMessageGui"
+        },
+        {
+          "nid": "0x168a3117",
+          "name": null
+        },
+        {
+          "nid": "0x32c78a6a",
+          "name": null
+        },
+        {
+          "nid": "0x481ce0e8",
+          "name": null
+        },
+        {
+          "nid": "0x64a704cc",
+          "name": "sceNpBasicRecvMessageAttachmentLoad"
+        },
+        {
+          "nid": "0x806960ab",
+          "name": "sceNpBasicRecvMessageCustom"
+        },
+        {
+          "nid": "0xa1709abd",
+          "name": "sceNpManagerGetEntitlementById"
+        },
+        {
+          "nid": "0xb5cb2d56",
+          "name": null
+        },
+        {
+          "nid": "0xb66d1c46",
+          "name": "sceNpManagerGetEntitlementIdList"
+        },
+        {
+          "nid": "0xbdc07fd5",
+          "name": "sceNpManagerGetNetworkTime"
+        },
+        {
+          "nid": "0xbe81c71c",
+          "name": null
+        },
+        {
+          "nid": "0xd12e40ae",
+          "name": "sceNpLookupNpIdAsync"
+        },
+        {
+          "nid": "0xecd503de",
+          "name": null
+        },
+        {
+          "nid": "0xf2b3338a",
+          "name": "sceNpBasicGetBlockListEntry"
+        }
+      ]
+    },
+    "sys_net": {
+      "total": 26,
+      "matched_name": 2,
+      "unmatched": [
+        {
+          "nid": "0x51ee3ee",
+          "name": null
+        },
+        {
+          "nid": "0x13efe7f5",
+          "name": "getsockname"
+        },
+        {
+          "nid": "0x1f953b9f",
+          "name": "recvfrom"
+        },
+        {
+          "nid": "0x28e208bb",
+          "name": "listen"
+        },
+        {
+          "nid": "0x64f66d35",
+          "name": "connect"
+        },
+        {
+          "nid": "0x6db6e8cd",
+          "name": "socketclose"
+        },
+        {
+          "nid": "0x88f03575",
+          "name": "setsockopt"
+        },
+        {
+          "nid": "0x9647570b",
+          "name": "sendto"
+        },
+        {
+          "nid": "0x9c056962",
+          "name": "socket"
+        },
+        {
+          "nid": "0xb0a59804",
+          "name": "bind"
+        },
+        {
+          "nid": "0xc94f6939",
+          "name": "accept"
+        },
+        {
+          "nid": "0xdc751b40",
+          "name": "send"
+        },
+        {
+          "nid": "0xf9ec2db6",
+          "name": "getpeername"
+        },
+        {
+          "nid": "0xfba04f37",
+          "name": "recv"
+        },
+        {
+          "nid": "0x3b27c780",
+          "name": "sys_net_get_sockinfo"
+        },
+        {
+          "nid": "0x5a045bd1",
+          "name": "getsockopt"
+        },
+        {
+          "nid": "0x6005cde1",
+          "name": "_sys_net_errno_loc"
+        },
+        {
+          "nid": "0x71f4c717",
+          "name": "gethostbyname"
+        },
+        {
+          "nid": "0x858a930b",
+          "name": "inet_ntoa"
+        },
+        {
+          "nid": "0x8ccf05ed",
+          "name": "sys_net_abort_resolver"
+        },
+        {
+          "nid": "0x8d1b77fb",
+          "name": "sys_net_abort_socket"
+        },
+        {
+          "nid": "0xa50777c6",
+          "name": "shutdown"
+        },
+        {
+          "nid": "0xdabbc2c0",
+          "name": "inet_addr"
+        },
+        {
+          "nid": "0xfdb8f926",
+          "name": "sys_net_free_thread_context"
+        }
+      ]
+    },
+    "sys_io": {
+      "total": 13,
+      "matched_name": 10,
+      "unmatched": [
+        {
+          "nid": "0x1f71ecbe",
+          "name": null
+        },
+        {
+          "nid": "0x4ab1fa77",
+          "name": "cellKbCnvRawCode"
+        },
+        {
+          "nid": "0xff0a21b7",
+          "name": "cellKbRead"
+        }
+      ]
+    },
+    "sys_fs": {
+      "total": 18,
+      "matched_name": 15,
+      "unmatched": [
+        {
+          "nid": "0x2796fdf3",
+          "name": "cellFsRmdir"
+        },
+        {
+          "nid": "0x7a0329a1",
+          "name": null
+        },
+        {
+          "nid": "0xb1840b53",
+          "name": "cellFsSdataOpen"
+        }
+      ]
+    },
+    "cellSysmodule": {
+      "total": 4,
+      "matched_name": 3,
+      "unmatched": [
+        {
+          "nid": "0xa193143c",
+          "name": "cellSysmoduleSetMemcontainer"
+        }
+      ]
+    },
+    "cellSysutil": {
+      "total": 33,
+      "matched_name": 29,
+      "unmatched": [
+        {
+          "nid": "0x4dd03a4e",
+          "name": "cellSaveDataListAutoSave"
+        },
+        {
+          "nid": "0xced17573",
+          "name": "cellSaveDataFixedDelete"
+        },
+        {
+          "nid": "0xe7fa820b",
+          "name": null
+        },
+        {
+          "nid": "0xb53c54fa",
+          "name": "cellOskDialogSetKeyLayoutOption"
+        }
+      ]
+    },
+    "cellGame": {
+      "total": 9,
+      "matched_name": 8,
+      "unmatched": [
+        {
+          "nid": "0xce4374f6",
+          "name": "cellGamePatchCheck"
+        }
+      ]
+    },
+    "cellGcmSys": {
+      "total": 31,
+      "matched_name": 28,
+      "unmatched": [
+        {
+          "nid": "0x15bae46b",
+          "name": "_cellGcmInitBody"
+        },
+        {
+          "nid": "0x23ae55a3",
+          "name": "cellGcmGetLastSecondVTime"
+        },
+        {
+          "nid": "0x3a33c1fd",
+          "name": "_cellGcmFunc15"
+        }
+      ]
+    },
+    "cellSpurs": {
+      "total": 9,
+      "matched_name": 8,
+      "unmatched": [
+        {
+          "nid": "0x6c960f6d",
+          "name": "cellSpursGetSpuThreadId"
+        }
+      ]
+    },
+    "cellSync": {
+      "total": 1,
+      "matched_name": 1,
+      "unmatched": []
+    },
+    "cellNetCtl": {
+      "total": 8,
+      "matched_name": 8,
+      "unmatched": []
+    },
+    "cellAudio": {
+      "total": 9,
+      "matched_name": 9,
+      "unmatched": []
+    },
+    "cellMic": {
+      "total": 9,
+      "matched_name": 9,
+      "unmatched": []
+    },
+    "cellRtc": {
+      "total": 7,
+      "matched_name": 7,
+      "unmatched": []
+    },
+    "cellCelpEnc": {
+      "total": 8,
+      "matched_name": 0,
+      "unmatched": [
+        {
+          "nid": "0x15ec0cca",
+          "name": "cellCelpEncClose"
+        },
+        {
+          "nid": "0x3773692f",
+          "name": "cellCelpEncGetAu"
+        },
+        {
+          "nid": "0x55dc23de",
+          "name": "cellCelpEncStart"
+        },
+        {
+          "nid": "0x6b148570",
+          "name": "cellCelpEncQueryAttr"
+        },
+        {
+          "nid": "0x77b3b29a",
+          "name": "cellCelpEncOpen"
+        },
+        {
+          "nid": "0x81fe030c",
+          "name": "cellCelpEncEncodeFrame"
+        },
+        {
+          "nid": "0x9b244272",
+          "name": "cellCelpEncWaitForOutput"
+        },
+        {
+          "nid": "0xf2b85dff",
+          "name": "cellCelpEncEnd"
+        }
+      ]
+    },
+    "cellAdec": {
+      "total": 8,
+      "matched_name": 8,
+      "unmatched": []
+    },
+    "libvdec": {
+      "total": 8,
+      "matched_name": 8,
+      "unmatched": []
+    },
+    "sceNpTrophy": {
+      "total": 12,
+      "matched_name": 11,
+      "unmatched": [
+        {
+          "nid": "0x48bd97c7",
+          "name": "sceNpTrophyAbortHandle"
+        }
+      ]
+    },
+    "sceNpCommerce2": {
+      "total": 43,
+      "matched_name": 15,
+      "unmatched": [
+        {
+          "nid": "0x62023e98",
+          "name": "sceNpCommerce2CreateSessionAbort"
+        },
+        {
+          "nid": "0x7370d8d0",
+          "name": "sceNpCommerce2GetCategoryContentsCreateReq"
+        },
+        {
+          "nid": "0x972ab46c",
+          "name": "sceNpCommerce2GetContentInfo"
+        },
+        {
+          "nid": "0x9d9cb96b",
+          "name": "sceNpCommerce2DestroyGetCategoryContentsResult"
+        },
+        {
+          "nid": "0xd8a473a3",
+          "name": "sceNpCommerce2InitGetCategoryContentsResult"
+        },
+        {
+          "nid": "0xdb19194c",
+          "name": "sceNpCommerce2GetGameSkuInfoFromGameProductInfo"
+        },
+        {
+          "nid": "0xe51a4944",
+          "name": "sceNpCommerce2GetGameProductInfoFromContentInfo"
+        },
+        {
+          "nid": "0xfc216890",
+          "name": "sceNpCommerce2GetCategoryInfoFromContentInfo"
+        },
+        {
+          "nid": "0x146618df",
+          "name": "sceNpCommerce2GetProductInfoListGetResult"
+        },
+        {
+          "nid": "0x3d627d81",
+          "name": "sceNpCommerce2GetBGDLAvailability"
+        },
+        {
+          "nid": "0x410d42be",
+          "name": "sceNpCommerce2DoDlListFinishAsync"
+        },
+        {
+          "nid": "0x6ca9efd4",
+          "name": "sceNpCommerce2DoDlListStartAsync"
+        },
+        {
+          "nid": "0x9825a0fc",
+          "name": "sceNpCommerce2DoProductBrowseStartAsync"
+        },
+        {
+          "nid": "0x9cde07cc",
+          "name": "sceNpCommerce2GetProductInfoListStart"
+        },
+        {
+          "nid": "0xa5a863fe",
+          "name": "sceNpCommerce2SetBGDLAvailability"
+        },
+        {
+          "nid": "0xa975ebb4",
+          "name": "sceNpCommerce2GetProductInfoCreateReq"
+        },
+        {
+          "nid": "0xa9f945b3",
+          "name": "sceNpCommerce2DoProductCodeFinishAsync"
+        },
+        {
+          "nid": "0xb23e3bd1",
+          "name": "sceNpCommerce2DoProductBrowseFinishAsync"
+        },
+        {
+          "nid": "0xd9956ce7",
+          "name": "sceNpCommerce2GetGameProductInfoFromGetProductInfoListResult"
+        },
+        {
+          "nid": "0xda8e322d",
+          "name": null
+        },
+        {
+          "nid": "0xde7ab33d",
+          "name": "sceNpCommerce2DoProductCodeStartAsync"
+        },
+        {
+          "nid": "0xe0f90e44",
+          "name": "sceNpCommerce2InitGetProductInfoListResult"
+        },
+        {
+          "nid": "0xe1e7b5ac",
+          "name": "sceNpCommerce2GetProductInfoListCreateReq"
+        },
+        {
+          "nid": "0xeef51be0",
+          "name": "sceNpCommerce2ExecuteStoreBrowse"
+        },
+        {
+          "nid": "0xef645654",
+          "name": "sceNpCommerce2GetGameProductInfo"
+        },
+        {
+          "nid": "0xef8eafcd",
+          "name": "sceNpCommerce2DestroyGetProductInfoResult"
+        },
+        {
+          "nid": "0xf6139b58",
+          "name": "sceNpCommerce2DestroyGetProductInfoListResult"
+        },
+        {
+          "nid": "0xf798f5e3",
+          "name": "sceNpCommerce2InitGetProductInfoResult"
+        }
+      ]
+    },
+    "cellMusicDecodeUtility": {
+      "total": 14,
+      "matched_name": 4,
+      "unmatched": [
+        {
+          "nid": "0x1576e4f2",
+          "name": null
+        },
+        {
+          "nid": "0x25ea7ac0",
+          "name": null
+        },
+        {
+          "nid": "0x2ef701ec",
+          "name": null
+        },
+        {
+          "nid": "0x491d6ba5",
+          "name": null
+        },
+        {
+          "nid": "0x4aef2877",
+          "name": null
+        },
+        {
+          "nid": "0x58ab1999",
+          "name": null
+        },
+        {
+          "nid": "0xa8615dc8",
+          "name": null
+        },
+        {
+          "nid": "0xb2d054df",
+          "name": null
+        },
+        {
+          "nid": "0xd55dbc11",
+          "name": null
+        },
+        {
+          "nid": "0xf80e31e5",
+          "name": null
+        }
+      ]
+    },
+    "cellSearchUtility": {
+      "total": 10,
+      "matched_name": 0,
+      "unmatched": [
+        {
+          "nid": "0x25ce169",
+          "name": "cellSearchGetMusicSelectionContext"
+        },
+        {
+          "nid": "0x591826f",
+          "name": null
+        },
+        {
+          "nid": "0xa4c8295",
+          "name": "cellSearchStartListSearch"
+        },
+        {
+          "nid": "0x3b210319",
+          "name": "cellSearchGetContentInfoByOffset"
+        },
+        {
+          "nid": "0x540d9068",
+          "name": null
+        },
+        {
+          "nid": "0x64fb0b76",
+          "name": null
+        },
+        {
+          "nid": "0x774033d6",
+          "name": "cellSearchEnd"
+        },
+        {
+          "nid": "0x9663a44b",
+          "name": null
+        },
+        {
+          "nid": "0xbfab7616",
+          "name": "cellSearchFinalize"
+        },
+        {
+          "nid": "0xc81ccf8a",
+          "name": "cellSearchInitialize"
+        }
+      ]
+    },
+    "cellSaveData": {
+      "total": 1,
+      "matched_name": 0,
+      "unmatched": [
+        {
+          "nid": "0x4c06fc2",
+          "name": "cellSaveDataGetListItem"
+        }
+      ]
+    },
+    "cellSsl": {
+      "total": 3,
+      "matched_name": 3,
+      "unmatched": []
+    },
+    "cellHttp": {
+      "total": 6,
+      "matched_name": 4,
+      "unmatched": [
+        {
+          "nid": "0x61b2bade",
+          "name": "cellHttpEndCookie"
+        },
+        {
+          "nid": "0x9638f766",
+          "name": "cellHttpInitCookie"
+        }
+      ]
+    },
+    "cellBGDLUtility": {
+      "total": 1,
+      "matched_name": 0,
+      "unmatched": [
+        {
+          "nid": "0x2ab0d183",
+          "name": null
+        }
+      ]
+    },
+    "sysBdMediaId": {
+      "total": 1,
+      "matched_name": 0,
+      "unmatched": [
+        {
+          "nid": "0xef666b52",
+          "name": null
+        }
+      ]
+    },
+    "sysPrxForUser": {
+      "total": 29,
+      "matched_name": 7,
+      "unmatched": [
+        {
+          "nid": "0x24a1ea07",
+          "name": "sys_ppu_thread_create"
+        },
+        {
+          "nid": "0x26090058",
+          "name": "sys_prx_load_module"
+        },
+        {
+          "nid": "0x2c847572",
+          "name": "_sys_process_atexitspawn"
+        },
+        {
+          "nid": "0x350d454e",
+          "name": "sys_ppu_thread_get_id"
+        },
+        {
+          "nid": "0x409ad939",
+          "name": "sys_mmapper_free_memory"
+        },
+        {
+          "nid": "0x42b23552",
+          "name": "sys_prx_register_library"
+        },
+        {
+          "nid": "0x45fe2fce",
+          "name": "_sys_spu_printf_initialize"
+        },
+        {
+          "nid": "0x4643ba6e",
+          "name": "sys_mmapper_unmap_memory"
+        },
+        {
+          "nid": "0x67f9fedb",
+          "name": "sys_game_process_exitspawn2"
+        },
+        {
+          "nid": "0x744680a2",
+          "name": "sys_initialize_tls"
+        },
+        {
+          "nid": "0x80fb0c19",
+          "name": "sys_prx_stop_module"
+        },
+        {
+          "nid": "0x8461e528",
+          "name": "sys_time_get_system_time"
+        },
+        {
+          "nid": "0x893305fa",
+          "name": null
+        },
+        {
+          "nid": "0x96328741",
+          "name": "_sys_process_at_Exitspawn"
+        },
+        {
+          "nid": "0x9f18429d",
+          "name": "sys_prx_start_module"
+        },
+        {
+          "nid": "0xaa6d9bff",
+          "name": "sys_prx_load_module_on_memcontainer"
+        },
+        {
+          "nid": "0xaff080a4",
+          "name": "sys_ppu_thread_exit"
+        },
+        {
+          "nid": "0xb257540b",
+          "name": "sys_mmapper_allocate_memory"
+        },
+        {
+          "nid": "0xdc578057",
+          "name": "sys_mmapper_map_memory"
+        },
+        {
+          "nid": "0xdd3b27ac",
+          "name": "_sys_spu_printf_finalize"
+        },
+        {
+          "nid": "0xebe5f72f",
+          "name": "sys_spu_image_import"
+        },
+        {
+          "nid": "0xf0aece0d",
+          "name": "sys_prx_unload_module"
+        }
+      ]
+    }
+  }
+}

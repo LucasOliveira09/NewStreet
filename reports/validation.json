@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-24",
+  "target": "FIFA Street PS3 BLUS30882 01.00",
+  "native_executable": {
+    "path": "private\\build\\probe\\fifa_function_probe.exe",
+    "format": "PE x86-64",
+    "sha256": "7f6e85e1481fddfa90a476245dd369f22cba1d82d81e5999c55397f27749adfc",
+    "size": 10752
+  },
+  "proof_scope": "Two real game leaf functions; integer return values against Python arithmetic oracle. No full-register, PS3 CPU, game boot or graphics validation.",
+  "functions": [
+    {
+      "guest_address": "0x23d4c",
+      "cases": 10010,
+      "inferred_behavior": "signed abs32 with minimum-int wraparound"
+    },
+    {
+      "guest_address": "0x261f0",
+      "cases": 10010,
+      "inferred_behavior": "signed abs64 with minimum-int wraparound"
+    }
+  ],
+  "test_results": {
+    "integer_return_values": 20020,
+    "runtime_ctest_passed": 16,
+    "runtime_ctest_failed": 0
+  },
+  "native_game_boot": false,
+  "gameplay_tested": false,
+  "rea_analysis": "Rejected ELF64/PPC64 as unsupported architecture",
+  "rea_admission_report": "reports/rea-fifazf-admission.json"
+}

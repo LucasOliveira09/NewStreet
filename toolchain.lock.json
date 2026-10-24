@@ -1,0 +1,18 @@
+{
+  "rea": {
+    "url": "https://github.com/morluto/rea.git",
+    "commit": "b869fa762a827fb66978067fabe09439ebfef111"
+  },
+  "ps3recomp": {
+    "url": "https://github.com/sp00nznet/ps3recomp.git",
+    "commit": "a6d76c895f77eb30b90a806c830544e61821b77f"
+  },
+  "restreet": {
+    "url": "https://github.com/samuelit0davila/fifa-street-pc-port.git",
+    "commit": "a4be1d0a22c330d64d540cbf6681edbf6a8d4f7b"
+  },
+  "node": "24.22.1",
+  "rea_npm": "6.7.0",
+  "llvm": "23.1.4",
+  "llvm_archive_sha256": "1a3f2f998e230b5791cc4e2bfe11a1f7c07fe42c96ff44f227c9db0bedfaf091"
+}

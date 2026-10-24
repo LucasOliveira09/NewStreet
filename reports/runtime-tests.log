@@ -1,0 +1,44 @@
+Test project D:/Ludevi/projetos/fifa-street-native/private/build/runtime-clang
+      Start  1: log_first
+      Start  2: spinlock_word_width
+ 1/16 Test  #1: log_first .........................   Passed    0.17 sec
+      Start  3: spurs_task_exit_code_initialize
+ 2/16 Test  #2: spinlock_word_width ...............   Passed    0.69 sec
+      Start  4: spurs_taskset_size
+ 3/16 Test  #3: spurs_task_exit_code_initialize ...   Passed    0.69 sec
+      Start  5: spu_sdcrz
+ 4/16 Test  #5: spu_sdcrz .........................   Passed    0.75 sec
+      Start  6: loaded_image_memory
+ 5/16 Test  #4: spurs_taskset_size ................   Passed    0.84 sec
+      Start  7: loader_memory_domain
+ 6/16 Test  #7: loader_memory_domain ..............   Passed    0.55 sec
+      Start  8: mmapper_hle_heap
+ 7/16 Test  #6: loaded_image_memory ...............   Passed    0.82 sec
+      Start  9: user_memory_domain
+ 8/16 Test  #8: mmapper_hle_heap ..................   Passed    0.92 sec
+      Start 10: sync_stress
+ 9/16 Test  #9: user_memory_domain ................   Passed    0.93 sec
+      Start 11: cond_owner
+10/16 Test #11: cond_owner ........................   Passed    0.22 sec
+      Start 12: cond_recursive
+11/16 Test #12: cond_recursive ....................   Passed    0.08 sec
+      Start 13: cond_spurious
+12/16 Test #13: cond_spurious .....................   Passed    0.13 sec
+      Start 14: fiber_switch
+13/16 Test #14: fiber_switch ......................   Passed    0.24 sec
+      Start 15: lock_line
+14/16 Test #15: lock_line .........................   Passed    0.25 sec
+      Start 16: vdec_stub
+15/16 Test #16: vdec_stub .........................   Passed    0.24 sec
+16/16 Test #10: sync_stress .......................   Passed    8.25 sec
+
+100% tests passed, 0 tests failed out of 16
+
+Label Time Summary:
+fiber       =   0.24 sec*proc (1 test)
+runtime     =   8.75 sec*proc (3 tests)
+stress      =   8.25 sec*proc (1 test)
+sync        =   8.25 sec*proc (1 test)
+syscalls    =   0.25 sec*proc (1 test)
+
+Total Test time (real) =  11.48 sec
