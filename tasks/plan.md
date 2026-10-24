@@ -99,3 +99,9 @@ O mapeamento de números SPU foi corrigido e aprovado em teste Windows dos handl
 reais: três grupos, quatro threads, números não contíguos e argumentos preservados.
 O teste falhou antes da correção (quatro visitas à primeira thread) e passou
 depois. Oito testes de boot e 16 do runtime aprovados; validação no jogo pendente.
+
+A correção foi confirmada no jogo com seis threads distintas. A descoberta PPU
+passou a revisitar ranges divididos; 351 entradas adicionais e zero referências
+diretas pendentes na geração completa (99.127 + 369 imports). Três regressões
+sintéticas passaram. O rebuild executou até consultas Lua e salto SPU em LS
+`0x100`; capturar o código residente antes de decidir qual imagem traduzir.

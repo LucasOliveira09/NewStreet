@@ -87,7 +87,10 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
     }
     foreach ($guestAddress in $AddFunction) { $liftArguments += @('--add', $guestAddress) }
     if ($SkipLift -and $AddFunction.Count) { throw '-AddFunction requires lifting.' }
-    if (-not $SkipLift) { Invoke-Checked $python $liftArguments }
+    if (-not $SkipLift) {
+        Invoke-Checked $python @('-m','unittest','discover','-s','tests','-p','test_startup_discovery.py')
+        Invoke-Checked $python $liftArguments
+    }
     $runtimeArchive = Join-Path $projectRoot 'private\build\boot\sdk\ps3recomp_runtime.lib'
     if (-not (Test-Path -LiteralPath $runtimeArchive)) { throw 'Run -Target Boot first to build the shared runtime.' }
     Invoke-Checked $cmake @('-S','.','-B',$buildDirectory,'-G','Ninja',

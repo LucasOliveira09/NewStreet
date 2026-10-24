@@ -36,7 +36,8 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Confirmar seis threads SPU distintas no carregamento real do jogo.
 - [x] Recusar programa SPU desconhecido antes de lookup por entrada compartilhada.
 - [x] Testar stops, saída real e retorno indevido de threads SPU sem conclusão fictícia.
-- [ ] Fechar a descoberta de blocos PPU após mudanças nas fronteiras das funções.
+- [x] Fechar a descoberta de blocos PPU após mudanças nas fronteiras das funções.
+- [ ] Identificar o código SPU alcançado por chamada indireta em LS `0x100`.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 

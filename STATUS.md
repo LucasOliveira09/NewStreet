@@ -16,7 +16,7 @@ integrado chegou à entrada `0x23770`, com TOC `0x21d5370`, TLS de 684 bytes e
 e 369 stubs de importação. O primeiro alvo ausente nessa cobertura é `0x17841e0`
 (LR `0x23b9c`); a execução para com código 90. Não houve frame, menu ou partida.
 
-A geração ampliada contém 98.776 entradas/trechos e compilou/executou em
+A geração ampliada inicial continha 98.776 entradas/trechos e compilou/executou em
 `private/build/fifazf_full`. Passou pelos 12 alvos observados na cobertura menor.
 O serviço `sys_prx_register_library` agora registra os exports reais de
 `sys_libc` (560 funções/48 variáveis), `sys_libm` (503/10) e
@@ -52,7 +52,15 @@ distintas `0x2000`–`0x2005` e argumentos próprios, sem a falha SPU anterior.
 Também passou por `0x13a796c`. O bloqueio atual é PPU `0x138a208`, LR `0x138a1b8`.
 Nenhuma conclusão correta de tarefa SPU foi validada.
 Isso não comprova correção ou cobertura completa:
-304 referências diretas permanecem com diagnóstico explícito. Foram identificados
+Havia 304 referências diretas com diagnóstico explícito. A descoberta foi
+corrigida para revisitar ranges quando uma nova fronteira muda o destino de seus
+saltos internos. A geração passou a 99.127 entradas/trechos e 369 imports, sem
+referências diretas pendentes e sem atingir o limite de seleção. Isso não cobre
+automaticamente todo código indireto. Três testes PowerPC sintéticos verificam
+a divisão tardia, loops e limite explícito; o primeiro falhava antes da correção.
+Os roots observados aceitos estão em `startup_roots.json`, associados ao hash do
+ELF, para reprodução sem depender apenas do cache privado.
+Foram identificados
 20 ELF SPU embutidos (750.956 bytes), ainda sem execução validada neste jogo.
 
 As quatro fronteiras de chamadas sem suporte foram exercitadas no runtime real
@@ -94,9 +102,11 @@ Onze testes de boot e 16 CTest passaram (`reports/spu-stop-before-fix.log`,
 
 ## Primeira tarefa pendente
 
-Resolver a cobertura do alvo `0x138a208`. É um bloco após o retorno em
-`0x138a204`, alcançado pelo `bne` em `0x138a1d4`. Investigar por que a descoberta
-não o selecionou quando fronteiras posteriores dividiram a função original.
+A tentativa `1792841573057646600`, após a correção da descoberta, avançou para
+consultas de scripts `data/fifarna/lua/...` e parou em salto SPU: imagem 526190333,
+thread `0x2005`, LS PC `0x100`, link `0x3fbb4`. É necessário capturar o local store
+e os registradores para identificar se há código carregado por DMA/overlay e
+traduzir seu caminho real. Nenhum flip/frame foi observado.
 Janela ou flip, isoladamente, não provam frame correto.
 Resolver o próximo bloqueio real de instrução, serviço ou fluxo; manter os logs
 em `private/analysis/runs`. A ferramenta encerra a árvore que iniciou no timeout.

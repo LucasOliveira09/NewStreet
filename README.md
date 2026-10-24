@@ -187,6 +187,10 @@ PowerPC autoral com Keystone 0.9.2, recompila para x64 e testa seis entradas,
 incluindo o caminho padrão e a preservação de pilha/r31. Esse teste faz parte
 de `-Target Boot`; Keystone é dependência de teste, não intérprete do jogo.
 Os chunks do FIFAZF seguem faixas de bytes do guest, com tabela separada.
+A descoberta revisita funções divididas por novos alvos até estabilizar suas
+fronteiras. Três testes cobrem esse caso, loops e limite de seleção. Os roots
+observados aceitos são versionados em `startup_roots.json` e conferidos por hash
+do ELF; observações privadas adicionais continuam disponíveis no cache local.
 
 O host inicia D3D12 e o relógio/consumidor FIFO somente após o GCM do jogo.
 A inicialização do backend foi confirmada na RX 580 2048SP, a 1280x720.

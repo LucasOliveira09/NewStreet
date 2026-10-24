@@ -1,27 +1,27 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Six distinct native SPU boot threads; next PPU coverage gap diagnosed",
+  "stage": "PPU direct-target discovery closed; DMA/overlay SPU target reached",
   "native_process": true,
   "emulator_launched": false,
-  "main_native_entries": 98776,
+  "main_native_entries": 99127,
   "main_import_stubs": 369,
   "exit_code": 90,
   "block": {
-    "kind": "unlifted",
-    "value": 20488712,
-    "guest_lr": 20488632,
+    "kind": "spu-indirect",
+    "value": 2259970271706349824,
+    "guest_lr": 0,
     "guest_pc": 0,
-    "thread_id": 1,
-    "guest_toc": 35476336,
+    "thread_id": 0,
+    "guest_toc": 0,
     "arguments": [
-      36168504,
-      0,
-      30754896,
-      296317008,
       0,
       0,
       0,
-      1
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   },
   "spawn": {
@@ -44,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792840726917801500",
+  "logs": "private\\analysis\\runs\\1792841573057646600",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -89,8 +89,8 @@
     "strict_missing_program": true,
     "strict_missing_branch": true,
     "observed_image": 526190333,
-    "observed_pc": "0x3f00c",
-    "observed_lr": "0x3f00c",
+    "observed_pc": "0x100",
+    "observed_lr": "0x3fbb4",
     "task_completion_validated": false,
     "group_isolation_requires_investigation": false,
     "boot_threads": 6,
@@ -103,9 +103,14 @@
       "0x2005"
     ],
     "strict_content_identity": true,
-    "previous_spu_fault_reproduced": false
+    "previous_spu_fault_reproduced": false,
+    "observed_thread": "0x2005"
   },
   "resolved_ppu_targets": [
-    "0x13a796c"
-  ]
+    "0x13a796c",
+    "0x138a208"
+  ],
+  "pending_direct_targets": 0,
+  "discovery_regression_tests": 3,
+  "boot_regression_tests": 11
 }

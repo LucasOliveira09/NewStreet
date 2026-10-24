@@ -35,61 +35,45 @@ def startup_jump_tables(instructions, segments, toc, code_lo, code_hi):
                                 func_starts=[instructions[0].addr])
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--module', choices=['FIFAZF'], default='FIFAZF')
-    parser.add_argument('--limit', type=int, default=512)
-    parser.add_argument('--all-opd', action='store_true', help='Seed every canonical OPD entry; decode ranges in bounded memory')
-    parser.add_argument('--add', type=lambda value: int(value, 0), action='append', default=[])
-    args = parser.parse_args()
-    if not 1 <= args.limit <= 100000:
-        parser.error('limit must be positive and bounded')
-    source = ROOT / 'private' / f'{args.module}.elf'
-    digest = hashlib.sha256(source.read_bytes()).hexdigest()
-    expected = json.loads((ROOT / 'probe_manifest.json').read_text())['elf_sha256']
-    if digest != expected:
-        parser.error('ELF differs from the inspected revision')
-    analysis = ROOT / 'private/analysis' / args.module.lower()
-    required_path = analysis / 'required-startup.json'
-    required = json.loads(required_path.read_text()) if required_path.exists() else []
-    required = sorted(set(required + args.add))
-    elf = ELFFile(str(source)); elf.load()
-    executable = [(s.sh_addr, s.sh_addr + s.sh_size) for s in elf.section_headers
-                  if s.sh_flags & 4 and s.sh_size]
-    segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
-                if p.p_type == PT_LOAD and p.p_flags & 1]
-    data_segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
-                     if p.p_type == PT_LOAD]
-    records = json.loads((analysis / f'{args.module}.functions.json').read_text())
-    imports = json.loads((analysis / f'{args.module}.imports.json').read_text())
-    loader = json.loads((analysis / f'{args.module}.loader.json').read_text())
-    stubs = {int(item['stub'], 16): int(item['nid'], 16) for item in imports}
-    starts = {int(item['start'], 16) for item in records} | set(stubs)
+def discover_startup(starts, stubs, executable, segments, data_segments, toc, roots, limit):
+    """Discover bounded code ranges without retaining every decoded instruction."""
+    starts = set(starts)
     ordered = sorted(starts)
     selected = set()
+    decoded_ends = {}
     jump_tables = {}
-    toc = int(loader['module_toc'], 16)
     code_lo, code_hi = min(a for a, _ in executable), max(b for _, b in executable)
-    queue = deque([int(loader['entry_code'], 16)] + required + (ordered if args.all_opd else []))
-    limit = 100000 if args.all_opd else args.limit
+    queue = deque(roots)
 
     def add_start(address):
         if address not in starts:
+            index = bisect.bisect_left(ordered, address)
+            previous = ordered[index - 1] if index else None
             starts.add(address)
-            bisect.insort(ordered, address)
+            ordered.insert(index, address)
+            # Splitting an already examined range can turn its internal
+            # branches into external calls. Revisit that range to a fixed
+            # point; final emission alone cannot discover the new targets.
+            if previous in decoded_ends and decoded_ends[previous] > address:
+                queue.appendleft(previous)
 
     def code_end(start):
         return next((end for begin, end in executable if begin <= start < end), None)
 
-    def decode(start):
+    def range_end(start):
         end = code_end(start)
         if end is None:
-            return []
+            return None
         following = bisect.bisect_right(ordered, start)
         if following < len(ordered):
             end = min(end, ordered[following])
         # Keep decoding bounded. A long range is split with an explicit continuation.
-        end = min(end, start + 0x10000)
+        return min(end, start + 0x10000)
+
+    def decode(start):
+        end = range_end(start)
+        if end is None:
+            return []
         for base, blob in segments:
             if base <= start < end <= base + len(blob):
                 return disassemble_bytes(blob[start - base:end - base], start, True)
@@ -97,11 +81,14 @@ def main():
 
     while queue and len(selected) < limit:
         start = queue.popleft()
-        if start in selected or start in stubs:
+        if start in stubs:
             continue
         if start & 3 or code_end(start) is None:
             continue
+        if start in decoded_ends and decoded_ends[start] == range_end(start):
+            continue
         add_start(start); selected.add(start)
+        decoded_ends[start] = range_end(start)
         instructions = decode(start)
         if not instructions:
             continue
@@ -134,6 +121,49 @@ def main():
             if code_end(end) is not None:
                 add_start(end); queue.append(end)
 
+    return selected, starts, jump_tables, bool(queue), decode
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--module', choices=['FIFAZF'], default='FIFAZF')
+    parser.add_argument('--limit', type=int, default=512)
+    parser.add_argument('--all-opd', action='store_true', help='Seed every canonical OPD entry; decode ranges in bounded memory')
+    parser.add_argument('--add', type=lambda value: int(value, 0), action='append', default=[])
+    args = parser.parse_args()
+    if not 1 <= args.limit <= 100000:
+        parser.error('limit must be positive and bounded')
+    source = ROOT / 'private' / f'{args.module}.elf'
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    expected = json.loads((ROOT / 'probe_manifest.json').read_text())['elf_sha256']
+    if digest != expected:
+        parser.error('ELF differs from the inspected revision')
+    analysis = ROOT / 'private/analysis' / args.module.lower()
+    required_path = analysis / 'required-startup.json'
+    required = json.loads(required_path.read_text()) if required_path.exists() else []
+    recorded = json.loads((ROOT / 'startup_roots.json').read_text())
+    if recorded['elf_sha256'] != digest:
+        parser.error('recorded startup roots belong to a different ELF')
+    required = sorted(set(required + args.add + [int(value, 0) for value in recorded['roots']]))
+    elf = ELFFile(str(source)); elf.load()
+    executable = [(s.sh_addr, s.sh_addr + s.sh_size) for s in elf.section_headers
+                  if s.sh_flags & 4 and s.sh_size]
+    segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
+                if p.p_type == PT_LOAD and p.p_flags & 1]
+    data_segments = [(p.p_vaddr, elf.get_segment_data(i)) for i, p in enumerate(elf.program_headers)
+                     if p.p_type == PT_LOAD]
+    records = json.loads((analysis / f'{args.module}.functions.json').read_text())
+    imports = json.loads((analysis / f'{args.module}.imports.json').read_text())
+    loader = json.loads((analysis / f'{args.module}.loader.json').read_text())
+    stubs = {int(item['stub'], 16): int(item['nid'], 16) for item in imports}
+    starts = {int(item['start'], 16) for item in records} | set(stubs)
+    toc = int(loader['module_toc'], 16)
+    roots = [int(loader['entry_code'], 16)] + required + (sorted(starts) if args.all_opd else [])
+    limit = 100000 if args.all_opd else args.limit
+    selected, starts, jump_tables, pending, decode = discover_startup(
+        starts, stubs, executable, segments, data_segments, toc, roots, limit)
+    code_lo, code_hi = min(a for a, _ in executable), max(b for _, b in executable)
+
     # New call targets can split earlier ranges; decode again with final bounds.
     lifter = PPULifter()
     lifter.hle_stub_nids = stubs
@@ -165,7 +195,7 @@ def main():
             previous.unlink()
     required_path.write_text(json.dumps(required, indent=2) + '\n')
     manifest = dict(elf_sha256=digest, selected=len(selected), import_stubs=len(stubs),
-                    profile='all-opd' if args.all_opd else 'startup', selection_limit_reached=bool(queue),
+                    profile='all-opd' if args.all_opd else 'startup', selection_limit_reached=pending,
                     pending_direct_targets=len(external), required=required,
                     jump_table_dispatchers=len(jump_tables),
                     functions=[hex(f.start_addr) for f in lifter.functions])
