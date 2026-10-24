@@ -304,3 +304,28 @@ bytes sentinela e a fronteira online, sem conexão de rede.
 threads, apenas no FIFAZF, sem suspender nem modificar seu estado. São dados
 de melhor esforço: LR isolado não distingue progresso de loop. O runner agora
 inclui hashes e metadados das capturas D3D12 para não perder evidências de desenho.
+
+### Fim de diretório no HDD0/HDD1
+
+A amostra anterior mantinha DLC em cellFsReaddir. O código original em
+0x12d0dc testa d_type para terminar a leitura, sem usar nread. O runtime
+zerava apenas nread, deixando a última entrada ativa para sempre.
+RPCS3 aa9ebd2f, sys_fs.cpp, confirma que HDD0 e outros mounts escrevem
+d_type=0, d_namlen=0 e d_name[0]=0 no EOF, preservando o restante do último
+registro; HDD1 repete o último registro integral. Ambos escrevem nread=0
+depois da estrutura. O adaptador passou a manter essa distinção e rejeitar
+ponteiros nulos/fora da VM e descritores inválidos. Não altera flags do jogo.
+
+Quatro cenários Windows reais (HDD0/HDD1, vazio/preenchido) falharam antes
+e passaram depois, inclusive com o buffer envenenado entre chamadas e EOF
+repetido, tamanho big-endian e bytes da última entrada preservados. São
+21 testes de boot e 37 testes do projeto aprovados. A tentativa
+1792870440169761500 mostrou a thread DLC em sleep de 1 segundo (LR 0x12e910),
+saindo da leitura infinita; o main estava em carregamento de recursos aos
+10 segundos (LR 0x123c3a8), com a cadeia salva na pilha guest capturada.
+O processo chegou ao timeout de 25 segundos sem novo erro estrito.
+Há uma observação mais longa em andamento; menu ainda não foi validado.
+
+O cache DATA4.BIG foi conferido: 30.585.168 bytes, SHA-256
+4b32a59c753d11c77e67cfbe9ac4e0374b97039717a744bb1f8a897884f2c53b,
+igual ao arquivo original do disco. A hipótese de cache truncado foi descartada.

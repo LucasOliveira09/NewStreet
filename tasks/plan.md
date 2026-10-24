@@ -116,3 +116,8 @@ O DAC passou até a consulta NP, que agora informa corretamente o estado offline
 O primeiro frame com desenho foi conferido visualmente (logo FIFA Street).
 Não há menu aceito. Investigar a progressão após o logo com amostras de threads
 e entrada de controle explícita; não inferir travamento apenas do timeout.
+
+A espera em Readdir foi reproduzida: o jogo usa d_type como sentinela de EOF.
+O adaptador agora reproduz a distinção HDD0/HDD1 observada na referência.
+Os quatro cenários Windows passam, e DLC saiu desse loop no novo boot.
+Investigar o carregamento seguinte sem forçar a flag de inicialização do jogo.

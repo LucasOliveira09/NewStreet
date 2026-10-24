@@ -6,6 +6,7 @@
 #include "ppu_recomp.h"
 
 extern "C" void ppu_report_guest_lrs(void);
+extern "C" void fifa_dump_guest_ranges(void);
 extern "C" const char* g_hle_inflight[];
 extern "C" ppu_context* volatile g_ppu_main_ctx;
 
@@ -22,6 +23,7 @@ static DWORD WINAPI report_activity(void* delay) {
         if (name) std::fprintf(stderr, "[fifa-watchdog] guest_thread=%u in_hle=%s\n", tid, name);
     }
     ppu_report_guest_lrs();
+    fifa_dump_guest_ranges();
     std::fflush(stderr);
     return 0;
 }

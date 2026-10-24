@@ -1,3 +1,63 @@
+diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
+index 4d54b72..56b0574 100644
+--- a/runtime/ppu/ppu_fs.cpp
++++ b/runtime/ppu/ppu_fs.cpp
+@@ -208,6 +208,8 @@ static FILE* g_files[FS_MAX];
+ static uint8_t g_fd_usm[FS_MAX];
+ static char    g_fd_path[FS_MAX][192];   /* guest path per fd (diagnostics) */   /* 1 if this fd is an open .usm movie (read tracker) */
+ static DIR*  g_dirs[FS_MAX];
++static uint8_t g_dir_hdd1[FS_MAX];
++static uint8_t g_dir_last[FS_MAX][0x102];
+ static char  g_dir_path[FS_MAX][1024];   /* host path per open dir (for readdir stat) */
+ 
+ static int fd_alloc_file(FILE* f)
+@@ -671,6 +673,8 @@ static void cellFsOpendir(ppu_context* ctx)
+     int fd = fd_alloc_dir(d);
+     if (fd < 0) { closedir(d); ctx->gpr[3] = (uint64_t)(int64_t)CELL_FS_EIO; return; }
+     strncpy(g_dir_path[fd], hpath, sizeof g_dir_path[fd] - 1);
++    g_dir_hdd1[fd] = !strncmp(gpath, "/dev_hdd1", 9) && (!gpath[9] || gpath[9] == '/');
++    memset(g_dir_last[fd], 0, sizeof g_dir_last[fd]);
+     if (fd_ptr) vm_write32(fd_ptr, (uint32_t)fd);
+     ctx->gpr[3] = CELL_OK;
+ }
+@@ -681,19 +685,34 @@ static void cellFsReaddir(ppu_context* ctx)
+     int fd          = (int)(uint32_t)ctx->gpr[3];
+     uint32_t dirent = (uint32_t)ctx->gpr[4];
+     uint32_t nread_ptr = (uint32_t)ctx->gpr[5];
+-    if (fd < 0 || fd >= FS_MAX || !g_dirs[fd]) { ctx->gpr[3] = (uint64_t)(int64_t)CELL_FS_EIO; return; }
++    const uint64_t limit = ppu_vm_size ? ppu_vm_size : 0x100000000ull;
++    if (!dirent || !nread_ptr || uint64_t(dirent) + 0x102 > limit || uint64_t(nread_ptr) + 8 > limit) {
++        ctx->gpr[3] = 0x8001000Du; return; // CELL_EFAULT
++    }
++    if (fd < 0 || fd >= FS_MAX || !g_dirs[fd]) { ctx->gpr[3] = 0x8001002Au; return; } // CELL_EBADF
+     struct dirent* e = readdir(g_dirs[fd]);
+-    if (!e) { if (nread_ptr) vm_write64(nread_ptr, 0); ctx->gpr[3] = CELL_OK; return; }
++    if (!e) {
++        // RPCS3 aa9ebd2f sys_fs.cpp sys_fs_readdir: HDD0 (and other mounts)
++        // clears the first three dirent bytes at EOF; HDD1 repeats the last
++        // entry. Both write nread=0 AFTER the dirent. FIFA tests d_type itself.
++        memcpy(vm_base + dirent, g_dir_last[fd], 0x102);
++        if (!g_dir_hdd1[fd]) memset(vm_base + dirent, 0, 3);
++        vm_write64(nread_ptr, 0);
++        ctx->gpr[3] = CELL_OK;
++        return;
++    }
+     char full[1300]; struct stat st;
+     snprintf(full, sizeof full, "%s/%s", g_dir_path[fd], e->d_name);
+     uint8_t type = (stat(full, &st) == 0 && (st.st_mode & S_IFDIR))
+                    ? CELL_FS_TYPE_DIR : CELL_FS_TYPE_REG;
+     size_t nl = strlen(e->d_name); if (nl > 255) nl = 255;
++    memset(vm_base + dirent, 0, 0x102);
+     vm_base[dirent + 0] = type;
+     vm_base[dirent + 1] = (uint8_t)nl;
+     for (size_t i = 0; i < nl; i++) vm_base[dirent + 2 + i] = (uint8_t)e->d_name[i];
+     vm_base[dirent + 2 + nl] = 0;
+-    if (nread_ptr) vm_write64(nread_ptr, 0x102);
++    memcpy(g_dir_last[fd], vm_base + dirent, 0x102);
++    vm_write64(nread_ptr, 0x102);
+     ctx->gpr[3] = CELL_OK;
+ }
+ 
 diff --git a/runtime/ppu/ppu_hle.cpp b/runtime/ppu/ppu_hle.cpp
 index b44816b..2638dcb 100644
 --- a/runtime/ppu/ppu_hle.cpp

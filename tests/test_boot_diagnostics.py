@@ -12,6 +12,24 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_directory_eof_clears_hdd0_header_and_preserves_hdd1_last_entry(self):
+        for disk in ('hdd0', 'hdd1'):
+            for populated in (False, True):
+                with self.subTest(disk=disk, populated=populated), tempfile.TemporaryDirectory(prefix='fifa dirs ') as folder:
+                    root = Path(folder)
+                    (root / 'scan').mkdir()
+                    if populated:
+                        (root / 'scan/item.bin').write_bytes(b'fixture')
+                        (root / 'scan/child').mkdir()
+                    env = os.environ.copy()
+                    env['PS3_' + disk.upper() + '_ROOT'] = folder
+                    result = subprocess.run([str(BOOT), '--test-fs-readdir', '/dev_' + disk + '/scan'],
+                                            env=env, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+                    observed = json.loads(result.stdout.splitlines()[-1])
+                    self.assertEqual(observed, dict(entries=4 if populated else 2,
+                                                    eof_bytes=0, first_eof=True, repeated_eof=True))
+
     def test_account_region_online_provider_absence_stays_explicit(self):
         env = os.environ.copy()
         # These enable the runtime mode check; no connection is initiated by
