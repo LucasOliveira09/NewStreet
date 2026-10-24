@@ -1,6 +1,6 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Nested SPU code ownership corrected; rechannel entry passed; next strict audio module at LS 0x5970",
+  "stage": "Packet player entry passed; next strict audio program at LS 0x6a10",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
@@ -10,10 +10,10 @@
     "kind": "spu-indirect",
     "image": 526190333,
     "thread": 8195,
-    "pc": 22896,
+    "pc": 27152,
     "lr": 10952,
     "local_store_bytes": 262144,
-    "stem": "spu-8195-526190333-22896"
+    "stem": "spu-8195-526190333-27152"
   },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
@@ -35,7 +35,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792871321610938400",
+  "logs": "private\\analysis\\runs\\1792871415455714000",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -78,7 +78,7 @@
     "strict_missing_program": true,
     "strict_missing_branch": true,
     "observed_image": 526190333,
-    "observed_pc": "0x5970",
+    "observed_pc": "0x6a10",
     "observed_lr": "0x2ac8",
     "task_completion_validated": "47 captured AssetStream outputs match independent oracles; not all tasks",
     "group_isolation_requires_investigation": false,
@@ -113,7 +113,7 @@
     "temporary_bytes": 30585168,
     "rename_validated": false
   },
-  "raw_spu_overlays": 12,
+  "raw_spu_overlays": 13,
   "asset_jobs": {
     "total": 47,
     "passed": 47,

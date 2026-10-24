@@ -17,13 +17,12 @@ validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendi
 a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
 testes de boot e 37 métodos de teste do projeto passaram após essa correção.
 
-Há 14 ELFs SPU e doze overlays raw ligados com identidade e base LS conferidas.
-O novo `audio_spupause` (208 bytes, LS 0x3780) foi recompilado com suas duas
-entradas de callback, sem instruções ou destinos diretos ausentes. A tentativa
-`1792870717480694500` passou por ele e parou estritamente, código 90, em
-SPU 0x3930, thread 0x2003, após 27,006 segundos. O snapshot identifica o próximo
-programa como `spuresample.elf`, fonte 0x1fc6f00, LS 0x3900, 4.080 bytes iguais
-aos originais; ele foi integrado na etapa seguinte.
+Há 14 ELFs SPU e treze overlays raw ligados com identidade e base LS conferidas.
+Pause, resample, rechannel e packet player passaram suas entradas observadas.
+A sobreposição parcial entre módulos agora preserva intervalos disjuntos de
+instruções, com regressão antes/depois e 22 testes de boot aprovados.
+A tentativa `1792871415455714000` avançou para outro programa SPU ainda ausente:
+PC 0x6a10, thread 0x2003, após 25,380 segundos; saída estrita 90.
 
 `tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
 e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
@@ -368,3 +367,12 @@ DMA em chunks e sobrescrita desconhecida de uma entrada traduzida.
 Tentativa 1792871321610938400 passou por 0x49b8 e parou em outro módulo,
 PC 0x5970, após 33,070 s; as 47 saídas de assets continuam iguais aos oráculos.
 O logo conserva o mesmo hash. Não comprova menu, áudio audível ou gameplay.
+
+## Packet player nativo
+
+Fonte 0x1febb00, LS 0x5880, 3.888 bytes iguais ao original, hash
+4caa8a2f7d6d4771783f9f72b6b0a5bcf50357651672cd6113c68ff5f0cff888.
+A inicialização PIC usa callbacks 0x58e0, 0x58b0 e 0x5d58, todos revisados.
+Geração com 35 entradas, sem instruções ou destinos diretos ausentes; build
+aprovado e boot avançou de 0x5970 para 0x6a10 no próximo programa residente.
+Evidência: tentativa 1792871415455714000; logo com o mesmo SHA-256.

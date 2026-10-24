@@ -39,12 +39,12 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Fechar a descoberta de blocos PPU após mudanças nas fronteiras das funções.
 - [x] Identificar e ligar as tarefas raw zlib e SportsRNA patch alcançadas no boot.
 - [x] Validar conteúdo/base e distinguir dados mutáveis de instruções de overlays.
-- [ ] Comparar a saída nativa da tarefa zlib com descompressão de referência.
+- [x] Comparar 47 saídas nativas RefPack/DEFLATE com oráculos independentes.
 - [x] Interromper chamadas PPU nulas com diagnóstico completo.
 - [ ] Investigar o objeto/chamada em LR `0x11a9f50`.
 - [x] Unificar mounts de Open/Write/Rename e testar o ciclo real de arquivos.
 - [ ] Confirmar finalização do cache do jogo após resolver o bloqueio de input.
-- [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
+- [x] Validar saídas de tarefas AssetStream concluídas, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.
 
 ## Inicialização e plataforma
