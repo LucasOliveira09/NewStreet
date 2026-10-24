@@ -40,7 +40,8 @@ baseline registrado; reproduzi-los no início da próxima sessão.
 - [x] Identificar e ligar as tarefas raw zlib e SportsRNA patch alcançadas no boot.
 - [x] Validar conteúdo/base e distinguir dados mutáveis de instruções de overlays.
 - [ ] Comparar a saída nativa da tarefa zlib com descompressão de referência.
-- [ ] Interromper chamadas PPU nulas e investigar LR `0x11a9f50`.
+- [x] Interromper chamadas PPU nulas com diagnóstico completo.
+- [ ] Investigar o objeto/chamada em LR `0x11a9f50`.
 - [ ] Unificar mounts dos serviços FS usados na finalização do cache.
 - [ ] Executar a primeira tarefa SPU até conclusão correta, sem bypass.
 - [x] Ligar callbacks dos serviços HLE ao dispatcher recompilado.

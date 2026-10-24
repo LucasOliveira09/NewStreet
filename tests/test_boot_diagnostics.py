@@ -151,7 +151,7 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(event['priority'], 1001)
 
     def test_missing_runtime_work_cannot_report_success(self):
-        for boundary in ('hle', 'syscall', 'indirect', 'unlifted', 'callback', 'callback-ct', 'spu-workload', 'spu-indirect'):
+        for boundary in ('hle', 'syscall', 'indirect', 'indirect-null', 'unlifted', 'callback', 'callback-ct', 'spu-workload', 'spu-indirect'):
             with self.subTest(boundary=boundary):
                 result = subprocess.run([str(BOOT), '--test-missing', boundary],
                                         capture_output=True, text=True, timeout=10)

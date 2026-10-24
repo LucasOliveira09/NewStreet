@@ -1,12 +1,29 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Native raw SPU tasks integrated; cache copied; black buffer presents; null PPU call and wait remain",
+  "stage": "Native boot reaches input setup; strict null PPU call diagnosed",
   "native_process": true,
   "emulator_launched": false,
   "main_native_entries": 99127,
   "main_import_stubs": 369,
-  "exit_code": "timeout",
-  "block": null,
+  "exit_code": 90,
+  "block": {
+    "kind": "indirect-null",
+    "value": 0,
+    "guest_lr": 18521936,
+    "guest_pc": 0,
+    "thread_id": 1,
+    "guest_toc": 35476336,
+    "arguments": [
+      0,
+      267383888,
+      267383892,
+      0,
+      88,
+      275864504,
+      0,
+      267384560
+    ]
+  },
   "spawn": {
     "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
     "argv": [
@@ -27,7 +44,7 @@
     "private/EBOOT.elf",
     "private/FIFAZF.elf"
   ],
-  "logs": "private\\analysis\\runs\\1792843990811259000",
+  "logs": "private\\analysis\\runs\\1792844577790102200",
   "registered_exports": {
     "sys_libc": {
       "functions": 560,
@@ -101,7 +118,7 @@
   "observed_null_call": {
     "lr": "0x11a9f50",
     "thread": 1,
-    "strict_guard_pending": true
+    "strict_guard_pending": false
   },
   "cache": {
     "source": "DATA4.BIG",

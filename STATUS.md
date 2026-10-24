@@ -15,8 +15,10 @@ do jogo; só há clears pretos, sem frame com desenho/menu validado.
 
 O boot iniciou controles, abriu DATA1–DATA7 e copiou os 30.585.168 bytes de
 DATA4.BIG para o cache temporário. A espera posterior inclui uma chamada PPU nula
-em LR `0x11a9f50` que o upstream ainda deixa retornar. Torná-la um bloqueio estrito
-é a próxima correção. Também há divergência de mounts entre as camadas FS: o
+em LR `0x11a9f50`. A tentativa posterior `1792844577790102200` confirmou a parada
+estrita `indirect-null`, com argumentos/contexto, antes de devolver resultado
+sem chamar função alguma. Os 14 testes de boot passaram com essa fronteira.
+Também há divergência de mounts entre as camadas FS: o
 `cellFsRename` genérico não conhece `/dev_hdd1/`, embora o adaptador de Open/Write
 o use para criar o cache; o arquivo continua `.tmp`. Não presumir rename concluído.
 Nenhuma partida ou menu foi validado. A saída do descompactador ainda precisa ser

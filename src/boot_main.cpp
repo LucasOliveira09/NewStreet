@@ -68,6 +68,7 @@ static int test_missing(const char* kind) {
     if (!std::strcmp(kind, "hle")) ps3_hle_call(0xDEADBEEFu, &context);
     else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
     else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }
+    else if (!std::strcmp(kind, "indirect-null")) { context.ctr = 0; ps3_indirect_call(&context); }
     else if (!std::strcmp(kind, "unlifted")) ppu_unlifted_stub(0x123400, &context);
     else if (!std::strcmp(kind, "spu-workload")) fifa_test_missing_spu(&context);
     else if (!std::strcmp(kind, "spu-indirect")) fifa_test_missing_spu_indirect(&context);
