@@ -259,6 +259,19 @@
         "0x59b0",
         "0x5ff8"
       ]
+    },
+    {
+      "name": "ant_kernel",
+      "source_ea": "0x201d880",
+      "size": "0x12220",
+      "sha256": "d68cd459a32c7a136cace588821fbe18accefdd488ae79a2b7961d5f50576ed0",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x109e8",
+      "extra_entries": [
+        "0x154"
+      ]
     }
   ]
 }

@@ -513,3 +513,15 @@ O código termina em 0x109e8; há tabelas/constantes depois. Próximo passo:
 recompilar o intervalo real, preservando dados e BSS e a parada estrita.
 Nesta tentativa, 64 saídas AssetStream capturadas passaram (limite 32 por
 codec, não exaustivo). O mix de 1.710.592 floats ainda é inteiramente zero.
+
+## Tradução limitada do ANT kernel
+
+O intervalo real 0xb0..0x109e8 gerou 803 entradas, sem instruções/destinos
+diretos ausentes. Os dados 0x109f0..0x122a0 continuam intactos, fora do código
+traduzido, e a entrada 0x154 da limpeza de BSS foi incluída. Build aprovado.
+A execução 1792873669502836500 parou primeiro na thread de áudio, em outro
+programa (`spugenericplayer`, entrada 0x59e0). A ausência do erro anterior
+não comprova conclusão do ANT: adicionar registro optativo de entradas nativas
+para distinguir carga, início de execução e conclusão de tarefa. Nesta execução
+49 saídas AssetStream coincidiram com as referências; em 1792873477390004500
+foram 64. A quantidade varia com o primeiro bloqueio concorrente.
