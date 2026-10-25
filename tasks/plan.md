@@ -626,3 +626,17 @@ Limites 0x1f0b0..0x1fd88, callback 0x1f368 e casos indiretos
 Tradução sem instruções sem suporte/destinos diretos ausentes; FullGame
 compilou e 66 testes passaram. Run peaking em andamento; aguardar entrada
 real e próximo estado, mantendo menu/partida/saves como não validados.
+
+
+## Limitador de áudio nativo (2026-10-25)
+
+peaking (1792936566408202600) executou esse filtro e encerrou em 59,333 s
+com falta estrita 0x1fe30. O residente é spulimiter1.elf, origem 0x1fe2e80,
+0x36b0 bytes, SHA a7c9bdaa9048d197be30109177638b2a601a0617f15cbc89cabfb6b08aac788b,
+coincidência integral em LS 0x1fe00. PIC, entrada/código 0x1fe30,
+limite 0x234a8 antes dos zeros de padding. Callback do construtor em
+base+0x398 = 0x20198; tabela guardada de sete casos em 0x230fc exige
+0x23120/0x23138/0x23150/0x23168. Chamadas indiretas ao kernel permanecem
+no dispatcher estrito. Sem instruções sem suporte/destinos diretos ausentes;
+FullGame e 66 testes passaram. Run limiter em andamento, sem afirmar execução
+ou menu apenas pelo link. Os dados e código gerado continuam privados.

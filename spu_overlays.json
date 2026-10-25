@@ -442,6 +442,24 @@
       ]
     },
     {
+      "name": "audio_spulimiter1",
+      "relocatable_pic": true,
+      "source_ea": "0x1fe2e80",
+      "size": "0x36b0",
+      "sha256": "a7c9bdaa9048d197be30109177638b2a601a0617f15cbc89cabfb6b08aac788b",
+      "ls_base": "0x1fe00",
+      "entry": "0x1fe30",
+      "code_start": "0x1fe30",
+      "code_end": "0x234a8",
+      "extra_entries": [
+        "0x20198",
+        "0x23120",
+        "0x23138",
+        "0x23150",
+        "0x23168"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",
