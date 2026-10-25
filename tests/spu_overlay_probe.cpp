@@ -32,6 +32,32 @@ extern "C" int fifa_test_spu_overlay(const char* mode) {
     spu_begin_image(222);
     spu_register_function(0x100, overlay_entry);
     spu_begin_image(0);
+    if (!std::strcmp(mode, "fragments")) {
+        static spu_context fragmented;
+        spu_context_init(&fragmented, 77); fragmented.image_id = 111;
+        for (unsigned i = 0; i < 0x1000; ++i) vm_base[0x10000 + i] = (uint8_t)(i * 13);
+        spu_begin_image(222);
+        spu_register_function(0x1000, overlay_entry);
+        spu_register_function(0x1ff0, overlay_entry);
+        spu_begin_image(0);
+        spu_overlay_register_region_checked(0x10000, 0x1000, 0x1000, 0, 0x1000, 222,
+            spu_workload_fingerprint(vm_base + 0x10000, 0x1000));
+        std::memcpy(fragmented.ls + 0x1000, vm_base + 0x10000, 0x1000);
+        spu_overlay_note_get(&fragmented, 0x10000, fragmented.ls + 0x1000, 0x1000);
+        for (unsigned i = 0; i < 160; ++i) {
+            const uint32_t source = 0x20000 + i * 16, target = 0x1000 + i * 4;
+            std::memcpy(fragmented.ls + target, vm_base + source, 4);
+            spu_overlay_note_get(&fragmented, source, fragmented.ls + target, 4);
+            if (spu_lifted_lookup(&fragmented, 0x1000)) return 41;
+            if (spu_lifted_lookup(&fragmented, 0x1ff0) != overlay_entry) return 42;
+        }
+        fragmented.pc = 0x1ff0; spu_indirect_branch(&fragmented);
+        unsigned spans = 0;
+        for (const auto& span : fragmented.resident_code) if (span.image_id) ++spans;
+        std::printf("{\"writes\":160,\"spans\":%u,\"tail\":%u,\"overwritten_blocked\":true}\n",
+            spans, fragmented.gpr[3]._u32[0]);
+        return 0;
+    }
     if (!std::strncmp(mode, "pic", 3)) {
         static spu_context pic;
         spu_context_init(&pic, 77);

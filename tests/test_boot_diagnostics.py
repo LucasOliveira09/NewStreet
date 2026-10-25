@@ -12,6 +12,13 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_contiguous_spu_invalidations_do_not_exhaust_resident_ownership(self):
+        result = subprocess.run([str(BOOT), '--test-spu-overlay', 'fragments'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), dict(writes=160, spans=2, tail=7,
+                                                        overwritten_blocked=True))
+
     def test_generic_trophy_metadata_cannot_report_success_in_game_boot(self):
         for mode, nid in [('trophy-game-info', 0x49d18217), ('trophy-info', 0xfce6d30a),
                           ('trophy-unlock', 0x8ceedd21)]:

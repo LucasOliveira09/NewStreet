@@ -123,7 +123,9 @@ de funções ou por abrir uma janela.
 - [x] Instalar/verificar TRP real e confirmar desaparecimento do erro de HDD.
 - [x] Confirmar aviso original de autosave e entregar Cross após revisão visual.
 - [x] Implementar/validar cellSaveDataListAutoSave e gravar o primeiro perfil original.
-- [ ] Corrigir fragmentação/limite de ownership SPU e carregar o perfil pelo jogo após reinício.
+- [x] Reproduzir e compactar fragmentação contígua de ownership SPU com guardas preservados.
+- [ ] Implementar cellSaveDataGetListItem para o perfil encontrado após reinício.
+- [ ] Confirmar carregamento do perfil e passagem do limite SPU no fluxo real.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.

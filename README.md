@@ -13,11 +13,13 @@ Preparar esses documentos não altera o estado de implementação descrito abaix
 
 ## Resultado atual
 
-**Avanço de boot:** `tools/build.ps1 -Target Boot` compila o EBOOT traduzido e o
-scaffold PPU num executável Windows. A inicialização real alcançou a troca de
-processo `sys_game_process_exitspawn2` (NID `0x67f9fedb`). Essa chamada ainda é um
-bloqueio explícito. O diagnóstico está em `reports/native-boot-checkpoint.json`.
-Não houve ainda entrada em FIFAZF nem renderização de frame ou partida.
+**Execução nativa parcial:** EBOOT inicia FIFAZF em outro processo Windows,
+com código PPU/SPU compilado e backend Direct3D 12. A tela original do título
+e o aviso de autosave foram renderizados; Start e Cross chegaram ao código
+original, que gravou o primeiro perfil `BLUS308820000A`, incluindo `SYS-DATA`.
+O diagnóstico atualizado está em `reports/native-boot-checkpoint.json` e o
+histórico de correções em `STATUS.md`. Menu navegável, partida e progressão
+ainda precisam de validação. A abertura tem artefatos gráficos conhecidos.
 
 O patch em `patches/0001-strict-native-boot.patch` faz o alvo de boot parar em
 imports, syscalls, funções e instruções sem suporte, em vez de fabricar sucesso.
@@ -26,14 +28,14 @@ imports, syscalls, funções e instruções sem suporte, em vez de fabricar suce
 - Os dois executáveis foram extraídos da ISO para `private/`, com SHA-256 conferido.
 - RPCS3 foi usado somente como ferramenta de obtenção dos ELF via `--decrypt`.
 - O loader de ps3recomp abriu `EBOOT.elf` e `FIFAZF.elf`.
-- **Duas funções reais de FIFAZF foram traduzidas e compiladas em um PE x64 nativo.**
-- Os retornos inteiros passaram em **20.020 casos**, incluindo limites de inteiros.
+- O alvo FullGame contém 99.127 entradas nativas PPU e 369 stubs de imports.
+- O probe aritmético separado cobre duas funções reais em **20.020 casos**.
 - O runtime de ps3recomp compilou com clang-cl e seus **16 testes CTest passaram**.
 - REA 6.7.0 foi instalado e executado. Recusou o ELF por arquitetura não suportada.
 
-**O jogo completo ainda não inicia nativamente.** Há uma prova de funções e um
-diagnóstico de startup, ambos sem partida ou gráficos. Os testes aritméticos não
-validam registradores completos, flags da CPU, SPU, RSX ou o restante do jogo.
+**O port completo continua pendente.** O primeiro save escrito não comprova
+persistência de todos os modos ou uma partida funcional. As provas aritméticas
+e os testes do runtime também não equivalem a conformidade completa do PS3.
 
 ## Evidências
 
@@ -151,9 +153,10 @@ Não há instalador automático para uma máquina vazia nesta etapa.
 3. **Validação:** tentamos Unicorn 2.1.4 como referência PowerPC64, mas ele não
    completou a função no perfil testado. A prova aceita usa o oráculo matemático
    descrito nos testes; não declaramos comparação completa contra CPU de PS3.
-4. **Game runtime:** o EBOOT e o início do FIFAZF executam em processos Windows
-   nativos. A inicialização ainda para em funções/serviços sem suporte; SPUs,
-   renderização e gameplay não foram validados. Passar testes não prova o jogo.
+4. **Game runtime:** há renderização e tarefas SPU reais em processos Windows
+   nativos. Serviços e programas novos continuam sujeitos a bloqueios explícitos.
+   Gameplay, fidelidade gráfica completa e persistência de progressão não foram
+   validados. Passar testes não prova o jogo.
 
 ## Próximo marco técnico
 
@@ -180,13 +183,14 @@ O perfil `FullGame` usa `/Od` para reduzir o ciclo de investigação inicial.
 caminho funcional. O host também registra exceções nativas em `[fifa-crash]`,
 incluindo símbolo/endereço do Windows e o contexto PPU disponível.
 
-A geração SPU registra 14 dos 20 ELF descobertos; seis ainda têm instruções
-não decodificadas. O inventário parcial é explícito. O runtime para em programa
-ou salto SPU ausente antes de usar interpretação ou concluir uma tarefa sem código.
+A geração SPU admite somente programas revisados; o inventário permanece parcial.
+O runtime para em programa ou salto SPU ausente antes de usar interpretação ou
+concluir uma tarefa sem código.
 O teste compilado do gerador cobre dois segmentos separados e seu salto entre
 segmentos. Ligar essas imagens ao executável ainda não valida sua execução no jogo.
-O mesmo alvo `Spu` gera os dois overlays raw identificados no boot, com hashes e
-limites em `spu_overlays.json`. O registro verifica bytes e endereço de carga antes
+O mesmo alvo `Spu` gera os overlays raw revisados, com hashes e limites em
+`spu_overlays.json`. Há filtros de áudio PIC executados em diferentes posições
+de local store. O registro verifica bytes e endereço de carga antes
 de permitir a execução e invalida traduções quando as instruções são substituídas.
 
 O registro PRX mantém os exports reais por biblioteca, NID e tipo (função ou

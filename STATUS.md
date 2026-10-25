@@ -1237,3 +1237,22 @@ spu-overlay-capacity, image 768455951, SPU 8195, PC 0x313c. O limite atual é
 128 intervalos de ownership; investigar fragmentação/união, sem descartar
 intervalos vivos ou permitir executar código sobrescrito. Leitura do save pelo
 jogo após reinício ainda pendente, assim como menu, partida e progressão.
+
+
+## Compactação de intervalos SPU e consulta do perfil após reinício (2026-10-25)
+
+A fixture de 160 invalidações contíguas reproduziu spu-overlay-capacity com
+90 no limite de 128 registros. Agora os intervalos são ordenados/compactados
+entre as fases do DMA, sem reordenar a lista durante sua varredura. Tombstones
+adjacentes se unem; código conhecido exige mesmo image_id, bias e continuidade
+de origem. A fixture termina com dois intervalos: código válido executa e a
+entrada sobrescrita permanece bloqueada. O limite não foi aumentado e registros
+vivos não são descartados. Dumps de falha agora incluem o mapa de ownership.
+42 testes de boot, 81 do projeto e 16 CTest do runtime passaram; FullGame compilou.
+
+profile-reload (1792942053003372500) encerrou em 69,730 s com 90 antes de
+retornar ao carregamento posterior: a listagem encontrou o perfil existente e
+seu callback chamou cellSaveDataGetListItem (NID 0x04c06fc2), ainda ausente,
+LR 0x135f260, thread 37. A leitura de SYS-DATA pelo jogo ainda não foi observada.
+A remoção do bloqueio SPU no fluxo real também continua pendente dessa consulta.
+README atualizado para remover afirmações antigas de ausência de gráficos/FIFAZF.

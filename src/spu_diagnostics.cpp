@@ -25,6 +25,13 @@ extern "C" void fifa_dump_spu_state(const char* kind, spu_context* ctx) {
         for (unsigned r = 0; r < 128; ++r)
             std::fprintf(file, "%s[%u,%u,%u,%u]\n", r ? "," : "",
                 ctx->gpr[r]._u32[0], ctx->gpr[r]._u32[1], ctx->gpr[r]._u32[2], ctx->gpr[r]._u32[3]);
+        std::fputs("],\"resident_code\":[", file);
+        unsigned count = 0;
+        for (const auto& span : ctx->resident_code) {
+            if (!span.image_id) continue;
+            std::fprintf(file, "%s{\"lsa\":%u,\"size\":%u,\"source\":%u,\"image\":%d,\"bias\":%d}",
+                count++ ? "," : "", span.lsa, span.size, span.source_ea, span.image_id, span.relocation_bias);
+        }
         std::fputs("]}\n", file);
         std::fclose(file);
     }
