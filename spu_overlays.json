@@ -302,6 +302,24 @@
       ]
     },
     {
+      "name": "audio_spusend",
+      "relocatable_pic": true,
+      "source_ea": "0x1fc4b80",
+      "size": "0x1400",
+      "sha256": "f8b2a0697a67247e6d2f56ab8a806a16f8072c7752a1d3225fa624954671f87a",
+      "ls_base": "0xac00",
+      "entry": "0xac30",
+      "code_start": "0xac30",
+      "code_end": "0xbf00",
+      "extra_entries": [
+        "0xad78",
+        "0xb9a0",
+        "0xb9b8",
+        "0xb9d0",
+        "0xb9e8"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

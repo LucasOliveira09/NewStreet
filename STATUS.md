@@ -764,3 +764,19 @@ fonte 0x1fc4b80, base 0xac00, entrada 0xac30, 0x1400 bytes iguais ao original.
 64 saídas AssetStream passaram. O frame 801 segue com o mesmo logo (42 draws);
 1.519.616 amostras de áudio capturadas são finitas e zero. Menu e som continuam
 pendentes, sem concluir a execução dos módulos apenas por observar entrada.
+
+## Send, tabela de saltos e primeira saída de áudio com sinal
+
+Integrado spusend (fonte 0x1fc4b80, SHA f8b2a0697a67247e6d2f56ab8a806a16f8072c7752a1d3225fa624954671f87a),
+código 0xac30..0xbf00 e callback 0xad78. A primeira execução entrou, mas faltou
+o destino 0xb9a0. O código limita o índice a 0..6 e usa os sete offsets da
+tabela em 0xb97c; foram acrescentadas as quatro entradas ausentes, sem executar
+a tabela como instruções. Código do snapshot coincide com o original.
+Build aprovado. Em 1792882460964832500, o boot avançou até 57,797 s e parou
+no NID 0xe7fa820b (cellSaveDataEnableOverlay), LR 0x134db58, thread 23.
+64 saídas AssetStream passaram. A captura final contém 5.054.464 amostras,
+319.335 não zero, todas finitas, pico absoluto 0,561273. Isso prova sinal na
+saída nativa, não fidelidade auditiva ou sincronização. Os frames 1001..1901
+mudam: transição preta e logo animado, com artefatos visuais evidentes. Menu,
+partida, saves e progressão continuam pendentes. Próximo: implementar o contrato
+void de EnableOverlay com estado real e ABI correta, sem simular um save.

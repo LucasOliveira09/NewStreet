@@ -342,3 +342,12 @@ vários módulos (submix 0xb300 entre elas), depois faltou spusend em 0xac30.
 Seu blob 0x1400, fonte 0x1fc4b80, coincide com o original. Próximo: conferir
 limites/callbacks e traduzir esse módulo. Captura tardia continua no logo e
 áudio final continua zero; não marcar menu/áudio como resolvidos.
+
+## Send verificado e próxima dependência HLE
+
+Send e quatro destinos da tabela limitada de sete entradas foram traduzidos.
+Em 1792882460964832500, o jogo avançou até cellSaveDataEnableOverlay, NID
+0xe7fa820b, com 64 saídas AssetStream corretas. Há agora sinal finito não zero
+no mix final, sem validação auditiva/sincronia. Os frames mudam, mas o logo
+animado tem defeitos. Próximo: estado de preferência de overlay e wrapper
+void conforme RPCS3 fixado; não confundir essa chamada com gravação de save.
