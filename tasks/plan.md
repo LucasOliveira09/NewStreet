@@ -869,3 +869,44 @@ O blob residente tem zero diferenças. Menu e partida continuam pendentes.
 
 Validação final deste incremento: 42 testes de boot e 84 do projeto passaram;
 FullGame com SPU compilou. O teste independente de cópia cobre 576 casos.
+
+
+## Descompressão LZMA original: incremento em validação (2026-10-25)
+
+O próximo módulo AssetStream_lzma.elf foi identificado por correspondência
+integral de 8192 bytes com o snapshot de falha, origem 0x1e57180, LS 0x80,
+entrada 0x100, código até 0x1d38. O CRT tem BSS 0x2080..0x20a0: seu salto
+calculado entra em 0x19c; esse destino e 0x1a4 foram revisados e admitidos.
+A tradução produziu 93 funções, sem instruções ou chamadas diretas pendentes.
+
+A ABI observada é (output, capacidade, input, tamanho). A função em 0x530
+constrói propriedades 5d 00 00 01 00, equivalentes a LZMA1 bruto, lc=3, lp=0,
+pb=2, dicionário de 65536. O observador optativo captura até 32 jobs LZMA,
+sem fornecer bytes ao jogo; o validador usa liblzma do Python com limite de
+4 MiB e compara todos os bytes. Fluxos com tamanho conhecido podem omitir
+marcador de fim; a igualdade com a saída capturada continua obrigatória.
+Referências consultadas: docs.python.org/3.14/library/lzma.html e
+https://raw.githubusercontent.com/ip7z/7zip/main/C/LzmaDec.h.
+
+O novo runner de teste executou a entrada original 0x100 com 33 blocos
+criados independentemente por liblzma: constantes, sequências e aleatórios,
+11 tamanhos de 0 a 65672. Todos coincidiram com o conteúdo original, com
+fonte preservada e guardas fora do span DMA arredondado em 16 bytes intactas.
+A fixture não promete preservar os bytes de padding que o original escreve.
+Antes da CLI/tradução houve 33 falhas; depois passou em 10,809 s.
+O teste de aceitação do oráculo também falhou antes do suporte ao novo codec;
+seis testes de oráculo passaram depois, incluindo corrupção e limite de expansão.
+
+
+Validação final: FullGame compilou; 42 testes de boot e 87 do projeto passaram.
+O oráculo também aceitou um bloco com saída completa sem marcador de fim.
+Ensaio lzma-native (1792965360557405300) terminou com 90 em 276,841 s.
+Start foi autorizado uma vez na captura frame_03 (frame de jogo 3361), sem
+retry nem Cross. O perfil foi relido integralmente e seus cinco hashes foram
+preservados. O job LZMA original executou na SPU 8197: 18451 bytes comprimidos
+produziram 65672 bytes, todos iguais ao liblzma independente; SHA da saída
+0c93a78cbd2eac4c390f13df48454b43876aece7f2d24d969925c00234dae07a.
+As 65 amostras capturadas de assets passaram (32 RefPack, 32 DEFLATE, 1 LZMA).
+O próximo bloqueio é sportsutil_dxt.elf: origem 0x1f8d580, LS 0x80, entrada
+0xb0, 0x2250 bytes, SHA 3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604.
+O snapshot tem zero diferenças contra o blob. Menu e gameplay ainda não validados.

@@ -33,29 +33,32 @@ static bool save(const std::string& path, const void* data, size_t bytes) {
 }
 
 // Observe the original AssetStream ABI only: zlib(out, capacity, in, bytes),
-// RefPack(out, in, bytes). Reads are opt-in and never allocate guest pages.
+// LZMA(out, capacity, in, bytes), RefPack(out, in, bytes).
+// Reads are opt-in and never allocate guest pages.
 // The nested drain follows translated tail transfers through the actual return.
 extern "C" void fifa_observe_spu_job(spu_context* ctx, spu_lifted_entry_fn entry, int codec) {
     const char* folder = std::getenv("FIFA_SPU_JOB_TRACE_DIR");
-    if (!folder || !*folder || (codec != 0 && codec != 1)) { entry(ctx); return; }
-    static std::atomic<unsigned> counts[2]{};
+    if (!folder || !*folder || codec < 0 || codec > 2) { entry(ctx); return; }
+    static std::atomic<unsigned> counts[3]{};
     unsigned number = counts[codec].fetch_add(1);
     if (number >= 32) { entry(ctx); return; }
     uint32_t output = ctx->gpr[3]._u32[0];
-    uint32_t input = ctx->gpr[codec ? 4 : 5]._u32[0];
-    uint32_t bytes = ctx->gpr[codec ? 5 : 6]._u32[0];
-    uint32_t capacity = codec ? 0 : ctx->gpr[4]._u32[0];
+    const bool refpack = codec == 1;
+    const char* codec_name = codec == 0 ? "zlib" : (refpack ? "refpack" : "lzma");
+    uint32_t input = ctx->gpr[refpack ? 4 : 5]._u32[0];
+    uint32_t bytes = ctx->gpr[refpack ? 5 : 6]._u32[0];
+    uint32_t capacity = refpack ? 0 : ctx->gpr[4]._u32[0];
     if (!readable(input, bytes)) { entry(ctx); return; }
     std::vector<uint8_t> compressed(vm_base + input, vm_base + input + bytes);
     // RefPack flags: bit 7 selects 32-bit sizes; bit 0 adds compressed size.
     // https://github.com/OpenSAGE/OpenSAGE/blob/master/src/OpenSage.FileFormats.RefPack/RefPackStream.cs
-    if (codec && bytes >= 5 && (compressed[0] & 0x3e) == 0x10 && compressed[1] == 0xfb) {
+    if (refpack && bytes >= 5 && (compressed[0] & 0x3e) == 0x10 && compressed[1] == 0xfb) {
         size_t width = (compressed[0] & 0x80) ? 4 : 3;
         size_t header = 2 + ((compressed[0] & 1) ? width : 0);
         if (bytes >= header + width)
             for (size_t i = 0; i < width; ++i) capacity = (capacity << 8) | compressed[header + i];
     }
-    std::string stem = std::string(codec ? "refpack-" : "zlib-") + std::to_string(number);
+    std::string stem = std::string(codec_name) + "-" + std::to_string(number);
     std::string prefix = std::string(folder) + "/" + stem;
     if (!save(prefix + ".input", compressed.data(), compressed.size())) { entry(ctx); return; }
     uint32_t return_pc = ctx->gpr[0]._u32[0];
@@ -71,7 +74,7 @@ extern "C" void fifa_observe_spu_job(spu_context* ctx, spu_lifted_entry_fn entry
     if (FILE* file = std::fopen((prefix + ".json").c_str(), "wb")) {
         std::fprintf(file, "{\"codec\":\"%s\",\"thread\":%u,\"input_ea\":%u,\"input_bytes\":%u,"
             "\"output_ea\":%u,\"output_bytes\":%u,\"return_pc\":%u,\"guest_result\":%u,\"captured\":%s}\n",
-            codec ? "refpack" : "zlib", ctx->spu_id, input, bytes, output, capacity,
+            codec_name, ctx->spu_id, input, bytes, output, capacity,
             return_pc, ctx->gpr[3]._u32[0], captured ? "true" : "false");
         std::fclose(file);
     }

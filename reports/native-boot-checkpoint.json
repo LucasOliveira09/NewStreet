@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Original profile reloaded and SPU memcpy job executed; LZMA asset job is the next untranslated module",
+  "stage": "Original profile and LZMA asset loaded; sportsutil DXT job is the next untranslated module",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792964492801813900",
-  "elapsed_seconds": 347.248,
+  "logs": "private\\analysis\\runs\\1792965360557405300",
+  "elapsed_seconds": 276.841,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706349824,
+    "value": 2259970271706349744,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,8 +67,8 @@
   },
   "checks": {
     "boot": 42,
-    "project": 84,
-    "independent_asset_jobs_passed": 64,
+    "project": 87,
+    "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
   "complete_port": false,
@@ -866,11 +866,28 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "AssetStream_lzma.elf",
+    "name": "sportsutil_dxt.elf",
+    "source_ea": "0x1f8d580",
+    "pc": "0xb0",
+    "bytes": 8784,
+    "sha256": "3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604",
+    "snapshot_byte_differences": 0
+  },
+  "spu_lzma": {
     "source_ea": "0x1e57180",
-    "pc": "0x100",
+    "entry": "0x100",
     "bytes": 8192,
     "sha256": "6d5c19b1e71f7889531143ba08df360180077a8009b98cf4ddbbc1fdbaa21697",
-    "snapshot_byte_differences": 0
+    "original_block_tests": 33,
+    "native_entry_observed": true,
+    "native_oracle": {
+      "job": "lzma-0",
+      "codec": "lzma",
+      "matches": true,
+      "input_bytes": 18451,
+      "output_bytes": 65672,
+      "expected_bytes": 65672,
+      "sha256": "0c93a78cbd2eac4c390f13df48454b43876aece7f2d24d969925c00234dae07a"
+    }
   }
 }

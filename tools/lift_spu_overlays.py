@@ -138,7 +138,7 @@ def main():
             wrapper = prefix + 'observed_entry'
             body = f'{native}(ctx);'
             if 'io_layout' in item:
-                codec = {'zlib': 0, 'refpack': 1}[item['io_layout']]
+                codec = {'zlib': 0, 'refpack': 1, 'lzma': 2}[item['io_layout']]
                 body = f'fifa_observe_spu_job(ctx, {native}, {codec});'
             slot = len(inventory['overlays'])
             if slot >= 128:

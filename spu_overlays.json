@@ -545,6 +545,21 @@
         "0x134",
         "0x154"
       ]
+    },
+    {
+      "name": "asset_lzma",
+      "source_ea": "0x1e57180",
+      "size": "0x2000",
+      "sha256": "6d5c19b1e71f7889531143ba08df360180077a8009b98cf4ddbbc1fdbaa21697",
+      "ls_base": "0x80",
+      "entry": "0x100",
+      "code_start": "0x100",
+      "code_end": "0x1d38",
+      "extra_entries": [
+        "0x19c",
+        "0x1a4"
+      ],
+      "io_layout": "lzma"
     }
   ]
 }

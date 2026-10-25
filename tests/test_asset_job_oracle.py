@@ -1,5 +1,6 @@
 import sys
 import json
+import lzma
 import tempfile
 import unittest
 from pathlib import Path
@@ -53,6 +54,42 @@ class RefpackOracleTests(unittest.TestCase):
                        b'\x10\xfb\xff\xff\xff\xfc'):
             with self.subTest(stream=stream), self.assertRaises(ValueError):
                 refpack_decode(stream)
+
+
+class LzmaOracleTests(unittest.TestCase):
+    def test_raw_asset_stream_and_mismatching_output(self):
+        expected = bytes(range(256)) * 257
+        compressed = lzma.compress(expected, format=lzma.FORMAT_RAW, filters=[dict(
+            id=lzma.FILTER_LZMA1, dict_size=65536, lc=3, lp=0, pb=2)])
+        # A known-size raw block can finish without an end marker. Removing
+        # these final range-coder bytes still emits the complete authored data.
+        for payload, output, matches in ((compressed, expected, True),
+                                          (compressed[:-6], expected, True),
+                                          (compressed, b'wrong bytes', False)):
+            with self.subTest(input_bytes=len(payload), matches=matches), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                (root / 'lzma.input').write_bytes(payload)
+                (root / 'lzma.output').write_bytes(output)
+                (root / 'lzma.json').write_text(json.dumps(dict(codec='lzma', captured=True,
+                    input_bytes=len(payload), output_bytes=len(output))))
+                result = validate(root)
+                self.assertEqual(result['all_passed'], matches, result)
+                self.assertEqual(result['jobs'][0]['matches'], matches)
+
+    def test_corrupt_and_oversized_raw_streams_fail_without_unbounded_expansion(self):
+        filters = [dict(id=lzma.FILTER_LZMA1, dict_size=65536, lc=3, lp=0, pb=2)]
+        oversized = lzma.compress(b'x' * (4 * 1024 * 1024 + 1),
+                                   format=lzma.FORMAT_RAW, filters=filters)
+        for compressed in (b'', b'\x00' * 4, b'\xff' * 32, oversized):
+            with self.subTest(compressed_bytes=len(compressed)), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                (root / 'lzma.input').write_bytes(compressed)
+                (root / 'lzma.output').write_bytes(b'x')
+                (root / 'lzma.json').write_text(json.dumps(dict(codec='lzma', captured=True,
+                    input_bytes=len(compressed), output_bytes=1)))
+                result = validate(root)
+                self.assertFalse(result['all_passed'])
+                self.assertIn('error', result['jobs'][0])
 
 
 if __name__ == '__main__':

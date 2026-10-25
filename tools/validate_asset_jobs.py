@@ -7,6 +7,7 @@ This diagnostic decoder never supplies data to the game or replaces guest code.
 import argparse
 import hashlib
 import json
+import lzma
 from pathlib import Path
 import zlib
 
@@ -71,7 +72,7 @@ def validate(folder):
         item = dict(job=meta.stem, codec=None, matches=False)
         try:
             job = json.loads(meta.read_text(encoding='utf-8'))
-            if not isinstance(job, dict) or job.get('codec') not in ('refpack', 'zlib'):
+            if not isinstance(job, dict) or job.get('codec') not in ('refpack', 'zlib', 'lzma'):
                 raise ValueError('Missing or invalid job codec')
             if any(key not in job for key in ('captured', 'input_bytes', 'output_bytes')):
                 raise ValueError('Incomplete job metadata')
@@ -90,6 +91,18 @@ def validate(folder):
                 raise ValueError('Capture length differs from job metadata')
             if job['codec'] == 'refpack':
                 expected = refpack_decode(compressed)
+            elif job['codec'] == 'lzma':
+                # Original AssetStream_lzma at 0x530 supplies properties
+                # 5d 00 00 01 00: lc=3, lp=0, pb=2, dictionary=65536.
+                # These are raw blocks; their known output length can replace
+                # an end marker. This oracle only observes, never feeds boot.
+                if len(compressed) < 5 or compressed[0] != 0:
+                    raise ValueError('Invalid or truncated LZMA range header')
+                stream = lzma.LZMADecompressor(format=lzma.FORMAT_RAW, filters=[dict(
+                    id=lzma.FILTER_LZMA1, dict_size=65536, lc=3, lp=0, pb=2)])
+                expected = stream.decompress(compressed, max_length=4 * 1024 * 1024 + 1)
+                if len(expected) > 4 * 1024 * 1024:
+                    raise ValueError('Oversized LZMA stream')
             else:
                 # AssetStream feeds a raw DEFLATE block (no zlib/gzip wrapper).
                 stream = zlib.decompressobj(-15)
@@ -102,7 +115,7 @@ def validate(folder):
             if actual != expected:
                 item['first_difference'] = next((i for i, (a, b) in enumerate(zip(actual, expected)) if a != b),
                                                 min(len(actual), len(expected)))
-        except (ValueError, OSError, zlib.error) as error:
+        except (ValueError, OSError, zlib.error, lzma.LZMAError) as error:
             item['error'] = str(error)
         results.append(item)
     completed = {j['job'] for j in results}

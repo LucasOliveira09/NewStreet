@@ -58,6 +58,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     tests/trophy_storage_probe.cpp
     tests/savedata_list_auto_probe.cpp
     tests/spu_memcpy_probe.cpp
+    tests/spu_lzma_probe.cpp
     tests/rsx_fifo_probe.cpp
     tests/spu_group_probe.cpp
     tests/spu_overlay_probe.cpp

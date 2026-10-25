@@ -127,7 +127,8 @@ de funções ou por abrir uma janela.
 - [x] Implementar cellSaveDataGetListItem e conferir metadados reais.
 - [x] Confirmar releitura integral de SYS-DATA pelo código original após reinício.
 - [x] Traduzir/testar job_util_job_memcpy e confirmar sua entrada após o perfil.
-- [ ] Traduzir AssetStream_lzma de 0x1e57180 e conferir a descompressão original.
+- [x] Traduzir AssetStream_lzma e conferir saída original contra liblzma.
+- [ ] Traduzir sportsutil_dxt de 0x1f8d580 e avançar o carregamento.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.
