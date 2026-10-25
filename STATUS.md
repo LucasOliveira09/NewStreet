@@ -1003,3 +1003,20 @@ a telemetria. Nova leitura após o processo encerrar falhou, sem fabricar bytes.
 O run native-bindings 1792935048107759000 terminou em 76,152 s por falta SPU
 em 0x17830: highpass entrou de verdade; próximo programa é lowpass. A inspeção
 é diagnóstico e não prova de navegação. Dumps continuam em private/.
+
+
+## Lowpass nativo e execução sem teclado (2026-10-25)
+
+spulowpassiir2 foi identificado na falta estrita de native-bindings:
+origem 0x1fbff00, 0xb10 bytes, SHA c202671ae8a6a3485ba64d10caa956f5eeefc9a287ef47973ecf21a4a22b1d63,
+residente em LS 0x17800 com zero diferenças. PIC, entrada 0x17830,
+código até 0x18310; callback base+0xb8 e quatro destinos da tabela de sete
+casos em 0x1828c com guarda >6. Tradução de 28 funções, sem instruções
+sem suporte/destinos diretos ausentes; FullGame compilou e 65 testes passaram.
+lowpass (1792935306961542300) terminou em timeout de 240,336 s sem nova falta,
+sem entrada observada desse filtro e sem menu validado. PAD_NO_KEYBOARD=1
+isolou a entrada; o run anterior tinha registrado teclado ativo, portanto sua
+segunda pressão de Start não deve ser atribuída ao driver de arquivo.
+As leituras reais confirmaram 48 bindings de PS3 Controller; os vínculos
+19 -> VB_FE_START (38) e 30 -> VB_FE_SELECT (29) estão presentes.
+Dumps do provedor, tabela e funções examinadas estão em private/analysis.

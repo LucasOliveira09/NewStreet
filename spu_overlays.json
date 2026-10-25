@@ -370,6 +370,24 @@
       ]
     },
     {
+      "name": "audio_spulowpassiir2",
+      "relocatable_pic": true,
+      "source_ea": "0x1fbff00",
+      "size": "0xb10",
+      "sha256": "c202671ae8a6a3485ba64d10caa956f5eeefc9a287ef47973ecf21a4a22b1d63",
+      "ls_base": "0x17800",
+      "entry": "0x17830",
+      "code_start": "0x17830",
+      "code_end": "0x18310",
+      "extra_entries": [
+        "0x178b8",
+        "0x182b0",
+        "0x182c8",
+        "0x182e0",
+        "0x182f8"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

@@ -103,4 +103,6 @@ de funções ou por abrir uma janela.
 - [x] Compilar EA Layer 3 e observar sua entrada após Start.
 - [x] Integrar spugain identificado em 0x16580 e observar sua entrada real.
 - [x] Identificar e compilar spuhighpassiir2 de 0x16c80.
-- [ ] Observar o filtro highpass e continuar até navegação real.
+- [x] Observar entrada real do filtro highpass.
+- [x] Identificar e compilar lowpass em 0x17800.
+- [ ] Observar lowpass e continuar até navegação real.
