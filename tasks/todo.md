@@ -116,4 +116,6 @@ de funções ou por abrir uma janela.
 - [x] Observar entrada real do limitador.
 - [x] Identificar, compilar e observar pan2d1.
 - [x] Admitir destinos das seis tabelas de pan2d1 após falta reproduzida.
-- [ ] Continuar pan-cases até navegação real.
+- [x] Ultrapassar pan-cases e confirmar diálogo original após Start.
+- [x] Substituir espaço livre fixo por consulta ao volume montado, com erros testados.
+- [ ] Conferir erro de espaço do jogo em free-space-verified e chegar ao menu.

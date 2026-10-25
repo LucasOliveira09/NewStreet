@@ -662,3 +662,34 @@ diretos ausentes e 66 testes passaram. Run pan-cases em andamento com sete
 segundos de título e 250 relatórios de Start; menu ainda não validado.
 A análise dos threads confirma FEThread=23, RenderThread=22 e InputThread=24;
 a amostragem anterior do contexto principal não representava a thread de UI.
+
+
+## Avanço real da UI e espaço livre do HDD (2026-10-25)
+
+pan-cases (1792937375655805500, timeout 180,215 s) ultrapassou os saltos
+anteriores e executou pan2d1 também em LS 0x8680. A captura frame_11
+(frame_count=4321, 53 draws) mostra o diálogo ORIGINAL INFORMATION, informando
+que faltam pelo menos 1024 KB no HDD. É avanço real após Start, mas não menu,
+partida ou save validado. Captura: private/analysis/pan-cases-frames/frame_11.
+O disco D tinha cerca de 519 GB disponíveis; a hipótese passou à consulta
+libfs e ao fluxo de armazenamento, sem alterar a mensagem ou o estado do jogo.
+
+O handler de contexto cellFsGetFreeSize devolvia 32 GiB fixos. A fixture
+--test-fs-free-space compara o retorno com GetDiskFreeSpaceExA antes/depois
+no volume montado: falhou (34.359.738.368 vs cerca de 10,4 GB no volume C do
+teste). O handler agora usa filesystem::space.available, com blocos virtuais
+de 4096 bytes e count u64 BE. Argumentos nulos retornam EFAULT sem tocar os
+outputs; falha no host retorna erro com outputs zerados, sem espaço inventado.
+As raízes bare /dev_hdd0 e /dev_hdd1 passam a respeitar seus overrides: antes
+só o prefixo com barra final respeitava o mount, levando a outra unidade.
+Teste adicional cobre mount host ausente. 39 testes de boot, 68 do projeto e
+FullGame passaram; alteração do SDK foi incluída no patch e revisada.
+Referência primária: RPCS3 aa9ebd2f Modules/cellFs.cpp e lv2/sys_fs.cpp,
+consultadas e guardadas em private/analysis/rpcs3-reference.
+
+A primeira tentativa FullGame esbarrou em link porque disparei a execução cedo;
+o run free-space (1792938225415918500, 61,738 s) usou a versão ANTERIOR,
+foi interrompido e não valida a correção. Após finalizar essa árvore própria,
+relink e 68 testes terminaram com sucesso. free-space-verified está em execução
+com o executável atualizado e log do NID AA3B4BCD. A remoção do erro do jogo
+continua pendente de observação; a correção de consulta não prova essa remoção.

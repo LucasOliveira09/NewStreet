@@ -12,6 +12,34 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_free_space_matches_the_mounted_host_volume(self):
+        with tempfile.TemporaryDirectory() as folder:
+            env = dict(os.environ, PS3_HDD0_ROOT=folder)
+            result = subprocess.run([str(BOOT), '--test-fs-free-space', folder],
+                                    capture_output=True, text=True, timeout=10, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        actual = json.loads(result.stdout.splitlines()[-1])
+        self.assertEqual(actual['result'], 0)
+        self.assertTrue(actual['host_queries'])
+        self.assertTrue(actual['null_arguments_preserved'])
+        self.assertEqual(actual['block'], 4096)
+        # Queries bracket the guest call; allow small concurrent host writes.
+        guest_bytes = actual['count'] * actual['block']
+        self.assertGreaterEqual(guest_bytes, min(actual['before'], actual['after']) - 262144)
+        self.assertLessEqual(guest_bytes, max(actual['before'], actual['after']) + 262144)
+
+    def test_free_space_does_not_invent_capacity_for_missing_host_mount(self):
+        with tempfile.TemporaryDirectory() as folder:
+            missing = str(Path(folder) / 'absent')
+            result = subprocess.run([str(BOOT), '--test-fs-free-space', missing],
+                                    capture_output=True, text=True, timeout=10,
+                                    env=dict(os.environ, PS3_HDD0_ROOT=missing))
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        actual = json.loads(result.stdout.splitlines()[-1])
+        self.assertNotEqual(actual['result'], 0)
+        self.assertFalse(actual['host_queries'])
+        self.assertEqual((actual['block'], actual['count']), (0, 0))
+
     def test_input_observer_preserves_api_and_observed_state(self):
         for enabled in (False, True):
             with self.subTest(enabled=enabled):

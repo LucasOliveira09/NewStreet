@@ -60,6 +60,7 @@ int fifa_test_input_sampler(void);
 void fifa_install_input_observer(void);
 int fifa_test_input_observer(void);
 int fifa_test_fs_readdir(const char*);
+int fifa_test_fs_free_space(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -134,6 +135,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-mounts")) return fifa_test_filesystem_mounts(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-rsx-fifo")) return fifa_test_rsx_fifo(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-readdir")) return fifa_test_fs_readdir(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-fs-free-space")) return fifa_test_fs_free_space(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

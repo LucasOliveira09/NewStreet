@@ -337,10 +337,18 @@ index eab83e1..30ce48f 100644
   * On PS3, gCellGcmCurrentContext points to one of these.
   * All pointer fields are guest addresses (u32) in the recomp.
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
-index 4d54b72..b0e4329 100644
+index 4d54b72..5e95b39 100644
 --- a/runtime/ppu/ppu_fs.cpp
 +++ b/runtime/ppu/ppu_fs.cpp
-@@ -130,6 +130,9 @@ extern "C" void ps3_vfs_ps3game_fallback(char* path, size_t cap);
+@@ -24,6 +24,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <atomic>
++#include <filesystem>
+ #include <sys/stat.h>
+ #include "../platform/win32_dirent.h"   /* <dirent.h>, or a Win32 stand-in */
+ 
+@@ -130,6 +131,9 @@ extern "C" void ps3_vfs_ps3game_fallback(char* path, size_t cap);
   * prefixes are stripped; the rest is appended to the root. */
  static void host_path(char* out, size_t cap, const char* guest)
  {
@@ -350,7 +358,31 @@ index 4d54b72..b0e4329 100644
      const char* rel = guest;
      /* /dev_hdd0 overlays the installed game-update dir (a disc title patched to
       * e.g. v1.30 runs the update's EBOOT and reads its patchN.farc from
-@@ -208,6 +211,8 @@ static FILE* g_files[FS_MAX];
+@@ -138,8 +142,9 @@ static void host_path(char* out, size_t cap, const char* guest)
+      * dir that /dev_hdd0 maps into (the one containing game/<title>/). */
+     static const char* hdd0_root = nullptr; static int hdd0_init = 0;
+     if (!hdd0_init) { hdd0_root = getenv("PS3_HDD0_ROOT"); hdd0_init = 1; }
+-    if (hdd0_root && strncmp(guest, "/dev_hdd0/", 10) == 0) {
+-        snprintf(out, cap, "%s/%s", hdd0_root, guest + 10);
++    if (hdd0_root && *hdd0_root && strncmp(guest, "/dev_hdd0", 9) == 0 &&
++        (guest[9] == '/' || guest[9] == '\0')) {
++        snprintf(out, cap, "%s/%s", hdd0_root, guest + (guest[9] ? 10 : 9));
+         for (char* p = out; *p; p++) if (*p == '\\') *p = '/';
+         return;
+     }
+@@ -152,8 +157,9 @@ static void host_path(char* out, size_t cap, const char* guest)
+      * same convention as PS3_HDD0_ROOT. */
+     static const char* hdd1_root = nullptr; static int hdd1_init = 0;
+     if (!hdd1_init) { hdd1_root = getenv("PS3_HDD1_ROOT"); hdd1_init = 1; }
+-    if (hdd1_root && *hdd1_root && strncmp(guest, "/dev_hdd1/", 10) == 0) {
+-        snprintf(out, cap, "%s/%s", hdd1_root, guest + 10);
++    if (hdd1_root && *hdd1_root && strncmp(guest, "/dev_hdd1", 9) == 0 &&
++        (guest[9] == '/' || guest[9] == '\0')) {
++        snprintf(out, cap, "%s/%s", hdd1_root, guest + (guest[9] ? 10 : 9));
+         for (char* p = out; *p; p++) if (*p == '\\') *p = '/';
+         return;
+     }
+@@ -208,6 +214,8 @@ static FILE* g_files[FS_MAX];
  static uint8_t g_fd_usm[FS_MAX];
  static char    g_fd_path[FS_MAX][192];   /* guest path per fd (diagnostics) */   /* 1 if this fd is an open .usm movie (read tracker) */
  static DIR*  g_dirs[FS_MAX];
@@ -359,7 +391,7 @@ index 4d54b72..b0e4329 100644
  static char  g_dir_path[FS_MAX][1024];   /* host path per open dir (for readdir stat) */
  
  static int fd_alloc_file(FILE* f)
-@@ -671,6 +676,8 @@ static void cellFsOpendir(ppu_context* ctx)
+@@ -671,6 +679,8 @@ static void cellFsOpendir(ppu_context* ctx)
      int fd = fd_alloc_dir(d);
      if (fd < 0) { closedir(d); ctx->gpr[3] = (uint64_t)(int64_t)CELL_FS_EIO; return; }
      strncpy(g_dir_path[fd], hpath, sizeof g_dir_path[fd] - 1);
@@ -368,7 +400,7 @@ index 4d54b72..b0e4329 100644
      if (fd_ptr) vm_write32(fd_ptr, (uint32_t)fd);
      ctx->gpr[3] = CELL_OK;
  }
-@@ -681,19 +688,34 @@ static void cellFsReaddir(ppu_context* ctx)
+@@ -681,19 +691,34 @@ static void cellFsReaddir(ppu_context* ctx)
      int fd          = (int)(uint32_t)ctx->gpr[3];
      uint32_t dirent = (uint32_t)ctx->gpr[4];
      uint32_t nread_ptr = (uint32_t)ctx->gpr[5];
@@ -406,6 +438,51 @@ index 4d54b72..b0e4329 100644
      ctx->gpr[3] = CELL_OK;
  }
  
+@@ -804,16 +829,37 @@ static void cellFsFsync(ppu_context* ctx)
+  * grow files on write, so accepting is correct -- no preallocation needed. */
+ static void cellFsAllocateFileAreaWithoutZeroFill(ppu_context* ctx) { ctx->gpr[3] = CELL_OK; }
+ 
+-/* Free space for (path, u32* block_size, u64* free_block_count). Unregistered,
+- * the call took the unresolved-NID path: CELL_OK with both out-params left as
+- * unwritten, so a title sizing a cache read whatever was there. Report a
+- * 4 KiB block and 32 GiB free: enough for any cache, and the same on every host. */
++/* cellFs.cpp / RPCS3 aa9ebd2f: non-null outputs, u32 block size and u64 count.
++ * Query the mapped host volume, including its available-to-caller quota. A
++ * virtual 4 KiB block describes the count; no capacity is fabricated on error. */
+ static void cellFsGetFreeSize(ppu_context* ctx)
+ {
+-    uint32_t bs = (uint32_t)ctx->gpr[4], fb = (uint32_t)ctx->gpr[5];
+-    if (bs) vm_write32(bs, 4096);
+-    if (fb) vm_write64(fb, (32ULL << 30) / 4096);
++    const uint32_t path = (uint32_t)ctx->gpr[3];
++    const uint32_t bs = (uint32_t)ctx->gpr[4], fb = (uint32_t)ctx->gpr[5];
++    if (!path || !bs || !fb) {
++        ctx->gpr[3] = 0x8001000du; // CELL_EFAULT; preserve outputs on null arguments.
++        return;
++    }
++    vm_write32(bs, 0); vm_write64(fb, 0);
++    char guest[1024], host[1100];
++    guest_strcpy(guest, path, sizeof guest);
++    host_path(host, sizeof host, guest);
++    std::error_code error;
++    const auto space = std::filesystem::space(host, error);
++    if (error || space.available == uintmax_t(-1)) {
++        ctx->gpr[3] = (uint64_t)(int64_t)(error == std::errc::no_such_file_or_directory
++            ? CELL_FS_ENOENT : CELL_FS_EIO);
++        return;
++    }
++    const uint64_t count = space.available / 4096;
++    vm_write32(bs, 4096); vm_write64(fb, count);
+     ctx->gpr[3] = CELL_OK;
++    static std::atomic_uint logged{0};
++    if (logged.fetch_add(1, std::memory_order_relaxed) < 16) {
++        fprintf(stderr, "[fs-space] path='%s' block_size=4096 blocks=%llu available=%llu\n",
++            guest, (unsigned long long)count, (unsigned long long)space.available);
++        fflush(stderr);
++    }
+ }
+ static void cellFsChmod(ppu_context* ctx) { ctx->gpr[3] = CELL_OK; }   /* host ignores PS3 mode bits */
+ static void cellFsUtime(ppu_context* ctx) { ctx->gpr[3] = CELL_OK; }   /* timestamps are not modelled */
 diff --git a/runtime/ppu/ppu_hle.cpp b/runtime/ppu/ppu_hle.cpp
 index b44816b..2638dcb 100644
 --- a/runtime/ppu/ppu_hle.cpp
