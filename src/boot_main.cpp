@@ -54,6 +54,7 @@ int fifa_test_spu_entry_trace(void);
 int fifa_test_savedata_overlay(void);
 int fifa_test_pad_file(const char*);
 int fifa_test_pad_empty_payload(void);
+int fifa_test_pad_modes(void);
 int fifa_test_input_bitset(void);
 int fifa_test_fs_readdir(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -114,6 +115,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--test-savedata-overlay")) return fifa_test_savedata_overlay();
     if (argc == 3 && !std::strcmp(argv[1], "--test-pad-file")) return fifa_test_pad_file(argv[2]);
     if (argc == 2 && !std::strcmp(argv[1], "--test-pad-empty-payload")) return fifa_test_pad_empty_payload();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-pad-modes")) return fifa_test_pad_modes();
     if (argc == 2 && !std::strcmp(argv[1], "--test-fifa-input-bitset")) return fifa_test_input_bitset();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-image-mismatch")) return fifa_test_spu_image_mismatch();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {

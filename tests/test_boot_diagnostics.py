@@ -12,6 +12,15 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_pad_modes_match_protocol_lengths_headers_and_partial_writes(self):
+        env = dict(os.environ)
+        env.pop('PAD_FILE', None)
+        result = subprocess.run([str(BOOT), '--test-pad-modes'],
+                                capture_output=True, text=True, timeout=10, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(modes=4, lengths=True, headers=True, untouched_tail=True))
+
     def test_pad_empty_report_preserves_previous_button_payload(self):
         env = dict(os.environ)
         env.pop('PAD_ALWAYS_CHANGE', None)

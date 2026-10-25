@@ -898,3 +898,20 @@ têm hashes completos distintos e a mesma área fixa do título.
 Em 1792905020455377000, a área 70,70,720,100 autorizou um Start, com hashes
 do frame e da área registrados. Após conferir novamente o título, foi enviada
 uma confirmação Cross. Resultado da navegação ainda em observação.
+
+
+## Pacotes de controle por modo (2026-10-25)
+
+A referência RPCS3 aa9ebd2f, cellPad.h e pad_get_data em cellPad.cpp,
+usa comprimentos 8/20/24 para padrão/pressão/sensor. O runtime usava
+8/24/28 e copiava todas as 64 palavras em relatórios válidos. Corrigidos os
+comprimentos e a escrita parcial: padrão também limpa pressão 8..19;
+sensores 20..23 só são escritos no modo sensor; a cauda restante é preservada.
+A fixture --test-pad-modes cobre as quatro combinações de flags, cabeçalhos
+0x74/0x7a/0x7c e bytes sentinela. Falhou antes (exit 13, cauda sobrescrita no
+modo padrão) e passou depois. Builds Boot e FullGame, 36 testes de boot,
+61 testes do projeto e 16 CTest passaram. Alteração do SDK incluída no patch.
+A tentativa anterior title-region terminou em timeout de 240,228 s: Start e
+Cross foram entregues, mas menu não foi validado. Nova tentativa pad-protocol
+verificará o pacote corrigido no fluxo real; esse teste isolado não prova
+navegação ou gameplay.

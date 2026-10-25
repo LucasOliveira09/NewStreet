@@ -6,6 +6,45 @@
 #include <cstdlib>
 #include <cstring>
 
+extern "C" int fifa_test_pad_modes(void) {
+    vm_base = (uint8_t*)std::calloc(1, 0x20000);
+    if (!vm_base || cellPadInit(1)) return 3;
+    auto* data = (CellPadData*)(uintptr_t)0x10000;
+    // RPCS3 aa9ebd2f cellPad.h / pad_get_data: valid lengths and mode nibbles.
+    const unsigned settings[] = {0, 2, 4, 6};
+    const unsigned lengths[] = {8, 20, 24, 24};
+    const unsigned modes[] = {0x74, 0x7a, 0x7c, 0x7c};
+    for (unsigned mode = 0; mode < 4; ++mode) {
+        if (cellPadSetPortSetting(0, settings[mode])) return 4;
+        std::memset(vm_base + 0x10004, 0xa5, sizeof(CellPadData) - 4);
+        bool fresh = false;
+        for (unsigned poll = 0; poll < 50; ++poll) {
+            Sleep(2);
+            if (cellPadGetData(0, data)) return 4;
+            if (vm_read32(0x10000)) { fresh = true; break; }
+        }
+        if (!fresh || vm_read32(0x10000) != lengths[mode] || vm_read16(0x10006) != modes[mode]) {
+            std::fprintf(stderr, "Pad mode %u: len=%u header=%X, expected len=%u header=%X\n",
+                settings[mode], vm_read32(0x10000), vm_read16(0x10006), lengths[mode], modes[mode]);
+            return 11;
+        }
+        if (!(settings[mode] & 2)) {
+            for (unsigned word = 8; word < 20; ++word)
+                if (vm_read16(0x10004 + word * 2)) return 12;
+        }
+        const unsigned written_words = lengths[mode] < 20 ? 20 : lengths[mode];
+        for (unsigned byte = 4 + written_words * 2; byte < sizeof(CellPadData); ++byte) {
+            if (vm_base[0x10000 + byte] != 0xa5) {
+                std::fprintf(stderr, "Pad mode %u overwrote untouched payload at +%u\n", settings[mode], byte);
+                return 13;
+            }
+        }
+    }
+    cellPadEnd();
+    std::puts("{\"modes\":4,\"lengths\":true,\"headers\":true,\"untouched_tail\":true}");
+    return 0;
+}
+
 extern "C" int fifa_test_pad_empty_payload(void) {
     vm_base = (uint8_t*)std::calloc(1, 0x20000);
     if (!vm_base || cellPadInit(1)) return 3;
