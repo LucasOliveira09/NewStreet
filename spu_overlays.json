@@ -575,6 +575,20 @@
         "0x154",
         "0x3e0"
       ]
+    },
+    {
+      "name": "dxt_encoder_job",
+      "source_ea": "0x2018e80",
+      "size": "0x4900",
+      "sha256": "d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x4820",
+      "extra_entries": [
+        "0x134",
+        "0x154"
+      ]
     }
   ]
 }

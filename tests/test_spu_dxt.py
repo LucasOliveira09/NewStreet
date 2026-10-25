@@ -51,9 +51,16 @@ class OriginalSpuDxtTests(unittest.TestCase):
             self.assertEqual([p[3] for p in decode_block(endpoints+indices+color, True)][:8], expected)
 
     def test_original_bc1_and_bc3_preserve_block_colors_and_padded_rows(self):
-        image = ROOT / 'private/generated/spu_overlays/sportsutil_dxt/image.bin'
-        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
-                         '3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604')
+        self.check_original_encoder('sportsutil_dxt', '--test-spu-dxt',
+            '3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604')
+
+    def test_complete_original_job_preserves_colors_dma_guards_and_atomic_completion(self):
+        self.check_original_encoder('dxt_encoder_job', '--test-spu-dxt-job',
+            'd1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0', queued_job=True)
+
+    def check_original_encoder(self, module, command, sha256, queued_job=False):
+        image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)
         palette = [(0,0,0,255), (255,255,255,255), (255,0,0,0),
                    (0,255,0,64), (0,0,255,128), (63,127,191,255)]
         with tempfile.TemporaryDirectory() as directory:
@@ -73,12 +80,13 @@ class OriginalSpuDxtTests(unittest.TestCase):
                             (folder/'pixels.argb').write_bytes(source)
                             output = folder/'blocks.bin'
                             result = subprocess.run([str(ROOT/'private/build/fifazf_full/fifa_boot.exe'),
-                                '--test-spu-dxt', str(image), str(folder/'pixels.argb'), str(output),
+                                command, str(image), str(folder/'pixels.argb'), str(output),
                                 str(width), str(height), '3' if bc3 else '1'],
                                 capture_output=True, text=True, timeout=30)
                             self.assertEqual(result.returncode, 0, result.stderr+result.stdout)
-                            self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
-                                dict(source_preserved=True, output_guards=True, row_padding=True))
+                            checks = dict(source_preserved=True, output_guards=True, row_padding=True)
+                            if queued_job: checks['atomic_completion'] = True
+                            self.assertEqual(json.loads(result.stdout.splitlines()[-1]), checks)
                             blocks = output.read_bytes()
                             block_size = 16 if bc3 else 8
                             output_pitch = width//4 * block_size + 16
@@ -88,5 +96,12 @@ class OriginalSpuDxtTests(unittest.TestCase):
                                     decoded = decode_block(blocks[offset:offset+block_size], bc3)
                                     expected = pixel(bx,by)
                                     for rgba in decoded:
+                                        # The full job's BC1 mode encodes one-bit
+                                        # alpha (<128 is transparent). RGB has no
+                                        # meaning for those transparent texels.
+                                        if queued_job and not bc3 and expected[3] < 128:
+                                            self.assertEqual(rgba[3], 0)
+                                            continue
                                         self.assertLessEqual(max(abs(a-b) for a,b in zip(rgba[:3],expected[:3])), 9)
                                         if bc3: self.assertLessEqual(abs(rgba[3]-expected[3]), 1)
+                                        elif queued_job: self.assertEqual(rgba[3], 255)

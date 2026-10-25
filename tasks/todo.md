@@ -129,7 +129,10 @@ de funções ou por abrir uma janela.
 - [x] Traduzir/testar job_util_job_memcpy e confirmar sua entrada após o perfil.
 - [x] Traduzir AssetStream_lzma e conferir saída original contra liblzma.
 - [x] Traduzir sportsutil_dxt, testar BC1/BC3 e confirmar entrada no jogo.
-- [ ] Traduzir dxt_encoder_job de 0x2018e80 e conferir as filas concorrentes.
+- [x] Traduzir dxt_encoder_job, testar 48 jobs completos e observar entrada no jogo.
+- [ ] Conferir conclusão das filas concorrentes e custos de blocos não uniformes.
+- [ ] Traduzir aififa_topologycache_spu de 0x1ebd580.
+- [ ] Corrigir/validar os glifos intermitentes do aviso de autosave.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.

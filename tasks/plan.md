@@ -949,3 +949,76 @@ SHA d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0,
 zero diferenças contra o residente. O processo parou ali; a entrada do job
 sportsutil foi confirmada, mas não a conclusão de toda sua fila concorrente.
 Menu navegável, cena e partida continuam sem validação.
+
+
+## Segundo encoder DXT e descritor de trabalho (2026-10-25)
+
+Módulo dxt_encoder_job.elf identificado no snapshot: origem 0x2018e80,
+LS 0x80, 0x4900 bytes, SHA d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0.
+O código termina em 0x4820, antes da tabela de índices/constantes; a BSS é
+0x4980..0x4a00. O destino calculado do CRT é 0x134. Não há construtores
+na tabela vazia 0x4960. A tradução gerou 243 funções, sem instruções nem
+chamadas diretas pendentes. A nova fixture roda a entrada 0xb0 inteira.
+O descritor autoral tem 48 bytes, com contador e acumulador de custo de erro,
+endereços de origem/destino, largura, formato, pitches e número de faixas
+com quatro linhas. O oráculo existente de BC1/BC3 foi reaproveitado.
+Antes da nova CLI/tradução, as 48 combinações adicionais falharam por CLI
+inexistente. A validação deve conferir cores, guardas, padding, origem,
+campos imutáveis e atualização dos dois contadores ao retornar ao chamador.
+
+
+A primeira expectativa da fixture estava errada: +4 acumula custo de erro,
+não bytes escritos. A falha em preto mostrou resultado 0, origem intacta e
+somente +7 diferente (esperado 8, observado 0). A revisão de 0x1e40 confirmou
+o retorno zero do caminho de blocos uniformes. A fixture agora inicia esse
+campo com 37 e verifica que +=0 o preserva, sem exigir contagem de bytes falsa.
+Outro diagnóstico confirmou BC1 com transparência de 1 bit (alpha <128):
+blocos vermelhos com alpha 0/1/64/127 viram transparentes; 128/254/255 ficam
+opacos. As cores dos texels transparentes não são comparadas como se fossem
+visíveis. Por fim, formato 0x100 produziu alpha explícito de 4 bits (0/44/88/ff
+repetidos nos bytes dos blocos), identificando BC2. A fixture BC3 foi corrigida
+para 0x200, sem relaxar sua tolerância de alpha. Não houve mudança nas
+instruções traduzidas nem no runtime para fazer esses testes passarem.
+Os três testes DXT passaram em 11,797 s: referências do decoder, 48 casos
+das rotinas sportsutil e mais 48 casos do job completo. O contador de trabalho
+terminou em faixas+1; origem, campos imutáveis, guardas e padding permaneceram
+intactos. A soma de custos de blocos não uniformes e execução de múltiplos
+workers sobre o mesmo descritor ainda não foram validadas por essa fixture.
+
+
+Validação do incremento: FullGame compilou, 42 testes de boot e 90 testes
+do projeto passaram. O patch versionado continua idêntico ao diff do SDK.
+O ensaio dxt-encoder-native (1792967392239208200) terminou por timeout em
+481,377 s, sem falha estrita e sem alcançar o novo encoder: a referência
+exata do texto PRESS START pulsante não coincidiu com os pixels capturados.
+O título foi visto em frame_18, frame_26 e frame_50; title_not_seen no relatório
+é o estado do reconhecedor, não ausência de renderização. Um Start manual foi
+registrado após revisar o attract movie; as outras tentativas manuais não
+escreveram input porque a captura atual já havia mudado. Nenhum resultado
+desse ensaio foi contado como validação da entrada do novo módulo.
+A repetição usa novamente o título estável e os parâmetros dos ensaios anteriores.
+
+
+A repetição dxt-encoder-baseline-gate (1792967895702785400) foi interrompida
+externamente antes de relatório/timeout: stderr terminou em 22:40:15 UTC,
+com 2220 flips, sem fifa-block; os processos e a sessão do terminal já não
+existiam ao verificar. A causa não foi demonstrada e isso não é tratado como
+falha do jogo. O runner seguinte foi iniciado com Start-Process oculto, em
+processo separado da sessão do terminal, e acompanhado até a saída efetiva.
+
+Ensaio dxt-encoder-detached (1792968259784429900): 90 em 307,650 s. Start foi
+autorizado em frame_04 pelo título estável. O aviso de autosave teve glifos
+corrompidos, antes de alcançar o novo encoder. A referência visual e os 71
+draws do manifesto coincidiram, normalizando somente frame_count e endereços
+de shader/texturas (preservando formatos, remaps, dimensões e contagens).
+Cross manual foi registrado em dxt-encoder-detached-manual-cross.json; não se
+relaxou o reconhecedor automático. O código original releu SYS-DATA inteiro.
+Os cinco hashes do perfil foram preservados e 65 amostras de assets passaram.
+As entradas sportsutil_dxt e dxt_encoder_job foram observadas, respectivamente
+nas SPUs 8196 e 8197. Outra SPU, 8194, parou na entrada 0xb0 de
+aififa_topologycache_spu.elf, origem 0x1ebd580, 0xdb40 bytes, SHA
+06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7.
+O snapshot tem zero diferenças. Isso confirma a entrada dos encoders no jogo;
+não comprova o processamento completo de todas as filas concorrentes.
+Menu e partida continuam pendentes. A corrupção intermitente das fontes e
+os artefatos do vídeo de abertura também precisam de correção/validação.

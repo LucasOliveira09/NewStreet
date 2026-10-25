@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Original sportsutil DXT job entered; second DXT encoder job is the next untranslated module",
+  "stage": "Both original DXT encoder modules entered; topology cache SPU module is untranslated, UI glyph corruption remains",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792966178932428000",
-  "elapsed_seconds": 275.578,
+  "logs": "private\\analysis\\runs\\1792968259784429900",
+  "elapsed_seconds": 307.65,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 89,
+    "project": 90,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,11 +866,11 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "dxt_encoder_job.elf",
-    "source_ea": "0x2018e80",
+    "name": "aififa_topologycache_spu.elf",
+    "source_ea": "0x1ebd580",
     "pc": "0xb0",
-    "bytes": 18688,
-    "sha256": "d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0",
+    "bytes": 56128,
+    "sha256": "06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7",
     "snapshot_byte_differences": 0
   },
   "spu_lzma": {
@@ -899,5 +899,27 @@
     "native_entry_observed": true,
     "native_thread": 8197,
     "complete_queue_validated": false
+  },
+  "spu_dxt_encoder_job": {
+    "source_ea": "0x2018e80",
+    "entry": "0xb0",
+    "bytes": 18688,
+    "sha256": "d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0",
+    "complete_original_job_cases": 48,
+    "native_entry_observed": true,
+    "native_thread": 8197,
+    "concurrent_workers_validated": false,
+    "uniform_error_cost_seed_preserved": 37,
+    "formats": {
+      "BC1": "0x0",
+      "BC2": "0x100",
+      "BC3": "0x200"
+    }
+  },
+  "graphics_defects": {
+    "intro_movie_artifacts": true,
+    "autosave_glyph_corruption_observed": true,
+    "corrupt_capture": "private/analysis/dxt-encoder-detached-frames/frame_38/backbuffer.bmp",
+    "before_new_encoder_entry": true
   }
 }
