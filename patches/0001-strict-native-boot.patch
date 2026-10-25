@@ -11,6 +11,47 @@ index 4d916ac..9b2310f 100644
      /* Find longest matching prefix */
      int best = -1;
      size_t best_len = 0;
+diff --git a/libs/input/cellPad.c b/libs/input/cellPad.c
+index 7fa8cab..64f80f2 100644
+--- a/libs/input/cellPad.c
++++ b/libs/input/cellPad.c
+@@ -473,6 +473,13 @@ static void pad_shutdown_backend(void)
+  * including one sampling for button-press edges. */
+ #define PAD_POLL_INTERVAL_MS 4
+ 
++static int pad_always_change(void)
++{
++    static int enabled = -1;
++    if (enabled < 0) enabled = getenv("PAD_ALWAYS_CHANGE") ? 1 : 0;
++    return enabled;
++}
++
+ static unsigned long long pad_now_ms(void)
+ {
+ #ifdef _WIN32
+@@ -756,7 +763,10 @@ skip_inject: ;
+                   if (held_n > 0) { FILE* w = fopen(pf_path, "wb"); if (w) fclose(w); }
+               }
+           }
+-          if (held_n > 0) { held_n--;
++          if (held_n > 0) {
++              /* Empty drain reads cannot consume a queued report. Keep the
++               * press until GetData can actually deliver it to the guest. */
++              if (s_data_fresh[port_no] || pad_always_change()) held_n--;
+               data->button[CELL_PAD_BTN_OFFSET_DIGITAL1] |= (u16)(held_mask & 0xFF);
+               data->button[CELL_PAD_BTN_OFFSET_DIGITAL2] |= (u16)((held_mask >> 8) & 0xFF); }
+       } }
+@@ -887,9 +897,7 @@ emit:
+      *
+      * PAD_ALWAYS_CHANGE=1 restores the old always-a-packet behaviour. */
+     {
+-        static int always = -1;
+-        if (always < 0) always = getenv("PAD_ALWAYS_CHANGE") ? 1 : 0;
+-        if (!always && port_no < PAD_MAX_HOST_PORTS && data->len) {
++        if (!pad_always_change() && port_no < PAD_MAX_HOST_PORTS && data->len) {
+             if (!s_data_fresh[port_no]) data->len = 0;   /* nothing new: end the drain */
+             else                        s_data_fresh[port_no] = 0;
+         }
 diff --git a/libs/network/cellNetCtl.c b/libs/network/cellNetCtl.c
 index c7926c0..e62bf33 100644
 --- a/libs/network/cellNetCtl.c

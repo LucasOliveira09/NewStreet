@@ -12,6 +12,25 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_file_pad_press_survives_reads_without_a_fresh_report(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = str(Path(folder) / 'pad.txt')
+            env = dict(os.environ, PAD_FILE=path)
+            env.pop('PAD_ALWAYS_CHANGE', None)
+            result = subprocess.run([str(BOOT), '--test-pad-file', path],
+                                    capture_output=True, text=True, timeout=10, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(held_through_empty_read=True))
+
+    def test_file_pad_press_releases_with_always_change_diagnostic_mode(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = str(Path(folder) / 'pad.txt')
+            result = subprocess.run([str(BOOT), '--test-pad-file', path],
+                                    capture_output=True, text=True, timeout=10,
+                                    env=dict(os.environ, PAD_FILE=path, PAD_ALWAYS_CHANGE='1'))
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(press_released=True))
+
     def test_savedata_overlay_uses_void_abi(self):
         result = subprocess.run([str(BOOT), '--test-savedata-overlay'],
                                 capture_output=True, text=True, timeout=10)

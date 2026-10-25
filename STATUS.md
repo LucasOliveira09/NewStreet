@@ -806,3 +806,15 @@ não zero, nenhuma não finita; fidelidade auditiva e sincronia não validadas.
 Os relatórios de checkpoint/assets foram atualizados com essa tentativa.
 Próximo: Start pela entrada real e navegação. A tela de título não demonstra
 menu navegável, partida ou saves; a animação anterior ainda tem artefatos.
+
+## Entrada por arquivo preservada até um pacote válido
+
+Em 1792902161486793500, o backend leu Start, mas a navegação não foi
+confirmada antes do timeout de 180,265 s. A investigação encontrou um defeito
+independente no PAD_FILE: o contador da pressão avançava também quando len=0,
+podendo descartar uma pressão curta sem entregar nenhum pacote. A fixture no
+cellPad real reproduziu exit 6 antes da correção. O contador agora avança
+somente em relatório entregável; o modo diagnóstico always-change mantém sua
+semântica e libera o botão. Os dois cenários passaram. 34 testes de boot,
+55 do projeto, 16 CTest e ambos os builds passaram. A correção não comprova
+sozinha a navegação do jogo; a próxima tentativa continua a partir da tela real.

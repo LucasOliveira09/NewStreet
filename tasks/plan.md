@@ -367,3 +367,12 @@ com Messi e licenciamento. Processo ativo até timeout 120,239 s, sem nova
 falha estrita. Relatórios atualizados; 64 saídas AssetStream passaram e há
 sinal finito no áudio. Próximo: pressionar Start pela entrada PAD_FILE após
 conferir a tela na nova tentativa. Não usar uma sequência cega de confirmações.
+
+## Entrega de Start em pacotes válidos
+
+A tentativa 1792902161486793500 leu Start no backend, mas não validou menu.
+Fixture nativa demonstrou que PAD_FILE consumia pressões em leituras len=0.
+Corrigido para decrementar somente em relatório válido, mantendo o modo
+always-change. A regressão falhou antes e passou depois; 34 testes de boot,
+55 do projeto, 16 CTest e ambos os builds passaram. Próximo: repetir a entrada
+após inspecionar a tela de título e observar o resultado, sem presumir avanço.

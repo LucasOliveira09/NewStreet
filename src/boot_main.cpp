@@ -52,6 +52,7 @@ int fifa_test_rsx_fifo(const char*);
 int fifa_test_spu_pic_lowering(void);
 int fifa_test_spu_entry_trace(void);
 int fifa_test_savedata_overlay(void);
+int fifa_test_pad_file(const char*);
 int fifa_test_fs_readdir(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -109,6 +110,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-pic-lowering")) return fifa_test_spu_pic_lowering();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-entry-trace")) return fifa_test_spu_entry_trace();
     if (argc == 2 && !std::strcmp(argv[1], "--test-savedata-overlay")) return fifa_test_savedata_overlay();
+    if (argc == 3 && !std::strcmp(argv[1], "--test-pad-file")) return fifa_test_pad_file(argv[2]);
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-image-mismatch")) return fifa_test_spu_image_mismatch();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
         RaiseException(0xE0464946u, EXCEPTION_NONCONTINUABLE, 0, nullptr);
