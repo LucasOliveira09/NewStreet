@@ -640,3 +640,25 @@ base+0x398 = 0x20198; tabela guardada de sete casos em 0x230fc exige
 no dispatcher estrito. Sem instruções sem suporte/destinos diretos ausentes;
 FullGame e 66 testes passaram. Run limiter em andamento, sem afirmar execução
 ou menu apenas pelo link. Os dados e código gerado continuam privados.
+
+
+## Panoramização nativa e seis tabelas de salto (2026-10-25)
+
+limiter (1792936791296985800) executou o limitador e encerrou em 59,392 s
+no PC 0x165b0. Esse endereço agora continha spupan2d1.elf, não o ganho
+anterior: origem 0x1fc0a80, 0x40c0 bytes, SHA
+44a31088831991f57ad403182038cef0a9ca1d2cfaeefa98281f50b76ca0fcd5,
+zero diferenças contra o blob residente em LS 0x16580. A invalidação do código
+antigo evitou executá-lo sobre o novo programa. PIC, código 0x165b0..0x1a638,
+callback construído base+0x718 = 0x16c98.
+O primeiro build admitiu quatro tabelas; pan (1792937112328856700, 59,628 s)
+entrou de verdade e parou em 0x18328, LR 0x16ee8. A revisão de TODOS os BI
+não-r0 identificou seis tabelas de sete casos, guardadas por >6:
+0x17b3c, 0x17d0c, 0x181ac, 0x19c8c, 0x1a09c, 0x1a5b4. Incluídos todos os
+seus destinos assinados, inclusive retornos compartilhados e saltos para trás.
+A falta observada pertence à tabela 0x181ac; não houve bypass da instrução.
+FullGame compilou, a tradução não tem instruções sem suporte ou destinos
+diretos ausentes e 66 testes passaram. Run pan-cases em andamento com sete
+segundos de título e 250 relatórios de Start; menu ainda não validado.
+A análise dos threads confirma FEThread=23, RenderThread=22 e InputThread=24;
+a amostragem anterior do contexto principal não representava a thread de UI.

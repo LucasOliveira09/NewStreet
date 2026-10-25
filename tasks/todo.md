@@ -113,4 +113,7 @@ de funções ou por abrir uma janela.
 - [x] Identificar e compilar peaking em 0x1f080.
 - [x] Observar entrada real do filtro peaking.
 - [x] Identificar e compilar limiter1 em 0x1fe00.
-- [ ] Observar limiter1 e continuar até navegação real.
+- [x] Observar entrada real do limitador.
+- [x] Identificar, compilar e observar pan2d1.
+- [x] Admitir destinos das seis tabelas de pan2d1 após falta reproduzida.
+- [ ] Continuar pan-cases até navegação real.
