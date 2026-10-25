@@ -504,3 +504,18 @@ A primeira tentativa de relink com EBOOT ainda ativo falhou por arquivo em uso;
 após o fim do run, a compilação e os testes foram concluídos normalmente.
 Próximo: input-pressure, conferir Cross real e os leitores do bitset, com
 PPU_RWATCH no endereço confirmado; se o endereço variar, reavaliar o watch.
+
+
+## Correção do observador de Cross (2026-10-25)
+
+A revisão dos offsets do handler 0x1434e6c identificou um erro no diagnóstico:
+Cross é lido de button[14] (stack+0x90), escrito no controle 14 e convertido
+pelo setter em índice de pressão 10, pois o dispositivo tem quatro digitais.
+O observador anterior lia índice 9 (Circle). Corrigidos observador e fixture;
+37 testes de boot, 62 testes do projeto e build FullGame passaram. No run
+input-pressure 1792906410038970600 (180,181 s, timeout), Start e Cross foram
+entregues em pacotes len=20/0x7a, mas o campo cross_pressure daquele run mede
+Circle e NÃO comprova falha nem sucesso da pressão de Cross. A leitura real
+pelos consumidores passa por 0x1435ab8/0x1435a4c, com caller 0x11aa178.
+O host-sampled guest-fn 0x1431ef4 é ambíguo por folding de código; usar o LR
+e a cadeia de chamadas. Menu permanece não validado.

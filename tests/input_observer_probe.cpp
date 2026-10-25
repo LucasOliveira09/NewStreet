@@ -29,8 +29,8 @@ extern "C" int fifa_test_input_observer(void) {
         ctx.gpr[1] = 0x2f000; ctx.gpr[3] = 0x1005c;
         ctx.lr = pass == 6 ? 0x1234 : 0x1434eb0;
         if (pass == 2) { vm_write8(0x12000, 0); vm_write32(0x10058, 0); }
-        if (pass == 3) { vm_write8(0x13009, 255); vm_write32(0x10058, 0x40); }
-        if (pass == 4) { vm_write8(0x13009, 0); vm_write32(0x10058, 0); }
+        if (pass == 3) { vm_write8(0x1300a, 255); vm_write32(0x10058, 0x40); }
+        if (pass == 4) { vm_write8(0x1300a, 0); vm_write32(0x10058, 0); }
         if (pass == 5) vm_write32(0x10020, 0xffffffff); // Never dereference an invalid observed device.
         if (pass == 6) { vm_write32(0x10020, 0x11000); vm_write8(0x12000, 8); }
         ps3_hle_call(0xa703a51d, &ctx);
@@ -38,7 +38,7 @@ extern "C" int fifa_test_input_observer(void) {
         for (unsigned reg = 4; reg < 32; ++reg)
             if (ctx.gpr[reg] != 0xa5000000 + reg) return 5;
         if (vm_read8(0x12000) != (pass < 2 || pass == 6 ? 8 : 0)) return 6;
-        if (vm_read8(0x13009) != (pass == 3 ? 255 : 0) ||
+        if (vm_read8(0x1300a) != (pass == 3 ? 255 : 0) ||
             std::memcmp(device_before, vm_base + 0x11000, sizeof device_before)) return 6;
         // Only the genuine API output (manager+0x5c) and normal ABI TOC slot
         // may change; the observed manager/device/bitset remain untouched.

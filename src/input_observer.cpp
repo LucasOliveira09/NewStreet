@@ -44,9 +44,10 @@ static void observe(ppu_context* ctx) {
     const uint32_t pressure_count = vm_read32(device + 0x18);
     const uint32_t pressure_ea = vm_read32(device + 0x24);
     // The constructed device has four digital controls and twelve pressure
-    // controls. Original handler maps Cross to control 13 (pressure index 9).
-    const bool valid_cross = digital_count == 4 && pressure_count >= 10 && readable(pressure_ea, 10);
-    const unsigned cross = valid_cross ? vm_read8(pressure_ea + 9) : 0;
+    // controls. Original handler reads button[14] at stack+0x90 for Cross,
+    // writes control 14, and the setter subtracts four (pressure index 10).
+    const bool valid_cross = digital_count == 4 && pressure_count >= 11 && readable(pressure_ea, 11);
+    const unsigned cross = valid_cross ? vm_read8(pressure_ea + 10) : 0;
     const uint32_t packet = vm_read32(manager + 0x58);
     struct State { uint32_t device, status, count, ea, bits, packet, valid, pressure_ea, cross, valid_cross; };
     State current{device, status, digital_count, bits_ea, bits, packet, valid_bits, pressure_ea, cross, valid_cross};
