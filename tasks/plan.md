@@ -351,3 +351,11 @@ Em 1792882460964832500, o jogo avançou até cellSaveDataEnableOverlay, NID
 no mix final, sem validação auditiva/sincronia. Os frames mudam, mas o logo
 animado tem defeitos. Próximo: estado de preferência de overlay e wrapper
 void conforme RPCS3 fixado; não confundir essa chamada com gravação de save.
+
+## EnableOverlay implementado e validado isoladamente
+
+Estado atômico por processo e wrapper de contexto void integrados ao SDK/patch.
+A regressão do dispatcher real falhou antes e passou depois. Sete valores de
+entrada conferem truncamento s32, preferência e preservação de registradores.
+32 testes de boot, 53 do projeto, 16 CTest e os dois builds passaram. Boot real
+com timeout 120 s em andamento para identificar a próxima dependência.

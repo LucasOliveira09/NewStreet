@@ -780,3 +780,16 @@ saída nativa, não fidelidade auditiva ou sincronização. Os frames 1001..1901
 mudam: transição preta e logo animado, com artefatos visuais evidentes. Menu,
 partida, saves e progressão continuam pendentes. Próximo: implementar o contrato
 void de EnableOverlay com estado real e ABI correta, sem simular um save.
+
+## Preferência de overlay de saves e ABI void
+
+O NID 0xe7fa820b foi identificado por hash do nome cellSaveDataEnableOverlay
+na fonte RPCS3 aa9ebd2f (cellSaveData.cpp). Implementado o estado atômico local
+ao processo: desabilitado inicialmente, qualquer s32 não zero habilita. Um
+wrapper de contexto preserva os registradores, sem passar pelo adaptador de
+retorno inteiro e sem iniciar operação de save/callback. Há consulta somente
+host para futura interface de seleção; essa interface ainda não foi validada.
+A regressão no dispatcher real falhou com exit 90 antes e passou depois.
+Sete casos cobrem sinal, truncamento s32 e ABI. 32 testes de boot, 53 do projeto,
+16 CTest do runtime e builds de boot/jogo passaram. Próximo: repetir o boot.
+Referência: https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/cellSaveData.cpp

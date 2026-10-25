@@ -97,4 +97,5 @@ de funções ou por abrir uma janela.
 - [x] Validar entrada do sound player 1 em LS 0x7800 sem nova variante ou JIT.
 - [x] Ampliar somente após conferir testes, boot e resultados observáveis.
 - [x] Integrar spusend identificado em 0xac00 e continuar o boot estrito.
-- [ ] Implementar cellSaveDataEnableOverlay e seguir a inicialização real.
+- [x] Implementar estado e ABI void de cellSaveDataEnableOverlay.
+- [ ] Continuar o boot após EnableOverlay e validar menus/saves reais.

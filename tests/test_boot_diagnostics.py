@@ -12,6 +12,13 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_savedata_overlay_uses_void_abi(self):
+        result = subprocess.run([str(BOOT), '--test-savedata-overlay'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(void_abi=True, preference_cases=7, default_disabled=True))
+
     def test_spu_entry_trace_records_each_physical_base_once(self):
         result = subprocess.run([str(BOOT), '--test-spu-entry-trace'],
                                 capture_output=True, text=True, timeout=10,
