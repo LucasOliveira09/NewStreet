@@ -109,4 +109,6 @@ de funções ou por abrir uma janela.
 - [x] Identificar e compilar highshelf em 0x1d580.
 - [x] Observar entrada real do filtro highshelf.
 - [x] Identificar e compilar lowshelf em 0x1e300.
-- [ ] Observar lowshelf e continuar até navegação real.
+- [x] Observar entrada real do filtro lowshelf.
+- [x] Identificar e compilar peaking em 0x1f080.
+- [ ] Observar peaking e continuar até navegação real.

@@ -1067,3 +1067,17 @@ A tabela 0x1ef3c tem sete casos e guarda >6; destinos extras
 chamadas diretas ausentes; FullGame e 66 testes passaram. Run lowshelf em
 andamento com a mesma entrada após sete segundos de título estável; entrada
 do lowshelf e próximo estado ainda pendentes. Não há menu ou partida validados.
+
+
+## Peaking IIR nativo (2026-10-25)
+
+lowshelf (1792936374268589100) terminou em 59,561 s com falta estrita
+0x1f2e0; lowshelf entrou de fato. A origem seguinte é spupeakingiir2.elf,
+EA 0x1ff3580, 0xd10 bytes, SHA dcdb50f6dcabc6a849239d8ca21cb1bef40c7b6dd6451964dceaa443fe73eed4,
+zero diferenças em LS 0x1f080. A entrada do cabeçalho é base+0x260 (0x1f2e0),
+e não base+0x30: a rotina matemática anterior também é código original.
+Limites 0x1f0b0..0x1fd88, callback 0x1f368 e casos indiretos
+0x1fd28/0x1fd40/0x1fd58/0x1fd70 da tabela 0x1fd04 guardada por >6.
+Tradução sem instruções sem suporte/destinos diretos ausentes; FullGame
+compilou e 66 testes passaram. Run peaking em andamento; aguardar entrada
+real e próximo estado, mantendo menu/partida/saves como não validados.

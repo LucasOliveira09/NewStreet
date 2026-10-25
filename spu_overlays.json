@@ -424,6 +424,24 @@
       ]
     },
     {
+      "name": "audio_spupeakingiir2",
+      "relocatable_pic": true,
+      "source_ea": "0x1ff3580",
+      "size": "0xd10",
+      "sha256": "dcdb50f6dcabc6a849239d8ca21cb1bef40c7b6dd6451964dceaa443fe73eed4",
+      "ls_base": "0x1f080",
+      "entry": "0x1f2e0",
+      "code_start": "0x1f0b0",
+      "code_end": "0x1fd88",
+      "extra_entries": [
+        "0x1f368",
+        "0x1fd28",
+        "0x1fd40",
+        "0x1fd58",
+        "0x1fd70"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",
