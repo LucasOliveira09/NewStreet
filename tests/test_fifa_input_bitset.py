@@ -8,6 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class OriginalInputBitsetTests(unittest.TestCase):
+    def test_original_sampler_normalizes_digital_and_pressure_controls(self):
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-fifa-input-sampler'], capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(original_function='0x11aa178', cases=112,
+                              controls_per_case=16, normalized=True, logical_actions=2))
+
     def test_original_game_input_setter_matches_bit_and_byte_oracles(self):
         result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
                                  '--test-fifa-input-bitset'], capture_output=True, text=True, timeout=20)

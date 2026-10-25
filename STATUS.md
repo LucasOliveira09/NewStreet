@@ -974,3 +974,16 @@ Circle e NÃO comprova falha nem sucesso da pressão de Cross. A leitura real
 pelos consumidores passa por 0x1435ab8/0x1435a4c, com caller 0x11aa178.
 O host-sampled guest-fn 0x1431ef4 é ambíguo por folding de código; usar o LR
 e a cadeia de chamadas. Menu permanece não validado.
+
+
+## Conversão e vínculos originais de entrada (2026-10-25)
+
+O probe --test-fifa-input-sampler executa 0x11aa178, incluindo as consultas
+0x1435ab8/0x1435a4c e o dispatcher 0x11a9ee0. Usa dispositivo autoral com o
+layout real (4 digitais/12 pressões), constantes exatas conferidas no ELF e
+provedores de metadados autorais restritos ao teste. Os 112 casos combinam
+16 máscaras digitais e sete pressões; 1.792 valores normalizados e 224 ações
+lógicas Start/Cross conferem com oráculos independentes. Provedores e vínculos
+sintéticos não são instalados no boot do jogo. Não é teste de eventos da UI,
+nem conformidade completa da PPU. Ambos os builds e 63 testes do projeto
+passaram antes da adição do inspetor de memória, cujos dois testes são separados.

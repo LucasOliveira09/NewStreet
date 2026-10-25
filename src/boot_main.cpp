@@ -56,6 +56,7 @@ int fifa_test_pad_file(const char*);
 int fifa_test_pad_empty_payload(void);
 int fifa_test_pad_modes(void);
 int fifa_test_input_bitset(void);
+int fifa_test_input_sampler(void);
 void fifa_install_input_observer(void);
 int fifa_test_input_observer(void);
 int fifa_test_fs_readdir(const char*);
@@ -120,6 +121,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--test-pad-modes")) return fifa_test_pad_modes();
     if (argc == 2 && !std::strcmp(argv[1], "--test-input-observer")) return fifa_test_input_observer();
     if (argc == 2 && !std::strcmp(argv[1], "--test-fifa-input-bitset")) return fifa_test_input_bitset();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-fifa-input-sampler")) return fifa_test_input_sampler();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-image-mismatch")) return fifa_test_spu_image_mismatch();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
         RaiseException(0xE0464946u, EXCEPTION_NONCONTINUABLE, 0, nullptr);
