@@ -406,6 +406,24 @@
       ]
     },
     {
+      "name": "audio_spulowshelfiir2",
+      "relocatable_pic": true,
+      "source_ea": "0x1fe9500",
+      "size": "0xcc0",
+      "sha256": "5bf94a472ae8815850fd03343ff9e4c3dd486e0c8e79ca578805428ee96a2dd5",
+      "ls_base": "0x1e300",
+      "entry": "0x1e330",
+      "code_start": "0x1e330",
+      "code_end": "0x1efc0",
+      "extra_entries": [
+        "0x1e3b8",
+        "0x1ef60",
+        "0x1ef78",
+        "0x1ef90",
+        "0x1efa8"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

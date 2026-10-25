@@ -107,4 +107,6 @@ de funções ou por abrir uma janela.
 - [x] Identificar e compilar lowpass em 0x17800.
 - [x] Observar entrada real do filtro lowpass.
 - [x] Identificar e compilar highshelf em 0x1d580.
-- [ ] Observar highshelf e continuar até navegação real.
+- [x] Observar entrada real do filtro highshelf.
+- [x] Identificar e compilar lowshelf em 0x1e300.
+- [ ] Observar lowshelf e continuar até navegação real.

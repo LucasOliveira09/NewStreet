@@ -598,3 +598,17 @@ guardada por clgti >6, exige também 0x1e1e0/0x1e1f8/0x1e210/0x1e228.
 FullGame compilou e 66 testes passaram. A tentativa highshelf usa o probe
 corrigido (capturas novas, atraso mínimo de sete segundos) e está em andamento;
 entrada do highshelf e navegação ainda não validadas.
+
+
+## Lowshelf IIR nativo (2026-10-25)
+
+highshelf (1792936203143744000) executou esse filtro e terminou em 59,540 s
+com falta estrita no PC 0x1e330. O programa seguinte spulowshelfiir2.elf
+coincide integralmente com a origem 0x1fe9500, 0xcc0 bytes, SHA
+5bf94a472ae8815850fd03343ff9e4c3dd486e0c8e79ca578805428ee96a2dd5.
+Admitido PIC em base 0x1e300, código 0x1e330..0x1efc0, callback 0x1e3b8.
+A tabela 0x1ef3c tem sete casos e guarda >6; destinos extras
+0x1ef60/0x1ef78/0x1ef90/0x1efa8. 32 funções, sem instruções sem suporte ou
+chamadas diretas ausentes; FullGame e 66 testes passaram. Run lowshelf em
+andamento com a mesma entrada após sete segundos de título estável; entrada
+do lowshelf e próximo estado ainda pendentes. Não há menu ou partida validados.
