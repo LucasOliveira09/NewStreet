@@ -1365,3 +1365,42 @@ As 65 amostras capturadas de assets passaram (32 RefPack, 32 DEFLATE, 1 LZMA).
 O próximo bloqueio é sportsutil_dxt.elf: origem 0x1f8d580, LS 0x80, entrada
 0xb0, 0x2250 bytes, SHA 3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604.
 O snapshot tem zero diferenças contra o blob. Menu e gameplay ainda não validados.
+
+
+## Compressão DXT original: incremento em validação (2026-10-25)
+
+sportsutil_dxt.elf foi identificado integralmente no snapshot após LZMA:
+origem 0x1f8d580, LS 0x80, 0x2250 bytes, SHA
+3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604.
+A tradução AOT tem 53 funções e nenhuma instrução/chamada direta pendente.
+O código termina em 0x1ea8, antes das constantes. A BSS 0x22d0..0x23c0 faz
+o CRT saltar a 0x118; o construtor indicado em 0x22c0 aponta para 0x3e0.
+Esses destinos foram conferidos explicitamente. As rotinas 0x3f0 e 0xa80
+recebem saída LS, pixels ARGB LS, pitches de origem/destino, largura e altura.
+Elas são compressores de blocos; o nome DXT sozinho não foi tratado como
+prova de descompressão. O job principal usa fila/atomics e será validado no boot.
+
+A fixture de teste executa o construtor original e ambas as rotinas em
+imagens autorais com pitch maior que a largura útil. O decoder independente
+segue o layout BC1/BC3 de Microsoft Learn (mesma referência em test_spu_dxt.py).
+A comparação usa blocos de cor uniforme para não exigir uma escolha particular
+de endpoints de um compressor com perdas. Limites declarados: até 9 unidades
+por componente RGB por quantização e 1 de alpha em BC3. A origem, guardas e
+padding entre linhas devem permanecer intactos. São 48 combinações de formato,
+dimensão e rotação da paleta, incluindo primárias e valores distintos de alpha.
+Antes da nova CLI/tradução, as 48 combinações falharam por CLI inexistente.
+
+
+Validação: 48 casos dos compressores passaram em 7,871 s. O decoder foi
+conferido separadamente com endpoints/índices conhecidos, transparência BC1 e
+as duas tabelas de alpha BC3. FullGame compilou; 42 testes de boot e 89 do
+projeto passaram. O ensaio dxt-native (1792966178932428000) terminou com 90
+em 275,578 s. O título autorizou Start em frame_02 e o aviso de autosave
+revisado autorizou Cross em frame_03. O perfil foi novamente relido inteiro.
+As 65 amostras RefPack/DEFLATE/LZMA coincidiram com os oráculos.
+A entrada sportsutil_dxt foi observada na SPU 8197. Outra SPU, 8196, atingiu
+um novo módulo dxt_encoder_job.elf: origem 0x2018e80, LS 0x80, 0x4900 bytes,
+SHA d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0,
+zero diferenças contra o residente. O processo parou ali; a entrada do job
+sportsutil foi confirmada, mas não a conclusão de toda sua fila concorrente.
+Menu navegável, cena e partida continuam sem validação.

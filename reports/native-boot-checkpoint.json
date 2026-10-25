@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Original profile and LZMA asset loaded; sportsutil DXT job is the next untranslated module",
+  "stage": "Original sportsutil DXT job entered; second DXT encoder job is the next untranslated module",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792965360557405300",
-  "elapsed_seconds": 276.841,
+  "logs": "private\\analysis\\runs\\1792966178932428000",
+  "elapsed_seconds": 275.578,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 87,
+    "project": 89,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,11 +866,11 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "sportsutil_dxt.elf",
-    "source_ea": "0x1f8d580",
+    "name": "dxt_encoder_job.elf",
+    "source_ea": "0x2018e80",
     "pc": "0xb0",
-    "bytes": 8784,
-    "sha256": "3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604",
+    "bytes": 18688,
+    "sha256": "d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0",
     "snapshot_byte_differences": 0
   },
   "spu_lzma": {
@@ -889,5 +889,15 @@
       "expected_bytes": 65672,
       "sha256": "0c93a78cbd2eac4c390f13df48454b43876aece7f2d24d969925c00234dae07a"
     }
+  },
+  "spu_sportsutil_dxt": {
+    "source_ea": "0x1f8d580",
+    "entry": "0xb0",
+    "bytes": 8784,
+    "sha256": "3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604",
+    "original_encoder_cases": 48,
+    "native_entry_observed": true,
+    "native_thread": 8197,
+    "complete_queue_validated": false
   }
 }
