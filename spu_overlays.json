@@ -388,6 +388,24 @@
       ]
     },
     {
+      "name": "audio_spuhighshelfiir2",
+      "relocatable_pic": true,
+      "source_ea": "0x1fe1d80",
+      "size": "0xcc0",
+      "sha256": "eaf44927abb46f39fe530b3aa45226a633681cfb28c6e729410c8ad54eb9418e",
+      "ls_base": "0x1d580",
+      "entry": "0x1d5b0",
+      "code_start": "0x1d5b0",
+      "code_end": "0x1e240",
+      "extra_entries": [
+        "0x1d638",
+        "0x1e1e0",
+        "0x1e1f8",
+        "0x1e210",
+        "0x1e228"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

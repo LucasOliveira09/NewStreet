@@ -105,4 +105,6 @@ de funções ou por abrir uma janela.
 - [x] Identificar e compilar spuhighpassiir2 de 0x16c80.
 - [x] Observar entrada real do filtro highpass.
 - [x] Identificar e compilar lowpass em 0x17800.
-- [ ] Observar lowpass e continuar até navegação real.
+- [x] Observar entrada real do filtro lowpass.
+- [x] Identificar e compilar highshelf em 0x1d580.
+- [ ] Observar highshelf e continuar até navegação real.

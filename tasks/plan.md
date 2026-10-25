@@ -585,3 +585,16 @@ enviou Start após sete segundos de capturas de título e parou em 61,488 s por
 falta em 0x1d5b0. Lowpass entrou de fato, seguido por send/genericplayer/
 packetplayer/submix em novas bases PIC. Isso é avanço do caminho de áudio,
 não prova isolada de que a UI aceitou Start. Próxima rotina: highshelf IIR.
+
+
+## Highshelf IIR nativo (2026-10-25)
+
+Falta estrita em 0x1d5b0 identificada como spuhighshelfiir2.elf, origem
+0x1fe1d80, 0xcc0 bytes, SHA eaf44927abb46f39fe530b3aa45226a633681cfb28c6e729410c8ad54eb9418e.
+Todo o blob residente em LS 0x1d580 coincide com o original. Código
+0x1d5b0..0x1e240, callback base+0xb8 em 0x1d638. A tabela em 0x1e1bc,
+guardada por clgti >6, exige também 0x1e1e0/0x1e1f8/0x1e210/0x1e228.
+32 funções traduzidas, zero instruções sem suporte/destinos diretos ausentes,
+FullGame compilou e 66 testes passaram. A tentativa highshelf usa o probe
+corrigido (capturas novas, atraso mínimo de sete segundos) e está em andamento;
+entrada do highshelf e navegação ainda não validadas.
