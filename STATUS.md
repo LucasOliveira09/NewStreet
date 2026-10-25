@@ -1020,3 +1020,23 @@ segunda pressão de Start não deve ser atribuída ao driver de arquivo.
 As leituras reais confirmaram 48 bindings de PS3 Controller; os vínculos
 19 -> VB_FE_START (38) e 30 -> VB_FE_SELECT (29) estão presentes.
 Dumps do provedor, tabela e funções examinadas estão em private/analysis.
+
+
+## Entrada após título estável e isolamento do teclado (2026-10-25)
+
+O probe agora desabilita teclado por padrão (PAD_NO_KEYBOARD), aceita duração
+limitada --hold-reports 1..300 e --title-delay 0..20. A decisão usa somente a
+captura mais recente, ordenada pelo número do frame; arquivo já conferido não
+faz o timer avançar. Uma nova captura completa precisa continuar correspondendo
+ao título. Um frame diferente reinicia a espera; capturas antigas não autorizam
+entrada sobre outra tela. A fixture de atraso falhou sem TitleGate e passou
+depois; quatro testes de captura e 66 testes do projeto passaram. O driver não
+afirma aceitação pela UI a partir da comparação ou do pacote.
+held-start (1792935757553539400, 180,213 s) manteve Start por 250 relatórios,
+sem nova falta ou menu confirmado. A amostragem externa do contexto principal
+não capturou os LRs desejados antes do fim do processo; sua leitura incompleta
+não é evidência de valores de entrada. delayed-start (1792935993680801600)
+enviou Start após sete segundos de capturas de título e parou em 61,488 s por
+falta em 0x1d5b0. Lowpass entrou de fato, seguido por send/genericplayer/
+packetplayer/submix em novas bases PIC. Isso é avanço do caminho de áudio,
+não prova isolada de que a UI aceitou Start. Próxima rotina: highshelf IIR.

@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from run_title_probe import capture_identity, parse_region
+from run_title_probe import capture_identity, parse_region, TitleGate
 
 
 def bitmap(rows, top_down=False):
@@ -19,6 +19,17 @@ def bitmap(rows, top_down=False):
 
 
 class TitleCaptureIdentityTests(unittest.TestCase):
+    def test_delayed_input_requires_current_title_to_remain_visible(self):
+        gate = TitleGate({'title'}, 5)
+        self.assertFalse(gate.observe('other', 10))
+        self.assertFalse(gate.observe('title', 11))
+        self.assertFalse(gate.observe('title', 15.9))
+        self.assertFalse(gate.observe('other', 16))
+        self.assertFalse(gate.observe('title', 20))
+        self.assertFalse(gate.observe('title', 24.9))
+        self.assertTrue(gate.observe('title', 25))
+        self.assertTrue(TitleGate({'title'}, 0).observe('title', 1))
+
     def test_stable_region_matches_when_prompt_elsewhere_blinks(self):
         reference = bitmap([[(1, 2, 3), (4, 5, 6)], [(7, 8, 9), (10, 11, 12)]])
         blink = bitmap([[(1, 2, 3), (4, 5, 6)], [(0, 0, 0), (255, 255, 255)]])

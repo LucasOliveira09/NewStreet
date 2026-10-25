@@ -49,17 +49,38 @@ def parse_region(value):
         raise argparse.ArgumentTypeError('Use x,y,width,height with positive dimensions')
 
 
+class TitleGate:
+    def __init__(self, references, delay):
+        self.references, self.delay, self.since = references, delay, None
+
+    def observe(self, identity, now):
+        if identity not in self.references:
+            self.since = None
+            return False
+        if self.since is None:
+            self.since = now
+        return now - self.since >= self.delay
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True, help='Unused private analysis label')
     parser.add_argument('--title-reference', action='append', required=True, type=Path,
                         help='Previously reviewed title BMP; repeat for blink variants')
     parser.add_argument('--timeout', type=int, default=240)
+    parser.add_argument('--hold-reports', type=int, default=40,
+                        help='Valid reports for the single Start press (1..300)')
+    parser.add_argument('--title-delay', type=float, default=0,
+                        help='Seconds the latest capture must keep matching the title (0..20)')
     parser.add_argument('--title-region', type=parse_region,
                         help='Stable reviewed region x,y,width,height; omit for whole-image matching')
     args = parser.parse_args()
     if not re.fullmatch('[a-z][a-z0-9_-]{0,60}', args.label) or not 10 <= args.timeout <= 600:
         parser.error('Use a safe lowercase label and a timeout from 10 to 600 seconds')
+    if not 1 <= args.hold_reports <= 300:
+        parser.error('Use --hold-reports from 1 to 300')
+    if not 0 <= args.title_delay <= 20:
+        parser.error('Use --title-delay from 0 to 20 seconds')
     references = set()
     for path in args.title_reference:
         data = path.read_bytes()
@@ -82,13 +103,20 @@ def main():
     os.environ.setdefault('FIFA_WATCHDOG_AFTER_MS', str(min(args.timeout * 500, 300000)))
     os.environ.setdefault('SPU_PCSAMPLE', '15')
     os.environ.setdefault('SPU_PCSAMPLE_DUMP_AFTER', str(min(args.timeout // 2, 300)))
+    # Keep typing in the host window from contaminating the scripted input.
+    os.environ.setdefault('PAD_NO_KEYBOARD', '1')
     stop = threading.Event()
     driver = {'status': 'title_not_seen'}
 
     def drive():
         checked = {}
+        gate = TitleGate(references, args.title_delay)
         while not stop.wait(0.2):
-            for capture in sorted(paths['frames'].glob('*/backbuffer.bmp')):
+            # A stale title capture cannot authorize an input after the screen
+            # has changed. An incomplete newest frame is retried next tick.
+            captures = sorted(paths['frames'].glob('*/backbuffer.bmp'),
+                              key=lambda path: int(path.parent.name.removeprefix('frame_')))
+            for capture in captures[-1:]:
                 try:
                     stat = capture.stat()
                     stamp = (stat.st_size, stat.st_mtime_ns)
@@ -96,14 +124,16 @@ def main():
                         continue
                     data = capture.read_bytes()
                     identity = capture_identity(data, args.title_region)
+                    sha256 = hashlib.sha256(data).hexdigest()
                     checked[capture] = stamp
-                    if identity not in references:
+                    if not gate.observe(identity, time.monotonic()):
                         continue
-                    paths['pad'].write_text('0x0008 40', encoding='ascii')
+                    paths['pad'].write_text(f'0x0008 {args.hold_reports}', encoding='ascii')
                     driver.update(status='start_queued_after_exact_title_match',
-                        capture=str(capture.relative_to(ROOT)), sha256=hashlib.sha256(data).hexdigest(),
+                        capture=str(capture.relative_to(ROOT)), sha256=sha256,
                         matching_region=args.title_region, match_sha256=identity[-1],
-                        time_ns=time.time_ns(), mask='0x0008', reports=40)
+                        time_ns=time.time_ns(), mask='0x0008', reports=args.hold_reports,
+                        title_delay_seconds=args.title_delay)
                     try:
                         paths['input'].write_text(json.dumps(driver, indent=2) + '\n', encoding='utf-8')
                     except OSError as error:
