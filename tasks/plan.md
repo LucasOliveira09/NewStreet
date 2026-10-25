@@ -409,3 +409,13 @@ A fixture de pressão pendente passou a aguardar um relatório real, corrigindo
 uma suposição sobre Sleep(8)/tick do Windows exposta pela suíte completa.
 35 testes de boot, 56 do projeto, 16 CTest e ambos os builds passaram. Próximo:
 avaliar a tentativa pad-payload, que compara o título e envia um Start.
+
+## Pacote Start entregue: seguir o handler PPU
+
+pad-payload terminou por timeout 240,299 s, sem validar menu. O diagnóstico
+PAD_REPORT_TRACE foi adicionado e testado (35 boot/56 projeto, builds aprovados).
+Em 1792904083852197000, Start e liberação foram gravados em relatórios válidos
+de 24 palavras, modo 0x7c, porta 0, buffer 0xd0189ce0. Caller PPU 0x14351d0.
+A questão restante é o processamento desse estado pelo jogo; não concluir
+aceitação da navegação apenas pela entrega. Conferir o bitset original 0x1434db8
+contra um oráculo de bits e então seguir o estado da interface.

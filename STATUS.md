@@ -860,3 +860,16 @@ Sleep(8) nem sempre fazia o relógio de polling do Windows avançar. O teste ago
 aguarda um relatório de verdade, com limite, em vez de presumir o tick.
 35 testes de boot, 56 do projeto, 16 CTest e ambos os builds passaram. Nova
 tentativa de título em andamento; a correção ainda não demonstra menu navegável.
+
+## Telemetria do pacote de controle entregue
+
+PAD_REPORT_TRACE registra até 64 transições de botões em relatórios válidos,
+após as escritas no buffer guest. Campos: sequência, porta, endereço, len,
+modo e digitais; desligado por padrão e sem alterar o estado do jogo. Os testes
+de pressão/liberação falharam sem o log e passaram com os eventos estruturados.
+35 testes de boot, 56 do projeto e ambos os builds passaram.
+Na tentativa 1792904083852197000, o jogo recebeu Start na porta 0, buffer
+0xd0189ce0, len=24, modo 0x7c, digital1=8, depois digital1=0. Processo ativo até
+timeout de 180,180 s, sem nova falha estrita e sem navegação validada. O pacote
+chega ao handler PPU que chama GetData em LR 0x14351d0. Próximo: conferir a
+transformação desse pacote em estado de botões, incluindo o bitset VMX original.

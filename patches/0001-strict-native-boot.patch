@@ -12,10 +12,18 @@ index 4d916ac..9b2310f 100644
      int best = -1;
      size_t best_len = 0;
 diff --git a/libs/input/cellPad.c b/libs/input/cellPad.c
-index 7fa8cab..dd315f6 100644
+index 7fa8cab..f8f3bb1 100644
 --- a/libs/input/cellPad.c
 +++ b/libs/input/cellPad.c
-@@ -473,6 +473,13 @@ static void pad_shutdown_backend(void)
+@@ -16,6 +16,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <math.h>
++#include <stdatomic.h>
+ #include "../../runtime/platform/win32_compat.h"   /* GetTickCount64 on POSIX */
+ #include "../../runtime/ppu/ppu_memory.h"   /* GUEST_PTR, vm_write*: guest EA -> host */
+ #include "ps3emu/log_first.h"
+@@ -473,6 +474,13 @@ static void pad_shutdown_backend(void)
   * including one sampling for button-press edges. */
  #define PAD_POLL_INTERVAL_MS 4
  
@@ -29,7 +37,39 @@ index 7fa8cab..dd315f6 100644
  static unsigned long long pad_now_ms(void)
  {
  #ifdef _WIN32
-@@ -756,7 +763,10 @@ skip_inject: ;
+@@ -508,6 +516,31 @@ static void pad_poll_backend(void)
+ #endif
+ }
+ 
++/* PAD_REPORT_TRACE observes only valid reports, after guest-memory stores.
++ * It answers whether a queued button reached a packet and which port/EA/mode
++ * received it. Each run's log directory supplies the correlation boundary.
++ * Default off, bounded to 64 state transitions, no guest-state changes. */
++static void pad_trace_report(u32 port, u32 guest_ea, const CellPadData* data)
++{
++    static atomic_int enabled = -1;
++    static atomic_uint previous[PAD_MAX_HOST_PORTS];
++    static atomic_uint count;
++    int trace = atomic_load_explicit(&enabled, memory_order_relaxed);
++    if (trace < 0) {
++        trace = getenv("PAD_REPORT_TRACE") ? 1 : 0;
++        atomic_store_explicit(&enabled, trace, memory_order_relaxed);
++    }
++    if (!trace || port >= PAD_MAX_HOST_PORTS || data->len <= 0) return;
++    u32 digital1 = data->button[CELL_PAD_BTN_OFFSET_DIGITAL1];
++    u32 digital2 = data->button[CELL_PAD_BTN_OFFSET_DIGITAL2];
++    u32 state = digital1 | (digital2 << 16);
++    if (atomic_exchange_explicit(&previous[port], state, memory_order_relaxed) == state) return;
++    unsigned sequence = atomic_fetch_add_explicit(&count, 1, memory_order_relaxed);
++    if (sequence >= 64) return;
++    fprintf(stderr, "[pad-report] {\"sequence\":%u,\"port\":%u,\"guest_address\":%u,\"length\":%d,\"mode\":%u,\"digital1\":%u,\"digital2\":%u}\n",
++        sequence, port, guest_ea, data->len, data->button[1], digital1, digital2);
++}
++
+ /* ---------------------------------------------------------------------------
+  * API implementations
+  * -----------------------------------------------------------------------*/
+@@ -756,7 +789,10 @@ skip_inject: ;
                    if (held_n > 0) { FILE* w = fopen(pf_path, "wb"); if (w) fclose(w); }
                }
            }
@@ -41,7 +81,7 @@ index 7fa8cab..dd315f6 100644
                data->button[CELL_PAD_BTN_OFFSET_DIGITAL1] |= (u16)(held_mask & 0xFF);
                data->button[CELL_PAD_BTN_OFFSET_DIGITAL2] |= (u16)((held_mask >> 8) & 0xFF); }
        } }
-@@ -887,9 +897,7 @@ emit:
+@@ -887,9 +923,7 @@ emit:
       *
       * PAD_ALWAYS_CHANGE=1 restores the old always-a-packet behaviour. */
      {
@@ -52,7 +92,7 @@ index 7fa8cab..dd315f6 100644
              if (!s_data_fresh[port_no]) data->len = 0;   /* nothing new: end the drain */
              else                        s_data_fresh[port_no] = 0;
          }
-@@ -897,8 +905,12 @@ emit:
+@@ -897,8 +931,13 @@ emit:
      {
          unsigned int ea = (unsigned int)(uintptr_t)data_guest;
          vm_write32((unsigned long long)ea + 0, (unsigned int)data->len);   /* len (s32) */
@@ -64,6 +104,7 @@ index 7fa8cab..dd315f6 100644
 +            for (int _i = 0; _i < CELL_PAD_MAX_CODES; _i++)                /* button[] u16 */
 +                vm_write16((unsigned long long)ea + 4 + (unsigned int)_i * 2, data->button[_i]);
 +        }
++        pad_trace_report(port_no, ea, data);
      }
      return CELL_OK;
  }
