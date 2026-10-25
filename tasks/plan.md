@@ -379,9 +379,24 @@ após inspecionar a tela de título e observar o resultado, sem presumir avanço
 
 ## EA Layer 3 admitido após Start
 
-Start disparou a carga do decoder EA Layer 3. Fonte 0x1fa5880, tamanho 0xdc80,
+Após Start, observou-se a carga do decoder EA Layer 3. Fonte 0x1fa5880, tamanho 0xdc80,
 conferidos com o snapshot; código 0x86b0..0x14968, callback 0xa250. 569 funções
 compiladas sem operações/destinos diretos ausentes. A tentativa
 1792902912263552700 confirmou a entrada e parou no próximo módulo, spugain
 em 0x16580. Próximo: traduzir seu código e a tabela limitada de sete valores
 em 0x16b8c. Não tratar a carga de áudio como prova de menu ou partida.
+
+## Gain e repetição controlada do título
+
+Gain foi conferido e compilado, incluindo callback e quatro casos da tabela
+limitada. A entrada ainda precisa de observação. Novo comando reproduzível:
+
+```powershell
+private/python-env/Scripts/python.exe tools/run_title_probe.py --label nova-tentativa --title-reference private/analysis/savedata-overlay-frames/frame_07/backbuffer.bmp --title-reference private/analysis/start-fresh-frames/frame_05/backbuffer.bmp
+```
+
+Os BMPs são referências privadas já inspecionadas. O probe só enfileira um
+Start após coincidência exata e recusa um label já usado. A tentativa gain
+1792903152592166400 completou o diagnóstico em 240,306 s sem nova falha,
+mas também sem menu validado. Próximo: corrigir payload de controle len=0
+conforme a fonte fixada; reprodução nativa já confirmou a divergência.

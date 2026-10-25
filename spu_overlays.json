@@ -334,6 +334,24 @@
       ]
     },
     {
+      "name": "audio_spugain",
+      "relocatable_pic": true,
+      "source_ea": "0x1fbec80",
+      "size": "0x690",
+      "sha256": "20663e0f98f755185afa50f7651571b3d15e38199052065df751f342c27812e1",
+      "ls_base": "0x16580",
+      "entry": "0x165b0",
+      "code_start": "0x165b0",
+      "code_end": "0x16c10",
+      "extra_entries": [
+        "0x16638",
+        "0x16bb0",
+        "0x16bc8",
+        "0x16be0",
+        "0x16bf8"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

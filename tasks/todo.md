@@ -86,8 +86,8 @@ de funções ou por abrir uma janela.
 - [x] Reproduzir descarte de comandos ao abandonar park/acquire.
 - [x] Instalar política FIFO do host sem resync ou reciclagem artificial.
 - [x] Validar produtor real, acquires e erros de controle de fluxo.
-- [ ] Integrar packet player observado em LS 0x5700 e seguir o boot estrito.
-- [ ] Confirmar avanço visual além do logo e áudio não silencioso.
+- [x] Integrar packet player observado em LS 0x5700 e seguir o boot estrito.
+- [x] Confirmar tela de título e mix com sinal; fidelidade/sincronia pendentes.
 
 ## PIC relocável (tasks/spu-relocatable-pic.md)
 

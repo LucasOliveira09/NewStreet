@@ -819,7 +819,7 @@ semântica e libera o botão. Os dois cenários passaram. 34 testes de boot,
 55 do projeto, 16 CTest e ambos os builds passaram. A correção não comprova
 sozinha a navegação do jogo; a próxima tentativa continua a partir da tela real.
 
-## Start aceito e entrada no decoder EA Layer 3
+## Entrega de Start e entrada no decoder EA Layer 3
 
 Em 1792902630517693800, Start foi entregue após a tela de título e a execução
 parou 0,3 s depois na entrada do decoder EA Layer 3, em 0x8938. Foram conferidos
@@ -832,3 +832,19 @@ com uma captura de título já inspecionada. Houve entrada real no decoder em
 0x8680; a próxima falta, após 59,600 s, foi spugain, base 0x16580, fonte
 0x1fbec80, 0x690 bytes iguais ao original. Entrada não comprova decodificação
 completa. Menu navegável e partida continuam pendentes.
+
+## Gain compilado e probe de título reproduzível
+
+Adicionado spugain, fonte 0x1fbec80, 0x690 bytes conferidos, código
+0x165b0..0x16c10 e callback 0x16638. A tabela de sete offsets em 0x16b8c,
+limitada por índice 0..6, fornece as quatro entradas extras 0x16bb0, 0x16bc8,
+0x16be0 e 0x16bf8. Geração sem instruções/destinos diretos ausentes e build
+completo aprovado. Entrada de gain ainda não observada.
+tools/run_title_probe.py reproduz o teste: pastas novas, capturas reais,
+comparação exata com BMPs já inspecionados, uma pressão Start e metadados.
+Não sobrepõe diagnósticos existentes nem declara sucesso pelo botão enfileirado.
+A tentativa 1792903152592166400 conferiu o título e leu Start, mas terminou
+por timeout de 240,306 s sem validar navegação. A correlação entre Start e a
+carga do decoder nas tentativas anteriores não substitui essa validação.
+A investigação seguinte reproduziu a sobrescrita indevida do payload de um
+pacote de controle len=0; sua correção está em validação separada.
