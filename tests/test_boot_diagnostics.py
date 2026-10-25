@@ -12,6 +12,26 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_input_observer_preserves_api_and_observed_state(self):
+        for enabled in (False, True):
+            with self.subTest(enabled=enabled):
+                env = dict(os.environ)
+                env.pop('FIFA_INPUT_TRACE', None)
+                if enabled:
+                    env['FIFA_INPUT_TRACE'] = '1'
+                result = subprocess.run([str(BOOT), '--test-input-observer'],
+                                        capture_output=True, text=True, timeout=10, env=env)
+                self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+                self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                                 dict(api_result=True, registers=True, observed_memory=True))
+                events = [json.loads(line.split('] ', 1)[1]) for line in result.stderr.splitlines()
+                          if line.startswith('[fifa-input] ')]
+                self.assertEqual([event['digital_bits'] for event in events], [8, 0, 0, 0] if enabled else [])
+                if enabled:
+                    self.assertEqual([event['last_packet'] for event in events], [0x80000, 0, 0x40, 0])
+                    self.assertEqual([event['cross_pressure'] for event in events], [0, 0, 255, 0])
+                    self.assertTrue(all(event['bits_readable'] for event in events))
+
     def test_pad_modes_match_protocol_lengths_headers_and_partial_writes(self):
         env = dict(os.environ)
         env.pop('PAD_FILE', None)

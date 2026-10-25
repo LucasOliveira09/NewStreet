@@ -44,6 +44,8 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     src/guest_memory_diagnostics.cpp
     src/offline_np.cpp
     src/hang_diagnostics.cpp
+    src/input_observer.cpp
+    tests/input_observer_probe.cpp
     tests/offline_np_probe.cpp
     tests/offline_netctl_probe.cpp
     tests/savedata_overlay_probe.cpp

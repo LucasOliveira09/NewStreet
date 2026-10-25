@@ -56,6 +56,8 @@ int fifa_test_pad_file(const char*);
 int fifa_test_pad_empty_payload(void);
 int fifa_test_pad_modes(void);
 int fifa_test_input_bitset(void);
+void fifa_install_input_observer(void);
+int fifa_test_input_observer(void);
 int fifa_test_fs_readdir(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -116,6 +118,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-pad-file")) return fifa_test_pad_file(argv[2]);
     if (argc == 2 && !std::strcmp(argv[1], "--test-pad-empty-payload")) return fifa_test_pad_empty_payload();
     if (argc == 2 && !std::strcmp(argv[1], "--test-pad-modes")) return fifa_test_pad_modes();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-input-observer")) return fifa_test_input_observer();
     if (argc == 2 && !std::strcmp(argv[1], "--test-fifa-input-bitset")) return fifa_test_input_bitset();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-image-mismatch")) return fifa_test_spu_image_mismatch();
     if (argc == 2 && !std::strcmp(argv[1], "--test-native-crash")) {
@@ -182,6 +185,7 @@ int main(int argc, char** argv) {
     ppu_recomp_register();
     ppu_hle_init();
     fifa_register_offline_np();
+    fifa_install_input_observer();
     fifa_register_process_spawn();
     fifa_register_prx_handlers();
     ppu_sysprx_register();

@@ -478,3 +478,29 @@ zero destinos diretos ausentes; FullGame compilou e 61 testes passaram.
 Tentativa highpass em andamento. O Start foi enfileirado após o título no
 run anterior, mas a falha concorrente ocorreu antes do log de pacote válido;
 ainda falta comprovar esse pacote corrigido no jogo e o menu navegável.
+
+
+## Estado original após entrada e observador optativo (2026-10-25)
+
+Em input-state (1792906104246235100, timeout 180,176 s, sem falha estrita),
+o pacote Start len=20/header=0x7a foi seguido pelo estado original: manager
+275468744, device 275322876, quatro controles digitais, bitset 275976300.
+O bitset passou de 0 para 8 e voltou a 0, e manager+0x58 de 0 para 0x00080000
+e de volta a 0. Isso comprova o processamento do pacote pela rotina PPU,
+mas ainda não a aceitação pela interface. Menu e partida seguem pendentes.
+A execução highpass anterior terminou em timeout de 180,187 s sem nova falha;
+a entrada do highpass não foi observada nessa tentativa.
+
+FIFA_INPUT_TRACE instala, apenas quando pedido, um wrapper de GetInfo2 que
+chama a API real e observa o estado da atualização ANTERIOR no caller revisado
+0x1434eb0. JSON limitado a 64 transições, com thread/endereços/status/bits e
+pressão de Cross. Leitura limitada a páginas já comprometidas, sem tocar
+páginas ausentes, alterar flags do jogo ou modificar o código gerado.
+A fixture nativa confere ligado/desligado, deduplicação, retorno real, GPRs,
+memória observada, dispositivo inválido, caller distinto e pressão/liberação.
+O caso de pressão falhou antes (campo Cross ausente) e passou depois.
+37 testes de boot, 62 do projeto e builds Boot/FullGame aprovados.
+A primeira tentativa de relink com EBOOT ainda ativo falhou por arquivo em uso;
+após o fim do run, a compilação e os testes foram concluídos normalmente.
+Próximo: input-pressure, conferir Cross real e os leitores do bitset, com
+PPU_RWATCH no endereço confirmado; se o endereço variar, reavaliar o watch.
