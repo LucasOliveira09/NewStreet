@@ -818,3 +818,17 @@ somente em relatório entregável; o modo diagnóstico always-change mantém sua
 semântica e libera o botão. Os dois cenários passaram. 34 testes de boot,
 55 do projeto, 16 CTest e ambos os builds passaram. A correção não comprova
 sozinha a navegação do jogo; a próxima tentativa continua a partir da tela real.
+
+## Start aceito e entrada no decoder EA Layer 3
+
+Em 1792902630517693800, Start foi entregue após a tela de título e a execução
+parou 0,3 s depois na entrada do decoder EA Layer 3, em 0x8938. Foram conferidos
+0xdc80 bytes da fonte 0x1fa5880; SHA ff7799a9e3388eb3aec9bbedb4c7d564053067637becae38ab20422fcf3418e0.
+Código termina no retorno de 0x14964; dados a partir de 0x14968 permanecem
+fora da tradução. Callback 0xa250 vem do offset 0x1bd0 construído na entrada.
+569 funções compiladas, nenhuma instrução ou destino direto ausente.
+Em 1792902912263552700, Start foi enfileirado uma vez após comparação exata
+com uma captura de título já inspecionada. Houve entrada real no decoder em
+0x8680; a próxima falta, após 59,600 s, foi spugain, base 0x16580, fonte
+0x1fbec80, 0x690 bytes iguais ao original. Entrada não comprova decodificação
+completa. Menu navegável e partida continuam pendentes.

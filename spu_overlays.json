@@ -320,6 +320,20 @@
       ]
     },
     {
+      "name": "audio_spudecealayer3",
+      "relocatable_pic": true,
+      "source_ea": "0x1fa5880",
+      "size": "0xdc80",
+      "sha256": "ff7799a9e3388eb3aec9bbedb4c7d564053067637becae38ab20422fcf3418e0",
+      "ls_base": "0x8680",
+      "entry": "0x8938",
+      "code_start": "0x86b0",
+      "code_end": "0x14968",
+      "extra_entries": [
+        "0xa250"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

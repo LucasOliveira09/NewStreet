@@ -376,3 +376,12 @@ Corrigido para decrementar somente em relatório válido, mantendo o modo
 always-change. A regressão falhou antes e passou depois; 34 testes de boot,
 55 do projeto, 16 CTest e ambos os builds passaram. Próximo: repetir a entrada
 após inspecionar a tela de título e observar o resultado, sem presumir avanço.
+
+## EA Layer 3 admitido após Start
+
+Start disparou a carga do decoder EA Layer 3. Fonte 0x1fa5880, tamanho 0xdc80,
+conferidos com o snapshot; código 0x86b0..0x14968, callback 0xa250. 569 funções
+compiladas sem operações/destinos diretos ausentes. A tentativa
+1792902912263552700 confirmou a entrada e parou no próximo módulo, spugain
+em 0x16580. Próximo: traduzir seu código e a tabela limitada de sete valores
+em 0x16b8c. Não tratar a carga de áudio como prova de menu ou partida.
