@@ -433,3 +433,13 @@ private/build/fifazf_full/fifa_boot.exe --test-fifa-input-bitset
 
 Próximo: observar a tela e testar confirmação por Cross, registrando os pacotes
 reais e o próximo estado. Não marcar menu como validado apenas pela entrega.
+
+## Probe sem depender do piscar do texto
+
+title-confirm não enfileirou entrada porque o hash integral variou com o texto
+piscante (o título foi inspecionado). --title-region adiciona comparação exata
+de uma área fixa revisada. Três testes com BMPs autorais passaram, totalizando
+60 testes do projeto. A comparação de dois frames reais confirmou esse caso.
+Em title-region, a área 70,70,720,100 autorizou Start. Cross foi enviado somente
+após nova inspeção do título, às 02:11:34 de 2026-10-25. Aguardar o próximo
+estado antes de confirmar qualquer outra ação.

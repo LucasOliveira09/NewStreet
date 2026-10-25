@@ -884,3 +884,17 @@ coincidiram com o oráculo de bits/bytes. Não é conformidade completa da PPU
 nem prova da leitura do botão pela interface. 35 testes de boot, 57 do projeto
 e ambos os builds passaram. Próximo: confirmar o comportamento visual com
 entrada de confirmação, sem alterar flags internas ou pular a lógica do jogo.
+
+## Probe de título com área fixa
+
+A tentativa title-confirm (1792904737418409100) terminou em 240,195 s sem
+enviar botão: o título estava visível, mas o texto piscante alterava o hash
+do frame completo. O probe agora aceita --title-region x,y,width,height,
+comparando exatamente os pixels de uma área revisada. O BMP é lido sem alterar
+a imagem; ordem de linhas, padding, formato e limites são conferidos. Três
+testes autorais passaram, incluindo recusa de região alterada/arquivo incompleto.
+Os 60 testes do projeto passaram. Os frames reais com texto em fases diferentes
+têm hashes completos distintos e a mesma área fixa do título.
+Em 1792905020455377000, a área 70,70,720,100 autorizou um Start, com hashes
+do frame e da área registrados. Após conferir novamente o título, foi enviada
+uma confirmação Cross. Resultado da navegação ainda em observação.
