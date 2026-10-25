@@ -419,3 +419,17 @@ de 24 palavras, modo 0x7c, porta 0, buffer 0xd0189ce0. Caller PPU 0x14351d0.
 A questão restante é o processamento desse estado pelo jogo; não concluir
 aceitação da navegação apenas pela entrega. Conferir o bitset original 0x1434db8
 contra um oráculo de bits e então seguir o estado da interface.
+
+## Bitset original verificado
+
+384 casos da função original 0x1434db8 passaram via dispatcher do full game,
+incluindo o caminho VMX de bits e o armazenamento de pressão. Não modificar
+essa rotina sem nova evidência. 35 testes de boot, 57 do projeto e builds
+aprovados. O teste pode ser repetido com:
+
+```powershell
+private/build/fifazf_full/fifa_boot.exe --test-fifa-input-bitset
+```
+
+Próximo: observar a tela e testar confirmação por Cross, registrando os pacotes
+reais e o próximo estado. Não marcar menu como validado apenas pela entrega.

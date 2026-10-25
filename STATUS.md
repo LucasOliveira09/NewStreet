@@ -873,3 +873,14 @@ Na tentativa 1792904083852197000, o jogo recebeu Start na porta 0, buffer
 timeout de 180,180 s, sem nova falha estrita e sem navegação validada. O pacote
 chega ao handler PPU que chama GetData em LR 0x14351d0. Próximo: conferir a
 transformação desse pacote em estado de botões, incluindo o bitset VMX original.
+
+## Função original de bits/pressão conferida
+
+O probe --test-fifa-input-bitset executa a função traduzida original 0x1434db8
+pelo dispatcher público do executável completo. 384 casos combinam índices
+0..63 e seis valores, cobrindo bits digitais, bytes de pressão, truncamento,
+índices fora do intervalo, preservação dos demais bytes e da stack. Todos
+coincidiram com o oráculo de bits/bytes. Não é conformidade completa da PPU
+nem prova da leitura do botão pela interface. 35 testes de boot, 57 do projeto
+e ambos os builds passaram. Próximo: confirmar o comportamento visual com
+entrada de confirmação, sem alterar flags internas ou pular a lógica do jogo.
