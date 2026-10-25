@@ -61,6 +61,7 @@ void fifa_install_input_observer(void);
 int fifa_test_input_observer(void);
 int fifa_test_fs_readdir(const char*);
 int fifa_test_fs_free_space(const char*);
+int fifa_test_trophy_storage(const char*, const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -86,6 +87,9 @@ static int test_missing(const char* kind) {
     context.lr = 0x12345678;
     context.gpr[3] = 0x1122334455667788ULL;
     if (!std::strcmp(kind, "hle")) ps3_hle_call(0xDEADBEEFu, &context);
+    else if (!std::strcmp(kind, "trophy-game-info")) ps3_hle_call(0x49D18217u, &context);
+    else if (!std::strcmp(kind, "trophy-info")) ps3_hle_call(0xFCE6D30Au, &context);
+    else if (!std::strcmp(kind, "trophy-unlock")) ps3_hle_call(0x8CEEDD21u, &context);
     else if (!std::strcmp(kind, "syscall")) { context.gpr[11] = 1023; lv2_syscall(&context); }
     else if (!std::strcmp(kind, "indirect")) { context.ctr = 0x123400; ps3_indirect_call(&context); }
     else if (!std::strcmp(kind, "indirect-null")) { context.ctr = 0; ps3_indirect_call(&context); }
@@ -136,6 +140,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-rsx-fifo")) return fifa_test_rsx_fifo(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-readdir")) return fifa_test_fs_readdir(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-fs-free-space")) return fifa_test_fs_free_space(argv[2]);
+    if (argc == 4 && !std::strcmp(argv[1], "--test-trophy-storage")) return fifa_test_trophy_storage(argv[2], argv[3]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

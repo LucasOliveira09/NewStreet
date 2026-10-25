@@ -120,4 +120,8 @@ de funções ou por abrir uma janela.
 - [x] Substituir espaço livre fixo por consulta ao volume montado, com erros testados.
 - [x] Conferir que free-space-verified ainda exibe o aviso, sem GetFreeSize alcançado.
 - [x] Rastrear consulta fixa de 1 MiB do serviço de troféus após Start.
-- [ ] Instalar/verificar TRP real, consultar necessidade restante e chegar ao menu.
+- [x] Instalar/verificar TRP real e confirmar desaparecimento do erro de HDD.
+- [x] Confirmar aviso original de autosave e entregar Cross após revisão visual.
+- [ ] Implementar/validar cellSaveDataListAutoSave, alcançado no LR 0x135bd70.
+- [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
+- [ ] Chegar ao menu navegável, à partida e à persistência completa.

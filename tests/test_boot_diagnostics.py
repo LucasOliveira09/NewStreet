@@ -12,6 +12,20 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_generic_trophy_metadata_cannot_report_success_in_game_boot(self):
+        for mode, nid in [('trophy-game-info', 0x49d18217), ('trophy-info', 0xfce6d30a),
+                          ('trophy-unlock', 0x8ceedd21)]:
+            with self.subTest(mode=mode):
+                result = subprocess.run([str(BOOT), '--test-missing', mode],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 90, result.stderr)
+                event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                        if line.startswith('[fifa-block] ')))
+                self.assertEqual(event['kind'], 'trophy-metadata')
+                self.assertEqual(event['value'], nid)
+                self.assertEqual(event['guest_lr'], 0x12345678)
+                self.assertEqual(event['arguments'][0], 0x1122334455667788)
+
     def test_first_import_trace_is_opt_in_and_preserves_dispatch_results(self):
         for enabled in (False, True):
             with self.subTest(enabled=enabled), tempfile.TemporaryDirectory() as folder:
@@ -408,6 +422,7 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         event = json.loads(result.stdout)
         self.assertEqual(event['argument_sum'], 0x100000024)
+        self.assertEqual(event['callback_return'], 0x100000024)
         self.assertEqual(event['identity'], 77)
         self.assertEqual(event['toc'], 0x6789)
         self.assertTrue(event['caller_restored'])

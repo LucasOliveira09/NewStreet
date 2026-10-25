@@ -11,4 +11,5 @@ static void call_guest(uint32_t opd, uint64_t a0, uint64_t a1, uint64_t a2, uint
 
 extern "C" void fifa_install_guest_callbacks(void) {
     g_ps3_guest_caller = call_guest;
+    g_ps3_guest_caller_result = ppu_guest_call;
 }

@@ -1169,3 +1169,37 @@ Modules/sceNpTrophy.cpp e Loader/TRP.{h,cpp}, guardada privadamente. A próxima
 etapa é instalar/verificar o pacote local, remover a capacidade necessária
 inventada e testar os erros e o reinício. O aviso ainda não foi resolvido no
 jogo e menu/partida/saves continuam não validados.
+
+
+## Instalação real dos troféus e autosave original (2026-10-25)
+
+Substituído o valor fixo de 1 MiB por leitura/verificação do TRP local.
+Parser valida limites, nomes, duplicações, sobreposição e SHA-1 em versões
+>=2; instalação usa diretório temporário e rename, preservando instalações
+existentes divergentes. TROP.SFM fornece a configuração padrão; variantes
+localizadas permanecem disponíveis, mas seleção de idioma ainda não foi
+implementada. Root default acompanha PS3_HDD0_ROOT/home/00000001/trophy.
+Erros de escrita não completam callbacks; progresso existente não é regravado
+na inscrição. Acrescentado hook síncrono que preserva retorno real de callback
+PPU (incluindo recusa), mantendo a ABI anterior das notificações void.
+Corrigidos códigos de erro de troféus segundo RPCS3 aa9ebd2f sceNpTrophy.h.
+Metadados, grades e desbloqueios ainda genéricos do upstream são bloqueados
+explicitamente no boot estrito até terem dados e persistência verificados.
+
+Os novos testes falharam antes da implementação (8 falhas/1 erro); passaram
+após a correção. Resultado final: 41 testes de boot, seis de armazenamento de
+troféus e 76 testes do projeto passaram; FullGame compilou.
+
+trophy-installed (1792940656197898700) executou inscrição/instalação real.
+Oráculo Python independente verificou 42 arquivos byte a byte contra o TRP
+SHA256 cc4067e02bc54cc2a729811b21d41bf4153394b2b4e4a4ac20570a2d143e4854,
+677296 bytes, versão 1, 43 entradas originais. TROPCONF é substituído pela
+configuração padrão TROP.SFM; por isso 42 destinos. Consulta após Start
+retornou 0 bytes necessários. O erro de HDD desapareceu; frame_10 (4201,
+71 draws, 1280x720) mostra o aviso ORIGINAL de salvamento automático legível.
+Após conferência visual de frame_20, um Cross (0x4000, 40 reports) foi enviado
+às 12:06:23 local. O jogo chamou ListAutoLoad duas vezes e atingiu a criação
+do save: encerrou estritamente com 90 em 128,313 s, NID 0x4dd03a4e,
+cellSaveDataListAutoSave, LR 0x135bd70, thread 37. Esta é a próxima integração.
+Capturas/logs e oráculo estão em private/analysis/trophy-installed-*.
+Menu, gravação efetiva de save, partidas e progressão continuam não validados.
