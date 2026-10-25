@@ -60,6 +60,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     tests/spu_memcpy_probe.cpp
     tests/spu_lzma_probe.cpp
     tests/spu_dxt_probe.cpp
+    tests/texture_fingerprint_probe.cpp
     tests/rsx_fifo_probe.cpp
     tests/spu_group_probe.cpp
     tests/spu_overlay_probe.cpp

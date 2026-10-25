@@ -132,7 +132,7 @@ de funções ou por abrir uma janela.
 - [x] Traduzir dxt_encoder_job, testar 48 jobs completos e observar entrada no jogo.
 - [ ] Conferir conclusão das filas concorrentes e custos de blocos não uniformes.
 - [ ] Traduzir aififa_topologycache_spu de 0x1ebd580.
-- [ ] Corrigir/validar os glifos intermitentes do aviso de autosave.
+- [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.

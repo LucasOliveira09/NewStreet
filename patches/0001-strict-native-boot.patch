@@ -1236,6 +1236,130 @@ index eab83e1..30ce48f 100644
  /* GCM context data — the game reads/writes this to submit RSX commands.
   * On PS3, gCellGcmCurrentContext points to one of these.
   * All pointer fields are guest addresses (u32) in the recomp.
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+index 0ecca8e..ebfb103 100644
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -22,6 +22,7 @@
+ #include "rsx_primitives.h"
+ #include "rsx_vertex_fetch.h"
+ #include "rsx_texture_layout.h"
++#include "rsx_texture_fingerprint.h"
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+@@ -166,7 +167,7 @@ typedef struct {
+     ID3D12Resource* res;
+     ID3D12Resource* up;
+     u32 off, w, h, fmt; /* current contents (resource reused when dims match) */
+-    u32 csum;           /* sparse checksum of the source bytes last uploaded */
++    u64 csum;           /* full content fingerprint taken before conversion */
+     int cube;           /* resource is a 6-face cube, sampled as TextureCube */
+     u32 key;            /* the ORIGINAL bound offset -- the cache lookup key.
+                          * off is the RESOLVED source after TEX_OFF_BIAS/TEX_REMAP
+@@ -2455,22 +2456,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
+  * NV40 layout (matches RPCS3 convert_linear_swizzle). POT dims only, which is
+  * what the hardware requires for swizzled textures. */
+ 
+-/* Sparse FNV-1a over a texture's source bytes -- enough to notice an animated
+- * surface changing, cheap enough to run on every bind. Kept a function rather
+- * than a statement-expression macro so the file still compiles under MSVC;
+- * ps3recomp builds with clang-cl, but titles like Tokyo Jungle drive the build
+- * through the Visual Studio generator. */
+-static u32 tex_csum(const u8* base, u32 nbytes)
+-{
+-    u32 h = 2166136261u;
+-    u32 step = nbytes > 4096u ? nbytes / 1024u : 4u;
+-    for (u32 i = 0; i + 3 < nbytes; i += step) {
+-        u32 w32; memcpy(&w32, base + i, sizeof w32);
+-        h ^= w32; h *= 16777619u;
+-    }
+-    return h;
+-}
+-
+ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips)
+ {
+     /* TEX_BUDGET=<n>: cap texture uploads per frame. Off by default -- it was
+@@ -2522,11 +2507,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+     u32 blkrow  = dxt ? tl.row_bytes : 0;
+     u32 blkrows = dxt ? tl.rows      : 0;
+     const u32 key_off = off;         /* lookup key: the offset as bound */
+-    /* Sparse checksum of a texture's source bytes -- enough to notice an
+-     * animated surface changing, cheap enough to run on every bind. */
+-    /* (portable helper tex_csum() -- see above; a statement-expression macro
+-     * here was a GCC/Clang extension MSVC rejects.) */
+-    #define TEX_CSUM(base, nbytes) tex_csum((base), (nbytes))
++    /* A font glyph can change entirely between sampled columns. Every byte
++     * in the source level must participate in cache validation. */
++    #define TEX_CSUM(base, nbytes) rsx_texture_fingerprint((base), (nbytes))
+     int slot = -1, freeslot = -1;
+     for (int i = 0; i < VP_TEX_SLOTS; i++) {
+         VPTexSlot* c = &s_d3d.vp_tex[i];
+@@ -2541,7 +2524,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+              * changed. Most of this scene's textures are static, and converting
+              * every one of them every frame was ~70% of the frame's CPU time. */
+             u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
+-            u32 cs = TEX_CSUM(vm_base + c->off, nb);
++            u64 cs = TEX_CSUM(vm_base + c->off, nb);
+             if (cs == c->csum) { c->used = 1; return i; }
+             slot = i; break;                      /* stale: fall through and redo */
+         }
+@@ -2729,6 +2712,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+     }
+     const u32 _nfaces     = cube ? 6u : 1u;
+     const u32 _off0 = off; u8* const _map0 = (u8*)mapped;
++    /* Record the source BEFORE reading pixels. Hashing afterwards could mark
++     * a concurrent guest update as uploaded even though conversion read older
++     * pixels, leaving the stale atlas cached indefinitely. A later update must
++     * be seen by validation on the next frame. */
++    const u32 _source_bytes = dxt ? (blkrow * blkrows) : (w * h * bpp);
++    const u64 upload_fingerprint = TEX_CSUM(vm_base + off, _source_bytes);
+     for (u32 _f = 0; _f < _nfaces; _f++) {
+     off    = _off0 + _f * _face_bytes;
+     if (cube && getenv("CUBEDBG")) { u32 _s=0; const u8* _p = vm_base + off;
+@@ -3058,8 +3047,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+ 
+     t->off = off; t->key = key_off; t->w = w; t->h = h; t->fmt = fmt;
+     t->cube = cube; t->used = 1;
+-    { u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
+-      t->csum = TEX_CSUM(vm_base + off, nb); }
++    t->csum = upload_fingerprint;
+     #undef TEX_CSUM
+     return slot;
+ }
+diff --git a/libs/video/rsx_texture_fingerprint.h b/libs/video/rsx_texture_fingerprint.h
+new file mode 100644
+index 0000000..0e6b282
+--- /dev/null
++++ b/libs/video/rsx_texture_fingerprint.h
+@@ -0,0 +1,27 @@
++#ifndef RSX_TEXTURE_FINGERPRINT_H
++#define RSX_TEXTURE_FINGERPRINT_H
++
++#include <stddef.h>
++#include <stdint.h>
++#include <string.h>
++
++/* Process-local content fingerprint, never serialized. Read every source byte:
++ * sparse sampling can miss an entire glyph inserted between sampled columns.
++ * Word-at-a-time FNV-derived mixing avoids a multiply per individual texel;
++ * memcpy keeps unaligned source addresses valid, and the tail is not skipped. */
++static inline uint64_t rsx_texture_fingerprint(const void* data, size_t bytes)
++{
++    const uint8_t* source = (const uint8_t*)data;
++    uint64_t hash = UINT64_C(14695981039346656037) ^ (uint64_t)bytes;
++    size_t i = 0;
++    for (; bytes - i >= sizeof(uint64_t); i += sizeof(uint64_t)) {
++        uint64_t word;
++        memcpy(&word, source + i, sizeof word);
++        hash = (hash ^ word) * UINT64_C(1099511628211);
++    }
++    for (; i < bytes; ++i)
++        hash = (hash ^ source[i]) * UINT64_C(1099511628211);
++    return hash;
++}
++
++#endif
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
 index 4d54b72..5e95b39 100644
 --- a/runtime/ppu/ppu_fs.cpp

@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Both original DXT encoder modules entered; topology cache SPU module is untranslated, UI glyph corruption remains",
+  "stage": "Both DXT encoder modules entered; autosave glyph cache fixed in the reviewed scene; topology SPU module remains untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792968259784429900",
-  "elapsed_seconds": 307.65,
+  "logs": "private\\analysis\\runs\\1792969354888225400",
+  "elapsed_seconds": 140.128,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 90,
+    "project": 91,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -920,6 +920,18 @@
     "intro_movie_artifacts": true,
     "autosave_glyph_corruption_observed": true,
     "corrupt_capture": "private/analysis/dxt-encoder-detached-frames/frame_38/backbuffer.bmp",
-    "before_new_encoder_entry": true
+    "before_new_encoder_entry": true,
+    "autosave_scene_after_fix_verified": true,
+    "fixed_capture": "private/analysis/font-cache-fixed-frames/frame_05/backbuffer.bmp"
+  },
+  "texture_cache_fix": {
+    "old_hash_missed_changed_bytes": 320,
+    "byte_mutation_tests": 63,
+    "fingerprint_bits": 64,
+    "hash_before_pixel_conversion": true,
+    "native_cache_enabled": true,
+    "tex_nocache_override": false,
+    "autosave_text_reference_sha256": "4ab853e27bb6238ca6188b7bd11529fe18f50f60aa494f769d0202598e9fe7ec",
+    "broader_graphics_fidelity_validated": false
   }
 }

@@ -1477,3 +1477,42 @@ O snapshot tem zero diferenças. Isso confirma a entrada dos encoders no jogo;
 não comprova o processamento completo de todas as filas concorrentes.
 Menu e partida continuam pendentes. A corrupção intermitente das fontes e
 os artefatos do vídeo de abertura também precisam de correção/validação.
+
+
+## Invalidação do cache de texturas e glifos (2026-10-25)
+
+A captura dxt-encoder-detached/frame_38 tinha o aviso de autosave com glifos
+corrompidos; a referência trophy-installed/frame_10 tinha o mesmo aviso legível.
+A/B sem mudar o executável: TEX_NOCACHE=1 no ensaio font-cache-full-upload
+(1792968876477761500) restaurou exatamente os pixels da região revisada.
+O probe enviou Start e Cross automaticamente e o processo chegou ao bloqueio
+conhecido da topologia em 82,356 s, com saída 90. Isso localizou a falha no
+caminho do cache; o reenvio forçado foi diagnóstico, não solução de entrega.
+
+O checksum antigo lê só 4 bytes a cada 128 em um atlas B8 de 512x256.
+Uma alteração autoral de 320 bytes (glifo 16x20 em x=40,y=20) preservou
+521235909 no checksum, embora SHA256 dos bytes fosse diferente. A fixture
+reproduz esse ponto cego e exige detecção do glifo e de 63 mutações em início,
+meio e final de blocos de 1..131075 bytes, com leituras desalinhadas e tails.
+A nova impressão de conteúdo de 64 bits lê todos os bytes em palavras via
+memcpy e processa a cauda. É interna ao processo, sem formato persistido.
+
+O backend passa a registrar a impressão ANTES de converter pixels, evitando
+marcar dados escritos depois da leitura como se já tivessem sido enviados.
+Permanece o reuso quando os bytes não mudam; TEX_NOCACHE não é ativado como
+padrão. O helper está no patch do SDK, não solto em vendor. O patch passou
+em índice isolado da revisão original. 42 testes de boot, 91 do projeto e
+16 CTest do runtime passaram; FullGame compilou. Ainda é preciso conferir o
+aviso no cache normal após a correção. Coerência de outros níveis de mipmap,
+faces de cubo e atualizações dentro do mesmo frame não é provada por esse teste.
+
+
+Validação nativa com cache normal: font-cache-fixed
+(1792969354888225400), saída 90 em 140,128 s. TEX_NOCACHE não foi herdado
+pelo processo. A região de texto do aviso em frame_05 coincidiu exatamente
+com a referência (SHA 4ab853e27bb6238ca6188b7bd11529fe18f50f60aa494f769d0202598e9fe7ec),
+foi conferida visualmente e o probe autorizou Cross automaticamente.
+O perfil foi relido inteiro e os cinco hashes foram preservados; 65 amostras
+de assets coincidiram. O próximo blob continuou sendo aififa_topologycache_spu,
+confirmado por SHA integral do snapshot. A correção dos glifos vale para essa
+cena revisada; menu, partida, fidelidade geral e desempenho seguem pendentes.
