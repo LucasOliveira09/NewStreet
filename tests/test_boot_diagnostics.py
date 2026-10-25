@@ -12,6 +12,26 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_first_import_trace_is_opt_in_and_preserves_dispatch_results(self):
+        for enabled in (False, True):
+            with self.subTest(enabled=enabled), tempfile.TemporaryDirectory() as folder:
+                env = dict(os.environ, PS3_HDD0_ROOT=folder)
+                env.pop('PS3_HLE_FIRST_CALLS', None)
+                if enabled:
+                    env['PS3_HLE_FIRST_CALLS'] = '1'
+                result = subprocess.run([str(BOOT), '--test-fs-free-space', folder],
+                                        capture_output=True, text=True, timeout=10, env=env)
+                self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+                actual = json.loads(result.stdout.splitlines()[-1])
+                self.assertEqual(actual['result'], 0)
+                self.assertTrue(actual['null_arguments_preserved'])
+                traces = [line for line in result.stderr.splitlines() if line.startswith('[hle-first] ')]
+                self.assertEqual(len(traces), 1 if enabled else 0)
+                if enabled:
+                    self.assertIn('nid=0xAA3B4BCD lr=0x00000000', traces[0])
+                    self.assertIn('r3=0x10000 r4=0x11000 r5=0x11008', traces[0])
+                    self.assertTrue(traces[0].endswith('result=0x0'))
+
     def test_free_space_matches_the_mounted_host_volume(self):
         with tempfile.TemporaryDirectory() as folder:
             env = dict(os.environ, PS3_HDD0_ROOT=folder)

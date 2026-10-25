@@ -163,6 +163,20 @@ index c7926c0..e62bf33 100644
      info = GUEST_PTR(info, CellNetCtlInfo*);
      memset(info, 0, sizeof(CellNetCtlInfo));
  
+diff --git a/libs/system/cellGame.c b/libs/system/cellGame.c
+index 5a1d37f..0525814 100644
+--- a/libs/system/cellGame.c
++++ b/libs/system/cellGame.c
+@@ -379,6 +379,9 @@ s32 cellGameBootCheck(u32* type, u32* attributes, CellGameContentSize* size,
+     strncpy(s_check_dir, s_title_id, sizeof(s_check_dir) - 1);
+     s_check_dir[sizeof(s_check_dir) - 1] = '\0';
+     printf("[cellGame] BootCheck: type=%u, titleId='%s'\n", s_game_type, s_title_id);
++    if (getenv("PS3_HLE_FIRST_CALLS") && size_ea)
++        fprintf(stderr, "[game-space] BootCheck output=0x%08X free_kb=%u\n",
++                size_ea, vm_read32(size_ea));
+     return CELL_OK;
+ }
+ 
 diff --git a/libs/system/cellSaveData.c b/libs/system/cellSaveData.c
 index 286bf47..b3c1ba5 100644
 --- a/libs/system/cellSaveData.c
@@ -484,12 +498,14 @@ index 4d54b72..5e95b39 100644
  static void cellFsChmod(ppu_context* ctx) { ctx->gpr[3] = CELL_OK; }   /* host ignores PS3 mode bits */
  static void cellFsUtime(ppu_context* ctx) { ctx->gpr[3] = CELL_OK; }   /* timestamps are not modelled */
 diff --git a/runtime/ppu/ppu_hle.cpp b/runtime/ppu/ppu_hle.cpp
-index b44816b..2638dcb 100644
+index b44816b..95dd02c 100644
 --- a/runtime/ppu/ppu_hle.cpp
 +++ b/runtime/ppu/ppu_hle.cpp
-@@ -19,6 +19,9 @@
+@@ -18,7 +18,11 @@
+  */
  #define PPU_NO_INLINE_LOADS   /* declares its own out-of-line vm_read* below */
  #include <chrono>
++#include <mutex>
  #include "ppu_recomp.h"   /* ppu_context */
 +#ifdef FIFA_STRICT_BOOT
 +extern "C" __declspec(noreturn) void fifa_boot_missing(const char*, uint64_t, ppu_context*);
@@ -497,7 +513,53 @@ index b44816b..2638dcb 100644
  #include "ps3emu/nid.h"   /* ps3_nid_table, ps3_nid_entry */
  #include "ps3emu/milestone.h" /* ps3_msf -- boot milestone log */
  #include <stdlib.h>       /* getenv */
-@@ -685,6 +688,9 @@ extern "C" void ps3_hle_call(uint32_t nid, ppu_context* ctx)
+@@ -221,8 +225,45 @@ static void hle_top_note(uint32_t nid, const char* name, const ppu_context* ctx,
+     for (int j = 0; j < ht_used; j++) ht_n[j] = 0;
+ }
+ extern "C" uint32_t ppu_prof_resolve_host(void* ra);
++
++/* Optional bounded trace of first import/caller pairs. Unlike the boot-only
++ * call counter this still observes rare storage calls after polling starts.
++ * The lock protects admission only; it is never held while guest/HLE code runs. */
++struct HleFirstCallTrace {
++    ppu_context* ctx;
++    uint32_t nid, lr;
++    uint64_t arguments[4]{};
++    bool admitted = false;
++    HleFirstCallTrace(uint32_t id, ppu_context* context)
++        : ctx(context), nid(id), lr((uint32_t)context->lr) {
++        static const bool enabled = getenv("PS3_HLE_FIRST_CALLS") != nullptr;
++        if (!enabled) return;
++        static std::mutex mutex;
++        static uint64_t keys[4096]{};
++        static unsigned count = 0;
++        const uint64_t key = (uint64_t(nid) << 32) | lr;
++        std::lock_guard<std::mutex> lock(mutex);
++        for (unsigned i = 0; i < count; ++i) if (keys[i] == key) return;
++        if (count == 4096) return;
++        keys[count++] = key;
++        admitted = true;
++        for (unsigned i = 0; i < 4; ++i) arguments[i] = ctx->gpr[3 + i];
++    }
++    ~HleFirstCallTrace() {
++        if (!admitted) return;
++        fprintf(stderr, "[hle-first] nid=0x%08X lr=0x%08X tid=%llu "
++            "r3=0x%llX r4=0x%llX r5=0x%llX r6=0x%llX result=0x%llX\n",
++            nid, lr, (unsigned long long)ctx->thread_id,
++            (unsigned long long)arguments[0], (unsigned long long)arguments[1],
++            (unsigned long long)arguments[2], (unsigned long long)arguments[3],
++            (unsigned long long)ctx->gpr[3]);
++        fflush(stderr);
++    }
++};
++
+ extern "C" void ps3_hle_call(uint32_t nid, ppu_context* ctx)
+ {
++    HleFirstCallTrace first_call(nid, ctx);
+     /* HLE_BT_EVERY=<n>: dump the calling thread's guest stack every nth HLE
+      * call it makes. WAITBT_EVERY only samples threads that are blocking on an
+      * event queue, which misses a thread that stops looping while it is BUSY --
+@@ -685,6 +726,9 @@ extern "C" void ps3_hle_call(uint32_t nid, ppu_context* ctx)
  
      ps3_nid_entry* e = g_hle_inited ? ps3_nid_table_find(&g_hle_nids, nid) : nullptr;
      if (!e || !e->handler) {

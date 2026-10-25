@@ -118,4 +118,6 @@ de funções ou por abrir uma janela.
 - [x] Admitir destinos das seis tabelas de pan2d1 após falta reproduzida.
 - [x] Ultrapassar pan-cases e confirmar diálogo original após Start.
 - [x] Substituir espaço livre fixo por consulta ao volume montado, com erros testados.
-- [ ] Conferir erro de espaço do jogo em free-space-verified e chegar ao menu.
+- [x] Conferir que free-space-verified ainda exibe o aviso, sem GetFreeSize alcançado.
+- [x] Rastrear consulta fixa de 1 MiB do serviço de troféus após Start.
+- [ ] Instalar/verificar TRP real, consultar necessidade restante e chegar ao menu.

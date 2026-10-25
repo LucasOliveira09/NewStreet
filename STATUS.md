@@ -1148,3 +1148,24 @@ foi interrompido e não valida a correção. Após finalizar essa árvore própr
 relink e 68 testes terminaram com sucesso. free-space-verified está em execução
 com o executável atualizado e log do NID AA3B4BCD. A remoção do erro do jogo
 continua pendente de observação; a correção de consulta não prova essa remoção.
+
+
+## Rastreamento de imports e causa do aviso de 1024 KB (2026-10-25)
+
+free-space-verified (1792938406702108300, timeout 180,205 s) manteve o diálogo;
+nenhuma chamada a cellFsGetFreeSize foi observada. storage-trace
+(1792938922133005500, 180,248 s) não mostrou nova operação FS após Start.
+Acrescentado PS3_HLE_FIRST_CALLS, desligado por padrão, com admissão de até
+4096 pares NID/LR sob mutex e argumentos/retorno registrados sem modificar a
+chamada. Fixture verifica habilitação, deduplicação e preservação de outputs.
+40 testes de boot, FullGame e 69 testes do projeto passaram.
+
+storage-imports (1792939424144353700, timeout 150,299 s) mostrou BootCheck
+entregando 506457284 KB livres e, imediatamente após Start,
+sceNpTrophyGetRequiredDiskSpace em LR 0x1381658 devolvendo o valor fixo 1 MiB.
+O serviço anuncia INSTALLED antes sem instalar o TRP; essa consulta deveria
+considerar os arquivos realmente instalados. Referência RPCS3 aa9ebd2f,
+Modules/sceNpTrophy.cpp e Loader/TRP.{h,cpp}, guardada privadamente. A próxima
+etapa é instalar/verificar o pacote local, remover a capacidade necessária
+inventada e testar os erros e o reinício. O aviso ainda não foi resolvido no
+jogo e menu/partida/saves continuam não validados.
