@@ -85,3 +85,27 @@ extern "C" int fifa_test_savedata_list_auto(const char* volume) {
         (unsigned long long)before.QuadPart, (unsigned long long)after.QuadPart);
     return 0;
 }
+
+extern "C" int fifa_test_savedata_list_item(const char* name) {
+    vm_base = (uint8_t*)std::calloc(1, 0x20000);
+    if (!vm_base || std::strlen(name) > 255) return 3;
+    ppu_hle_init();
+    std::strcpy((char*)vm_base + 0x10000, name);
+    std::memset(vm_base + 0x11000, 0xa5, 0x2000);
+    ppu_context ctx{}; ctx.gpr[1] = 0x1e000;
+    ctx.gpr[3] = !std::strcmp(name, "<null>") ? 0 : 0x10000;
+    ctx.gpr[4] = 0x11000; ctx.gpr[5] = 0x11100;
+    ctx.gpr[6] = 0x11800; ctx.gpr[7] = 0x11804;
+    if (std::getenv("FIFA_TEST_SAVEDATA_QUERY_NULL_OUTPUTS"))
+        for (unsigned r = 4; r <= 7; ++r) ctx.gpr[r] = 0;
+    ps3_hle_call(0x04c06fc2, &ctx);
+    const uint32_t result = (uint32_t)ctx.gpr[3];
+    bool preserved = true;
+    for (unsigned i = 0; i < 0x2000; ++i) preserved &= vm_base[0x11000 + i] == 0xa5;
+    std::printf("{\"result\":%u,\"outputs_preserved\":%s,\"title\":\"%.*s\","
+        "\"name\":\"%.*s\",\"size_kb\":%u,\"bind\":%u,\"mtime\":%llu}\n",
+        result, preserved ? "true" : "false", result || !ctx.gpr[5] ? 0 : 128, vm_base + 0x11100,
+        result || !ctx.gpr[4] ? 0 : 32, vm_base + 0x11018, vm_read32(0x11804), vm_read32(0x11800),
+        (unsigned long long)vm_read64(0x11008));
+    return 0;
+}

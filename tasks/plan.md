@@ -801,3 +801,32 @@ seu callback chamou cellSaveDataGetListItem (NID 0x04c06fc2), ainda ausente,
 LR 0x135f260, thread 37. A leitura de SYS-DATA pelo jogo ainda não foi observada.
 A remoção do bloqueio SPU no fluxo real também continua pendente dessa consulta.
 README atualizado para remover afirmações antigas de ausência de gráficos/FIFAZF.
+
+
+## Perfil original relido após reinício (2026-10-25)
+
+Implementado cellSaveDataGetListItem, NID 0x04c06fc2, com nome, datas BE,
+metadados do PARAM.SFO e soma real de tamanhos arredondados + 35 KB. Os outputs
+são opcionais e só são escritos após validar arquivos e metadados. Saves ausentes,
+nomes inválidos e SFO corrompido retornam erro mantendo buffers e arquivos.
+O leitor de SFO deixa de aceitar silenciosamente metadados binários inválidos;
+o formato textual antigo só é aceito se contiver o campo TITLE reconhecido.
+Fixture consulta através do dispatcher real, compara datas com o host e prova
+que arquivos não são alterados. Seis falhas antes do handler; depois quatro
+testes de savedata, 42 de boot e 83 do projeto passaram; FullGame compilou.
+
+Consulta isolada ao perfil real: FIFA Street / BLUS308820000A, 2964 KB.
+metadata-reload (1792962560979039600, timeout 181,603 s) só conseguiu enviar
+Start no final; a abertura mais lenta exigiu novo ensaio de 360 s.
+metadata-reload-long (1792962788104760500) encerrou estritamente com 90 em
+233,580 s. O jogo consultou o perfil e leu SYS-DATA em 524288 + 524288 +
+524288 + 524288 + 30819 bytes, concluindo LOAD pelo callback original.
+Hashes dos cinco arquivos continuaram iguais aos do primeiro save.
+Isso valida gravação/releitura desse perfil, não toda progressão nem falhas
+transacionais de saves completos. Menu e partida continuam pendentes.
+
+O próximo bloqueio é spu-indirect em 0xb0, LR 0x3fbb4, SPU 8197. A inspeção
+integral do blob identifica job_util_job_memcpy.elf, origem 0x1e63880, LS 0x80,
+0x980 bytes, SHA da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f,
+zero diferenças contra o residente. Não foi executado como se fosse o módulo
+anterior naquele endereço; a entrada permanece estrita até tradução/revisão.

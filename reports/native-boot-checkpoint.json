@@ -1,32 +1,32 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Existing original profile enumerated; metadata query blocks reload",
+  "stage": "First original profile written and reloaded after process restart; new SPU memcpy job blocks further loading",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792942053003372500",
-  "elapsed_seconds": 69.73,
+  "logs": "private\\analysis\\runs\\1792962788104760500",
+  "elapsed_seconds": 233.58,
   "block": {
-    "kind": "hle",
-    "value": 79720386,
-    "guest_lr": 20312672,
-    "guest_pc": 20298020,
-    "thread_id": 37,
-    "guest_toc": 35476336,
+    "kind": "spu-indirect",
+    "value": 2259970271706349744,
+    "guest_lr": 0,
+    "guest_pc": 0,
+    "thread_id": 0,
+    "guest_toc": 0,
     "arguments": [
-      38666368,
-      3489527832,
-      3489527888,
       0,
       0,
-      10,
-      35514580,
-      1844674407370955161
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   },
   "menu_navigable_validated": false,
   "gameplay_tested": false,
-  "game_save_reload_validated": false,
+  "game_save_reload_validated": true,
   "profile": {
     "directory": "private/userdata/dev_hdd0/home/00000001/savedata/BLUS308820000A",
     "files": [
@@ -55,11 +55,19 @@
         "bytes": 2127971,
         "sha256": "a637a630a0bd81f8bec7d2b7ec5be90083826bb71126fc337f51fd303c4acacf"
       }
-    ]
+    ],
+    "reload_chunks": [
+      524288,
+      524288,
+      524288,
+      524288,
+      30819
+    ],
+    "unchanged_after_game_reload": true
   },
   "checks": {
     "boot": 42,
-    "project": 81,
+    "project": 83,
     "independent_asset_jobs_passed": 64,
     "runtime_ctest": 16
   },
