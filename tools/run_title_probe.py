@@ -86,6 +86,8 @@ def main():
     parser.add_argument('--title-reference', action='append', required=True, type=Path,
                         help='Previously reviewed title BMP; repeat for blink variants')
     parser.add_argument('--timeout', type=int, default=240)
+    parser.add_argument('--capture-start', type=int, default=3001,
+                        help='First guest flip to capture (1..100000); use 1 to observe the opening')
     parser.add_argument('--hold-reports', type=int, default=40,
                         help='Valid reports for the single Start press (1..300)')
     parser.add_argument('--title-delay', type=float, default=0,
@@ -103,6 +105,8 @@ def main():
         parser.error('Use --hold-reports from 1 to 300')
     if not 0 <= args.title_delay <= 20:
         parser.error('Use --title-delay from 0 to 20 seconds')
+    if not 1 <= args.capture_start <= 100000:
+        parser.error('Use --capture-start from 1 to 100000')
     references = set()
     for path in args.title_reference:
         data = path.read_bytes()
@@ -126,7 +130,7 @@ def main():
         parser.error('Choose an unused label; existing diagnostics will not be overwritten')
     paths['frames'].mkdir(parents=True)
     paths['pad'].write_text('', encoding='ascii')
-    os.environ.update(FIFA_SPU_ENTRY_TRACE='1', RSX_CAP='3001:120:120',
+    os.environ.update(FIFA_SPU_ENTRY_TRACE='1', RSX_CAP=f'{args.capture_start}:120:120',
         RSX_CAP_DIR=str(paths['frames']), AUDIO_WAV=str(paths['audio']), PAD_FILE=str(paths['pad']))
     os.environ.setdefault('FIFA_WATCHDOG_AFTER_MS', str(min(args.timeout * 500, 300000)))
     os.environ.setdefault('SPU_PCSAMPLE', '15')

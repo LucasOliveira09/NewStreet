@@ -531,6 +531,20 @@
         "0x6070"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "job_util_memcpy",
+      "source_ea": "0x1e63880",
+      "size": "0x980",
+      "sha256": "da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x8c0",
+      "extra_entries": [
+        "0x134",
+        "0x154"
+      ]
     }
   ]
 }

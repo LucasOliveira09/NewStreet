@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "First original profile written and reloaded after process restart; new SPU memcpy job blocks further loading",
+  "stage": "Original profile reloaded and SPU memcpy job executed; LZMA asset job is the next untranslated module",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792962788104760500",
-  "elapsed_seconds": 233.58,
+  "logs": "private\\analysis\\runs\\1792964492801813900",
+  "elapsed_seconds": 347.248,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706349744,
+    "value": 2259970271706349824,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 83,
+    "project": 84,
     "independent_asset_jobs_passed": 64,
     "runtime_ctest": 16
   },
@@ -853,5 +853,24 @@
         0
       ]
     }
+  },
+  "spu_memcpy": {
+    "source_ea": "0x1e63880",
+    "ls_base": "0x80",
+    "entry": "0xb0",
+    "bytes": 2432,
+    "sha256": "da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f",
+    "original_copy_cases": 576,
+    "original_bss_checks": 16,
+    "native_entry_observed": true,
+    "native_thread": 8196
+  },
+  "next_spu": {
+    "name": "AssetStream_lzma.elf",
+    "source_ea": "0x1e57180",
+    "pc": "0x100",
+    "bytes": 8192,
+    "sha256": "6d5c19b1e71f7889531143ba08df360180077a8009b98cf4ddbbc1fdbaa21697",
+    "snapshot_byte_differences": 0
   }
 }

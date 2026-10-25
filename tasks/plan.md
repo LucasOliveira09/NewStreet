@@ -830,3 +830,42 @@ integral do blob identifica job_util_job_memcpy.elf, origem 0x1e63880, LS 0x80,
 0x980 bytes, SHA da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f,
 zero diferenças contra o residente. Não foi executado como se fosse o módulo
 anterior naquele endereço; a entrada permanece estrita até tradução/revisão.
+
+
+## Tarefa SPU original de cópia de memória (2026-10-25)
+
+O blob job_util_job_memcpy.elf observado após o carregamento do perfil foi
+traduzido como módulo AOT fixo: origem 0x1e63880, LS 0x80, 0x980 bytes,
+SHA da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f.
+A região de código termina em 0x8c0; as constantes seguintes não são admitidas
+como instruções. A entrada 0xb0 preserva o CRT original. Seu desvio calculado
+0x108 -> 0x134 foi conferido pelos valores de BSS 0xa00..0x1a80 e incluído
+explicitamente no manifesto, junto ao destino 0x154 da limpeza desenrolada.
+
+A fixture exclusiva de teste executa tanto a rotina 0x1d0 quanto o CRT 0xb0
+pelo driver AOT real. Compara 18 tamanhos, de zero a 4097 bytes, em 16 pares
+de alinhamentos, contra memcpy do host: 576 casos passaram, com origem e
+guardas de destino preservadas. Mais 16 verificações confirmaram que a BSS
+preenchida com sentinelas foi zerada na entrada original para cópia vazia.
+O retorno é para um chamador autoral registrado somente nessa CLI de teste,
+fora do módulo; não há substituição de callback nem de código no boot.
+Erros iniciais da fixture (execução de apenas um fragmento e retorno sem
+chamador) foram corrigidos no harness, sem alterar as instruções originais.
+O probe de título ganhou --capture-start opcional; o padrão permanece 3001.
+
+
+Ensaio nativo memcpy-native (1792964492801813900) terminou em 347,248 s com
+90. O perfil foi novamente relido por inteiro; os hashes dos cinco arquivos
+permaneceram iguais. A entrada job_util_memcpy foi observada na SPU 8196.
+As 64 amostras de RefPack/DEFLATE conferiram com os oráculos independentes.
+A captura antecipada enviou Start em frame_12, antes da janela de entrada
+usada nos ensaios anteriores. O título continuou esperando; após revisão de
+frame_33 e comparação de identidade da captura atual frame_37, uma segunda
+pressão foi registrada em memcpy-native-start-retry.json. Não houve Cross
+nem autorização automática de tela nova. O próximo bloqueio é spu-indirect,
+PC 0x100, LR 0x3fbb4, SPU 8197: AssetStream_lzma.elf, origem 0x1e57180,
+0x2000 bytes, SHA 6d5c19b1e71f7889531143ba08df360180077a8009b98cf4ddbbc1fdbaa21697.
+O blob residente tem zero diferenças. Menu e partida continuam pendentes.
+
+Validação final deste incremento: 42 testes de boot e 84 do projeto passaram;
+FullGame com SPU compilou. O teste independente de cópia cobre 576 casos.

@@ -126,7 +126,8 @@ de funções ou por abrir uma janela.
 - [x] Reproduzir e compactar fragmentação contígua de ownership SPU com guardas preservados.
 - [x] Implementar cellSaveDataGetListItem e conferir metadados reais.
 - [x] Confirmar releitura integral de SYS-DATA pelo código original após reinício.
-- [ ] Traduzir job_util_job_memcpy de 0x1e63880 e avançar após o perfil.
+- [x] Traduzir/testar job_util_job_memcpy e confirmar sua entrada após o perfil.
+- [ ] Traduzir AssetStream_lzma de 0x1e57180 e conferir a descompressão original.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.

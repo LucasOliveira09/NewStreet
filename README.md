@@ -16,7 +16,8 @@ Preparar esses documentos não altera o estado de implementação descrito abaix
 **Execução nativa parcial:** EBOOT inicia FIFAZF em outro processo Windows,
 com código PPU/SPU compilado e backend Direct3D 12. A tela original do título
 e o aviso de autosave foram renderizados; Start e Cross chegaram ao código
-original, que gravou o primeiro perfil `BLUS308820000A`, incluindo `SYS-DATA`.
+original, que gravou e releu após reinício o perfil `BLUS308820000A`, incluindo
+os 2.127.971 bytes de `SYS-DATA`.
 O diagnóstico atualizado está em `reports/native-boot-checkpoint.json` e o
 histórico de correções em `STATUS.md`. Menu navegável, partida e progressão
 ainda precisam de validação. A abertura tem artefatos gráficos conhecidos.
