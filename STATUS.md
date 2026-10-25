@@ -848,3 +848,15 @@ por timeout de 240,306 s sem validar navegação. A correlação entre Start e a
 carga do decoder nas tentativas anteriores não substitui essa validação.
 A investigação seguinte reproduziu a sobrescrita indevida do payload de um
 pacote de controle len=0; sua correção está em validação separada.
+
+## Payload preservado em leituras de controle sem mudança
+
+O teste nativo confirmou que cellPadGetData escrevia todo o array de botões
+mesmo com len=0. A referência RPCS3 aa9ebd2f/cellPad.cpp atualiza esse payload
+somente em relatórios válidos. A correção mantém a escrita de len e preserva
+os demais bytes quando não há relatório. O teste falhou antes (exit 10) e passou
+depois. A suíte completa também expôs uma suposição imprecisa na fixture anterior:
+Sleep(8) nem sempre fazia o relógio de polling do Windows avançar. O teste agora
+aguarda um relatório de verdade, com limite, em vez de presumir o tick.
+35 testes de boot, 56 do projeto, 16 CTest e ambos os builds passaram. Nova
+tentativa de título em andamento; a correção ainda não demonstra menu navegável.

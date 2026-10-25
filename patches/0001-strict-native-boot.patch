@@ -12,7 +12,7 @@ index 4d916ac..9b2310f 100644
      int best = -1;
      size_t best_len = 0;
 diff --git a/libs/input/cellPad.c b/libs/input/cellPad.c
-index 7fa8cab..64f80f2 100644
+index 7fa8cab..dd315f6 100644
 --- a/libs/input/cellPad.c
 +++ b/libs/input/cellPad.c
 @@ -473,6 +473,13 @@ static void pad_shutdown_backend(void)
@@ -52,6 +52,21 @@ index 7fa8cab..64f80f2 100644
              if (!s_data_fresh[port_no]) data->len = 0;   /* nothing new: end the drain */
              else                        s_data_fresh[port_no] = 0;
          }
+@@ -897,8 +905,12 @@ emit:
+     {
+         unsigned int ea = (unsigned int)(uintptr_t)data_guest;
+         vm_write32((unsigned long long)ea + 0, (unsigned int)data->len);   /* len (s32) */
+-        for (int _i = 0; _i < CELL_PAD_MAX_CODES; _i++)                    /* button[] u16 */
+-            vm_write16((unsigned long long)ea + 4 + (unsigned int)_i * 2, data->button[_i]);
++        /* An empty report changes len only. Preserve the guest's previous
++         * button payload, as pad_get_data does in RPCS3 aa9ebd2f/cellPad.cpp. */
++        if (data->len > 0) {
++            for (int _i = 0; _i < CELL_PAD_MAX_CODES; _i++)                /* button[] u16 */
++                vm_write16((unsigned long long)ea + 4 + (unsigned int)_i * 2, data->button[_i]);
++        }
+     }
+     return CELL_OK;
+ }
 diff --git a/libs/network/cellNetCtl.c b/libs/network/cellNetCtl.c
 index c7926c0..e62bf33 100644
 --- a/libs/network/cellNetCtl.c

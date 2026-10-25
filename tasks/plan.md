@@ -400,3 +400,12 @@ Start após coincidência exata e recusa um label já usado. A tentativa gain
 1792903152592166400 completou o diagnóstico em 240,306 s sem nova falha,
 mas também sem menu validado. Próximo: corrigir payload de controle len=0
 conforme a fonte fixada; reprodução nativa já confirmou a divergência.
+
+## Preservação de payload len=0
+
+cellPadGetData agora escreve apenas len quando não tem relatório, preservando
+os botões no buffer guest. Reprodução falhou antes com exit 10 e passou depois.
+A fixture de pressão pendente passou a aguardar um relatório real, corrigindo
+uma suposição sobre Sleep(8)/tick do Windows exposta pela suíte completa.
+35 testes de boot, 56 do projeto, 16 CTest e ambos os builds passaram. Próximo:
+avaliar a tentativa pad-payload, que compara o título e envia um Start.

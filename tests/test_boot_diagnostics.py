@@ -12,6 +12,15 @@ BOOT = ROOT / 'private/build/boot/fifa_boot.exe'
 
 
 class BootDiagnosticsTests(unittest.TestCase):
+    def test_pad_empty_report_preserves_previous_button_payload(self):
+        env = dict(os.environ)
+        env.pop('PAD_ALWAYS_CHANGE', None)
+        env.pop('PAD_FILE', None)
+        result = subprocess.run([str(BOOT), '--test-pad-empty-payload'],
+                                capture_output=True, text=True, timeout=10, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(empty_payload_preserved=True))
+
     def test_file_pad_press_survives_reads_without_a_fresh_report(self):
         with tempfile.TemporaryDirectory() as folder:
             path = str(Path(folder) / 'pad.txt')
