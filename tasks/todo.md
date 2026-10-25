@@ -101,4 +101,6 @@ de funções ou por abrir uma janela.
 - [ ] Continuar o boot após EnableOverlay e validar menus/saves reais.
 - [x] Conferir a tela de título original e entregar Start em pacote válido.
 - [x] Compilar EA Layer 3 e observar sua entrada após Start.
-- [ ] Integrar spugain identificado em 0x16580 e seguir a navegação.
+- [x] Integrar spugain identificado em 0x16580 e observar sua entrada real.
+- [x] Identificar e compilar spuhighpassiir2 de 0x16c80.
+- [ ] Observar o filtro highpass e continuar até navegação real.

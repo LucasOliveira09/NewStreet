@@ -352,6 +352,24 @@
       ]
     },
     {
+      "name": "audio_spuhighpassiir2",
+      "relocatable_pic": true,
+      "source_ea": "0x1fbf380",
+      "size": "0xb20",
+      "sha256": "c135ec6c9ca9ae3e391f16bdc3c92f997b959fe45f8de96af800fa592b8053e9",
+      "ls_base": "0x16c80",
+      "entry": "0x16cb0",
+      "code_start": "0x16cb0",
+      "code_end": "0x17798",
+      "extra_entries": [
+        "0x16d38",
+        "0x17738",
+        "0x17750",
+        "0x17768",
+        "0x17780"
+      ]
+    },
+    {
       "name": "ant_kernel",
       "source_ea": "0x201d880",
       "size": "0x12220",

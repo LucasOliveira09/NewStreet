@@ -915,3 +915,21 @@ A tentativa anterior title-region terminou em timeout de 240,228 s: Start e
 Cross foram entregues, mas menu não foi validado. Nova tentativa pad-protocol
 verificará o pacote corrigido no fluxo real; esse teste isolado não prova
 navegação ou gameplay.
+
+
+## Filtro de áudio highpass após ganho (2026-10-25)
+
+pad-protocol (1792905620222926300) chegou ao título e encerrou por falta
+estrita em 53,283 s, PC SPU 0x16cb0. Entradas reais de EA Layer 3 e spugain
+foram registradas, incluindo ganho em LS 0x16580. O próximo programa em
+LS 0x16c80 é spuhighpassiir2.elf: cabeçalho único no ELF, origem 0x1fbf380,
+0xb20 bytes, SHA c135ec6c9ca9ae3e391f16bdc3c92f997b959fe45f8de96af800fa592b8053e9,
+zero diferenças contra todo o blob residente. Código 0x16cb0..0x17798,
+callback construído em base+0xb8 (0x16d38). A tabela em 0x17714 tem sete
+entradas e guarda clgti >6; adicionados seus quatro destinos não detectados
+0x17738/0x17750/0x17768/0x17780. Os zeros finais e a área de dados/BSS
+não foram admitidos como código. 28 funções, zero instruções sem suporte,
+zero destinos diretos ausentes; FullGame compilou e 61 testes passaram.
+Tentativa highpass em andamento. O Start foi enfileirado após o título no
+run anterior, mas a falha concorrente ocorreu antes do log de pacote válido;
+ainda falta comprovar esse pacote corrigido no jogo e o menu navegável.
