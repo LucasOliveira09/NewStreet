@@ -62,6 +62,24 @@ class TitleGate:
         return now - self.since >= self.delay
 
 
+class CaptureSequence:
+    """Admit each reviewed screen once, strictly in the requested order."""
+    def __init__(self, steps):
+        self.steps, self.index = steps, 0
+        self.gates = [TitleGate(step['references'], step['delay']) for step in steps]
+
+    def observe(self, data, now):
+        if self.index == len(self.steps):
+            return None
+        step = self.steps[self.index]
+        identity = capture_identity(data, step['region'])
+        if not self.gates[self.index].observe(identity, now):
+            return None
+        self.index += 1
+        return dict(index=self.index - 1, identity=identity, mask=step['mask'],
+                    reports=step['reports'], region=step['region'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True, help='Unused private analysis label')
@@ -74,6 +92,10 @@ def main():
                         help='Seconds the latest capture must keep matching the title (0..20)')
     parser.add_argument('--title-region', type=parse_region,
                         help='Stable reviewed region x,y,width,height; omit for whole-image matching')
+    parser.add_argument('--confirm-reference', action='append', type=Path,
+                        help='Optional reviewed autosave notice BMP; authorize one Cross after Start')
+    parser.add_argument('--confirm-region', type=parse_region,
+                        help='Stable reviewed confirmation region; omit for whole-image matching')
     args = parser.parse_args()
     if not re.fullmatch('[a-z][a-z0-9_-]{0,60}', args.label) or not 10 <= args.timeout <= 600:
         parser.error('Use a safe lowercase label and a timeout from 10 to 600 seconds')
@@ -89,6 +111,12 @@ def main():
         try:
             references.add(capture_identity(data, args.title_region))
         except ValueError as error:
+            parser.error(str(error))
+    confirmations = set()
+    for path in args.confirm_reference or []:
+        try:
+            confirmations.add(capture_identity(path.read_bytes(), args.confirm_region))
+        except (OSError, ValueError) as error:
             parser.error(str(error))
     analysis = ROOT / 'private/analysis'
     paths = {key: analysis / f'{args.label}-{suffix}' for key, suffix in {
@@ -110,7 +138,12 @@ def main():
 
     def drive():
         checked = {}
-        gate = TitleGate(references, args.title_delay)
+        steps = [dict(references=references, delay=args.title_delay, region=args.title_region,
+                      mask='0x0008', reports=args.hold_reports)]
+        if confirmations:
+            steps.append(dict(references=confirmations, delay=0, region=args.confirm_region,
+                              mask='0x4000', reports=40))
+        sequence = CaptureSequence(steps)
         while not stop.wait(0.2):
             # A stale title capture cannot authorize an input after the screen
             # has changed. An incomplete newest frame is retried next tick.
@@ -123,22 +156,27 @@ def main():
                     if checked.get(capture) == stamp:
                         continue
                     data = capture.read_bytes()
-                    identity = capture_identity(data, args.title_region)
                     sha256 = hashlib.sha256(data).hexdigest()
+                    action = sequence.observe(data, time.monotonic())
                     checked[capture] = stamp
-                    if not gate.observe(identity, time.monotonic()):
+                    if action is None:
                         continue
-                    paths['pad'].write_text(f'0x0008 {args.hold_reports}', encoding='ascii')
-                    driver.update(status='start_queued_after_exact_title_match',
+                    paths['pad'].write_text(f"{action['mask']} {action['reports']}", encoding='ascii')
+                    event = dict(status=('start_queued_after_exact_title_match' if action['index'] == 0
+                                         else 'cross_queued_after_exact_confirmation_match'),
                         capture=str(capture.relative_to(ROOT)), sha256=sha256,
-                        matching_region=args.title_region, match_sha256=identity[-1],
-                        time_ns=time.time_ns(), mask='0x0008', reports=args.hold_reports,
-                        title_delay_seconds=args.title_delay)
+                        matching_region=action['region'], match_sha256=action['identity'][-1],
+                        time_ns=time.time_ns(), mask=action['mask'], reports=action['reports'])
+                    if action['index'] == 0:
+                        driver.update(event, title_delay_seconds=args.title_delay)
+                    else:
+                        driver['confirmation'] = event
                     try:
                         paths['input'].write_text(json.dumps(driver, indent=2) + '\n', encoding='utf-8')
                     except OSError as error:
                         driver['metadata_error'] = str(error)
-                    return
+                    if sequence.index == len(steps):
+                        return
                 except (OSError, ValueError):
                     # A frame can still be open in the capture writer; retry.
                     continue

@@ -24,3 +24,4 @@ reports/*
 !reports/spu-overlay-identification.json
 !reports/disc-filesystem-validation.json
 !reports/asset-job-validation.json
+!reports/trophy-storage-admission.json

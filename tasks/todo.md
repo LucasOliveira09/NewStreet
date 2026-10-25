@@ -122,6 +122,8 @@ de funções ou por abrir uma janela.
 - [x] Rastrear consulta fixa de 1 MiB do serviço de troféus após Start.
 - [x] Instalar/verificar TRP real e confirmar desaparecimento do erro de HDD.
 - [x] Confirmar aviso original de autosave e entregar Cross após revisão visual.
-- [ ] Implementar/validar cellSaveDataListAutoSave, alcançado no LR 0x135bd70.
+- [x] Implementar/validar cellSaveDataListAutoSave e gravar o primeiro perfil original.
+- [ ] Corrigir fragmentação/limite de ownership SPU e carregar o perfil pelo jogo após reinício.
+- [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
 - [ ] Chegar ao menu navegável, à partida e à persistência completa.

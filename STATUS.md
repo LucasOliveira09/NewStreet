@@ -1203,3 +1203,37 @@ do save: encerrou estritamente com 90 em 128,313 s, NID 0x4dd03a4e,
 cellSaveDataListAutoSave, LR 0x135bd70, thread 37. Esta é a próxima integração.
 Capturas/logs e oráculo estão em private/analysis/trophy-installed-*.
 Menu, gravação efetiva de save, partidas e progressão continuam não validados.
+
+
+## Primeiro save original e callback de nove argumentos (2026-10-25)
+
+Implementado cellSaveDataListAutoSave (NID 0x4dd03a4e) usando a seleção,
+stat e loop de arquivos reais. O wrapper de contexto leva userdata de SP+112
+até todos os callbacks, com retorno s32 estendido. Consulta de espaço livre
+agora usa o volume real (e o ancestral existente antes de criar o diretório);
+falhas não inventam capacidade. Root sem override acompanha PS3_HDD0_ROOT.
+PARAM.SFO é escrito em temporário e renomeado; falhas de SFO propagam erro.
+Stat informa o overhead de firmware de 35 KB e os tamanhos arredondados dos
+arquivos reais. Limites: transação atômica do save inteiro e falhas durante
+substituição de arquivos de dados ainda precisam ser implementadas/testadas.
+A string de comunicação dos troféus passou a ter limite explícito de nove
+bytes ao formar o caminho, sem usar o byte term como separador de diretório.
+
+Dois testes novos reproduziram falta de HLE (90); depois passaram gravando e
+relendo payload binário, PARAM.SFO e userdata atualizado, mais falha de root.
+Sete testes de troféus, 41 de boot e 80 do projeto passaram; FullGame compilou.
+Patch do SDK verificado também contra índice novo da revisão fixada, além
+da aplicação idempotente. O probe aceita referência opcional do aviso de
+autosave e envia Cross uma única vez após comparar pixels da região revisada.
+
+list-auto-save (1792941536364536500) encerrou em 72,666 s com 90, após gravar
+BLUS308820000A: ICON0.PNG 77414 bytes, PIC1.PNG 792086, SYS-DATA 2127971,
+PARAM.SFO 2736 e metadados locais PARAM.PFD. Esse PFD é a representação local
+do runtime, não um PFD criptográfico compatível com hardware PS3.
+Os callbacks originais gravaram os bytes; não foi criado um perfil fictício.
+Start e Cross foram autorizados pelos hashes de título e autosave, registrados
+em private/analysis/list-auto-save-title-input.json. Próximo bloqueio:
+spu-overlay-capacity, image 768455951, SPU 8195, PC 0x313c. O limite atual é
+128 intervalos de ownership; investigar fragmentação/união, sem descartar
+intervalos vivos ou permitir executar código sobrescrito. Leitura do save pelo
+jogo após reinício ainda pendente, assim como menu, partida e progressão.

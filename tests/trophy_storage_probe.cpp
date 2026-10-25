@@ -26,6 +26,7 @@ extern "C" int fifa_test_trophy_storage(const char* disc, const char* storage) {
     std::strcpy((char*)vm_base + 0x10000, storage);
     sceNpTrophySetStoragePath((const char*)0x10000);
     std::memcpy(vm_base + 0x11000, "NPWR00001", 9);
+    if (std::getenv("FIFA_TEST_TROPHY_NONZERO_TERM")) vm_base[0x11009] = '/';
     g_ps3_guest_caller = notification;
     g_ps3_guest_caller_result = permission;
     sceNpTrophyInit(nullptr, 0, 0, 0);

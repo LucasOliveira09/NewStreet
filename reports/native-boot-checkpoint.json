@@ -1,759 +1,825 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Original title screen rendered; Start navigation and gameplay still pending",
+  "stage": "Original autosave notice confirmed; first profile written; SPU resident interval capacity blocks further loading",
   "native_process": true,
   "emulator_launched": false,
-  "main_native_entries": 99127,
-  "main_import_stubs": 369,
-  "exit_code": "timeout",
-  "block": null,
-  "spawn": {
-    "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
-    "argv": [
-      "/dev_bdvd/PS3_GAME/USRDIR/EBOOT.BIN"
-    ],
-    "envp": [],
-    "data_address": 0,
-    "data_size": 0,
-    "priority": 1000,
-    "flags": 32
-  },
-  "main_entry_code": "0x23770",
-  "main_toc": "0x21d5370",
-  "main_argc": 2,
-  "frames_rendered": 1,
-  "gameplay_tested": false,
-  "source_elf": [
-    "private/EBOOT.elf",
-    "private/FIFAZF.elf"
-  ],
-  "logs": "private\\analysis\\runs\\1792902016004434800",
-  "registered_exports": {
-    "sys_libc": {
-      "functions": 560,
-      "variables": 48
-    },
-    "sys_libm": {
-      "functions": 503,
-      "variables": 10
-    },
-    "sys_libstdcxx": {
-      "functions": 510,
-      "variables": 275
-    }
-  },
-  "jump_table_dispatchers": 20,
-  "gcm": {
-    "context_out": "0x22f9370",
-    "command_size": "0x200000",
-    "io_size": "0x700000",
-    "io_address": "0x13f00000"
-  },
-  "window_created": true,
-  "graphics": {
-    "backend": "Direct3D 12",
-    "adapter": "AMD Radeon RX 580 2048SP",
-    "width": 1280,
-    "height": 720,
-    "guest_flips_observed": 3,
-    "guest_flips_count_is_lower_bound": true,
-    "draw_frame_validated": true,
-    "intro_animation_artifacts_observed": true,
-    "title_screen_validated": true
-  },
-  "spu_gap": {
-    "fingerprint": "22F896FE3B85A8C7",
-    "bytes": 5140,
-    "executable_segments": 3,
-    "upstream_skipped_execution": false,
-    "native_programs_registered": 14,
-    "programs_discovered": 20,
-    "inventory_complete": false,
-    "strict_missing_program": true,
-    "strict_missing_branch": true,
-    "observed_image": 526190333,
-    "task_completion_validated": "64 captured AssetStream outputs match independent oracles; audio task completion not exhaustively validated",
-    "group_isolation_requires_investigation": false,
-    "boot_threads": 6,
-    "boot_thread_ids": [
-      "0x2000",
-      "0x2001",
-      "0x2002",
-      "0x2003",
-      "0x2004",
-      "0x2005"
-    ],
-    "strict_content_identity": true,
-    "previous_spu_fault_reproduced": false,
-    "observed_thread": "0x2003"
-  },
-  "resolved_ppu_targets": [
-    "0x13a796c",
-    "0x138a208"
-  ],
-  "pending_direct_targets": 0,
-  "discovery_regression_tests": 3,
-  "boot_regression_tests": 32,
-  "observed_null_call": {
-    "lr": "0x11a9f50",
-    "thread": 1,
-    "strict_guard_pending": false
-  },
-  "cache": {
-    "source": "DATA4.BIG",
-    "source_bytes": 30585168,
-    "temporary_bytes": 30585168,
-    "rename_validated": false
-  },
-  "raw_spu_overlays": 19,
-  "asset_jobs": {
-    "total": 64,
-    "passed": 64,
-    "bytes": 3756574,
-    "refpack": 32,
-    "deflate": 32,
-    "exhaustive": false
-  },
-  "boot_tests": 32,
-  "runtime_tests": 16,
-  "first_frame": {
-    "visually_reviewed": true,
-    "scene": "FIFA Street logo and original background",
-    "width": 1280,
-    "height": 720,
-    "draws": 1,
-    "earliest_capture": "private/analysis/runs/1792846643102912600/rsxcap/frame_00/backbuffer.bmp",
-    "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
-    "menu_validated": false
-  },
-  "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
-  "project_tests": 53,
-  "cache_data4_verified": true,
-  "raw_spu_distinct_sources": 19,
-  "audio_capture": {
-    "samples": 10490880,
-    "nonzero": 699913,
-    "nonfinite": 0,
-    "peak": 0.5612731575965881,
-    "audible_validated": false,
-    "synchronization_validated": false,
-    "path": "private/analysis/savedata-overlay-audio.f32le",
-    "native_run": "private\\analysis\\runs\\1792902016004434800"
-  },
-  "observed_native_spu_entries": [
-    {
-      "name": "assetstream_zlib",
-      "source_ea": 31825024,
-      "ls_base": 128,
-      "thread": 8196,
-      "pc": 256
-    },
-    {
-      "name": "assetstream_refpack",
-      "source_ea": 31822336,
-      "ls_base": 128,
-      "thread": 8196,
-      "pc": 176
-    },
-    {
-      "name": "sportsrna_spupatch",
-      "source_ea": 32657152,
-      "ls_base": 128,
-      "thread": 8196,
-      "pc": 176
-    },
-    {
-      "name": "audio_spumixer",
-      "source_ea": 33579648,
-      "ls_base": 128,
-      "thread": 8195,
-      "pc": 176
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 14208,
-      "thread": 8195,
-      "pc": 14256
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 18560,
-      "thread": 8195,
-      "pc": 18608
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 27520,
-      "thread": 8195,
-      "pc": 27568
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 37888,
-      "thread": 8195,
-      "pc": 37936
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 42880,
-      "thread": 8195,
-      "pc": 43104
-    },
-    {
-      "name": "audio_spupause",
-      "source_ea": 33502336,
-      "ls_base": 14208,
-      "thread": 8195,
-      "pc": 14272
-    },
-    {
-      "name": "audio_spuresample",
-      "source_ea": 33320704,
-      "ls_base": 14592,
-      "thread": 8195,
-      "pc": 14640
-    },
-    {
-      "name": "audio_spurechannel",
-      "source_ea": 33316864,
-      "ls_base": 18816,
-      "thread": 8195,
-      "pc": 18872
-    },
-    {
-      "name": "audio_spupacketplayer",
-      "source_ea": 33471232,
-      "ls_base": 22656,
-      "thread": 8195,
-      "pc": 22896
-    },
-    {
-      "name": "audio_spudecoder",
-      "source_ea": 33093760,
-      "ls_base": 26752,
-      "thread": 8195,
-      "pc": 27152
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 30720,
-      "thread": 8195,
-      "pc": 30768
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 35072,
-      "thread": 8195,
-      "pc": 35120
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 44032,
-      "thread": 8195,
-      "pc": 44080
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 54400,
-      "thread": 8195,
-      "pc": 54448
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 59392,
-      "thread": 8195,
-      "pc": 59616
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 22656,
-      "thread": 8195,
-      "pc": 23176
-    },
-    {
-      "name": "audio_spudecoder",
-      "source_ea": 33093760,
-      "ls_base": 30464,
-      "thread": 8195,
-      "pc": 30864
-    },
-    {
-      "name": "audio_spupacketplayer",
-      "source_ea": 33471232,
-      "ls_base": 34432,
-      "thread": 8195,
-      "pc": 34672
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 38528,
-      "thread": 8195,
-      "pc": 38576
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 42880,
-      "thread": 8195,
-      "pc": 42928
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 51840,
-      "thread": 8195,
-      "pc": 51888
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 62208,
-      "thread": 8195,
-      "pc": 62256
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 67200,
-      "thread": 8195,
-      "pc": 67424
-    },
-    {
-      "name": "ant_kernel",
-      "source_ea": 33675392,
-      "ls_base": 128,
-      "thread": 8196,
-      "pc": 176
-    },
-    {
-      "name": "audio_spuresample",
-      "source_ea": 33320704,
-      "ls_base": 14208,
-      "thread": 8195,
-      "pc": 14256
-    },
-    {
-      "name": "audio_spurechannel",
-      "source_ea": 33316864,
-      "ls_base": 18432,
-      "thread": 8195,
-      "pc": 18488
-    },
-    {
-      "name": "audio_spupacketplayer",
-      "source_ea": 33471232,
-      "ls_base": 22272,
-      "thread": 8195,
-      "pc": 22512
-    },
-    {
-      "name": "audio_spudecoder",
-      "source_ea": 33093760,
-      "ls_base": 26368,
-      "thread": 8195,
-      "pc": 26768
-    },
-    {
-      "name": "audio_spupause",
-      "source_ea": 33502336,
-      "ls_base": 30336,
-      "thread": 8195,
-      "pc": 30400
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 30720,
-      "thread": 8195,
-      "pc": 31240
-    },
-    {
-      "name": "audio_spudecpcmfloatnative",
-      "source_ea": 33176064,
-      "ls_base": 30336,
-      "thread": 8195,
-      "pc": 31584
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 33664,
-      "thread": 8195,
-      "pc": 33712
-    },
-    {
-      "name": "audio_spusend",
-      "source_ea": 33311616,
-      "ls_base": 44032,
-      "thread": 8195,
-      "pc": 44080
-    },
-    {
-      "name": "audio_spupause",
-      "source_ea": 33502336,
-      "ls_base": 49280,
-      "thread": 8195,
-      "pc": 49344
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 49664,
-      "thread": 8195,
-      "pc": 50184
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 57472,
-      "thread": 8195,
-      "pc": 57520
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 61824,
-      "thread": 8195,
-      "pc": 61872
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 70784,
-      "thread": 8195,
-      "pc": 70832
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 75776,
-      "thread": 8195,
-      "pc": 76000
-    },
-    {
-      "name": "audio_spupause",
-      "source_ea": 33502336,
-      "ls_base": 33664,
-      "thread": 8195,
-      "pc": 33728
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 34048,
-      "thread": 8195,
-      "pc": 34568
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 41856,
-      "thread": 8195,
-      "pc": 41904
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 46208,
-      "thread": 8195,
-      "pc": 46256
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 55168,
-      "thread": 8195,
-      "pc": 55216
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 65536,
-      "thread": 8195,
-      "pc": 65584
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 70528,
-      "thread": 8195,
-      "pc": 70752
-    },
-    {
-      "name": "audio_spugenericplayer",
-      "source_ea": 33411328,
-      "ls_base": 22656,
-      "thread": 8195,
-      "pc": 23008
-    },
-    {
-      "name": "audio_spudecoder",
-      "source_ea": 33093760,
-      "ls_base": 29952,
-      "thread": 8195,
-      "pc": 30352
-    },
-    {
-      "name": "audio_spupacketplayer",
-      "source_ea": 33471232,
-      "ls_base": 33920,
-      "thread": 8195,
-      "pc": 34160
-    },
-    {
-      "name": "audio_spudecpcmfloatnative",
-      "source_ea": 33176064,
-      "ls_base": 38016,
-      "thread": 8195,
-      "pc": 39264
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 41344,
-      "thread": 8195,
-      "pc": 41864
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 49152,
-      "thread": 8195,
-      "pc": 49200
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 53504,
-      "thread": 8195,
-      "pc": 53552
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 62464,
-      "thread": 8195,
-      "pc": 62512
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 72832,
-      "thread": 8195,
-      "pc": 72880
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 77824,
-      "thread": 8195,
-      "pc": 78048
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 38016,
-      "thread": 8195,
-      "pc": 38064
-    },
-    {
-      "name": "audio_spusend",
-      "source_ea": 33311616,
-      "ls_base": 48384,
-      "thread": 8195,
-      "pc": 48432
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 53632,
-      "thread": 8195,
-      "pc": 54152
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 61440,
-      "thread": 8195,
-      "pc": 61488
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 65792,
-      "thread": 8195,
-      "pc": 65840
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 74752,
-      "thread": 8195,
-      "pc": 74800
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 79744,
-      "thread": 8195,
-      "pc": 79968
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 33920,
-      "thread": 8195,
-      "pc": 34440
-    },
-    {
-      "name": "audio_spupacketplayer",
-      "source_ea": 33471232,
-      "ls_base": 41728,
-      "thread": 8195,
-      "pc": 41968
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 45824,
-      "thread": 8195,
-      "pc": 45872
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 50176,
-      "thread": 8195,
-      "pc": 50224
-    },
-    {
-      "name": "audio_spugainfader",
-      "source_ea": 33401088,
-      "ls_base": 59136,
-      "thread": 8195,
-      "pc": 59184
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 69504,
-      "thread": 8195,
-      "pc": 69552
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 74496,
-      "thread": 8195,
-      "pc": 74720
-    },
-    {
-      "name": "audio_spugenericplayer",
-      "source_ea": 33411328,
-      "ls_base": 30720,
-      "thread": 8195,
-      "pc": 31072
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 38016,
-      "thread": 8195,
-      "pc": 38536
-    },
-    {
-      "name": "audio_spugenericplayer",
-      "source_ea": 33411328,
-      "ls_base": 49664,
-      "thread": 8195,
-      "pc": 50016
-    },
-    {
-      "name": "audio_spusndplayer1",
-      "source_ea": 33335296,
-      "ls_base": 56960,
-      "thread": 8195,
-      "pc": 57480
-    },
-    {
-      "name": "audio_spusubmix",
-      "source_ea": 33240448,
-      "ls_base": 64768,
-      "thread": 8195,
-      "pc": 64816
-    },
-    {
-      "name": "audio_spusamplecapture",
-      "source_ea": 33540096,
-      "ls_base": 69120,
-      "thread": 8195,
-      "pc": 69168
-    },
-    {
-      "name": "audio_spuvumeter",
-      "source_ea": 33574400,
-      "ls_base": 78080,
-      "thread": 8195,
-      "pc": 78128
-    },
-    {
-      "name": "audio_spudac",
-      "source_ea": 33244672,
-      "ls_base": 83072,
-      "thread": 8195,
-      "pc": 83296
-    },
-    {
-      "name": "audio_spugenericplayer",
-      "source_ea": 33411328,
-      "ls_base": 34048,
-      "thread": 8195,
-      "pc": 34400
-    }
-  ],
-  "elapsed_seconds": 120.239,
-  "raw_spu_relocatable_images": 14,
-  "historical_wait_before_audio_pic": {
-    "mutex": 8,
-    "owner_thread": 22,
-    "waiting_thread": 32,
-    "main_lr": "0x11a28",
-    "owner_lr": "0xdc95b8",
-    "sample_ms": 45000
-  },
-  "watchdog_sample": {
-    "milliseconds": 75000,
-    "best_effort": true,
-    "main_lr": "0x122ad04",
-    "render_thread": 22,
-    "in_hle": "cellPadGetInfo2",
-    "owned_mutexes": [
-      8,
-      20,
-      109
+  "exit_code": 90,
+  "logs": "private\\analysis\\runs\\1792941536364536500",
+  "elapsed_seconds": 72.666,
+  "block": {
+    "kind": "spu-overlay-capacity",
+    "value": 768455951,
+    "guest_lr": 0,
+    "guest_pc": 0,
+    "thread_id": 0,
+    "guest_toc": 0,
+    "arguments": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ]
   },
-  "first_title_screen": {
-    "frame": 3301,
-    "bitmap": "private/analysis/savedata-overlay-frames/frame_07/backbuffer.bmp",
-    "sha256": "a0ce11559961bcb55cd1c85bf425a0e53224ca385ecd13861cdf0a1f91bbe213",
-    "visually_reviewed": true,
-    "scene": "FIFA STREET - PRESS START BUTTON, Messi artwork and original licensing text",
-    "width": 1280,
-    "height": 720,
-    "draws": 39,
-    "menu_navigation_validated": false
+  "menu_navigable_validated": false,
+  "gameplay_tested": false,
+  "game_save_reload_validated": false,
+  "profile": {
+    "directory": "private/userdata/dev_hdd0/home/00000001/savedata/BLUS308820000A",
+    "files": [
+      {
+        "name": "ICON0.PNG",
+        "bytes": 77414,
+        "sha256": "85a149944c560541de8d765c65b71965bdb423d2a2415c2ab0f3ad02264bc0a3"
+      },
+      {
+        "name": "PARAM.PFD",
+        "bytes": 9,
+        "sha256": "c796f71eff0a5f34644df962114cf2aee28b8325bd68443312737627618a1afe"
+      },
+      {
+        "name": "PARAM.SFO",
+        "bytes": 2736,
+        "sha256": "bafd9ed540cd9904bacad10662633c0627d5856ebf6b730d91d2e2b6094fe2a0"
+      },
+      {
+        "name": "PIC1.PNG",
+        "bytes": 792086,
+        "sha256": "38858a753d1a9ea1c165f549c4d3fedfa526089edafee1b6a8640acbb950d7c5"
+      },
+      {
+        "name": "SYS-DATA",
+        "bytes": 2127971,
+        "sha256": "a637a630a0bd81f8bec7d2b7ec5be90083826bb71126fc337f51fd303c4acacf"
+      }
+    ]
+  },
+  "checks": {
+    "boot": 41,
+    "project": 80,
+    "independent_asset_jobs_passed": 64
+  },
+  "complete_port": false,
+  "historical_title_baseline": {
+    "target": "PS3 BLUS30882 01.00",
+    "stage": "Original title screen rendered; Start navigation and gameplay still pending",
+    "native_process": true,
+    "emulator_launched": false,
+    "main_native_entries": 99127,
+    "main_import_stubs": 369,
+    "exit_code": "timeout",
+    "block": null,
+    "spawn": {
+      "path": "/dev_bdvd/PS3_GAME/USRDIR/fifazf.self",
+      "argv": [
+        "/dev_bdvd/PS3_GAME/USRDIR/EBOOT.BIN"
+      ],
+      "envp": [],
+      "data_address": 0,
+      "data_size": 0,
+      "priority": 1000,
+      "flags": 32
+    },
+    "main_entry_code": "0x23770",
+    "main_toc": "0x21d5370",
+    "main_argc": 2,
+    "frames_rendered": 1,
+    "gameplay_tested": false,
+    "source_elf": [
+      "private/EBOOT.elf",
+      "private/FIFAZF.elf"
+    ],
+    "logs": "private\\analysis\\runs\\1792902016004434800",
+    "registered_exports": {
+      "sys_libc": {
+        "functions": 560,
+        "variables": 48
+      },
+      "sys_libm": {
+        "functions": 503,
+        "variables": 10
+      },
+      "sys_libstdcxx": {
+        "functions": 510,
+        "variables": 275
+      }
+    },
+    "jump_table_dispatchers": 20,
+    "gcm": {
+      "context_out": "0x22f9370",
+      "command_size": "0x200000",
+      "io_size": "0x700000",
+      "io_address": "0x13f00000"
+    },
+    "window_created": true,
+    "graphics": {
+      "backend": "Direct3D 12",
+      "adapter": "AMD Radeon RX 580 2048SP",
+      "width": 1280,
+      "height": 720,
+      "guest_flips_observed": 3,
+      "guest_flips_count_is_lower_bound": true,
+      "draw_frame_validated": true,
+      "intro_animation_artifacts_observed": true,
+      "title_screen_validated": true
+    },
+    "spu_gap": {
+      "fingerprint": "22F896FE3B85A8C7",
+      "bytes": 5140,
+      "executable_segments": 3,
+      "upstream_skipped_execution": false,
+      "native_programs_registered": 14,
+      "programs_discovered": 20,
+      "inventory_complete": false,
+      "strict_missing_program": true,
+      "strict_missing_branch": true,
+      "observed_image": 526190333,
+      "task_completion_validated": "64 captured AssetStream outputs match independent oracles; audio task completion not exhaustively validated",
+      "group_isolation_requires_investigation": false,
+      "boot_threads": 6,
+      "boot_thread_ids": [
+        "0x2000",
+        "0x2001",
+        "0x2002",
+        "0x2003",
+        "0x2004",
+        "0x2005"
+      ],
+      "strict_content_identity": true,
+      "previous_spu_fault_reproduced": false,
+      "observed_thread": "0x2003"
+    },
+    "resolved_ppu_targets": [
+      "0x13a796c",
+      "0x138a208"
+    ],
+    "pending_direct_targets": 0,
+    "discovery_regression_tests": 3,
+    "boot_regression_tests": 32,
+    "observed_null_call": {
+      "lr": "0x11a9f50",
+      "thread": 1,
+      "strict_guard_pending": false
+    },
+    "cache": {
+      "source": "DATA4.BIG",
+      "source_bytes": 30585168,
+      "temporary_bytes": 30585168,
+      "rename_validated": false
+    },
+    "raw_spu_overlays": 19,
+    "asset_jobs": {
+      "total": 64,
+      "passed": 64,
+      "bytes": 3756574,
+      "refpack": 32,
+      "deflate": 32,
+      "exhaustive": false
+    },
+    "boot_tests": 32,
+    "runtime_tests": 16,
+    "first_frame": {
+      "visually_reviewed": true,
+      "scene": "FIFA Street logo and original background",
+      "width": 1280,
+      "height": 720,
+      "draws": 1,
+      "earliest_capture": "private/analysis/runs/1792846643102912600/rsxcap/frame_00/backbuffer.bmp",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "menu_validated": false
+    },
+    "frames_rendered_note": "At least one draw frame visually verified; not a total frame count",
+    "project_tests": 53,
+    "cache_data4_verified": true,
+    "raw_spu_distinct_sources": 19,
+    "audio_capture": {
+      "samples": 10490880,
+      "nonzero": 699913,
+      "nonfinite": 0,
+      "peak": 0.5612731575965881,
+      "audible_validated": false,
+      "synchronization_validated": false,
+      "path": "private/analysis/savedata-overlay-audio.f32le",
+      "native_run": "private\\analysis\\runs\\1792902016004434800"
+    },
+    "observed_native_spu_entries": [
+      {
+        "name": "assetstream_zlib",
+        "source_ea": 31825024,
+        "ls_base": 128,
+        "thread": 8196,
+        "pc": 256
+      },
+      {
+        "name": "assetstream_refpack",
+        "source_ea": 31822336,
+        "ls_base": 128,
+        "thread": 8196,
+        "pc": 176
+      },
+      {
+        "name": "sportsrna_spupatch",
+        "source_ea": 32657152,
+        "ls_base": 128,
+        "thread": 8196,
+        "pc": 176
+      },
+      {
+        "name": "audio_spumixer",
+        "source_ea": 33579648,
+        "ls_base": 128,
+        "thread": 8195,
+        "pc": 176
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 14208,
+        "thread": 8195,
+        "pc": 14256
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 18560,
+        "thread": 8195,
+        "pc": 18608
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 27520,
+        "thread": 8195,
+        "pc": 27568
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 37888,
+        "thread": 8195,
+        "pc": 37936
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 42880,
+        "thread": 8195,
+        "pc": 43104
+      },
+      {
+        "name": "audio_spupause",
+        "source_ea": 33502336,
+        "ls_base": 14208,
+        "thread": 8195,
+        "pc": 14272
+      },
+      {
+        "name": "audio_spuresample",
+        "source_ea": 33320704,
+        "ls_base": 14592,
+        "thread": 8195,
+        "pc": 14640
+      },
+      {
+        "name": "audio_spurechannel",
+        "source_ea": 33316864,
+        "ls_base": 18816,
+        "thread": 8195,
+        "pc": 18872
+      },
+      {
+        "name": "audio_spupacketplayer",
+        "source_ea": 33471232,
+        "ls_base": 22656,
+        "thread": 8195,
+        "pc": 22896
+      },
+      {
+        "name": "audio_spudecoder",
+        "source_ea": 33093760,
+        "ls_base": 26752,
+        "thread": 8195,
+        "pc": 27152
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 30720,
+        "thread": 8195,
+        "pc": 30768
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 35072,
+        "thread": 8195,
+        "pc": 35120
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 44032,
+        "thread": 8195,
+        "pc": 44080
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 54400,
+        "thread": 8195,
+        "pc": 54448
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 59392,
+        "thread": 8195,
+        "pc": 59616
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 22656,
+        "thread": 8195,
+        "pc": 23176
+      },
+      {
+        "name": "audio_spudecoder",
+        "source_ea": 33093760,
+        "ls_base": 30464,
+        "thread": 8195,
+        "pc": 30864
+      },
+      {
+        "name": "audio_spupacketplayer",
+        "source_ea": 33471232,
+        "ls_base": 34432,
+        "thread": 8195,
+        "pc": 34672
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 38528,
+        "thread": 8195,
+        "pc": 38576
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 42880,
+        "thread": 8195,
+        "pc": 42928
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 51840,
+        "thread": 8195,
+        "pc": 51888
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 62208,
+        "thread": 8195,
+        "pc": 62256
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 67200,
+        "thread": 8195,
+        "pc": 67424
+      },
+      {
+        "name": "ant_kernel",
+        "source_ea": 33675392,
+        "ls_base": 128,
+        "thread": 8196,
+        "pc": 176
+      },
+      {
+        "name": "audio_spuresample",
+        "source_ea": 33320704,
+        "ls_base": 14208,
+        "thread": 8195,
+        "pc": 14256
+      },
+      {
+        "name": "audio_spurechannel",
+        "source_ea": 33316864,
+        "ls_base": 18432,
+        "thread": 8195,
+        "pc": 18488
+      },
+      {
+        "name": "audio_spupacketplayer",
+        "source_ea": 33471232,
+        "ls_base": 22272,
+        "thread": 8195,
+        "pc": 22512
+      },
+      {
+        "name": "audio_spudecoder",
+        "source_ea": 33093760,
+        "ls_base": 26368,
+        "thread": 8195,
+        "pc": 26768
+      },
+      {
+        "name": "audio_spupause",
+        "source_ea": 33502336,
+        "ls_base": 30336,
+        "thread": 8195,
+        "pc": 30400
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 30720,
+        "thread": 8195,
+        "pc": 31240
+      },
+      {
+        "name": "audio_spudecpcmfloatnative",
+        "source_ea": 33176064,
+        "ls_base": 30336,
+        "thread": 8195,
+        "pc": 31584
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 33664,
+        "thread": 8195,
+        "pc": 33712
+      },
+      {
+        "name": "audio_spusend",
+        "source_ea": 33311616,
+        "ls_base": 44032,
+        "thread": 8195,
+        "pc": 44080
+      },
+      {
+        "name": "audio_spupause",
+        "source_ea": 33502336,
+        "ls_base": 49280,
+        "thread": 8195,
+        "pc": 49344
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 49664,
+        "thread": 8195,
+        "pc": 50184
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 57472,
+        "thread": 8195,
+        "pc": 57520
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 61824,
+        "thread": 8195,
+        "pc": 61872
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 70784,
+        "thread": 8195,
+        "pc": 70832
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 75776,
+        "thread": 8195,
+        "pc": 76000
+      },
+      {
+        "name": "audio_spupause",
+        "source_ea": 33502336,
+        "ls_base": 33664,
+        "thread": 8195,
+        "pc": 33728
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 34048,
+        "thread": 8195,
+        "pc": 34568
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 41856,
+        "thread": 8195,
+        "pc": 41904
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 46208,
+        "thread": 8195,
+        "pc": 46256
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 55168,
+        "thread": 8195,
+        "pc": 55216
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 65536,
+        "thread": 8195,
+        "pc": 65584
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 70528,
+        "thread": 8195,
+        "pc": 70752
+      },
+      {
+        "name": "audio_spugenericplayer",
+        "source_ea": 33411328,
+        "ls_base": 22656,
+        "thread": 8195,
+        "pc": 23008
+      },
+      {
+        "name": "audio_spudecoder",
+        "source_ea": 33093760,
+        "ls_base": 29952,
+        "thread": 8195,
+        "pc": 30352
+      },
+      {
+        "name": "audio_spupacketplayer",
+        "source_ea": 33471232,
+        "ls_base": 33920,
+        "thread": 8195,
+        "pc": 34160
+      },
+      {
+        "name": "audio_spudecpcmfloatnative",
+        "source_ea": 33176064,
+        "ls_base": 38016,
+        "thread": 8195,
+        "pc": 39264
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 41344,
+        "thread": 8195,
+        "pc": 41864
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 49152,
+        "thread": 8195,
+        "pc": 49200
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 53504,
+        "thread": 8195,
+        "pc": 53552
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 62464,
+        "thread": 8195,
+        "pc": 62512
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 72832,
+        "thread": 8195,
+        "pc": 72880
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 77824,
+        "thread": 8195,
+        "pc": 78048
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 38016,
+        "thread": 8195,
+        "pc": 38064
+      },
+      {
+        "name": "audio_spusend",
+        "source_ea": 33311616,
+        "ls_base": 48384,
+        "thread": 8195,
+        "pc": 48432
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 53632,
+        "thread": 8195,
+        "pc": 54152
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 61440,
+        "thread": 8195,
+        "pc": 61488
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 65792,
+        "thread": 8195,
+        "pc": 65840
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 74752,
+        "thread": 8195,
+        "pc": 74800
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 79744,
+        "thread": 8195,
+        "pc": 79968
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 33920,
+        "thread": 8195,
+        "pc": 34440
+      },
+      {
+        "name": "audio_spupacketplayer",
+        "source_ea": 33471232,
+        "ls_base": 41728,
+        "thread": 8195,
+        "pc": 41968
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 45824,
+        "thread": 8195,
+        "pc": 45872
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 50176,
+        "thread": 8195,
+        "pc": 50224
+      },
+      {
+        "name": "audio_spugainfader",
+        "source_ea": 33401088,
+        "ls_base": 59136,
+        "thread": 8195,
+        "pc": 59184
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 69504,
+        "thread": 8195,
+        "pc": 69552
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 74496,
+        "thread": 8195,
+        "pc": 74720
+      },
+      {
+        "name": "audio_spugenericplayer",
+        "source_ea": 33411328,
+        "ls_base": 30720,
+        "thread": 8195,
+        "pc": 31072
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 38016,
+        "thread": 8195,
+        "pc": 38536
+      },
+      {
+        "name": "audio_spugenericplayer",
+        "source_ea": 33411328,
+        "ls_base": 49664,
+        "thread": 8195,
+        "pc": 50016
+      },
+      {
+        "name": "audio_spusndplayer1",
+        "source_ea": 33335296,
+        "ls_base": 56960,
+        "thread": 8195,
+        "pc": 57480
+      },
+      {
+        "name": "audio_spusubmix",
+        "source_ea": 33240448,
+        "ls_base": 64768,
+        "thread": 8195,
+        "pc": 64816
+      },
+      {
+        "name": "audio_spusamplecapture",
+        "source_ea": 33540096,
+        "ls_base": 69120,
+        "thread": 8195,
+        "pc": 69168
+      },
+      {
+        "name": "audio_spuvumeter",
+        "source_ea": 33574400,
+        "ls_base": 78080,
+        "thread": 8195,
+        "pc": 78128
+      },
+      {
+        "name": "audio_spudac",
+        "source_ea": 33244672,
+        "ls_base": 83072,
+        "thread": 8195,
+        "pc": 83296
+      },
+      {
+        "name": "audio_spugenericplayer",
+        "source_ea": 33411328,
+        "ls_base": 34048,
+        "thread": 8195,
+        "pc": 34400
+      }
+    ],
+    "elapsed_seconds": 120.239,
+    "raw_spu_relocatable_images": 14,
+    "historical_wait_before_audio_pic": {
+      "mutex": 8,
+      "owner_thread": 22,
+      "waiting_thread": 32,
+      "main_lr": "0x11a28",
+      "owner_lr": "0xdc95b8",
+      "sample_ms": 45000
+    },
+    "watchdog_sample": {
+      "milliseconds": 75000,
+      "best_effort": true,
+      "main_lr": "0x122ad04",
+      "render_thread": 22,
+      "in_hle": "cellPadGetInfo2",
+      "owned_mutexes": [
+        8,
+        20,
+        109
+      ]
+    },
+    "first_title_screen": {
+      "frame": 3301,
+      "bitmap": "private/analysis/savedata-overlay-frames/frame_07/backbuffer.bmp",
+      "sha256": "a0ce11559961bcb55cd1c85bf425a0e53224ca385ecd13861cdf0a1f91bbe213",
+      "visually_reviewed": true,
+      "scene": "FIFA STREET - PRESS START BUTTON, Messi artwork and original licensing text",
+      "width": 1280,
+      "height": 720,
+      "draws": 39,
+      "menu_navigation_validated": false
+    }
   }
 }

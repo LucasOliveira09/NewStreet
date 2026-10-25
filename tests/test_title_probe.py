@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from run_title_probe import capture_identity, parse_region, TitleGate
+from run_title_probe import capture_identity, parse_region, TitleGate, CaptureSequence
 
 
 def bitmap(rows, top_down=False):
@@ -19,6 +19,20 @@ def bitmap(rows, top_down=False):
 
 
 class TitleCaptureIdentityTests(unittest.TestCase):
+    def test_confirmation_requires_its_reviewed_capture_after_the_title_and_only_once(self):
+        title = bitmap([[(1, 2, 3)]])
+        confirm = bitmap([[(4, 5, 6)]])
+        other = bitmap([[(0, 0, 0)]])
+        sequence = CaptureSequence([
+            dict(references={capture_identity(title)}, delay=0, region=None, mask='0x0008', reports=40),
+            dict(references={capture_identity(confirm)}, delay=0, region=None, mask='0x4000', reports=40)])
+        self.assertIsNone(sequence.observe(confirm, 1))
+        self.assertEqual(sequence.observe(title, 2)['mask'], '0x0008')
+        self.assertIsNone(sequence.observe(title, 3))
+        self.assertIsNone(sequence.observe(other, 4))
+        self.assertEqual(sequence.observe(confirm, 5)['mask'], '0x4000')
+        self.assertIsNone(sequence.observe(confirm, 6))
+
     def test_delayed_input_requires_current_title_to_remain_visible(self):
         gate = TitleGate({'title'}, 5)
         self.assertFalse(gate.observe('other', 10))

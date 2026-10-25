@@ -68,6 +68,14 @@ class TrophyStorageTests(unittest.TestCase):
             self.assertFalse((storage / 'NPWR00001_00').exists())
             self.assertGreater(result['after'], 0)
 
+    def test_unused_communication_id_terminator_cannot_change_storage_path(self):
+        with tempfile.TemporaryDirectory() as folder:
+            disc, storage = self.setup_disc(Path(folder), archive([('TROPCONF.SFM', b'<trophyconf/>')]))
+            result = self.run_probe(disc, storage, FIFA_TEST_TROPHY_NONZERO_TERM='1')
+            self.assertEqual(result['registered'], 0)
+            self.assertTrue((storage / 'NPWR00001.json').is_file())
+            self.assertFalse((storage / 'NPWR00001').exists())
+
     def test_existing_progress_is_preserved_byte_for_byte_at_registration(self):
         with tempfile.TemporaryDirectory() as folder:
             disc, storage = self.setup_disc(Path(folder), archive([('TROPCONF.SFM', b'<trophyconf/>')]))

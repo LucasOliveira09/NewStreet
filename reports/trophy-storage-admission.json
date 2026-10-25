@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-25",
+  "run": "1792940656197898700",
+  "exit_code": 90,
+  "elapsed_seconds": 128.313,
+  "source": {
+    "sha256": "cc4067e02bc54cc2a729811b21d41bf4153394b2b4e4a4ac20570a2d143e4854",
+    "bytes": 677296,
+    "version": 1,
+    "entries": 43
+  },
+  "installed_files": 42,
+  "independent_byte_comparisons_passed": 42,
+  "required_after_registration": 0,
+  "observed_ui": "original_autosave_information",
+  "capture": "private/analysis/trophy-installed-frames/frame_10/backbuffer.bmp",
+  "next_missing": {
+    "library": "cellSysutil",
+    "name": "cellSaveDataListAutoSave",
+    "nid": "0x4dd03a4e",
+    "lr": "0x135bd70"
+  },
+  "tests": {
+    "boot": 41,
+    "project": 76,
+    "trophy_storage": 6
+  },
+  "complete_port": false,
+  "limitations": [
+    "Menu and gameplay not validated",
+    "Save writing not validated",
+    "Trophy metadata/unlock blocked until implemented",
+    "Localized trophy config selection pending"
+  ]
+}
