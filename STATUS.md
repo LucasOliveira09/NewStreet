@@ -987,3 +987,19 @@ lógicas Start/Cross conferem com oráculos independentes. Provedores e vínculo
 sintéticos não são instalados no boot do jogo. Não é teste de eventos da UI,
 nem conformidade completa da PPU. Ambos os builds e 63 testes do projeto
 passaram antes da adição do inspetor de memória, cujos dois testes são separados.
+
+
+## Inspeção de memória nativa sem escrita (2026-10-25)
+
+tools/inspect_native_memory.py aceita somente o PID cujo executável é o
+FullGame deste projeto. Abre QUERY_INFORMATION|VM_READ; resolve vm_base pelo
+PDB local e seções PE, sem attach de debugger, chamadas remotas ou escrita.
+Até 16 leituras de no máximo 4 KiB, limitadas ao espaço guest. Snapshots não
+são atômicos: threads continuam executando. Dois testes verificam offset
+decimal do símbolo e limites; 65 testes do projeto passaram. Leitura real no
+PID 3580 confirmou o ponteiro do provedor de bindings 0x2259690 -> 0x106f09f0,
+o dispositivo (4 digitais/12 pressões/8 eixos) e seus buffers, coerentes com
+a telemetria. Nova leitura após o processo encerrar falhou, sem fabricar bytes.
+O run native-bindings 1792935048107759000 terminou em 76,152 s por falta SPU
+em 0x17830: highpass entrou de verdade; próximo programa é lowpass. A inspeção
+é diagnóstico e não prova de navegação. Dumps continuam em private/.
