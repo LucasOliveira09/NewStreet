@@ -82,6 +82,33 @@
       "sha256": "94552f003c2a713bf5a3bc9e978db2d43077562de727b6cdb00f1a904c769981"
     },
     {
+      "job": "refpack-17",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 20220,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "012b33e3d10191714c1324019b9380238b3831bbbea968ac771c1401f8722415"
+    },
+    {
+      "job": "refpack-18",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 21010,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "b14615f29454f5a0c475e033aaf73c0d5734f093d737b635b68b73adf23b1fb4"
+    },
+    {
+      "job": "refpack-19",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 329,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "2c5f9edad86d1baa77846fcff01b987fbf4e1fe55df1f8639fbb996ffc95d7d8"
+    },
+    {
       "job": "refpack-2",
       "codec": "refpack",
       "matches": true,
@@ -91,6 +118,96 @@
       "sha256": "f805f2149312e6fc193367e725f631dae208a86e5ef1b9a6254a70fdd9571471"
     },
     {
+      "job": "refpack-20",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 478,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "7dca80be01026eca5ce7f9874e1b55630d2999dbb0b1997bcdcc1dbbc887e311"
+    },
+    {
+      "job": "refpack-21",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 269,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "de2f256064a0af797747c2b97505dc0b9f3df0de4f489eac731c23ae9ca9cc31"
+    },
+    {
+      "job": "refpack-22",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 9592,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "17a2d8c5db986160f210b373d5a22e476549e2a6729c6c11a6edf8b4006728a5"
+    },
+    {
+      "job": "refpack-23",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 6670,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "306ab103f29f30d58701092d13fa78175501fb7d1d74616ebbb6fe6cb359a499"
+    },
+    {
+      "job": "refpack-24",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 12124,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "83e9b6d5a79e3d7c56e537d4170b61478bcd5947daaddffedd15e91c468f8fd1"
+    },
+    {
+      "job": "refpack-25",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 21493,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "ad84cbfbc24bf65b052f37ebb253a4041f401224b63cee9e69dad905d18da940"
+    },
+    {
+      "job": "refpack-26",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 20647,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "bde30a3f3eb3192e1924ba6e0e51cb7948a941ce1e3a1b6f421ac965bef6a895"
+    },
+    {
+      "job": "refpack-27",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 9505,
+      "output_bytes": 36292,
+      "expected_bytes": 36292,
+      "sha256": "ab7e52192317f9a34296f6c0eced42b3d8827941ce99bd0ccf97b66b7dd33788"
+    },
+    {
+      "job": "refpack-28",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 18539,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "f34d1fbc9db20cc1aab5e964c2563eb312ea1eaae5aa232f9e58e1e8d1381cf9"
+    },
+    {
+      "job": "refpack-29",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 21302,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "aca4510bf759f057927c7658ec94beadef161f7983fe917ef599c875f3cd00e7"
+    },
+    {
       "job": "refpack-3",
       "codec": "refpack",
       "matches": true,
@@ -98,6 +215,24 @@
       "output_bytes": 131072,
       "expected_bytes": 131072,
       "sha256": "696ef1c9f4a8896b66093dc21990ebdf49cf7277661746e283386a7aae9d044b"
+    },
+    {
+      "job": "refpack-30",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 12658,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "c0b2d2f1c07ac56151f159393c0f46a9d15a84ee74818f77cffab6668302a4fb"
+    },
+    {
+      "job": "refpack-31",
+      "codec": "refpack",
+      "matches": true,
+      "input_bytes": 12777,
+      "output_bytes": 65536,
+      "expected_bytes": 65536,
+      "sha256": "92a6b08c9bb71dfaa972ce4c82d34ede4cbebfc614a3a8d00195cf4ed73c300c"
     },
     {
       "job": "refpack-4",
@@ -442,11 +577,11 @@
       "sha256": "b4e8b36473b730f45bb80e7a4c35b4f199d55c4a048768eca560757c058a229b"
     }
   ],
-  "total": 49,
-  "passed": 49,
+  "total": 64,
+  "passed": 64,
   "capture_limit_per_codec": 32,
   "exhaustive": false,
   "incomplete": [],
   "all_passed": true,
-  "native_run": "private\\analysis\\runs\\1792873669502836500"
+  "native_run": "private\\analysis\\runs\\1792902016004434800"
 }

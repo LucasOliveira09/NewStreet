@@ -359,3 +359,11 @@ A regressão do dispatcher real falhou antes e passou depois. Sete valores de
 entrada conferem truncamento s32, preferência e preservação de registradores.
 32 testes de boot, 53 do projeto, 16 CTest e os dois builds passaram. Boot real
 com timeout 120 s em andamento para identificar a próxima dependência.
+
+## Tela de título conferida
+
+Em 1792902016004434800 o frame 3301 mostra a tela original PRESS START BUTTON,
+com Messi e licenciamento. Processo ativo até timeout 120,239 s, sem nova
+falha estrita. Relatórios atualizados; 64 saídas AssetStream passaram e há
+sinal finito no áudio. Próximo: pressionar Start pela entrada PAD_FILE após
+conferir a tela na nova tentativa. Não usar uma sequência cega de confirmações.

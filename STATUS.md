@@ -793,3 +793,16 @@ A regressão no dispatcher real falhou com exit 90 antes e passou depois.
 Sete casos cobrem sinal, truncamento s32 e ABI. 32 testes de boot, 53 do projeto,
 16 CTest do runtime e builds de boot/jogo passaram. Próximo: repetir o boot.
 Referência: https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/cellSaveData.cpp
+
+## Tela de título original
+
+Após EnableOverlay, a execução 1792902016004434800 permaneceu ativa até o
+timeout de 120,239 s, sem nova falha estrita. O frame 3301 foi inspecionado:
+tela FIFA STREET, Messi, texto PRESS START BUTTON e licenciamento original,
+1280x720, 39 draws. Captura privada savedata-overlay-frames/frame_07,
+SHA a0ce11559961bcb55cd1c85bf425a0e53224ca385ecd13861cdf0a1f91bbe213.
+As 64 saídas AssetStream passaram. O mix contém 10.490.880 amostras, 699.913
+não zero, nenhuma não finita; fidelidade auditiva e sincronia não validadas.
+Os relatórios de checkpoint/assets foram atualizados com essa tentativa.
+Próximo: Start pela entrada real e navegação. A tela de título não demonstra
+menu navegável, partida ou saves; a animação anterior ainda tem artefatos.
