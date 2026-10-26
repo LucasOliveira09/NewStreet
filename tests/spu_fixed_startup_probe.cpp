@@ -1,0 +1,121 @@
+#include "spu_workload.h"
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <vector>
+
+extern "C" void fifa_install_spu_policy(void);
+extern "C" void spu_indirect_branch(spu_context*);
+extern "C" int spu_run_with_halt(void (*)(spu_context*), spu_context*);
+extern "C" void spu_halt(spu_context*);
+extern "C" void spu_begin_image(int);
+extern "C" void spu_register_function(uint32_t, void (*)(spu_context*));
+using native_fn = void (*)(spu_context*);
+extern "C" native_fn spu_lifted_lookup(const spu_context*, uint32_t);
+
+#ifdef FIFA_HAS_SPU
+#define ORIGINAL_CTOR(address) extern "C" void fifa_job_raw_1ee9580_spu_func_##address(spu_context*)
+ORIGINAL_CTOR(00004A30); ORIGINAL_CTOR(000047E8); ORIGINAL_CTOR(00004728);
+ORIGINAL_CTOR(00004580); ORIGINAL_CTOR(000044C0); ORIGINAL_CTOR(00004480);
+ORIGINAL_CTOR(00004328); ORIGINAL_CTOR(000042E8); ORIGINAL_CTOR(00003EE0);
+ORIGINAL_CTOR(00000738);
+#undef ORIGINAL_CTOR
+namespace {
+constexpr int image_id = 0x256ac370;
+constexpr uint32_t constructors[] = {
+    0x4a30, 0x47e8, 0x4728, 0x4580, 0x44c0,
+    0x4480, 0x4328, 0x42e8, 0x3ee0, 0x738
+};
+const native_fn originals[] = {
+    fifa_job_raw_1ee9580_spu_func_00004A30, fifa_job_raw_1ee9580_spu_func_000047E8,
+    fifa_job_raw_1ee9580_spu_func_00004728, fifa_job_raw_1ee9580_spu_func_00004580,
+    fifa_job_raw_1ee9580_spu_func_000044C0, fifa_job_raw_1ee9580_spu_func_00004480,
+    fifa_job_raw_1ee9580_spu_func_00004328, fifa_job_raw_1ee9580_spu_func_000042E8,
+    fifa_job_raw_1ee9580_spu_func_00003EE0, fifa_job_raw_1ee9580_spu_func_00000738
+};
+unsigned calls;
+bool ordered, zeroed, stopped;
+spu_context* active;
+decltype(spu_missing_execution_hook) strict_missing;
+
+void observe_constructor(spu_context* ctx) {
+    for (unsigned i = 0; i < 10; ++i) {
+        if (ctx->pc != constructors[i]) continue;
+        if (!calls)
+            zeroed = std::all_of(ctx->ls + 0x5000, ctx->ls + 0x25a60,
+                                 [](uint8_t value) { return value == 0; });
+        ordered = ordered && calls == i;
+        ++calls;
+        originals[i](ctx); // Execute the original constructor, never a replacement result.
+        return;
+    }
+    std::abort();
+}
+
+void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
+    // This test-only caller sets r125=1: the original CRT stops before main.
+    // Only that exact diagnostic is captured; every other fault stays strict.
+    if (!std::strcmp(kind, "spu-stop") &&
+        value == ((uint64_t(image_id) << 32) | 0x3fff) &&
+        active->pc >= 0x184 && active->pc < 0x1a8 &&
+        active->stop_code == 0x3fff && active->status == SPU_STATUS_STOPPED_BY_STOP) {
+        stopped = true;
+        spu_halt(active);
+        return;
+    }
+    strict_missing(kind, value, ppu);
+}
+}
+
+extern "C" int fifa_test_spu_fixed_startup(const char* path) {
+    std::vector<uint8_t> blob(0x4f30);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    // Registry lookup uses the first registration. Install observers before the
+    // normal image, retaining direct pointers to the original generated bodies.
+    spu_begin_image(image_id);
+    for (auto address : constructors) spu_register_function(address, observe_constructor);
+    spu_begin_image(0);
+    fifa_install_spu_policy();
+    static spu_context ctx;
+    spu_context_init(&ctx, 81);
+    ctx.image_id = image_id;
+    std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+    std::memcpy(ctx.ls + 0x80, blob.data(), blob.size());
+    for (unsigned i = 0; i < 10; ++i) {
+        if (spu_ls_read32(&ctx, 0x4fa4 - 4 * i) != constructors[i]) return 4;
+        if (spu_lifted_lookup(&ctx, constructors[i]) != observe_constructor) return 77;
+    }
+    if (!spu_lifted_lookup(&ctx, 0xb0)) return 77;
+    active = &ctx;
+    calls = 0;
+    ordered = true;
+    zeroed = stopped = false;
+    ctx.gpr[1]._u32[0] = 0x3f000;
+    ctx.gpr[125]._u32[0] = 1; // Authored harness input; never used for game execution.
+    ctx.pc = 0xb0;
+    ctx.status = SPU_STATUS_RUNNING;
+    strict_missing = spu_missing_execution_hook;
+    spu_missing_execution_hook = observe_original_stop;
+    int halted = spu_run_with_halt(spu_indirect_branch, &ctx);
+    spu_missing_execution_hook = strict_missing;
+    if (!halted || !stopped || calls != 10 || !ordered || !zeroed) return 5;
+    if (std::memcmp(ctx.ls + 0x80, blob.data(), 0x4a40 - 0x80)) return 6;
+    for (uint32_t address = 0x4fb0; address < 0x5000; ++address)
+        if (ctx.ls[address] != 0xa5) return 7;
+    for (uint32_t address = 0x25a60; address < 0x25a70; ++address)
+        if (ctx.ls[address] != 0xa5) return 7;
+    std::printf("{\"original_constructors\":10,\"reverse_order\":true,"
+                "\"bss_zero_before_constructors\":true,\"bss_guards_preserved\":true,"
+                "\"code_preserved\":true,\"original_stop\":16383,"
+                "\"main_executed\":false,\"algorithm_validated\":false}\n");
+    return 0;
+}
+#else
+extern "C" int fifa_test_spu_fixed_startup(const char*) { return 77; }
+#endif

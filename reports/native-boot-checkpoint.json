@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Particle IK and facial plugins entered; a fixed-address raw program at 0x1ee9580 is untranslated",
+  "stage": "Fixed-address program 0x1ee9580 entered; Replay_matrixsave.elf at 0x1f23500 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792989446164060900",
-  "elapsed_seconds": 79.515,
+  "logs": "private\\analysis\\runs\\1793030318269513100",
+  "elapsed_seconds": 90.29,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 119,
+    "project": 130,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,17 +866,17 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1ee9580",
+    "source_ea": "0x1f23500",
     "ls_base": "0x80",
     "pc": "0xb0",
-    "initialized_bytes": 20272,
-    "source_sha256": "56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f",
+    "initialized_bytes": 6480,
+    "source_sha256": "3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380",
     "snapshot_byte_differences": 0,
     "verified_snapshots": 2,
-    "bss_start": "0x5000",
-    "bss_end": "0x25a60",
-    "source_name_verified": false,
-    "distant_label_misattribution": "Replay_deltacompress.elf is not the name of this initialized image"
+    "source_name": "Replay_matrixsave.elf",
+    "source_name_verified": true,
+    "header_flags": "0x80000080",
+    "header_mode": 0
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -954,7 +954,8 @@
     "raw_event_errors": 1,
     "valid_events": 176,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792989446164060900/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792989446164060900/process-exit.json",
+    "last_run_event_parse_errors": 1
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1206,5 +1207,21 @@
       "native_entry_observed": false,
       "algorithm_result_validated": false
     }
-  ]
+  ],
+  "spu_fixed_1ee9580": {
+    "source_ea": "0x1ee9580",
+    "ls_base": "0x80",
+    "entry": "0xb0",
+    "bytes": 20272,
+    "sha256": "56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f",
+    "native_entries": 173,
+    "original_constructor_calls": 10,
+    "reverse_order_validated": true,
+    "bss_zero_before_constructors": true,
+    "bss_guards_preserved": true,
+    "code_preserved": true,
+    "native_entry_observed": true,
+    "algorithm_result_validated": false,
+    "source_name_verified": false
+  }
 }

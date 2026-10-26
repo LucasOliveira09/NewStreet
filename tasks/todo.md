@@ -9,7 +9,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Título e aviso de autosave originais renderizados em Direct3D 12.
 - [x] Criação e releitura real do perfil original; arquivos preservados por hash.
 - [x] Falhas sem suporte interrompem execução com diagnóstico estrito.
-- [ ] Corrigir identificação e executar módulo SPU de 0x1ee9580.
+- [x] Corrigir identificação e executar módulo SPU de 0x1ee9580.
+- [ ] Traduzir e executar Replay_matrixsave de 0x1f23500.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.

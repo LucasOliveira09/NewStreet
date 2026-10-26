@@ -62,6 +62,7 @@ add_executable(fifa_boot src/boot_main.cpp src/boot_diagnostics.cpp src/process_
     tests/spu_dxt_probe.cpp
     tests/texture_fingerprint_probe.cpp
     tests/spu_topology_probe.cpp
+    tests/spu_fixed_startup_probe.cpp
     tests/rsx_fifo_probe.cpp
     tests/spu_group_probe.cpp
     tests/spu_overlay_probe.cpp
@@ -94,7 +95,8 @@ if(FIFA_BUILD_SPU)
         COMPILE_DEFINITIONS SPU_USE_DISPATCH_MT COMPILE_OPTIONS "/O2;/w")
     # Scope this define to its consumer; changing it must not rebuild the
     # hundreds of unrelated generated PPU translation units.
-    set_source_files_properties(src/spu_policy.cpp PROPERTIES COMPILE_DEFINITIONS FIFA_HAS_SPU)
+    set_source_files_properties(src/spu_policy.cpp tests/spu_fixed_startup_probe.cpp
+        PROPERTIES COMPILE_DEFINITIONS FIFA_HAS_SPU)
 endif()
 target_include_directories(fifa_boot PRIVATE "${BOOT_RECOMP_DIR}" "${PS3_SDK}/include"
     "${PS3_SDK}/runtime/ppu" "${PS3_SDK}/runtime/spu" "${PS3_SDK}/runtime/memory"

@@ -4,26 +4,19 @@ Estado e evidências atuais: [checkpoint](../STATUS.md).
 Objetivo e aceite integral: [prompt completo](../PROMPT_EXECUCAO_COMPLETA.md).
 Histórico preservado: [índice](../docs/history/README.md).
 
-## 1. Corrigir identificação SPU fora dos limites
+## Etapas concluídas neste incremento
 
-- Arquivos: tools/identify_spu_resident.py e testes autorais relacionados.
-- Reproduzir associação errada do programa de 0x1ee9580 com nome distante.
-- Vincular nomes a limites de imagem/cabeçalho revisados, rejeitando ambiguidades
-  e strings truncadas; não usar busca ilimitada por BuiltElfName.
-- Aceite: regressão demonstra a falha e passa; identificações válidas preservadas;
-  diagnóstico da fonte atual não afirma nome original sem evidência.
-- Não relaxar flags, hashes, reconhecimento de arquitetura ou saída estrita.
+- Identificador não associa rótulos fora dos limites; dez regressões autorais passaram.
+- Imagem 0x1ee9580 traduzida: 173 entradas; CRT/BSS e dez construtores validados.
+- Entrada real observada; 65 amostras de assets e cinco hashes do perfil preservados.
 
-## 2. Traduzir a imagem fixa efetivamente carregada
+## 1. Traduzir Replay_matrixsave na base fixa observada
 
-- Revalidar imagem privada e duas LS contra SHA e limites no checkpoint.
-- Manifesto autoral: job_raw_1ee9580, base 0x80, entrada 0xb0,
-  tamanho 0x4f30, code_end 0x4a40; revisar referências e destinos indiretos.
-- Cobrir entradas CRT 0x13c/0x154, BSS 0x5000..0x25a60 e dez construtores
-  em ordem reversa. Não substituir chamadas originais por resultados prontos.
-- Aceite: tradução sem instruções/destinos diretos pendentes, fixture de CRT
-  confirma dez chamadas originais, BSS e guardas. Sem alegar algoritmo completo.
-- O principal executa lift e build serializados; auxiliares não publicam gerados.
+- Fonte 0x1f23500, base LS 0x80, entrada 0xb0, tamanho 0x1950 e SHA no checkpoint.
+- Revisar código/dados, BSS, tabela de construtores e entradas indiretas do CRT.
+- Flags 0x80000080/modo 0: não relaxar a admissão PIC modo 1.
+- Aceite: fonte/snapshots conferem, tradução completa nos limites revisados,
+  fixture pertinente e entrada real no próximo ensaio estrito.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

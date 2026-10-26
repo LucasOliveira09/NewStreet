@@ -1870,6 +1870,30 @@
         "0x1d68"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "job_raw_1ee9580",
+      "source_ea": "0x1ee9580",
+      "size": "0x4f30",
+      "sha256": "56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x4a40",
+      "extra_entries": [
+        "0x13c",
+        "0x154",
+        "0x738",
+        "0x3ee0",
+        "0x42e8",
+        "0x4328",
+        "0x4480",
+        "0x44c0",
+        "0x4580",
+        "0x4728",
+        "0x47e8",
+        "0x4a30"
+      ]
     }
   ]
 }

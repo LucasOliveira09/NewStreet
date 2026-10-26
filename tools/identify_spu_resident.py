@@ -17,6 +17,45 @@ from elf_parser import ELFFile, PT_LOAD
 from spu_disasm import disassemble_spu
 
 
+def image_bounds(words, base, available):
+    """Return the initialized span for the two locally reviewed header layouts.
+
+    PIC headers declare a relative file size in word 5 (also used by the raw
+    inventory). Fixed-address headers instead declare LS start/end in words
+    7/8; word 5 is the BSS start, not an image size.
+    """
+    if words[7] & 0x80000000:
+        size = words[5]
+        entry = words[4]
+        basis = 'pic_relative_size'
+    elif words[7] == base:
+        size = words[8] - words[7]
+        entry = words[4] - base
+        basis = 'fixed_ls_end_minus_start'
+    else:
+        return None
+    if not 48 <= size <= min(available, 0x40000 - base) or size % 4:
+        return None
+    if not 48 <= entry < size or entry % 4:
+        return None
+    return size, basis
+
+
+def boundary_label(data, size):
+    # The trailer begins exactly at the declared initialized-image boundary.
+    # A bounded, strictly ASCII, NUL-terminated string is required in full.
+    if data[size:size + 12] != b'BuiltElfName':
+        return None
+    start = size + 32
+    end = data.find(b'\0', start, min(start + 512, len(data)))
+    if end <= start:
+        return None
+    name = data[start:end]
+    if any(byte < 32 or byte > 126 for byte in name):
+        return None
+    return name.decode('ascii')
+
+
 def identify(run):
     config = json.loads((ROOT / 'spu_overlays.json').read_text(encoding='utf-8'))
     source = ROOT / 'private/FIFAZF.elf'
@@ -44,7 +83,9 @@ def identify(run):
             for ea, data in segments:
                 pos = data.find(header)
                 while pos >= 0:
-                    matches.append((ea + pos, data[pos:pos + len(ls) - base]))
+                    # Include a bounded external name trailer even when the
+                    # initialized image ends at the last byte of local store.
+                    matches.append((ea + pos, data[pos:pos + len(ls) - base + 544]))
                     pos = data.find(header, pos + 1)
                     if len(matches) > 1:
                         break
@@ -54,19 +95,25 @@ def identify(run):
             if len(matches) == 1:
                 ea, data = matches[0]
                 item['source_ea'] = hex(ea)
-                label = data.find(b'BuiltElfName', 48)
-                if label >= 0:
-                    blob = data[:label]
+                bounds = image_bounds(struct.unpack('>12I', header), base, len(data))
+                if bounds is not None:
+                    size, basis = bounds
+                    blob = data[:size]
                     decoded = disassemble_spu(blob, base)
                     differences = [i for i, (a, b) in enumerate(zip(blob, ls[base:])) if a != b]
-                    name = data[label + 32:label + 112].split(b'\0')[0].decode('ascii', errors='replace')
-                    item.update(label_size_hint=hex(label), label=name,
+                    item.update(image_size=hex(size), image_end=hex(base + size),
+                                image_bounds_basis=basis,
                                 source_sha256=hashlib.sha256(blob).hexdigest(),
                                 snapshot_byte_differences=len(differences),
                                 first_differences=[hex(base + i) for i in differences[:8]],
                                 last_returns=[dict(pc=hex(i.addr), register=i.operands) for i in decoded
                                               if i.mnemonic == 'bi'][-6:],
                                 first_unknown_words=[hex(i.addr) for i in decoded if i.mnemonic == '.word'][:6])
+                    name = boundary_label(data, size)
+                    if name is not None:
+                        item.update(label_size_hint=hex(size), label=name)
+                else:
+                    item['image_bounds_error'] = 'Unsupported or truncated initialized-image bounds'
             result.append(item)
     return result
 

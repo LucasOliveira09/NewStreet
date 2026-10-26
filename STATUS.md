@@ -1,8 +1,8 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Baseline de código do jogo: `9439c85`, branch `codex/ps3-native-bootstrap`.
-A adaptação de agentes reorganiza o trabalho; não acrescenta funcionalidade ao jogo.
+Branch: `codex/ps3-native-bootstrap`; incremento atual: CRT fixo de 0x1ee9580.
+Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 
 ## Confirmado e ainda pendente
 
@@ -12,7 +12,7 @@ A adaptação de agentes reorganiza o trabalho; não acrescenta funcionalidade a
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal finito; escuta e sincronia pendentes.
 - **Menu navegável, cena, gameplay, partida completa e progressão não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 107 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 108 registros raw SPU.
   Contagem não comprova semântica completa dos serviços ou tarefas.
 - 68 módulos ANT do perfil comum: 6.422 entradas e 816 chamadas de construtores.
   Quatro variantes específicas: 72 chamadas em quatro bases. São testes de
@@ -21,35 +21,38 @@ A adaptação de agentes reorganiza o trabalho; não acrescenta funcionalidade a
 ## Último ensaio do jogo
 
 - Fonte: `reports/native-boot-checkpoint.json`; resultado privado:
-  `private/analysis/ant-specific-variants-native-run.json`.
-- Logs: `private/analysis/runs/1792989446164060900`.
-- Saída estrita **90**, aos **79,515 s**: entrada SPU ainda não traduzida.
+  `private/analysis/job-fixed-startup-native-run.json`.
+- Logs: `private/analysis/runs/1793030318269513100`.
+- Saída estrita **90**, aos **90,290 s**: outra entrada SPU ainda não traduzida.
 - Particle IK, footplant post, HIK reset, facial e face poser entraram no caminho real.
   Predictable blend/mirror foram compilados, sem entrada real observada.
-- Últimos checks registrados: 44 Boot, 119 do projeto, 16 runtime CTest;
-  65 amostras de assets contra oráculos independentes. Não são checks desta sessão.
+- Últimos checks registrados: 44 Boot, 130 do projeto, 16 runtime CTest;
+  65 amostras de assets contra oráculos independentes. Runtime CTest é registro anterior; os demais checks foram executados neste incremento.
 
-## Bloqueio atual e evidência pronta
+## Incremento validado e próximo bloqueio
 
-- Fonte EA **0x1ee9580**, LS **0x80**, entrada **0xb0**.
-- Imagem inicializada: **0x4f30 bytes**, termina em LS **0x4fb0**.
-- SHA-256: `56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f`.
-- Todos os bytes conferem com dois snapshots completos; BSS: **0x5000..0x25a60**.
-- Código revisado até **0x4a40**; dados ASCII começam nesse limite.
-- CRT usa entradas adicionais **0x13c/0x154** para zerar BSS.
-- Tabela de dez construtores: **0x4f80..0x4fa8**, percorrida em ordem reversa.
-- Fontes privadas prontas: `private/analysis/job_1ee9580.bin`,
-  `private/analysis/job_1ee9580-disassembly.txt` e snapshots em
-  `private/analysis/ant-specific-variants-next-spu/spu/`.
-- O diagnóstico antigo em `identified.json` atribui incorretamente
-  Replay_deltacompress.elf, encontrado fora da imagem. **Nome original desconhecido.**
-- Correção do identificador e tradução desta imagem continuam **pendentes**.
-  Próximas etapas e aceite: `tasks/plan.md`.
+- `job_raw_1ee9580`: fonte 0x1ee9580, base 0x80, entrada 0xb0,
+  0x4f30 bytes e 173 entradas nativas, sem instruções/destinos diretos pendentes.
+- CRT original zerou BSS 0x5000..0x25a60 e executou dez construtores em ordem
+  reversa, preservando código e guardas. Fixture para antes de main; o ensaio
+  do jogo usa seus argumentos originais e confirmou entrada real do módulo.
+- Nome original desse módulo segue desconhecido. Identificador corrigido não
+  atribui mais o rótulo distante Replay_deltacompress.elf.
+- Próxima imagem: **Replay_matrixsave.elf**, fonte **0x1f23500**, LS **0x80**,
+  entrada **0xb0**, **0x1950 bytes**, conferidos integralmente em dois snapshots.
+- SHA-256: `3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380`.
+- Nome está exatamente na fronteira declarada, não em busca distante.
+- Cabeçalho flags **0x80000080**, modo **0**: não admitir como PIC modo 1.
+- Imagem/disassembly: `private/analysis/replay_matrixsave.bin` e
+  `private/analysis/replay_matrixsave-disassembly.txt`.
+- Identificação: `private/analysis/job-fixed-startup-next-identified.json`.
+  Dois metadados válidos usados; terceiro truncado preservado no run original.
+- Próximo incremento: revisar CRT/limites e traduzir para a base fixa observada.
 
 ## Retomada e validação proporcional
 
 1. Confira instruções, branch/HEAD/mudanças. Leia este checkpoint e a etapa do plano.
-2. Para corrigir diagnóstico: abra `tools/identify_spu_resident.py` e seus testes.
+2. Consulte a imagem Replay_matrixsave e seus limites; diagnóstico já foi corrigido.
 3. Para tradução: confira bytes, fronteiras e manifesto; só depois gere e compile.
 4. O principal é dono exclusivo de lift/build/probe/patch/commit. Nunca relinke
    enquanto um processo nativo pai ou filho estiver vivo.
