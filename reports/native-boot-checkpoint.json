@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Group combine ANT plugin entered; next plugin at 0x20e8c80 replaces the earlier LS region",
+  "stage": "DCT ANT clip plugin entered; group final node at 0x20bc580 remains untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792986961606971500",
-  "elapsed_seconds": 81.132,
+  "logs": "private\\analysis\\runs\\1792987320028365500",
+  "elapsed_seconds": 80.563,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706368288,
+    "value": 2259970271706395824,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 43,
-    "project": 107,
+    "project": 108,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,12 +866,13 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x20e8c80",
-    "pc": "0x4920",
-    "ls_base": "0x48f0",
-    "source_sha256": "606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f",
+    "source_ea": "0x20bc580",
+    "pc": "0xb4b0",
+    "ls_base": "0xb480",
+    "source_sha256": "154511f159eadba5f6ebc2610db507c8e06b59ec6f9f41fda67b840b572ee061",
     "snapshot_byte_differences": 0,
-    "bytes": 27376
+    "bytes": 3168,
+    "name": "groupnode_final_exec.elf"
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -947,9 +948,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 150,
+    "valid_events": 158,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792986961606971500/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792987320028365500/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1100,6 +1101,20 @@
       ],
       "native_entry_observed": true,
       "native_thread": 8192,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_dctcodec_clipnode",
+      "native_functions": 252,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        18672,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8194,
       "complete_animation_algorithm_validated": false
     }
   ],

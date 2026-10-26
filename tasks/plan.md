@@ -1419,3 +1419,35 @@ origem 0x20e8c80, 0x6af0 bytes. Dois snapshots completos conferem os bytes
 inteiros do módulo novo; ele não deve usar a tradução do antigo dono de 0x48f0.
 Perfil preservado pelos cinco hashes e 65 amostras de assets aprovadas.
 Não houve menu ou gameplay validado. Próximo incremento: módulo de 0x20e8c80.
+
+
+## Plugin DCT de clipes ANT (2026-10-26)
+
+Os snapshots do ensaio groupcombine conferem integralmente dctcodec_clipnode.elf
+em LS 0x48f0/PC 0x4920: origem 0x20e8c80, 0x6af0 bytes, SHA
+606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f.
+Essa região substitui módulos anteriores; o código admitido é o deste hash.
+Cabeçalho PIC modo 1, entrada 0x30, BSS 0x6af0..0x6b40. Código termina em
+0x6040, imediatamente antes da tabela de construtores. A rotina final 0x6030
+termina com branch 0x5d78. Construtores 0x4ff8/0x5d68/0x6030, em ordem para frente.
+
+A CLI ausente retornou 2 antes da integração. O teste usa as bases 0, 0x48f0,
+0x4910 e 0x10000, com código/guardas preservados e dados relocados consistentes.
+A tradução produziu 252 entradas, sem instruções nem chamadas diretas
+pendentes. FullGame compilou e os 13 testes de construtores passaram em 7,562 s.
+Boot passou os 43 testes e 108 testes do projeto passaram em 8,257 s. O ensaio
+ant-dct-native segue em validação. Testar construtores não valida integralmente
+a decodificação DCT de animação.
+
+
+Ensaio ant-dct-native (1792987320028365500): saída estrita 90 aos 80,563 s.
+DCT entrou na SPU 8194, LS 0x48f0. O próximo plugin é groupnode_final_exec.elf,
+origem 0x20bc580, LS 0xb480/PC 0xb4b0, 0xc60 bytes, conferidos integralmente
+em dois snapshots completos. Cinco hashes do perfil preservados; 65 amostras
+de assets aprovadas. Menu e gameplay continuam pendentes.
+
+Um levantamento privado de cabeçalhos com quatro ila r2 e marcador/tamanho
+coerentes encontrou 157 programas raw no ELF. Isso não implica tradução nem
+cobertura completa do inventário. Há uma família numerosa de plugins ANT com
+CRT equivalente; o próximo incremento preparará revisão estrutural e testes
+em lote, mantendo limites explícitos, hashes e parada estrita de execução.

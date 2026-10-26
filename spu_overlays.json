@@ -788,6 +788,22 @@
         "0x958"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_dctcodec_clipnode",
+      "source_ea": "0x20e8c80",
+      "size": "0x6af0",
+      "sha256": "606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x6040",
+      "extra_entries": [
+        "0x4ff8",
+        "0x5d68",
+        "0x6030"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

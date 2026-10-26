@@ -10,7 +10,7 @@ capturas conferidas. O código original gravou e releu integralmente o perfil
 BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
 navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A compilação inclui 99.127 entradas PPU, 369 imports e 44 registros de overlays
+A compilação inclui 99.127 entradas PPU, 369 imports e 45 registros de overlays
 raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
 de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
 conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
@@ -28,11 +28,11 @@ não medidos nesse ensaio. O parser foi corrigido para preservar o status antes 
 análise e registrar linhas inválidas sem descartar eventos completos.
 
 A segunda versão de ANT está traduzida e seus dois construtores passaram.
-FullGame compilou; 43 testes de boot e 107 do projeto passaram. O ensaio
-ant-groupcombine-native entrou no plugin de combinação e parou no módulo
-0x20e8c80 (LS 0x48f0/PC 0x4920), com saída 90 aos 81,132 s. Menu e partida
-permanecem pendentes. A evidência consolidada fica em
-reports/native-boot-checkpoint.json; o próximo trabalho é traduzir esse módulo.
+FullGame compilou; 43 testes de boot e 108 do projeto passaram. O ensaio
+ant-dct-native entrou no DCT e parou em groupnode_final_exec, origem 0x20bc580
+(LS 0xb480/PC 0xb4b0), com saída 90 aos 80,563 s. Menu e partida permanecem
+pendentes. A evidência consolidada fica em reports/native-boot-checkpoint.json.
+O próximo trabalho é revisar/testar em lote a família ANT de CRT comum.
 
 ## Implementação comprovada
 
@@ -1867,3 +1867,35 @@ origem 0x20e8c80, 0x6af0 bytes. Dois snapshots completos conferem os bytes
 inteiros do módulo novo; ele não deve usar a tradução do antigo dono de 0x48f0.
 Perfil preservado pelos cinco hashes e 65 amostras de assets aprovadas.
 Não houve menu ou gameplay validado. Próximo incremento: módulo de 0x20e8c80.
+
+
+## Plugin DCT de clipes ANT (2026-10-26)
+
+Os snapshots do ensaio groupcombine conferem integralmente dctcodec_clipnode.elf
+em LS 0x48f0/PC 0x4920: origem 0x20e8c80, 0x6af0 bytes, SHA
+606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f.
+Essa região substitui módulos anteriores; o código admitido é o deste hash.
+Cabeçalho PIC modo 1, entrada 0x30, BSS 0x6af0..0x6b40. Código termina em
+0x6040, imediatamente antes da tabela de construtores. A rotina final 0x6030
+termina com branch 0x5d78. Construtores 0x4ff8/0x5d68/0x6030, em ordem para frente.
+
+A CLI ausente retornou 2 antes da integração. O teste usa as bases 0, 0x48f0,
+0x4910 e 0x10000, com código/guardas preservados e dados relocados consistentes.
+A tradução produziu 252 entradas, sem instruções nem chamadas diretas
+pendentes. FullGame compilou e os 13 testes de construtores passaram em 7,562 s.
+Boot passou os 43 testes e 108 testes do projeto passaram em 8,257 s. O ensaio
+ant-dct-native segue em validação. Testar construtores não valida integralmente
+a decodificação DCT de animação.
+
+
+Ensaio ant-dct-native (1792987320028365500): saída estrita 90 aos 80,563 s.
+DCT entrou na SPU 8194, LS 0x48f0. O próximo plugin é groupnode_final_exec.elf,
+origem 0x20bc580, LS 0xb480/PC 0xb4b0, 0xc60 bytes, conferidos integralmente
+em dois snapshots completos. Cinco hashes do perfil preservados; 65 amostras
+de assets aprovadas. Menu e gameplay continuam pendentes.
+
+Um levantamento privado de cabeçalhos com quatro ila r2 e marcador/tamanho
+coerentes encontrou 157 programas raw no ELF. Isso não implica tradução nem
+cobertura completa do inventário. Há uma família numerosa de plugins ANT com
+CRT equivalente; o próximo incremento preparará revisão estrutural e testes
+em lote, mantendo limites explícitos, hashes e parada estrita de execução.

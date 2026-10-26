@@ -145,7 +145,8 @@ de funções ou por abrir uma janela.
 - [x] Confirmar VBR real em segunda posição LS 0x9340.
 - [x] Traduzir global pose/single DOF de 0x20e6e80/0x210ca00 e confirmar entradas.
 - [x] Traduzir groupnode_combine_exec de 0x20bd280 e confirmar entrada.
-- [ ] Traduzir o plugin de 0x20e8c80 e seguir a cadeia ANT.
+- [x] Traduzir DCT clip de 0x20e8c80 e confirmar entrada.
+- [ ] Revisar/testar em lote a família ANT de CRT comum, incluindo group final.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.
