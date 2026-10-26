@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Reverb model1 PIC entered; matrix panner at 0x1feaa80 is untranslated",
+  "stage": "Matrix panner PIC entered; delay at 0x1fd2c00 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793035101552390400",
-  "elapsed_seconds": 81.999,
+  "logs": "private\\analysis\\runs\\1793035551007674000",
+  "elapsed_seconds": 82.252,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706363824,
+    "value": 2259970271706383152,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 139,
+    "project": 140,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,17 +866,17 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1feaa80",
-    "ls_base": "0x3780",
-    "pc": "0x37b0",
-    "initialized_bytes": 1904,
-    "source_sha256": "e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa",
+    "source_ea": "0x1fd2c00",
+    "ls_base": "0x8300",
+    "pc": "0x8330",
+    "initialized_bytes": 7536,
+    "source_sha256": "6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4",
     "snapshot_byte_differences": 0,
     "verified_snapshots": 1,
-    "source_name": "spumatrixpanner.elf",
+    "source_name": "spudelay.elf",
     "source_name_verified": true,
     "relocatable_pic": true,
-    "bss_bytes": 32
+    "bss_bytes": 48
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -1225,7 +1225,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 115,
+  "registered_raw_spu_overlays": 116,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1359,5 +1359,25 @@
     "guards_preserved": true,
     "native_entry_observed": true,
     "reverb_algorithm_validated": false
+  },
+  "spu_matrixpanner": {
+    "source_ea": "0x1feaa80",
+    "bytes": 1904,
+    "sha256": "e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa",
+    "native_entries": 26,
+    "relocatable_pic": true,
+    "tested_bases": [
+      0,
+      14208,
+      18704,
+      65536
+    ],
+    "initialization_validated": true,
+    "callbacks_relocated": true,
+    "external_pointer_preserved": true,
+    "code_preserved": true,
+    "guards_preserved": true,
+    "native_entry_observed": true,
+    "matrix_algorithm_validated": false
   }
 }

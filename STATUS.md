@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: reverb model1 PIC.
+Branch: codex/ps3-native-bootstrap. Incremento atual: matrix panner PIC.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -12,16 +12,16 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal; escuta/sincronia ainda pendentes.
 - **Menu navegável, cena, gameplay e partida completa ainda não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 115 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 116 registros raw SPU.
   Contagem não demonstra semântica completa dos serviços ou algoritmos.
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/reverb1-native-run.json.
-- Logs: private/analysis/runs/1793035101552390400.
-- Saída estrita **90**, aos **81,999 s**, nova entrada PIC sem tradução.
-- Reverb1 entrou no caminho real; não se afirma reverberação integral correta.
-- 44 testes Boot, 139 do projeto e 65 amostras de assets passaram.
+- Resultado: private/analysis/matrixpanner-native-run.json.
+- Logs: private/analysis/runs/1793035551007674000.
+- Saída estrita **90**, aos **82,252 s**, nova entrada PIC sem tradução.
+- Matrix panner entrou no caminho real; algoritmo matricial não foi validado.
+- 44 testes Boot, 140 do projeto e 65 amostras de assets passaram.
 - 16 runtime CTest são registro anterior; runtime não foi alterado neste incremento.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
@@ -41,19 +41,19 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
   entrada real, algoritmo completo de compressão não validado.
 - Reverb1: 287 entradas PIC; init4bases/callbacks/contexto/guardas e 32 bytes de
   estado preservados; entrada real, algoritmo de reverberação não validado.
+- Matrix panner: 26 entradas PIC; init4bases/callbacks/guardas validados; entrada real.
 - Identificador preserva diagnósticos de JSONs truncados e analisa os válidos.
 
 ## Bloqueio atual
 
-- **spumatrixpanner.elf**, fonte EA **0x1feaa80**, base observada **0x3780**,
-  PC **0x37b0**, **0x770 bytes** iguais a um snapshot completo.
-- SHA-256: e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa.
-- PIC modo1, entrada relativa30, BSS20. Code_end750; tabela de dados750..770.
-- Imagem/disassembly: private/analysis/audio_spumatrixpanner.bin e
-  private/analysis/audio_spumatrixpanner-disassembly.txt.
-- Identificação: private/analysis/reverb1-next-identified.json.
-- Próxima ação: traduzir PIC, validar init/callbacks em quatro bases e continuar
-  o ensaio real. Layout/semântica do processamento matricial não reconstruídos.
+- **spudelay.elf**, fonte EA **0x1fd2c00**, base observada **0x8300**,
+  PC **0x8330**, **0x1d70 bytes** iguais a um snapshot completo.
+- SHA-256: 6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4.
+- PIC modo1, entrada relativa30, BSS30; init copia callbacks e contexto.
+- Imagem/disassembly: private/analysis/next_1fd2c00.bin e
+  private/analysis/next_1fd2c00.disassembly.txt.
+- Identificação: private/analysis/matrixpanner-next-identified.json.
+- Próxima ação: traduzir PIC, validar init em quatro bases e continuar ensaio real.
 
 ## Retomada e comandos
 

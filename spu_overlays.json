@@ -2000,6 +2000,20 @@
         "0xc48"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_spumatrixpanner",
+      "source_ea": "0x1feaa80",
+      "size": "0x770",
+      "sha256": "e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x750",
+      "extra_entries": [
+        "0xb8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

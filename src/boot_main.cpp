@@ -95,6 +95,7 @@ int fifa_test_spu_pathestimates_startup(const char*, bool);
 int fifa_test_spu_usermusic(const char*);
 int fifa_test_spu_compressor_init(const char*);
 int fifa_test_spu_reverb_init(const char*);
+int fifa_test_spu_matrixpanner_init(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -208,6 +209,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-usermusic")) return fifa_test_spu_usermusic(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-compressor-init")) return fifa_test_spu_compressor_init(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-reverb-init")) return fifa_test_spu_reverb_init(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-matrixpanner-init")) return fifa_test_spu_matrixpanner_init(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

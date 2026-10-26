@@ -16,15 +16,15 @@ Histórico preservado: [índice](../docs/history/README.md).
 - User music arbiter: init PIC4bases e 4.096 amostras DSP conferidas contra oráculo; entrada real.
 - Compressor1: 114 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
 - Reverb1: 287 entradas, init PIC4bases/contexto/32bytes de estado preservados; entrada real.
-- 139 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Matrix panner: 26 entradas, init PIC4bases/callbacks/guardas validados; entrada real.
+- 140 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir o plugin PIC matrix panner
+## 1. Traduzir o plugin PIC delay
 
-- Fonte1feaa80, tamanho770, base observada3780/PC37b0; SHA no checkpoint.
-- PIC modo1: base canônica0, entrada30, code_end750 exclui tabela final.
-- Init: callback externo770, descriptor780/784zero,788=base+b8,78cpreservado.
-- Aceite: tradução completa e init em quatro bases com imagem/guardas preservadas;
-  não alegar processamento matricial correto sem reconstruir o layout de buffers.
+- Fonte1fd2c00, tamanho1d70, base observada8300/PC8330; SHA no checkpoint.
+- PIC modo1: base canônica0, entrada30; revisar code_end e callback2f8.
+- Init: externo1d70, contexto1d80, descriptor1d90/94zero,1d98=base+2f8.
+- Aceite: tradução completa e init em quatro bases; preservar código/guardas.
 - Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
 
 ## 3. Ensaiar o avanço real após o novo módulo

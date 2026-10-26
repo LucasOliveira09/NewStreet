@@ -9,6 +9,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UserMusicTests(unittest.TestCase):
+    def test_matrix_panner_init_relocates_descriptor_at_four_placements(self):
+        image = ROOT / 'private/analysis/audio_spumatrixpanner.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         'e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-matrixpanner-init', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            positions=4, initialization_validated=True, callbacks_relocated=True,
+            external_pointer_preserved=True, code_preserved=True, guards_preserved=True,
+            untouched_state_bytes=0, matrix_algorithm_validated=False))
+
     def test_reverb_init_preserves_additional_state_at_four_placements(self):
         image = ROOT / 'private/analysis/audio_spureverbmodel1.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),

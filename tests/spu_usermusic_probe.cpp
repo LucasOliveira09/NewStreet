@@ -131,7 +131,8 @@ extern "C" int fifa_test_spu_usermusic(const char* path) {
 
 static int run_audio_context_init(const char* path, uint32_t source, uint32_t bytes,
                                   uint32_t bss_bytes, uint32_t callback,
-                                  uint32_t observed_base, const char* algorithm) {
+                                  uint32_t observed_base, const char* algorithm,
+                                  bool copies_context = true) {
     std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(path, "rb");
     if (!file) return 3;
@@ -166,14 +167,16 @@ static int run_audio_context_init(const char* path, uint32_t source, uint32_t by
         ctx.gpr[3] = spu_splat_u32(parameters);
         if (!invoke(ctx, base + 0x30)) return 4;
         const uint32_t state = base + bytes;
+        const uint32_t descriptor = state + (copies_context ? 0x20 : 0x10);
         if (spu_ls_read32(&ctx, state) != getter_pc ||
-            spu_ls_read32(&ctx, state + 0x20) != 0 ||
-            spu_ls_read32(&ctx, state + 0x24) != 0 ||
-            spu_ls_read32(&ctx, state + 0x28) != base + callback ||
-            spu_ls_read32(&ctx, state + 0x2c) != 0xa5a5a5a5) return 5;
-        for (unsigned i = 0; i < 4; ++i)
-            if (spu_ls_read32(&ctx, state + 0x10 + 4 * i) != context_words[i]) return 6;
-        for (uint32_t offset = 0x30; offset < bss_bytes; ++offset)
+            spu_ls_read32(&ctx, descriptor) != 0 ||
+            spu_ls_read32(&ctx, descriptor + 4) != 0 ||
+            spu_ls_read32(&ctx, descriptor + 8) != base + callback ||
+            spu_ls_read32(&ctx, descriptor + 12) != 0xa5a5a5a5) return 5;
+        if (copies_context)
+            for (unsigned i = 0; i < 4; ++i)
+                if (spu_ls_read32(&ctx, state + 0x10 + 4 * i) != context_words[i]) return 6;
+        for (uint32_t offset = copies_context ? 0x30 : 0x20; offset < bss_bytes; ++offset)
             if (ctx.ls[state + offset] != 0xa5) return 10;
         if (std::memcmp(ctx.ls + base, blob.data(), blob.size())) return 7;
         for (unsigned i = 0; i < 16; ++i)
@@ -184,10 +187,11 @@ static int run_audio_context_init(const char* path, uint32_t source, uint32_t by
     std::free(vm_base);
     vm_base = nullptr;
     std::printf("{\"positions\":4,\"initialization_validated\":true,\"callbacks_relocated\":true,"
-                "\"external_pointer_preserved\":true,\"context_vector_preserved\":true,"
+                "\"external_pointer_preserved\":true,%s"
                 "\"code_preserved\":true,\"guards_preserved\":true,"
                 "\"untouched_state_bytes\":%u,\"%s_algorithm_validated\":false}\n",
-                bss_bytes - 0x30, algorithm);
+                copies_context ? "\"context_vector_preserved\":true," : "",
+                bss_bytes - (copies_context ? 0x30 : 0x20), algorithm);
     return 0;
 }
 
@@ -197,4 +201,8 @@ extern "C" int fifa_test_spu_compressor_init(const char* path) {
 
 extern "C" int fifa_test_spu_reverb_init(const char* path) {
     return run_audio_context_init(path, 0x1ff6580, 0x50c0, 0x50, 0xc48, 0x27f00, "reverb");
+}
+
+extern "C" int fifa_test_spu_matrixpanner_init(const char* path) {
+    return run_audio_context_init(path, 0x1feaa80, 0x770, 0x20, 0xb8, 0x3780, "matrix", false);
 }
