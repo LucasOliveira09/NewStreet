@@ -61,14 +61,18 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_pic_constructors('ant_dctcodec_clipnode', '--test-spu-ant-dct-constructors',
             '606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f')
 
-    def check_pic_constructors(self, module, command, sha256):
+    def test_original_facing_angle_five_constructors_and_large_bss_relocate(self):
+        self.check_pic_constructors('ant_facinganglesmootherplugin', '--test-spu-ant-facingangle-constructors',
+            '9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776', 20)
+
+    def check_pic_constructors(self, module, command, sha256, calls=12):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)
         result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
             command, str(image)], capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
-            original_constructors=12, positions=4, code_preserved=True,
+            original_constructors=calls, positions=4, code_preserved=True,
             relocated_data_consistent=True, ai_algorithm_validated=False))
 
     def check_original_constructors(self, module, command, sha256, count):

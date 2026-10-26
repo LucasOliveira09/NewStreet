@@ -1800,6 +1800,24 @@
       ],
       "relocatable_pic": true,
       "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_facinganglesmootherplugin",
+      "source_ea": "0x2133c80",
+      "size": "0x2ca0",
+      "sha256": "9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x2760",
+      "extra_entries": [
+        "0x118",
+        "0x8d0",
+        "0xfe0",
+        "0x1330",
+        "0x25c8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

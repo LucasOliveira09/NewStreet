@@ -10,7 +10,7 @@ capturas conferidas. O código original gravou e releu integralmente o perfil
 BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
 navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A compilação inclui 99.127 entradas PPU, 369 imports e 103 registros de overlays
+A compilação inclui 99.127 entradas PPU, 369 imports e 104 registros de overlays
 raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
 de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
 conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
@@ -28,13 +28,14 @@ não medidos nesse ensaio. O parser foi corrigido para preservar o status antes 
 análise e registrar linhas inválidas sem descartar eventos completos.
 
 A segunda versão de ANT está traduzida e seus dois construtores passaram.
-FullGame compilou; 44 testes de boot e 115 do projeto passaram. A família
-com CRT revisado inclui 68 módulos, 6422 entradas nativas e 816 chamadas de
-construtores originais aprovadas em quatro bases. O ensaio ant-sbu-family-native
-entrou em translationscale/interactionscale e parou no plugin 0x2133c80
-(LS 0x12fa0/PC 0x12fd0), com saída 90 aos 80,653 s. Menu e partida permanecem
-pendentes. Evidência: reports/native-boot-checkpoint.json. Próximo trabalho:
-revisão específica do novo módulo, que não pertence ao perfil de CRT admitido.
+FullGame compilou; 44 testes de boot e 116 do projeto passaram. A família comum
+mantém 68 módulos/816 chamadas de construtores; facing angle acrescenta cinco
+construtores e BSS 0xc30, com 20 chamadas aprovadas. O ensaio
+ant-facingangle-native entrou nesse módulo e avançou por headtrack/IK/contact
+até particleikplugin, origem 0x20aa380 (LS 0x8390/PC 0x83c0), com saída 90 aos
+81,015 s. Menu/partida permanecem pendentes. Evidência consolidada em
+reports/native-boot-checkpoint.json. Próximo trabalho: três variantes ANT de BSS
+específica, incluindo o particle IK alcançado.
 
 ## Implementação comprovada
 
@@ -2000,3 +2001,41 @@ integralmente em dois snapshots completos. Ele não satisfez o perfil comum e
 exige revisão específica, sem relaxar a classificação existente. Os cinco hashes
 do perfil permanecem iguais e 65 amostras de assets passaram. Menu e gameplay
 continuam pendentes. Próxima ação: revisar o módulo de 0x2133c80.
+
+
+## Facing angle smoother com cinco construtores (2026-10-26)
+
+O novo módulo é facinganglesmootherplugin.elf, da família fifaantplugins:
+origem 0x2133c80, 0x2ca0 bytes, SHA
+9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776.
+Cabeçalho PIC modo 1 e entrada relativa 0x30. Diferentemente do perfil comum,
+a BSS é 0x2ca0..0x38d0 (0xc30 bytes), e a tabela 0x2760..0x2774 contém cinco
+construtores: 0x118, 0x8d0, 0xfe0, 0x1330 e 0x25c8, percorridos para frente.
+
+A cauda de código segue depois do último construtor: há rotinas de matemática
+até 0x2754 (bi r0) e um bloco 0x2758/0x275c que termina com branch 0x2610.
+Por isso code_end é 0x2760, imediatamente antes da tabela, preservando essa
+cauda. O módulo continua rejeitado pelo perfil comum; sua admissão é específica.
+
+O fixture existente aceita quantidade de construtores e BSS explícitas para
+este caso, mantendo os defaults do perfil comum. Compara toda a área de dados
+e BSS e conserva as guardas após a extensão maior. São 20 chamadas originais em
+quatro bases, incluindo 0x12fa0, além das regressões anteriores. A CLI ausente
+retornou 2 antes da integração. A tradução gerou 100 entradas, sem instruções
+nem destinos diretos pendentes. FullGame compilou; os 14 testes de construtores
+passaram em 4,547 s, incluindo 20 chamadas deste módulo. Boot passou 44 testes
+e os 116 testes do projeto passaram em 10,073 s. O ensaio ant-facingangle-native
+segue em validação; não se afirma correção completa da suavização angular.
+
+
+Ensaio ant-facingangle-native (1792989126512759400): saída estrita 90 aos
+81,015 s. Facing angle smoother entrou na SPU 8193. O jogo avançou por headtrack,
+ikrigtohikrig, jointtoeffector, contactpoint init/hand/foot, trajoffset IK,
+interaction effector scaling e footplant pre. O rastreio registra entradas;
+ainda não comprova todos os resultados desses algoritmos nem gameplay.
+
+Próxima parada: particleikplugin.elf, origem 0x20aa380, LS 0x8390/PC 0x83c0,
+0xd4c0 bytes, conferidos integralmente em dois snapshots completos. Os cinco
+hashes do perfil permanecem iguais e 65 amostras de assets passaram. Próximo
+incremento: três variantes ANT de BSS diferente revisadas individualmente:
+particle IK, predictable blend e mirror. Menu/partida continuam pendentes.

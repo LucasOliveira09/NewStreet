@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "SBU translation and interaction scale plugins entered; next plugin at 0x2133c80 requires a different startup review",
+  "stage": "Facing angle smoother entered; head tracking and contact plugins advanced; particle IK is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792988672963477600",
-  "elapsed_seconds": 80.653,
+  "logs": "private\\analysis\\runs\\1792989126512759400",
+  "elapsed_seconds": 81.015,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706427344,
+    "value": 2259970271706383296,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 115,
+    "project": 116,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,12 +866,13 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x2133c80",
-    "pc": "0x12fd0",
-    "ls_base": "0x12fa0",
-    "source_sha256": "9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776",
+    "source_ea": "0x20aa380",
+    "pc": "0x83c0",
+    "ls_base": "0x8390",
+    "source_sha256": "65430b1fbbdde93eaa896edd9f2cde28cc9166db2829814f5e3553858b255a90",
     "snapshot_byte_differences": 0,
-    "bytes": 11424
+    "bytes": 54464,
+    "name": "particleikplugin.elf"
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -946,10 +947,10 @@
     "ai_algorithm_result_validated": false
   },
   "diagnostic_recovery": {
-    "raw_event_errors": 1,
-    "valid_events": 151,
+    "raw_event_errors": 0,
+    "valid_events": 167,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792988672963477600/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792989126512759400/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1138,19 +1139,41 @@
     "entered_modules_in_last_run": [
       "ant_blendnode_exec",
       "ant_clearactivitymasknode_exec",
+      "ant_contactpointplugin_foot",
+      "ant_contactpointplugin_hand",
+      "ant_contactpointplugin_init",
       "ant_dctcodec_clipnode",
       "ant_defaultposenode_dofset",
       "ant_deltatrajectoryplugin",
+      "ant_footplantpreplugin",
       "ant_groupnode_combine_exec",
       "ant_groupnode_final_exec",
+      "ant_headtrackplugin",
+      "ant_ikrigtohikrigplugin",
+      "ant_interactioneffectorscalingplugin",
       "ant_interactionscaleplugin",
+      "ant_jointtoeffectorplugin",
       "ant_posetoglobalplugin",
       "ant_scratchmemclear_exec",
       "ant_setdofnode_exec",
       "ant_setdofsetnode_exec",
+      "ant_trajoffsetikadjustplugin",
       "ant_translationscaleplugin",
       "ant_vbrcodec_clipnode"
     ],
     "all_animation_algorithms_validated": false
-  }
+  },
+  "manual_ant_variants": [
+    {
+      "name": "ant_facinganglesmootherplugin",
+      "source_ea": "0x2133c80",
+      "native_entries": 100,
+      "bss_bytes": 3120,
+      "constructor_count": 5,
+      "original_constructor_calls": 20,
+      "native_entry_observed": true,
+      "native_thread": 8193,
+      "algorithm_result_validated": false
+    }
+  ]
 }

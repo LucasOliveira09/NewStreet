@@ -150,7 +150,9 @@ de funções ou por abrir uma janela.
 - [x] Observar group final/blend no jogo após o lote.
 - [x] Integrar 19 plugins SBU/ANT adicionais do mesmo CRT e validar 816 chamadas.
 - [x] Observar translationscale/interactionscale no jogo.
-- [ ] Revisar especificamente o módulo de 0x2133c80.
+- [x] Integrar facing angle de 0x2133c80 com cinco construtores/BSS 0xc30.
+- [x] Observar headtrack/IK/contact e identificar particle IK após facing angle.
+- [ ] Integrar particle IK, predictable blend e mirror com testes específicos.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

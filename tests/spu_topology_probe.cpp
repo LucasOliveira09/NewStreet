@@ -71,7 +71,8 @@ extern "C" void spu_overlay_note_get(spu_context*, uint32_t, const uint8_t*, uin
 // The original PIC constructors run through checked source ownership, including
 // both observed LS placements. This fixture never calls a replacement main.
 static int run_pic_constructors(const char* image, uint32_t source, size_t bytes,
-                                uint32_t code_end, const uint32_t* entries, uint32_t observed_base) {
+                                uint32_t code_end, const uint32_t* entries, uint32_t observed_base,
+                                size_t entry_count = 3, uint32_t bss_bytes = 0x50) {
     std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(image, "rb");
     if (!file) return 3;
@@ -94,9 +95,9 @@ static int run_pic_constructors(const char* image, uint32_t source, size_t bytes
         ctx.image_id = 81;
         std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
         std::memcpy(ctx.ls + base, blob.data(), bytes);
-        std::memset(ctx.ls + base + bytes, 0, 0x50); // Original PIC BSS extent.
+        std::memset(ctx.ls + base + bytes, 0, bss_bytes); // Reviewed original BSS extent.
         spu_overlay_note_get(&ctx, source, ctx.ls + base, (uint32_t)bytes);
-        for (unsigned i = 0; i < 3; ++i) { // Table is traversed forwards by this CRT.
+        for (size_t i = 0; i < entry_count; ++i) { // Original forward CRT order.
             returned_to_caller = false;
             ctx.gpr[0]._u32[0] = 0x3d000;
             ctx.gpr[1]._u32[0] = 0x3f000;
@@ -109,17 +110,17 @@ static int run_pic_constructors(const char* image, uint32_t source, size_t bytes
         }
         for (unsigned i = 0; i < 16; ++i)
             if ((base && ctx.ls[base - 16 + i] != 0xa5) ||
-                ctx.ls[base + bytes + 0x50 + i] != 0xa5) return 7;
-        if (!base) reference.assign(ctx.ls, ctx.ls + bytes + 0x50);
+                ctx.ls[base + bytes + bss_bytes + i] != 0xa5) return 7;
+        if (!base) reference.assign(ctx.ls, ctx.ls + bytes + bss_bytes);
         else {
             unsigned relocated = 0;
-            for (uint32_t offset = code_end; offset < bytes + 0x50; offset += 4) {
+            for (uint32_t offset = code_end; offset < bytes + bss_bytes; offset += 4) {
                 const uint8_t* p = reference.data() + offset;
                 const uint32_t expected = (uint32_t(p[0]) << 24) | (uint32_t(p[1]) << 16) |
                     (uint32_t(p[2]) << 8) | p[3];
                 const uint32_t actual = spu_ls_read32(&ctx, base + offset);
                 if (actual == expected) continue;
-                if (expected >= bytes + 0x50 || actual != expected + base) return 8;
+                if (expected >= bytes + bss_bytes || actual != expected + base) return 8;
                 ++relocated;
             }
             if (!relocated) return 9;
@@ -201,4 +202,9 @@ extern "C" int fifa_test_spu_ant_family_case(const char* const* args) {
         if ((values[i] & 3u) || values[i] < 0xd8 || values[i] >= code_end ||
             (i > 3 && values[i] <= values[i - 1])) return 2;
     return run_pic_constructors(args[0], source, bytes, code_end, values + 3, base);
+}
+
+extern "C" int fifa_test_spu_ant_facingangle_constructors(const char* image) {
+    const uint32_t entries[] = {0x118,0x8d0,0xfe0,0x1330,0x25c8};
+    return run_pic_constructors(image, 0x2133c80, 0x2ca0, 0x2760, entries, 0x12fa0, 5, 0xc30);
 }
