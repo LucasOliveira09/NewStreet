@@ -133,7 +133,7 @@ de funções ou por abrir uma janela.
 - [ ] Conferir conclusão das filas concorrentes e custos de blocos não uniformes.
 - [x] Traduzir aififa_topologycache_spu, executar construtores e observar sua entrada.
 - [x] Traduzir Railtracks, testar quatro construtores e observar entrada no jogo.
-- [ ] Preservar relatório/status do runner diante de linhas JSON truncadas.
+- [x] Preservar status antes do parsing e registrar linhas inválidas sem perder eventos.
 - [ ] Traduzir a segunda versão ANT_kernel de 0x2030080.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.

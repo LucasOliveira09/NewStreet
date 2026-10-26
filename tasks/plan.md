@@ -1133,3 +1133,24 @@ null, sem inferir 90 como medição do processo. Foram recuperados do log bruto
 erro de parsing registrado em railtracks-recovered.json. A próxima correção
 preservará o status do processo antes do parsing e registrará linhas inválidas.
 Não se afirma resultado do algoritmo de movimentação nem menu/partida funcional.
+
+
+## Relatório preservado após diagnóstico truncado (2026-10-25)
+
+A falha concorrente de ANT interrompeu uma linha fifa-spu-state em image=526,
+mas o fifa-block e outros 138 eventos estavam íntegros. O runner agora grava
+process-exit.json imediatamente após wait/cleanup, antes de analisar eventos ou
+assets. O parser mantém os objetos JSON completos e registra linha, tipo, erro
+e amostra bruta de até 4096 caracteres para entradas inválidas; elas não viram
+eventos inventados nem descartam o resto do relatório. Payloads que não sejam
+objetos também são registrados como erro. O tempo medido passa a terminar na
+saída do processo, excluindo o pós-processamento dos logs/oráculos.
+
+Três testes reproduziram o problema antes da correção. Depois passaram:
+linhas truncadas/tipos inválidos preservam eventos seguintes; relatório retém
+saída 90; status já está salvo mesmo se o parser falhar depois. O processo dos
+testes é um mock explícito em diretório temporário, não uma validação do jogo.
+O parser novo leu o log real: 139 eventos íntegros e um erro registrado.
+O status perdido do ensaio antigo não foi retroativamente inventado.
+
+Validação final do runner: 96 testes do projeto passaram.

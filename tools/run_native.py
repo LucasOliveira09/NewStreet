@@ -15,6 +15,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def parse_native_events(stderr):
+    """Retain complete events and explicitly report interrupted diagnostics."""
+    prefixes = ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] ',
+                '[fifa-spu-state] ', '[fifa-memory] ', '[fifa-spu-entry] ')
+    events, errors = [], []
+    for number, line in enumerate(stderr.decode('utf-8', errors='replace').splitlines(), 1):
+        for prefix in prefixes:
+            if not line.startswith(prefix):
+                continue
+            kind = prefix[1:prefix.index(']')]
+            try:
+                data = json.loads(line[len(prefix):])
+                if not isinstance(data, dict):
+                    raise ValueError('Event payload must be an object')
+            except ValueError as error:
+                errors.append(dict(line=number, type=kind, error=str(error), raw=line[:4096]))
+            else:
+                events.append(dict(type=kind, data=data))
+            break
+    return events, errors
+
+
 def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, capture=False, observe_assets=False):
     build = 'fifazf_full' if profile == 'full' else 'fifazf'
     main_exe = ROOT / 'private/build' / build / 'fifa_boot.exe'
@@ -72,15 +94,16 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
             (output / 'timeout-cleanup.log').write_bytes(cleanup.stdout + cleanup.stderr)
             process.wait(timeout=10)
             code = 'timeout'
+    # Preserve measured process status even if later log parsing or independent
+    # asset validation fails. Concurrent fatal diagnostics can be interrupted.
+    elapsed = round(time.monotonic() - started, 3)
+    (output / 'process-exit.json').write_text(json.dumps(dict(
+        pid=process.pid, exit_code=code, elapsed_seconds=elapsed), indent=2) + '\n', encoding='utf-8')
     stderr = (output / 'stderr.log').read_bytes()
-    events = []
-    for line in stderr.decode('utf-8', errors='replace').splitlines():
-        for prefix in ('[fifa-block] ', '[fifa-spawn] ', '[fifa-crash] ', '[fifa-spu-state] ', '[fifa-memory] ', '[fifa-spu-entry] '):
-            if line.startswith(prefix):
-                events.append({'type': prefix[1:prefix.index(']')], 'data': json.loads(line[len(prefix):])})
+    events, parse_errors = parse_native_events(stderr)
     report = dict(profile=profile, direct=direct, exit_code=code,
-                  elapsed_seconds=round(time.monotonic() - started, 3),
-                  logs=str(output.relative_to(ROOT)), events=events)
+                  elapsed_seconds=elapsed, logs=str(output.relative_to(ROOT)),
+                  events=events, event_parse_errors=parse_errors)
     captures = []
     for manifest in sorted((output / 'rsxcap').glob('*/manifest.txt')):
         bitmap = manifest.with_name('backbuffer.bmp')
