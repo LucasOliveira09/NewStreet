@@ -20,6 +20,10 @@ os padrões, confirmando a confiança no projeto pela interface quando solicitad
 Este arquivo não altera o modelo de um chat já aberto em outra pasta.
 Validação local: `private/python-env/Scripts/python.exe tools/check_agent_setup.py`.
 
+A [análise do PORTHEON](docs/PORTHEON-reference.md) registra referências úteis
+para saves, testes de loader e coerência CPU/GPU, com os limites de aplicação
+de uma base PS4 ao nosso port PS3.
+
 ## Resultado atual
 
 **Execução nativa parcial:** EBOOT inicia FIFAZF em outro processo Windows,

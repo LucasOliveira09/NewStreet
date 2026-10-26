@@ -19,7 +19,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [ ] Partida completa, pausa, encerramento e retorno ao menu.
 - [ ] Progressão e modos offline da matriz final verificados.
 - [ ] Saves e retomada da progressão verificados durante gameplay.
-- [ ] Preservação do save inteiro em falha de escrita e concorrência validada.
+- [ ] Preservação do save inteiro em falha de escrita e concorrência validada
+  (referência de teste em [PORTHEON](../docs/PORTHEON-reference.md)).
 - [ ] Metadados, grades e desbloqueios reais de troféus implementados quando alcançados.
 - [ ] Artefatos gráficos conhecidos corrigidos e regressões verificadas.
 - [ ] Estabilidade e performance medidas com cenário e hardware registrados.
