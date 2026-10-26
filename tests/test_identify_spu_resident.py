@@ -27,7 +27,7 @@ def label(name=b'owned.elf\0'):
 
 
 class IdentifyResidentTests(unittest.TestCase):
-    def identify(self, source, loaded, base=0x80):
+    def identify(self, source, loaded, base=0x80, broken_metadata=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'private').mkdir()
@@ -40,12 +40,24 @@ class IdentifyResidentTests(unittest.TestCase):
             ls = bytearray(0x40000)
             ls[base:base + len(loaded)] = loaded
             (run / 'spu/state.ls').write_bytes(ls)
+            if broken_metadata is not None:
+                (run / 'spu/000-truncated.json').write_bytes(broken_metadata)
             elf = SimpleNamespace(load=lambda: None,
                                   program_headers=[SimpleNamespace(p_type=subject.PT_LOAD,
                                                                   p_vaddr=0x100000)],
                                   get_segment_data=lambda index: source)
             with patch.object(subject, 'ROOT', root), patch.object(subject, 'ELFFile', return_value=elf):
                 return subject.identify(run)
+
+    def test_incomplete_metadata_is_reported_without_losing_valid_snapshots(self):
+        for broken in [b'{"pc":', b'\xff']:
+            with self.subTest(broken=broken):
+                damaged, valid = self.identify(image() + label(), image(), broken_metadata=broken)
+                self.assertIn('metadata_error', damaged)
+                self.assertFalse(damaged['automatically_admitted'])
+                self.assertNotIn('source_ea', damaged)
+                self.assertEqual(valid['label'], 'owned.elf')
+                self.assertEqual(valid['snapshot_byte_differences'], 0)
 
     def test_distant_label_is_not_assigned_to_current_image(self):
         loaded = image(size=0x4f30)

@@ -66,7 +66,14 @@ def identify(run):
                 for i, segment in enumerate(elf.program_headers) if segment.p_type == PT_LOAD]
     result = []
     for metadata in sorted((run / 'spu').glob('*.json')):
-        state = json.loads(metadata.read_text(encoding='utf-8'))
+        try:
+            state = json.loads(metadata.read_text(encoding='utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            # Concurrent strict exits can leave one diagnostic file incomplete.
+            # Preserve that fact while still inspecting the other full snapshots.
+            result.append(dict(snapshot=str(metadata.relative_to(ROOT)),
+                               metadata_error=str(error), automatically_admitted=False))
+            continue
         ls = metadata.with_suffix('.ls').read_bytes()
         if len(ls) != 0x40000 or not 0 <= state['pc'] < len(ls):
             raise ValueError('Invalid SPU snapshot bounds')
