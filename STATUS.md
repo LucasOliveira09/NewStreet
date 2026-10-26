@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: route PIC com entrada d8.
+Branch: codex/ps3-native-bootstrap. Incremento atual: consulta NP offline e diagnóstico de capturas.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -17,11 +17,11 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/route-native-run.json.
-- Logs: private/analysis/runs/1793041233048875700.
-- Saída estrita **90**, aos **82,270 s**, import NP sem implementação.
-- Route entrou no caminho real; algoritmo completo não foi validado.
-- 44 testes Boot, 142 do projeto e 65 amostras de assets passaram.
+- Resultado: private/analysis/np-message-native-run.json.
+- Logs: private/analysis/runs/1793041586143459600.
+- Timeout aos **360,178 s**, sem nova parada estrita; não equivale a jogo completo.
+- Consulta de mensagens NP offline atravessada; buffers preservados em erro.
+- 46 testes Boot, 144 do projeto e 65 amostras de assets passaram.
 - 16 runtime CTest são registro anterior; runtime não foi alterado neste incremento.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
@@ -49,13 +49,14 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Bloqueio atual
 
-- Serviço **sceNpBasicGetMessageEntryCount**, NID **0xecd503de**.
-- Thread23, LR15f2564, import PC2147978; tipo6, destino countd01871a0.
-- Implementar erros reais da consulta offline, preservando o destino em falhas.
-- Route: 64 entradas PIC, entryd8, init4bases/callbacks/contexto/guardas validados;
-  entrada real confirmada. Fonte1ffb680, SHA registrado no checkpoint JSON.
-- Próxima ação: reproduzir o contrato NP com testes de init/argumentos/offline;
-  executar novo ensaio nativo para avançar ao menu/partida.
+- Capturas pararam em frame_count4081 (~70s), embora draws/flips continuassem.
+- Callback d3d12_present zera frame_count a cada segundo para calcular FPS;
+  o mesmo contador determina o ponto de captura3001 e não deveria retroceder.
+- Corrigir a contabilidade sem alterar renderização, depois inspecionar imagens
+  posteriores para avaliar menu/estado de carregamento de forma confiável.
+- Consulta NP: NIDecd503de, erros init/tipo/null/offline e domínioa66x testados.
+  Contrato por referência RPCS3 com TODOs upstream; sem validação em hardware.
+- Route: 64 entradas PIC, entryd8, init4bases e entrada real confirmados.
 
 ## Retomada e comandos
 

@@ -263,6 +263,33 @@ class BootDiagnosticsTests(unittest.TestCase):
                     self.assertEqual(observed, dict(entries=4 if populated else 2,
                                                     eof_bytes=0, first_eof=True, repeated_eof=True))
 
+    def test_np_message_count_preserves_outputs_and_orders_offline_errors(self):
+        env = os.environ.copy()
+        env.pop('PS3_NET_ONLINE', None)
+        env.pop('PSNR_SERVER', None)
+        result = subprocess.run([str(BOOT), '--test-np-message-count'], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        observed = json.loads(result.stdout.splitlines()[-1])
+        self.assertEqual(observed, dict(before=0x8002a662, before_invalid_type=0x8002a665,
+                                        before_null=0x8002a662, invalid_type=0x8002a665,
+                                        invalid_unsigned_type=0x8002a665, null_count=0x8002a665,
+                                        offline_types=[0x8002aa06] * 8,
+                                        unmapped_count=0x8002aa06, after=0x8002a662,
+                                        after_invalid_type=0x8002a665,
+                                        untouched=True, sign_extended=True))
+
+    def test_np_message_count_online_provider_absence_stays_explicit(self):
+        env = os.environ.copy()
+        env.update(PS3_NET_ONLINE='1', PSNR_SERVER='unused.invalid')
+        result = subprocess.run([str(BOOT), '--test-np-message-count'], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 90, result.stderr + result.stdout)
+        event = json.loads(next(line.removeprefix('[fifa-block] ') for line in result.stderr.splitlines()
+                                if line.startswith('[fifa-block] ')))
+        self.assertEqual(event['kind'], 'np-message-count-online')
+        self.assertEqual(event['value'], 0xecd503de)
+
     def test_account_region_online_provider_absence_stays_explicit(self):
         env = os.environ.copy()
         # These enable the runtime mode check; no connection is initiated by

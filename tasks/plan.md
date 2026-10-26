@@ -19,15 +19,15 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Matrix panner: 26 entradas, init PIC4bases/callbacks/guardas validados; entrada real.
 - Delay: 96 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
-- 142 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Implementar a consulta de mensagens NP em estado offline
+## 1. Corrigir contador compartilhado de frames/capturas
 
-- Route PIC d8 concluído: 64 entradas, init4bases e entrada real confirmados.
-- Falha atual: NIDecd503de, sceNpBasicGetMessageEntryCount, tipo6.
-- Verificar fonte/ABI, testar ordem de erros e preservação do count.
-- Não inventar caixa de mensagens ou autenticação; manter online não suportado explícito.
-- Rodar ensaio nativo estrito e continuar rumo a menu/partida.
+- NP message count offline concluído; 360s sem parada estrita, menu não validado.
+- Callback d3d12_present zera frame_count para FPS; captura usa o mesmo contador.
+- Manter frame_count monotônico e usar delta separado no cálculo do FPS.
+- Validar capturas posteriores a4081 e inspecionar estado real do jogo.
+- Continuar rumo a menu/partida, sem confundir timeout com sucesso.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

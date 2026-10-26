@@ -1,29 +1,12 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Route PIC entered at entry0xd8; native initialization reaches missing NP message count import",
+  "stage": "NP message count offline implemented; no strict fault in360s, post-start captures stopped by resetting render counter",
   "native_process": true,
   "emulator_launched": false,
-  "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793041233048875700",
-  "elapsed_seconds": 82.27,
-  "block": {
-    "kind": "hle",
-    "value": 3973383134,
-    "guest_lr": 23012708,
-    "guest_pc": 34896248,
-    "thread_id": 23,
-    "guest_toc": 35476336,
-    "arguments": [
-      6,
-      3491197344,
-      0,
-      1752523871,
-      0,
-      0,
-      385216108,
-      0
-    ]
-  },
+  "exit_code": "timeout",
+  "logs": "private\\analysis\\runs\\1793041586143459600",
+  "elapsed_seconds": 360.178,
+  "block": null,
   "menu_navigable_validated": false,
   "gameplay_tested": false,
   "game_save_reload_validated": true,
@@ -1462,15 +1445,6 @@
       "algorithm_validated": false
     }
   ],
-  "next_hle": {
-    "nid": "0xecd503de",
-    "name": "sceNpBasicGetMessageEntryCount",
-    "guest_lr": "0x15f2564",
-    "guest_pc": "0x2147978",
-    "type": 6,
-    "count_ea": "0xd01871a0",
-    "offline_contract_pending": true
-  },
   "spu_route": {
     "source_ea": "0x1ffb680",
     "bytes": 4384,
@@ -1492,5 +1466,32 @@
     "guards_preserved": true,
     "native_entry_observed": true,
     "route_algorithm_validated": false
+  },
+  "np_message_count": {
+    "nid": "0xecd503de",
+    "reference": "https://github.com/RPCS3/rpcs3/blob/aa9ebd2f/rpcs3/Emu/Cell/Modules/sceNp.cpp#L2311",
+    "reference_has_unverified_checks": true,
+    "hardware_validated": false,
+    "error_precedence_validated": true,
+    "output_preserved_on_errors": true,
+    "error_return_sign_extension_validated": true,
+    "online_provider_absence_explicit": true,
+    "native_offline_entry_observed": true
+  },
+  "latest_verification": {
+    "boot_tests": 46,
+    "project_tests": 144,
+    "asset_samples_passed": 65,
+    "asset_samples_total": 65,
+    "profile_files_unchanged": 5,
+    "native_result": "timeout_without_strict_fault",
+    "menu_validated": false
+  },
+  "capture_blocker": {
+    "file": "vendor/ps3recomp/libs/video/rsx_d3d12_backend.c",
+    "line": 5202,
+    "reason": "legacy FPS callback resets shared frame_count; captures gated at3001 stop after4081",
+    "latest_capture": "private/analysis/np-message-native-frames/frame_09/backbuffer.bmp",
+    "live_threads": "private/analysis/np-message-live-threads.json"
   }
 }

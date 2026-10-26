@@ -43,6 +43,7 @@ int fifa_test_spu_termination(const char*);
 int fifa_test_spu_overlay(const char*);
 int fifa_test_spu_observer(const char*);
 void fifa_register_offline_np(void);
+int fifa_test_np_message_count(void);
 int fifa_test_offline_np(void);
 int fifa_test_offline_netctl(void);
 void fifa_start_hang_diagnostics(uint32_t);
@@ -152,6 +153,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--test-prx")) return fifa_test_prx_registry();
     if (argc == 2 && !std::strcmp(argv[1], "--test-callback")) return fifa_test_guest_callbacks();
     if (argc == 2 && !std::strcmp(argv[1], "--test-offline-np")) return fifa_test_offline_np();
+    if (argc == 2 && !std::strcmp(argv[1], "--test-np-message-count")) return fifa_test_np_message_count();
     if (argc == 2 && !std::strcmp(argv[1], "--test-offline-netctl")) return fifa_test_offline_netctl();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-groups")) return fifa_test_spu_groups();
     if (argc == 2 && !std::strcmp(argv[1], "--test-spu-pic-lowering")) return fifa_test_spu_pic_lowering();
