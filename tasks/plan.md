@@ -17,15 +17,18 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Compressor1: 114 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
 - Reverb1: 287 entradas, init PIC4bases/contexto/32bytes de estado preservados; entrada real.
 - Matrix panner: 26 entradas, init PIC4bases/callbacks/guardas validados; entrada real.
-- 140 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Delay: 96 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
+- 141 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir o plugin PIC delay
+## 1. Traduzir reverb IR1 e pequeno lote de DSPs revisados
 
-- Fonte1fd2c00, tamanho1d70, base observada8300/PC8330; SHA no checkpoint.
-- PIC modo1: base canônica0, entrada30; revisar code_end e callback2f8.
-- Init: externo1d70, contexto1d80, descriptor1d90/94zero,1d98=base+2f8.
-- Aceite: tradução completa e init em quatro bases; preservar código/guardas.
-- Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
+- Bloqueio real1fb6d00/size7f00, basea100/PCa130; code_end7d58 e callbackc8.
+- FIR64/IIR2/distortionclip também tiveram init/limites revisados separadamente.
+- Todos PIC modo1; só usar perfis cuja cadeia de argumentos e stores coincidam.
+- Aceite: hashes fixos, tradução sem pendências e init de cada módulo em quatro
+  bases, preservando código, contexto/callbacks e estado não tocado.
+- Não afirmar algoritmos de efeitos completos validados somente pela init.
+- Rodar ensaio nativo estrito; registrar quais módulos realmente entraram.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

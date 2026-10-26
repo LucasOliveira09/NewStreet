@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: matrix panner PIC.
+Branch: codex/ps3-native-bootstrap. Incremento atual: delay PIC.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -12,16 +12,16 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal; escuta/sincronia ainda pendentes.
 - **Menu navegável, cena, gameplay e partida completa ainda não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 116 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 117 registros raw SPU.
   Contagem não demonstra semântica completa dos serviços ou algoritmos.
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/matrixpanner-native-run.json.
-- Logs: private/analysis/runs/1793035551007674000.
-- Saída estrita **90**, aos **82,252 s**, nova entrada PIC sem tradução.
-- Matrix panner entrou no caminho real; algoritmo matricial não foi validado.
-- 44 testes Boot, 140 do projeto e 65 amostras de assets passaram.
+- Resultado: private/analysis/delay-native-run.json.
+- Logs: private/analysis/runs/1793036101645255800.
+- Saída estrita **90**, aos **86,223 s**, nova entrada PIC sem tradução.
+- Delay entrou no caminho real; algoritmo de atraso completo não foi validado.
+- 44 testes Boot, 141 do projeto e 65 amostras de assets passaram.
 - 16 runtime CTest são registro anterior; runtime não foi alterado neste incremento.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
@@ -42,18 +42,20 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 - Reverb1: 287 entradas PIC; init4bases/callbacks/contexto/guardas e 32 bytes de
   estado preservados; entrada real, algoritmo de reverberação não validado.
 - Matrix panner: 26 entradas PIC; init4bases/callbacks/guardas validados; entrada real.
+- Delay: 96 entradas PIC; init4bases/callbacks/contexto/guardas validados; entrada real.
 - Identificador preserva diagnósticos de JSONs truncados e analisa os válidos.
 
 ## Bloqueio atual
 
-- **spudelay.elf**, fonte EA **0x1fd2c00**, base observada **0x8300**,
-  PC **0x8330**, **0x1d70 bytes** iguais a um snapshot completo.
-- SHA-256: 6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4.
-- PIC modo1, entrada relativa30, BSS30; init copia callbacks e contexto.
-- Imagem/disassembly: private/analysis/next_1fd2c00.bin e
-  private/analysis/next_1fd2c00.disassembly.txt.
-- Identificação: private/analysis/matrixpanner-next-identified.json.
-- Próxima ação: traduzir PIC, validar init em quatro bases e continuar ensaio real.
+- **spureverbir1.elf**, fonte EA **0x1fb6d00**, base observada **0xa100**,
+  PC **0xa130**, **0x7f00 bytes** iguais a um snapshot completo.
+- SHA-256: 60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc.
+- PIC modo1, entrada30, BSS100, code_end7d58, callbackc8.
+- Imagem/disassembly: private/analysis/audio_spureverbir1.bin e
+  private/analysis/audio_spureverbir1.disassembly.txt.
+- Identificação: private/analysis/delay-next-identified.json.
+- Próxima ação: integrar com pequeno lote de DSPs cujas inits foram revisadas;
+  testar cada módulo em quatro bases e continuar o ensaio real.
 
 ## Retomada e comandos
 

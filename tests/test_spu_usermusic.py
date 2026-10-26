@@ -9,6 +9,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UserMusicTests(unittest.TestCase):
+    def test_delay_init_preserves_context_and_relocates_callback(self):
+        image = ROOT / 'private/analysis/next_1fd2c00.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         '6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-delay-init', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            positions=4, initialization_validated=True, callbacks_relocated=True,
+            external_pointer_preserved=True, context_vector_preserved=True,
+            code_preserved=True, guards_preserved=True, untouched_state_bytes=0,
+            delay_algorithm_validated=False))
+
     def test_matrix_panner_init_relocates_descriptor_at_four_placements(self):
         image = ROOT / 'private/analysis/audio_spumatrixpanner.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),

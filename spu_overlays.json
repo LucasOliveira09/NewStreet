@@ -2014,6 +2014,20 @@
         "0xb8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_spudelay",
+      "source_ea": "0x1fd2c00",
+      "size": "0x1d70",
+      "sha256": "6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1d68",
+      "extra_entries": [
+        "0x2f8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

@@ -206,3 +206,7 @@ extern "C" int fifa_test_spu_reverb_init(const char* path) {
 extern "C" int fifa_test_spu_matrixpanner_init(const char* path) {
     return run_audio_context_init(path, 0x1feaa80, 0x770, 0x20, 0xb8, 0x3780, "matrix", false);
 }
+
+extern "C" int fifa_test_spu_delay_init(const char* path) {
+    return run_audio_context_init(path, 0x1fd2c00, 0x1d70, 0x30, 0x2f8, 0x8300, "delay");
+}
