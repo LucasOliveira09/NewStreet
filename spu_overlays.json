@@ -2084,6 +2084,20 @@
         "0xc8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_spuroute",
+      "source_ea": "0x1ffb680",
+      "size": "0x1120",
+      "sha256": "d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321",
+      "ls_base": "0x0",
+      "entry": "0xd8",
+      "code_start": "0x30",
+      "code_end": "0x1110",
+      "extra_entries": [
+        "0x170"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

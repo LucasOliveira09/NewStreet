@@ -1,26 +1,26 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Impulse-response reverb entered; route PIC entry0xd8 at0x1ffb680 is untranslated",
+  "stage": "Route PIC entered at entry0xd8; native initialization reaches missing NP message count import",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793040401929546400",
-  "elapsed_seconds": 81.064,
+  "logs": "private\\analysis\\runs\\1793041233048875700",
+  "elapsed_seconds": 82.27,
   "block": {
-    "kind": "spu-indirect",
-    "value": 2259970271706427352,
-    "guest_lr": 0,
-    "guest_pc": 0,
-    "thread_id": 0,
-    "guest_toc": 0,
+    "kind": "hle",
+    "value": 3973383134,
+    "guest_lr": 23012708,
+    "guest_pc": 34896248,
+    "thread_id": 23,
+    "guest_toc": 35476336,
     "arguments": [
+      6,
+      3491197344,
+      0,
+      1752523871,
       0,
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      385216108,
       0
     ]
   },
@@ -865,20 +865,6 @@
     "native_entry_observed": true,
     "native_thread": 8196
   },
-  "next_spu": {
-    "source_ea": "0x1ffb680",
-    "ls_base": "0x12f00",
-    "pc": "0x12fd8",
-    "entry_offset": "0xd8",
-    "initialized_bytes": 4384,
-    "source_sha256": "d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321",
-    "snapshot_byte_differences": 0,
-    "verified_snapshots": 1,
-    "source_name": "spuroute.elf",
-    "source_name_verified": true,
-    "relocatable_pic": true,
-    "bss_bytes": 48
-  },
   "spu_lzma": {
     "source_ea": "0x1e57180",
     "entry": "0x100",
@@ -1226,7 +1212,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 121,
+  "registered_raw_spu_overlays": 122,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1475,5 +1461,36 @@
       "native_entry_observed": true,
       "algorithm_validated": false
     }
-  ]
+  ],
+  "next_hle": {
+    "nid": "0xecd503de",
+    "name": "sceNpBasicGetMessageEntryCount",
+    "guest_lr": "0x15f2564",
+    "guest_pc": "0x2147978",
+    "type": 6,
+    "count_ea": "0xd01871a0",
+    "offline_contract_pending": true
+  },
+  "spu_route": {
+    "source_ea": "0x1ffb680",
+    "bytes": 4384,
+    "sha256": "d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321",
+    "entry_offset": "0xd8",
+    "native_entries": 64,
+    "relocatable_pic": true,
+    "tested_bases": [
+      0,
+      77568,
+      18704,
+      65536
+    ],
+    "initialization_validated": true,
+    "callbacks_relocated": true,
+    "external_pointer_preserved": true,
+    "context_vector_preserved": true,
+    "code_preserved": true,
+    "guards_preserved": true,
+    "native_entry_observed": true,
+    "route_algorithm_validated": false
+  }
 }

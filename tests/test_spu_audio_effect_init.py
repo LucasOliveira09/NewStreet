@@ -11,6 +11,7 @@ CASES = (
     ('bandpass_iir2', 'd8e840f15c74513b8a033fc4a60c536ec51a0fde784919c7390c4046e7bda539', False, 0),
     ('distortion_clip', 'fdc2c46f854a82b18b0152e09afd0dc13569f8c3447d183ed6734d58cf38b102', False, 0),
     ('spureverbir1', '60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc', True, 208),
+    ('spuroute', 'd8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321', True, 0),
 )
 
 

@@ -21,13 +21,12 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 142 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir spuroute com entrada relativa d8
+## 1. Implementar a consulta de mensagens NP em estado offline
 
-- Fonte1ffb680, tamanho1120, base12f00/PC12fd8; SHA no checkpoint.
-- PIC modo1; code_start30, entryd8, code_end1110, callback170.
-- Mesma init com contexto, mas parametrizar o ponto de entrada do fixture.
-- Aceite: tradução sem pendências e init em quatro bases; não alterar cabeçalho
-  para forçar entrada30. Preservar imagem, callbacks, contexto e guardas.
+- Route PIC d8 concluído: 64 entradas, init4bases e entrada real confirmados.
+- Falha atual: NIDecd503de, sceNpBasicGetMessageEntryCount, tipo6.
+- Verificar fonte/ABI, testar ordem de erros e preservação do count.
+- Não inventar caixa de mensagens ou autenticação; manter online não suportado explícito.
 - Rodar ensaio nativo estrito e continuar rumo a menu/partida.
 
 ## 3. Ensaiar o avanço real após o novo módulo

@@ -20,7 +20,7 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Traduzir e executar spumatrixpanner de 0x1feaa80.
 - [x] Traduzir e executar spudelay de 0x1fd2c00.
 - [x] Traduzir e executar spureverbir1 de 0x1fb6d00; lote de DSPs compilado/testado.
-- [ ] Traduzir e executar spuroute de 0x1ffb680.
+- [x] Traduzir e executar spuroute de 0x1ffb680, com entrada d8.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.

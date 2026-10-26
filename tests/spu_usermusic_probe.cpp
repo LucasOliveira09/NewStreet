@@ -132,7 +132,7 @@ extern "C" int fifa_test_spu_usermusic(const char* path) {
 static int run_audio_context_init(const char* path, uint32_t source, uint32_t bytes,
                                   uint32_t bss_bytes, uint32_t callback,
                                   uint32_t alternate_base, const char* algorithm,
-                                  bool copies_context = true) {
+                                  bool copies_context = true, uint32_t entry = 0x30) {
     std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(path, "rb");
     if (!file) return 3;
@@ -165,7 +165,7 @@ static int run_audio_context_init(const char* path, uint32_t source, uint32_t by
         for (unsigned i = 0; i < 4; ++i)
             spu_ls_write32(&ctx, parameters + 0x110 + 4 * i, context_words[i]);
         ctx.gpr[3] = spu_splat_u32(parameters);
-        if (!invoke(ctx, base + 0x30)) return 4;
+        if (!invoke(ctx, base + entry)) return 4;
         const uint32_t state = base + bytes;
         const uint32_t descriptor = state + (copies_context ? 0x20 : 0x10);
         if (spu_ls_read32(&ctx, state) != getter_pc ||
@@ -216,18 +216,20 @@ extern "C" int fifa_test_spu_audio_effect_init(const char* name, const char* pat
         const char* name;
         uint32_t source, bytes, bss, callback, alternate_base;
         bool context;
+        uint32_t entry = 0x30;
     };
     // Each case was reviewed independently against its locked source bytes.
     const Effect effects[] = {
         {"bandpass_fir64", 0x1fcca80, 0x1a60, 0x20, 0xb8, 0x8000, false},
         {"bandpass_iir2", 0x1fce580, 0xcc0, 0x20, 0xb8, 0x8000, false},
         {"distortion_clip", 0x1fd4a00, 0x400, 0x20, 0xb8, 0x8000, false},
-        {"spureverbir1", 0x1fb6d00, 0x7f00, 0x100, 0xc8, 0xa100, true}
+        {"spureverbir1", 0x1fb6d00, 0x7f00, 0x100, 0xc8, 0xa100, true},
+        {"spuroute", 0x1ffb680, 0x1120, 0x30, 0x170, 0x12f00, true, 0xd8}
     };
     for (const auto& effect : effects)
         if (!std::strcmp(name, effect.name))
             return run_audio_context_init(path, effect.source, effect.bytes, effect.bss,
                                           effect.callback, effect.alternate_base,
-                                          effect.name, effect.context);
+                                          effect.name, effect.context, effect.entry);
     return 2;
 }
