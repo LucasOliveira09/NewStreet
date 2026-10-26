@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Delay PIC entered; impulse-response reverb at 0x1fb6d00 is untranslated",
+  "stage": "Impulse-response reverb entered; route PIC entry0xd8 at0x1ffb680 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793036101645255800",
-  "elapsed_seconds": 86.223,
+  "logs": "private\\analysis\\runs\\1793040401929546400",
+  "elapsed_seconds": 81.064,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706390832,
+    "value": 2259970271706427352,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 141,
+    "project": 142,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,17 +866,18 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1fb6d00",
-    "ls_base": "0xa100",
-    "pc": "0xa130",
-    "initialized_bytes": 32512,
-    "source_sha256": "60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc",
+    "source_ea": "0x1ffb680",
+    "ls_base": "0x12f00",
+    "pc": "0x12fd8",
+    "entry_offset": "0xd8",
+    "initialized_bytes": 4384,
+    "source_sha256": "d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321",
     "snapshot_byte_differences": 0,
     "verified_snapshots": 1,
-    "source_name": "spureverbir1.elf",
+    "source_name": "spuroute.elf",
     "source_name_verified": true,
     "relocatable_pic": true,
-    "bss_bytes": 256
+    "bss_bytes": 48
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -1225,7 +1226,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 117,
+  "registered_raw_spu_overlays": 121,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1400,5 +1401,79 @@
     "guards_preserved": true,
     "native_entry_observed": true,
     "delay_algorithm_validated": false
-  }
+  },
+  "audio_effects_batch": [
+    {
+      "name": "audio_bandpass_fir64",
+      "source_ea": "0x1fcca80",
+      "bytes": 6752,
+      "sha256": "0f79910a2458b2f5769c4c924bb61258d9bf124a877431acba1bf098ccd293ed",
+      "native_entries": 82,
+      "tested_bases": [
+        0,
+        32768,
+        18704,
+        65536
+      ],
+      "initialization_validated": true,
+      "code_preserved": true,
+      "guards_preserved": true,
+      "native_entry_observed": false,
+      "algorithm_validated": false
+    },
+    {
+      "name": "audio_bandpass_iir2",
+      "source_ea": "0x1fce580",
+      "bytes": 3264,
+      "sha256": "d8e840f15c74513b8a033fc4a60c536ec51a0fde784919c7390c4046e7bda539",
+      "native_entries": 44,
+      "tested_bases": [
+        0,
+        32768,
+        18704,
+        65536
+      ],
+      "initialization_validated": true,
+      "code_preserved": true,
+      "guards_preserved": true,
+      "native_entry_observed": false,
+      "algorithm_validated": false
+    },
+    {
+      "name": "audio_distortion_clip",
+      "source_ea": "0x1fd4a00",
+      "bytes": 1024,
+      "sha256": "fdc2c46f854a82b18b0152e09afd0dc13569f8c3447d183ed6734d58cf38b102",
+      "native_entries": 21,
+      "tested_bases": [
+        0,
+        32768,
+        18704,
+        65536
+      ],
+      "initialization_validated": true,
+      "code_preserved": true,
+      "guards_preserved": true,
+      "native_entry_observed": false,
+      "algorithm_validated": false
+    },
+    {
+      "name": "audio_spureverbir1",
+      "source_ea": "0x1fb6d00",
+      "bytes": 32512,
+      "sha256": "60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc",
+      "native_entries": 391,
+      "tested_bases": [
+        0,
+        41216,
+        18704,
+        65536
+      ],
+      "initialization_validated": true,
+      "code_preserved": true,
+      "guards_preserved": true,
+      "native_entry_observed": true,
+      "algorithm_validated": false
+    }
+  ]
 }

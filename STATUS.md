@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: delay PIC.
+Branch: codex/ps3-native-bootstrap. Incremento atual: reverb IR1 e lote de DSPs.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -12,16 +12,16 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal; escuta/sincronia ainda pendentes.
 - **Menu navegável, cena, gameplay e partida completa ainda não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 117 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 121 registros raw SPU.
   Contagem não demonstra semântica completa dos serviços ou algoritmos.
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/delay-native-run.json.
-- Logs: private/analysis/runs/1793036101645255800.
-- Saída estrita **90**, aos **86,223 s**, nova entrada PIC sem tradução.
-- Delay entrou no caminho real; algoritmo de atraso completo não foi validado.
-- 44 testes Boot, 141 do projeto e 65 amostras de assets passaram.
+- Resultado: private/analysis/audio-effects-batch-native-run.json.
+- Logs: private/analysis/runs/1793040401929546400.
+- Saída estrita **90**, aos **81,064 s**, nova entrada PIC sem tradução.
+- Reverb IR1 entrou no caminho real; algoritmo completo não foi validado.
+- 44 testes Boot, 142 do projeto e 65 amostras de assets passaram.
 - 16 runtime CTest são registro anterior; runtime não foi alterado neste incremento.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
@@ -43,19 +43,21 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
   estado preservados; entrada real, algoritmo de reverberação não validado.
 - Matrix panner: 26 entradas PIC; init4bases/callbacks/guardas validados; entrada real.
 - Delay: 96 entradas PIC; init4bases/callbacks/contexto/guardas validados; entrada real.
+- Lote DSP: FIR64/IIR2/clip têm 82/44/21 entradas e init4bases cada; ainda sem entrada real.
+- Reverb IR1: 391 entradas, init4bases/208bytes de estado preservados; entrada real.
 - Identificador preserva diagnósticos de JSONs truncados e analisa os válidos.
 
 ## Bloqueio atual
 
-- **spureverbir1.elf**, fonte EA **0x1fb6d00**, base observada **0xa100**,
-  PC **0xa130**, **0x7f00 bytes** iguais a um snapshot completo.
-- SHA-256: 60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc.
-- PIC modo1, entrada30, BSS100, code_end7d58, callbackc8.
-- Imagem/disassembly: private/analysis/audio_spureverbir1.bin e
-  private/analysis/audio_spureverbir1.disassembly.txt.
-- Identificação: private/analysis/delay-next-identified.json.
-- Próxima ação: integrar com pequeno lote de DSPs cujas inits foram revisadas;
-  testar cada módulo em quatro bases e continuar o ensaio real.
+- **spuroute.elf**, fonte EA **0x1ffb680**, base observada **0x12f00**,
+  PC **0x12fd8**, **0x1120 bytes** iguais a um snapshot completo.
+- SHA-256: d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321.
+- PIC modo1, entrada relativa **d8**, BSS30; code_end1110, callback170.
+- Imagem/disassembly: private/analysis/audio_spuroute.bin e
+  private/analysis/audio_spuroute.disassembly.txt.
+- Identificação: private/analysis/audio-effects-batch-next-identified.json.
+- Próxima ação: registrar a entrada d8 declarada pelo cabeçalho e testar init
+  em quatro bases. Função30 é helper alcançado por chamada direta do callback.
 
 ## Retomada e comandos
 

@@ -18,17 +18,17 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Reverb1: 287 entradas, init PIC4bases/contexto/32bytes de estado preservados; entrada real.
 - Matrix panner: 26 entradas, init PIC4bases/callbacks/guardas validados; entrada real.
 - Delay: 96 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
-- 141 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
+- 142 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir reverb IR1 e pequeno lote de DSPs revisados
+## 1. Traduzir spuroute com entrada relativa d8
 
-- Bloqueio real1fb6d00/size7f00, basea100/PCa130; code_end7d58 e callbackc8.
-- FIR64/IIR2/distortionclip também tiveram init/limites revisados separadamente.
-- Todos PIC modo1; só usar perfis cuja cadeia de argumentos e stores coincidam.
-- Aceite: hashes fixos, tradução sem pendências e init de cada módulo em quatro
-  bases, preservando código, contexto/callbacks e estado não tocado.
-- Não afirmar algoritmos de efeitos completos validados somente pela init.
-- Rodar ensaio nativo estrito; registrar quais módulos realmente entraram.
+- Fonte1ffb680, tamanho1120, base12f00/PC12fd8; SHA no checkpoint.
+- PIC modo1; code_start30, entryd8, code_end1110, callback170.
+- Mesma init com contexto, mas parametrizar o ponto de entrada do fixture.
+- Aceite: tradução sem pendências e init em quatro bases; não alterar cabeçalho
+  para forçar entrada30. Preservar imagem, callbacks, contexto e guardas.
+- Rodar ensaio nativo estrito e continuar rumo a menu/partida.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 
