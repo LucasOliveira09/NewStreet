@@ -25,3 +25,4 @@ reports/*
 !reports/disc-filesystem-validation.json
 !reports/asset-job-validation.json
 !reports/trophy-storage-admission.json
+!reports/spu-raw-inventory.json

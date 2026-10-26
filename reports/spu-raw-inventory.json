@@ -1,0 +1,2123 @@
+{
+  "generator": "fifa_spu_raw_inventory",
+  "elf_sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+  "crt_reference_sha256": "e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2",
+  "images": [
+    {
+      "source_ea": "0x1e57180",
+      "bytes": 8192,
+      "name": "AssetStream_lzma.elf",
+      "sha256": "6d5c19b1e71f7889531143ba08df360180077a8009b98cf4ddbbc1fdbaa21697",
+      "entry": "0x80",
+      "bss_bytes": 32,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e59200",
+      "bytes": 2560,
+      "name": "AssetStream_refpack.elf",
+      "sha256": "f822b2a606fd62ffbb85788486c3c13b0c25ca02ef2ae78b13ec9aad1d850c8d",
+      "entry": "0x30",
+      "bss_bytes": 0,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e59c80",
+      "bytes": 25712,
+      "name": "AssetStream_zlib.elf",
+      "sha256": "813f96ad09725bfdbeba83ec525f9e5eabda401e74f51f837f594b67b59c1126",
+      "entry": "0x80",
+      "bss_bytes": 33120,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e61b80",
+      "bytes": 7248,
+      "name": "job_rwcodec_refpackdeflate.elf",
+      "sha256": "116dfd41d5b36fb30e88e69627fdfedeef7aa09bc7138bc93ada396a0d7aacb4",
+      "entry": "0x30",
+      "bss_bytes": 0,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e63880",
+      "bytes": 2432,
+      "name": "job_util_job_memcpy.elf",
+      "sha256": "da7145f8a13b2500457cc9de0b086d278037b4cbce75008be2468bed66a60c1f",
+      "entry": "0x30",
+      "bss_bytes": 4224,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e64380",
+      "bytes": 104016,
+      "name": "aififa_attackingpositioning_first_spu.elf",
+      "sha256": "027b62724c485cf81cc1dc97e79a0f3f79c844898a612c2fa646906832edddf2",
+      "entry": "0x30",
+      "bss_bytes": 11200,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e7da80",
+      "bytes": 116432,
+      "name": "aififa_attackingpositioning_second_spu.elf",
+      "sha256": "42fe900c8c8015fa777efc4c9741a30b088571ac0affd90e81d9bd9a197c6f7c",
+      "entry": "0x30",
+      "bss_bytes": 12736,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1e9a200",
+      "bytes": 103040,
+      "name": "aififa_markingpos_update_spu.elf",
+      "sha256": "7c7d832db6490c9d06be245783cbfdd0feafecdfd013d8e4bfee5e58d6c80d88",
+      "entry": "0x30",
+      "bss_bytes": 9136,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1eb3500",
+      "bytes": 40912,
+      "name": "aififa_markingassign_update_spu.elf",
+      "sha256": "a09f631df50d99587be471389ba94afd2d833612c7807c05c361e165cf93e601",
+      "entry": "0x30",
+      "bss_bytes": 6416,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ebd580",
+      "bytes": 56128,
+      "name": "aififa_topologycache_spu.elf",
+      "sha256": "06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7",
+      "entry": "0x30",
+      "bss_bytes": 8752,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ecb100",
+      "bytes": 90864,
+      "name": "fifarna_batchplayer_pass0.elf",
+      "sha256": "c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652",
+      "entry": "0x30",
+      "bss_bytes": 448,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f1e380",
+      "bytes": 5312,
+      "name": "Replay_deltacompress.elf",
+      "sha256": "4bd5f31a9eccd36d77e97b1bf00166c762983eb23e08f5807c21e8493e77aec5",
+      "entry": "0x30",
+      "bss_bytes": 0,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f1f880",
+      "bytes": 15328,
+      "name": "Replay_matrixload.elf",
+      "sha256": "00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f23500",
+      "bytes": 6480,
+      "name": "Replay_matrixsave.elf",
+      "sha256": "3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380",
+      "entry": "0x30",
+      "bss_bytes": 0,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f24f00",
+      "bytes": 5632,
+      "name": "sportsrna_default_spupatch_job.elf",
+      "sha256": "5d13d14b96259de1194302632d5417d87e842e58bc0c94aad5dad8f54933c518",
+      "entry": "0x30",
+      "bss_bytes": 128,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f8d580",
+      "bytes": 8784,
+      "name": "sportsutil_dxt.elf",
+      "sha256": "3f1371daeeb5282209b1d95f45ae4f3608766b81cd009dffb32f98276c100604",
+      "entry": "0x30",
+      "bss_bytes": 240,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f8f880",
+      "bytes": 3648,
+      "name": "spudecoder.elf",
+      "sha256": "2f734f872a4578670362e43683e8e2df2e30ccc0b61ba63aaec1bd070075279a",
+      "entry": "0x190",
+      "bss_bytes": 160,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f90700",
+      "bytes": 2944,
+      "name": "spudecfloat32big.elf",
+      "sha256": "d8966f60ecdae72cb85336c4177747376ac99942288b82d3bcbb2424ca6a0682",
+      "entry": "0x4c8",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f91300",
+      "bytes": 3072,
+      "name": "spudecfloat32little.elf",
+      "sha256": "2c49a3fbbfebdf18b4f448f93a541155dd2ed3d6aae08b46b83371d0f616ecd2",
+      "entry": "0x570",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f91f80",
+      "bytes": 53120,
+      "name": "spudeclayer3.elf",
+      "sha256": "332c1aa8aa16757524d7fb8f53424434b5de2c6be3c0beefa1abe7ed81431926",
+      "entry": "0x1df0",
+      "bss_bytes": 512,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f9ef80",
+      "bytes": 3072,
+      "name": "spudecpcm16big.elf",
+      "sha256": "ce67a8ad90c1c1616f5d0f36948ac1d96432d95b0027910cd6a24071c78301c3",
+      "entry": "0x30",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1f9fc00",
+      "bytes": 3200,
+      "name": "spudecpcm16little.elf",
+      "sha256": "96105a06eb4983f05d33b318fc4d61a269e939c0e42c00eb221eee0bb3e4f543",
+      "entry": "0x5c0",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa0900",
+      "bytes": 3072,
+      "name": "spudecpcm24big.elf",
+      "sha256": "6b53e4331c239dc6970e185d112d092841ded843e3d81c36108caed9758d3112",
+      "entry": "0x530",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa1580",
+      "bytes": 3072,
+      "name": "spudecpcm24little.elf",
+      "sha256": "7edb33d15b3d282bd176188c90bcbb567b5494320cca853fedd958a1e4be1f1f",
+      "entry": "0x530",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa2200",
+      "bytes": 2944,
+      "name": "spudecpcm8signed.elf",
+      "sha256": "769bddfbf98513549367ef4ddb66e8bbe8cd88803305d9da45818e7ecc732f35",
+      "entry": "0x4d8",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa2e00",
+      "bytes": 2944,
+      "name": "spudecpcm8unsigned.elf",
+      "sha256": "0aa06c2c42773ac97e405ae451679a327b281f45d816c690656a4d75b0e430bb",
+      "entry": "0x4d8",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa3a00",
+      "bytes": 2944,
+      "name": "spudecpcmfloatnative.elf",
+      "sha256": "f1d9790891394b24161e8998aeeda641a7b00281bde75daf0ed5d0511937aec0",
+      "entry": "0x4e0",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa4600",
+      "bytes": 4608,
+      "name": "spudecxas1.elf",
+      "sha256": "098c72368bde6c8a64c2df049f8118135ec9861c0a40df72fc8126c5c4db67f6",
+      "entry": "0x2e8",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fa5880",
+      "bytes": 56448,
+      "name": "spudecealayer3.elf",
+      "sha256": "ff7799a9e3388eb3aec9bbedb4c7d564053067637becae38ab20422fcf3418e0",
+      "entry": "0x2b8",
+      "bss_bytes": 512,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fb3580",
+      "bytes": 4176,
+      "name": "spusubmix.elf",
+      "sha256": "b1a63be6973eeb7176b2a8a19961c30d21c79b66928e8df2392b028208924191",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fb4600",
+      "bytes": 9872,
+      "name": "spudac.elf",
+      "sha256": "5a756bdec8d54872b5f8084554796b34168d7ed2b56e8a432ab57a682b37f8f5",
+      "entry": "0xe0",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fb6d00",
+      "bytes": 32512,
+      "name": "spureverbir1.elf",
+      "sha256": "60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc",
+      "entry": "0x30",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fbec80",
+      "bytes": 1680,
+      "name": "spugain.elf",
+      "sha256": "20663e0f98f755185afa50f7651571b3d15e38199052065df751f342c27812e1",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fbf380",
+      "bytes": 2848,
+      "name": "spuhighpassiir2.elf",
+      "sha256": "c135ec6c9ca9ae3e391f16bdc3c92f997b959fe45f8de96af800fa592b8053e9",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fbff00",
+      "bytes": 2832,
+      "name": "spulowpassiir2.elf",
+      "sha256": "c202671ae8a6a3485ba64d10caa956f5eeefc9a287ef47973ecf21a4a22b1d63",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fc0a80",
+      "bytes": 16576,
+      "name": "spupan2d1.elf",
+      "sha256": "44a31088831991f57ad403182038cef0a9ca1d2cfaeefa98281f50b76ca0fcd5",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fc4b80",
+      "bytes": 5120,
+      "name": "spusend.elf",
+      "sha256": "f8b2a0697a67247e6d2f56ab8a806a16f8072c7752a1d3225fa624954671f87a",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fc6000",
+      "bytes": 3664,
+      "name": "spurechannel.elf",
+      "sha256": "2d067497ef05949454811eda45594b786459d3f4e2ff1c5fc6139454fd0cb48f",
+      "entry": "0x38",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fc6f00",
+      "bytes": 4080,
+      "name": "spuresample.elf",
+      "sha256": "783135b9116bf79bc0ccdde85755b8acf4fa58650dd3da20eee3147f70d9680b",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fc7f80",
+      "bytes": 10192,
+      "name": "spusampleplayer.elf",
+      "sha256": "236f5c4f95b5b617bfb3c00f8a304d6339b3187c98025f3e549fe3e48b4ceb81",
+      "entry": "0x130",
+      "bss_bytes": 64,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fca800",
+      "bytes": 7648,
+      "name": "spusndplayer1.elf",
+      "sha256": "a02440fa022f36c82fabb5fc967c18425ae77dbd3cf76fa3e876a408a28ae3bf",
+      "entry": "0x208",
+      "bss_bytes": 64,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fcc680",
+      "bytes": 864,
+      "name": "spuaiffwriter.elf",
+      "sha256": "fd3f521137adc29d03fc6e3165ec432714407b78c9bf71ca1d5630d4d4e455d1",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fcca80",
+      "bytes": 6752,
+      "name": "spubandpassfir64.elf",
+      "sha256": "0f79910a2458b2f5769c4c924bb61258d9bf124a877431acba1bf098ccd293ed",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fce580",
+      "bytes": 3264,
+      "name": "spubandpassiir2.elf",
+      "sha256": "d8e840f15c74513b8a033fc4a60c536ec51a0fde784919c7390c4046e7bda539",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fcf280",
+      "bytes": 14640,
+      "name": "spucompressor1.elf",
+      "sha256": "78403fd4cfc8924d2d17a10ee1b58f06cb99db5246df630819eef4f9b09dec07",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fd2c00",
+      "bytes": 7536,
+      "name": "spudelay.elf",
+      "sha256": "6724113726babd0dbca8b7f92ab3ef7a742faa6f7344ce812a6f6fbf6f4ae9b4",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fd4a00",
+      "bytes": 1024,
+      "name": "spudistortionclip.elf",
+      "sha256": "fdc2c46f854a82b18b0152e09afd0dc13569f8c3447d183ed6734d58cf38b102",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fd4e80",
+      "bytes": 14624,
+      "name": "spuexpander.elf",
+      "sha256": "2b204353464c5c9bfda075f74b7bd3a5659d3d3e024807402bcf0eac1d11f7d4",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fd8800",
+      "bytes": 8320,
+      "name": "spufrequencyshiftssb.elf",
+      "sha256": "a38f012fc592624b67d55bcaad462512cae176bbe59cc70e583a5d6930b3632b",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fda900",
+      "bytes": 10176,
+      "name": "spugainfader.elf",
+      "sha256": "603d8b068b7038371ec1681ce4c0edfeeff33de26a57e9e45ba4802b2f610fac",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fdd100",
+      "bytes": 7088,
+      "name": "spugenericplayer.elf",
+      "sha256": "ffee4cb8e3baabeaa85751f34483b3b835ef7f2143681a063fcafb94cb5614a3",
+      "entry": "0x160",
+      "bss_bytes": 64,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fded00",
+      "bytes": 5888,
+      "name": "spuhighpassbutterworth.elf",
+      "sha256": "29d6a58cc703c3daec0834d35a70a76333c621b7e8874c5fe2e3ecc0bdf9a4ea",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe0480",
+      "bytes": 6288,
+      "name": "spuhighpassfir64.elf",
+      "sha256": "a7cc877e6623668eb728c2b4236c49f90c9c699fcdbb8653078f72644e2fe091",
+      "entry": "0x1a8",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe1d80",
+      "bytes": 3264,
+      "name": "spuhighshelfiir2.elf",
+      "sha256": "eaf44927abb46f39fe530b3aa45226a633681cfb28c6e729410c8ad54eb9418e",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe2a80",
+      "bytes": 144,
+      "name": "spuhwfxreturn.elf",
+      "sha256": "787d6bb56b68ff93a5b581d8e5ba04beaca8c69240118e4282af73dec366cb66",
+      "entry": "0x30",
+      "bss_bytes": 16,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe2b80",
+      "bytes": 144,
+      "name": "spuhwgain.elf",
+      "sha256": "bfabf5812deac484ca6d65f04f9c31dcc3d636e41a430294921929d2d3a1f2f6",
+      "entry": "0x30",
+      "bss_bytes": 16,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe2c80",
+      "bytes": 144,
+      "name": "spuhwpan2d.elf",
+      "sha256": "c4fb4cc0332494d74c92e188e17ad7d67c487b332593f8e1e775702a25b5209d",
+      "entry": "0x30",
+      "bss_bytes": 16,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe2d80",
+      "bytes": 144,
+      "name": "spuhwplayer.elf",
+      "sha256": "85c61acf77aa59b81ff713c4aa3bcaf2db410edff4d00fb4a7f18f9019e1e6da",
+      "entry": "0x30",
+      "bss_bytes": 16,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe2e80",
+      "bytes": 14000,
+      "name": "spulimiter1.elf",
+      "sha256": "a7c9bdaa9048d197be30109177638b2a601a0617f15cbc89cabfb6b08aac788b",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe6580",
+      "bytes": 5888,
+      "name": "spulowpassbutterworth.elf",
+      "sha256": "d9fc7ec6a8d1ccbde33b3d33cf47c25c4d1b944515a917ca391dc3da21acea8f",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe7d00",
+      "bytes": 6032,
+      "name": "spulowpassfir64.elf",
+      "sha256": "bae095cdd782a1452947b39aa2575a63ffa862257582a2ae61371be667ae2343",
+      "entry": "0x1c8",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fe9500",
+      "bytes": 3264,
+      "name": "spulowshelfiir2.elf",
+      "sha256": "5bf94a472ae8815850fd03343ff9e4c3dd486e0c8e79ca578805428ee96a2dd5",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fea200",
+      "bytes": 2016,
+      "name": "spumapchannels.elf",
+      "sha256": "ba9e3c8f66c6201bb5abea170cef4382bfbf9cd9f4bd99155419469681484c51",
+      "entry": "0x38",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1feaa80",
+      "bytes": 1904,
+      "name": "spumatrixpanner.elf",
+      "sha256": "e6b4418602e124e7530e7ec55b59eded3b036b04b49d387618560e887691e7aa",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1feb280",
+      "bytes": 2096,
+      "name": "spumultichannelgain.elf",
+      "sha256": "26ae52b2ba8e405568870d96f25d63f8b4ce84f081f8309368f11395ee1c98f2",
+      "entry": "0x178",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1febb00",
+      "bytes": 3888,
+      "name": "spupacketplayer.elf",
+      "sha256": "4caa8a2f7d6d4771783f9f72b6b0a5bcf50357651672cd6113c68ff5f0cff888",
+      "entry": "0xf0",
+      "bss_bytes": 64,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1feca80",
+      "bytes": 27040,
+      "name": "spupan3d.elf",
+      "sha256": "a4f3804898d7897821d13fcf79a7c06791c6dbb9db9c61c60ca82ebdf30b7896",
+      "entry": "0x260",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ff3480",
+      "bytes": 208,
+      "name": "spupause.elf",
+      "sha256": "02d1230464b4dfd47e61b3f1b1cb6c59e7426eb73dbfa54cd591f749a4005862",
+      "entry": "0x40",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ff3580",
+      "bytes": 3344,
+      "name": "spupeakingiir2.elf",
+      "sha256": "dcdb50f6dcabc6a849239d8ca21cb1bef40c7b6dd6451964dceaa443fe73eed4",
+      "entry": "0x260",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ff4300",
+      "bytes": 8656,
+      "name": "spuresamplehq.elf",
+      "sha256": "edcfc442aeb57e096db8f5a9449b01b4387857c0ce3333885d8c8eefbd159c45",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ff6580",
+      "bytes": 20672,
+      "name": "spureverbmodel1.elf",
+      "sha256": "9f527fbfc677a8d598b9b3b635f5bbfeafa9e273fc738893a4a3496489a653c0",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ffb680",
+      "bytes": 4384,
+      "name": "spuroute.elf",
+      "sha256": "d8f79e692ed92068b20eaab94e0a387e880c8c95446f596a827a8c6869468321",
+      "entry": "0xd8",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ffc800",
+      "bytes": 8800,
+      "name": "spusamplecapture.elf",
+      "sha256": "51c852cc3de82ca079a38a51ee25234ebf994774ddd1e788cbe591c7a7183a35",
+      "entry": "0x30",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1ffeb00",
+      "bytes": 2896,
+      "name": "spusineplayer.elf",
+      "sha256": "8d2bad4f29695cdb5ff596dc628348401696762ff8d91ff83d41155e4851f0f5",
+      "entry": "0x60",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x1fff700",
+      "bytes": 20816,
+      "name": "sputimestretch.elf",
+      "sha256": "b2b53e91250f03f41c3b2350b608260e915f5e354ea7fde6004d2800a507a04e",
+      "entry": "0x1c0",
+      "bss_bytes": 48,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2004900",
+      "bytes": 1216,
+      "name": "spuusermusicarbiter.elf",
+      "sha256": "5297121e39d5e9b1d9feee385a35e07f9c22ecf9dfa1817f65a79179099a3701",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2004e00",
+      "bytes": 4832,
+      "name": "spuvumeter.elf",
+      "sha256": "85448ebfa0678fe1d84f65c1b83449a48f0f13304bae219047d7bfd84650564e",
+      "entry": "0x30",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2006180",
+      "bytes": 192,
+      "name": "spuwiiremotespeaker.elf",
+      "sha256": "0b3e298be99dda18a2b77eaf4bc23ca6d2a42ef62bbff0d930b3af7890018fe6",
+      "entry": "0x38",
+      "bss_bytes": 32,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2006280",
+      "bytes": 12928,
+      "name": "spumixer.elf",
+      "sha256": "19e236d40e4a07935379b33a04853f6cf371ef82f4d700eec67c2ca6d86f1131",
+      "entry": "0x30",
+      "bss_bytes": 1072,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2009580",
+      "bytes": 63616,
+      "name": "spudeceaspeex.elf",
+      "sha256": "710be66e333855ad9656362e51d9b6c5fa676260137b69933653614731cb5fbf",
+      "entry": "0x2d8",
+      "bss_bytes": 256,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2018e80",
+      "bytes": 18688,
+      "name": "dxt_encoder_job.elf",
+      "sha256": "d1cd200c70dd379efd997680333a35b7c1a16b7d5fdd0c3791ba69193b4824c0",
+      "entry": "0x30",
+      "bss_bytes": 128,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2030080",
+      "bytes": 17856,
+      "name": "ANT_kernel.elf",
+      "sha256": "18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4",
+      "entry": "0x100",
+      "bss_bytes": 560,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2034680",
+      "bytes": 173728,
+      "name": "railtracks_movetotarget_spu.elf",
+      "sha256": "f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b",
+      "entry": "0x30",
+      "bss_bytes": 20560,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x205ed80",
+      "bytes": 188672,
+      "name": "railtracks_calculatepathestimates_spu.elf",
+      "sha256": "baccdc7f601823d404686b79fadeab5292015834af196101f3f99053493d1f76",
+      "entry": "0x30",
+      "bss_bytes": 25072,
+      "flags": "0x80000080",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x208cf00",
+      "bytes": 7840,
+      "name": "locoleannode_exec.elf",
+      "sha256": "3fb8204bbdf3928d300ccbab34d8b1cc0f9f062c72f4925a756df69a9c06a3fb",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x208ee80",
+      "bytes": 4304,
+      "name": "copyfloatplugin.elf",
+      "sha256": "636769e59c8b03d838ac468ab9b9fac38ecb1b87c12ce2af3ef2c865e8cf944d",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2090000",
+      "bytes": 4288,
+      "name": "copytranslateplugin.elf",
+      "sha256": "b4cc1c8bb4b8230cbc4af6ccf4c7279f1d2228d98f318cf44dedc48ef2286407",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2091180",
+      "bytes": 4064,
+      "name": "deltatimeresetplugin.elf",
+      "sha256": "75206dcd8fc2790ac5d7aa06839db4a9806aef5efcd542e40921fe0a4d77f523",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2092200",
+      "bytes": 4352,
+      "name": "hikresetplugin.elf",
+      "sha256": "0909943a4a48efe2a6b3454b6d05e44299aaac52d8b7cf49ff267ba9558116c9",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2093380",
+      "bytes": 9072,
+      "name": "ikrigtohikrigplugin.elf",
+      "sha256": "9b29c31b270a8dbb5e37f7ce9da4f4b27f5cfd0aedc8e4101af013c52bda8795",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2095780",
+      "bytes": 5840,
+      "name": "interactionscaleplugin.elf",
+      "sha256": "c4746dcb67c27298940cb08f809953b65f35b6e88bf196bf1f3c9e165db44ce3",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2096f00",
+      "bytes": 4304,
+      "name": "translationscaleplugin.elf",
+      "sha256": "e7d1cf089f3329c8a2639671673d99d35dea90bcadbda953d5e9a95ce2abbaa5",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2098080",
+      "bytes": 8432,
+      "name": "contactpointplugin_foot.elf",
+      "sha256": "2a73c1389d874ae55ae7beac3aef7197b5dde8ae3fdf058dc6e6ec80e5b9ce40",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x209a200",
+      "bytes": 7520,
+      "name": "contactpointplugin_hand.elf",
+      "sha256": "b7934fc261be6f1af32f3788c1f960c6cf6f62a83fd2bac6a259da5d1c701a4e",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x209c000",
+      "bytes": 5344,
+      "name": "contactpointplugin_init.elf",
+      "sha256": "95052c5e55b842b717788eb588ca361e54b0a04be5b620b7f46a288aa839ec55",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x209d580",
+      "bytes": 7552,
+      "name": "footplantpostplugin.elf",
+      "sha256": "0b59b9e433296084cc32bd29f7ba943e8302d2e35911bcd519f8602ab8c0308a",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x209f400",
+      "bytes": 14864,
+      "name": "footplantpreplugin.elf",
+      "sha256": "3a83df5cbe789663ea3d67daa397f6799f0e93b0079bb4a163ebd4d97f97fe59",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20a2f00",
+      "bytes": 8192,
+      "name": "interactioneffectorscalingplugin.elf",
+      "sha256": "69f7627fefd60e12b9f6462a0bbfa951a82137e704e7da149bde236784c4a154",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20a5000",
+      "bytes": 10368,
+      "name": "hipstotrajplugin.elf",
+      "sha256": "69baaa35ba4e7f51300b57d08ac67e474b2465a5bba9954ff0322214d1305a97",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20a7980",
+      "bytes": 4816,
+      "name": "physicalreactionikadjustplugin.elf",
+      "sha256": "95a94723da3cb66e5cae62ce7507551486f75a0f69f65e2fa99428a2033729c2",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20a8d00",
+      "bytes": 5536,
+      "name": "trajoffsetikadjustplugin.elf",
+      "sha256": "f8b5c50b55c9c5f660590c60e27fc6efc2fc5254fafd05caf206ca3c727db615",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20aa380",
+      "bytes": 54464,
+      "name": "particleikplugin.elf",
+      "sha256": "65430b1fbbdde93eaa896edd9f2cde28cc9166db2829814f5e3553858b255a90",
+      "entry": "0x30",
+      "bss_bytes": 304,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x20b7900",
+      "bytes": 2432,
+      "name": "blendmaskcopyop_exec.elf",
+      "sha256": "6b62ea9d905520e3e495083d3eedf9dede4f4f1441cbc5f106f88a73f48f8f80",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 1400,
+        "constructors": [
+          480,
+          672,
+          1384
+        ],
+        "table": 1408,
+        "bss_start": 2432,
+        "bss_end": 2512
+      }
+    },
+    {
+      "source_ea": "0x20b8500",
+      "bytes": 6272,
+      "name": "dofweightcurvesmaskop_exec.elf",
+      "sha256": "c6e76d1a137a645fbbd503c5bb2a5294754be0e5721ae5b552ab128e4677e45e",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4304,
+        "constructors": [
+          3248,
+          3576,
+          4288
+        ],
+        "table": 4304,
+        "bss_start": 6272,
+        "bss_end": 6352
+      }
+    },
+    {
+      "source_ea": "0x20b9e80",
+      "bytes": 6816,
+      "name": "dofweightcurvesblendmaskop_exec.elf",
+      "sha256": "2925cb90f6f9c32cb3c1721d5f4bfe7c27e2746838e61b8da85e3ee6d40b58bf",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4840,
+        "constructors": [
+          3784,
+          4112,
+          4824
+        ],
+        "table": 4848,
+        "bss_start": 6816,
+        "bss_end": 6896
+      }
+    },
+    {
+      "source_ea": "0x20bba00",
+      "bytes": 2768,
+      "name": "clearactivitymasknode_exec.elf",
+      "sha256": "5ebd1592be5f06df6d2176da36b700bb75511693b853b3051ac16332d8f685ba",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 1736,
+        "constructors": [
+          816,
+          1008,
+          1720
+        ],
+        "table": 1744,
+        "bss_start": 2768,
+        "bss_end": 2848
+      }
+    },
+    {
+      "source_ea": "0x20bc580",
+      "bytes": 3168,
+      "name": "groupnode_final_exec.elf",
+      "sha256": "154511f159eadba5f6ebc2610db507c8e06b59ec6f9f41fda67b840b572ee061",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 2144,
+        "constructors": [
+          1224,
+          1416,
+          2128
+        ],
+        "table": 2144,
+        "bss_start": 3168,
+        "bss_end": 3248
+      }
+    },
+    {
+      "source_ea": "0x20bd280",
+      "bytes": 3440,
+      "name": "groupnode_combine_exec.elf",
+      "sha256": "5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 2408,
+        "constructors": [
+          1488,
+          1680,
+          2392
+        ],
+        "table": 2416,
+        "bss_start": 3440,
+        "bss_end": 3520
+      }
+    },
+    {
+      "source_ea": "0x20be100",
+      "bytes": 4064,
+      "name": "scratchmemclear_exec.elf",
+      "sha256": "86b9892f5273873cac6129197232cde4c34474992d3ee34d3981aa673e7ef36d",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3032,
+        "constructors": [
+          2112,
+          2304,
+          3016
+        ],
+        "table": 3040,
+        "bss_start": 4064,
+        "bss_end": 4144
+      }
+    },
+    {
+      "source_ea": "0x20bf180",
+      "bytes": 7504,
+      "name": "weightedblendnodesingleweight_exec.elf",
+      "sha256": "d50fa0820846fcdf17296af5c197512cd3063abf65cd172c43f494c1c5dfc80c",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5456,
+        "constructors": [
+          2976,
+          4632,
+          5440
+        ],
+        "table": 5456,
+        "bss_start": 7504,
+        "bss_end": 7584
+      }
+    },
+    {
+      "source_ea": "0x20c0f80",
+      "bytes": 7664,
+      "name": "defaultposenode_exec.elf",
+      "sha256": "ce06dea1eac74bd62548f1b9067ceeb6042c0f996189286886ff2d2034d1494b",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 6232,
+        "constructors": [
+          3280,
+          5368,
+          6216
+        ],
+        "table": 6240,
+        "bss_start": 7664,
+        "bss_end": 7744
+      }
+    },
+    {
+      "source_ea": "0x20c2e80",
+      "bytes": 4432,
+      "name": "defaultposenode_full.elf",
+      "sha256": "d480787beb8c8211312b0920f6fd217c2d591158d4e83a74b8249e90983e9aaf",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3408,
+        "constructors": [
+          2488,
+          2680,
+          3392
+        ],
+        "table": 3408,
+        "bss_start": 4432,
+        "bss_end": 4512
+      }
+    },
+    {
+      "source_ea": "0x20c4080",
+      "bytes": 5744,
+      "name": "concatdeltatrajectorynode_execpass2.elf",
+      "sha256": "58f9bb69ca20b9b68f91392e8753228c824b251e6bf9a242fa0f42106df3a179",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3816,
+        "constructors": [
+          2896,
+          3088,
+          3800
+        ],
+        "table": 3824,
+        "bss_start": 5744,
+        "bss_end": 5824
+      }
+    },
+    {
+      "source_ea": "0x20c5800",
+      "bytes": 4304,
+      "name": "concatdeltatrajectorynode_execpass1.elf",
+      "sha256": "cad71374b0c82c4d2866b295fe7ad30e6ec04b3954b3a2a691b3d13a0dfa8660",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3272,
+        "constructors": [
+          2352,
+          2544,
+          3256
+        ],
+        "table": 3280,
+        "bss_start": 4304,
+        "bss_end": 4384
+      }
+    },
+    {
+      "source_ea": "0x20c6980",
+      "bytes": 5888,
+      "name": "rotatedeltanode_exec.elf",
+      "sha256": "5d9358e221e704f4c23327e78658df6ac69ef33a8523af0cbc0c585f7aa86ace",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3960,
+        "constructors": [
+          2824,
+          3232,
+          3944
+        ],
+        "table": 3968,
+        "bss_start": 5888,
+        "bss_end": 5968
+      }
+    },
+    {
+      "source_ea": "0x20c8180",
+      "bytes": 11536,
+      "name": "blendnode_exec.elf",
+      "sha256": "098d615dd4ed98db382ebccbcbf134d65d744f52b14e051748db4aa254e8af10",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 9496,
+        "constructors": [
+          8480,
+          8768,
+          9480
+        ],
+        "table": 9504,
+        "bss_start": 11536,
+        "bss_end": 11616
+      }
+    },
+    {
+      "source_ea": "0x20caf80",
+      "bytes": 9712,
+      "name": "blendwithmasknode_exec.elf",
+      "sha256": "05af2a9a3fa4e8cc7cbaba4cfabd1895f793957d7c8926ce4faf94925948dbc0",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 7800,
+        "constructors": [
+          6784,
+          7072,
+          7784
+        ],
+        "table": 7808,
+        "bss_start": 9712,
+        "bss_end": 9792
+      }
+    },
+    {
+      "source_ea": "0x20cd680",
+      "bytes": 6912,
+      "name": "accelblendplugin.elf",
+      "sha256": "1516ffcaec4a1661dd8293e8c2496f1b7eb65252f93d24a846727c6cb82ef9d0",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4848,
+        "constructors": [
+          2464,
+          4120,
+          4832
+        ],
+        "table": 4848,
+        "bss_start": 6912,
+        "bss_end": 6992
+      }
+    },
+    {
+      "source_ea": "0x20cf280",
+      "bytes": 13440,
+      "name": "predictableblendplugin.elf",
+      "sha256": "d4590eba722f59e261f34817790ca02e4715aba585f2004c2ade9eb3406f6cc2",
+      "entry": "0x30",
+      "bss_bytes": 3120,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_rejection": "Unsupported raw PIC header"
+    },
+    {
+      "source_ea": "0x20d2800",
+      "bytes": 4592,
+      "name": "applyposenode_full.elf",
+      "sha256": "e71cf2f8fa4d389c5d7956a4bf4c0ab17b5dd289f4a33f9856d6e0172e170bb6",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3296,
+        "constructors": [
+          2216,
+          2440,
+          3280
+        ],
+        "table": 3296,
+        "bss_start": 4592,
+        "bss_end": 4672
+      }
+    },
+    {
+      "source_ea": "0x20d3b00",
+      "bytes": 6016,
+      "name": "applyposenode_exec.elf",
+      "sha256": "932776ca87627ff8bb3d0c3b4995f9fa0e4feff1890048a06f629920867231ae",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4720,
+        "constructors": [
+          2552,
+          4376,
+          4704
+        ],
+        "table": 4720,
+        "bss_start": 6016,
+        "bss_end": 6096
+      }
+    },
+    {
+      "source_ea": "0x20d5380",
+      "bytes": 5840,
+      "name": "identityposenode_exec.elf",
+      "sha256": "391b84c8163341d1af99aea12d76ba68b5b0a1cfaf0e8914e8f50b6633052b7a",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4680,
+        "constructors": [
+          2048,
+          3816,
+          4664
+        ],
+        "table": 4688,
+        "bss_start": 5840,
+        "bss_end": 5920
+      }
+    },
+    {
+      "source_ea": "0x20d6b00",
+      "bytes": 7232,
+      "name": "weighteddeltanode_exec.elf",
+      "sha256": "9b55d8880b6f27d86ffc17536ff86b7f1282d136a575ac983e485dd908264e8e",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5176,
+        "constructors": [
+          2848,
+          4352,
+          5160
+        ],
+        "table": 5184,
+        "bss_start": 7232,
+        "bss_end": 7312
+      }
+    },
+    {
+      "source_ea": "0x20d8800",
+      "bytes": 7024,
+      "name": "subtractnode_exec.elf",
+      "sha256": "cdfdeb328c8b2e9f0ad6dfac0fc64cdd38946fa74ebeaf040132b1ef33086b39",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5096,
+        "constructors": [
+          4080,
+          4368,
+          5080
+        ],
+        "table": 5104,
+        "bss_start": 7024,
+        "bss_end": 7104
+      }
+    },
+    {
+      "source_ea": "0x20da480",
+      "bytes": 2624,
+      "name": "storeposenode_exec.elf",
+      "sha256": "48d0b1e7bc8c14102df57eb3194ab05c9a9e6696a96e72dc232a463587ec7409",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 1592,
+        "constructors": [
+          672,
+          864,
+          1576
+        ],
+        "table": 1600,
+        "bss_start": 2624,
+        "bss_end": 2704
+      }
+    },
+    {
+      "source_ea": "0x20daf80",
+      "bytes": 5344,
+      "name": "blendmasktimetrajop_exec.elf",
+      "sha256": "a252771f23368d408035dabfd0f257686d294f8f6884ef86454c031c69b5e077",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4312,
+        "constructors": [
+          2352,
+          3968,
+          4296
+        ],
+        "table": 4320,
+        "bss_start": 5344,
+        "bss_end": 5424
+      }
+    },
+    {
+      "source_ea": "0x20dc500",
+      "bytes": 5264,
+      "name": "blendmaskfloatsetdofsetop_exec.elf",
+      "sha256": "c5036b4a0a82a231cc9adae4f07cf1c36610b7b5520c7a45aac1dd8b3a47f84c",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4240,
+        "constructors": [
+          3320,
+          3512,
+          4224
+        ],
+        "table": 4240,
+        "bss_start": 5264,
+        "bss_end": 5344
+      }
+    },
+    {
+      "source_ea": "0x20dda80",
+      "bytes": 5792,
+      "name": "blendmasktimecurveop_exec.elf",
+      "sha256": "3c2e5b895f46ebf3421ee0071ddae3af02bb14d4e1eed567172ad16876baea75",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4504,
+        "constructors": [
+          2544,
+          4160,
+          4488
+        ],
+        "table": 4512,
+        "bss_start": 5792,
+        "bss_end": 5872
+      }
+    },
+    {
+      "source_ea": "0x20df200",
+      "bytes": 4928,
+      "name": "blendmaskmulscalarop_exec.elf",
+      "sha256": "86fecd07a9328cb928e8803e6c7b4264d5e631ebc6539edf300d61af66857cc4",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3904,
+        "constructors": [
+          2096,
+          3560,
+          3888
+        ],
+        "table": 3904,
+        "bss_start": 4928,
+        "bss_end": 5008
+      }
+    },
+    {
+      "source_ea": "0x20e0680",
+      "bytes": 5136,
+      "name": "blendmaskmulweightop_exec.elf",
+      "sha256": "5388e6f8e310fe027ddf19a9c4261cc337b49c667c065d37bc3352463ed58523",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4104,
+        "constructors": [
+          2144,
+          3760,
+          4088
+        ],
+        "table": 4112,
+        "bss_start": 5136,
+        "bss_end": 5216
+      }
+    },
+    {
+      "source_ea": "0x20e1b80",
+      "bytes": 4560,
+      "name": "blendmasktimeop_exec.elf",
+      "sha256": "781a3262222206530955cadc073258b8092e1e07214dd4d17e7b26abff3d3116",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3528,
+        "constructors": [
+          1720,
+          3184,
+          3512
+        ],
+        "table": 3536,
+        "bss_start": 4560,
+        "bss_end": 4640
+      }
+    },
+    {
+      "source_ea": "0x20e2f00",
+      "bytes": 6624,
+      "name": "deltatrajectoryplugin.elf",
+      "sha256": "f0eed6604a62a7f6fc8745b17cd79ebf53f2556c1ece802da7e0c80d0ca1afa6",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4568,
+        "constructors": [
+          2184,
+          3840,
+          4552
+        ],
+        "table": 4576,
+        "bss_start": 6624,
+        "bss_end": 6704
+      }
+    },
+    {
+      "source_ea": "0x20e4980",
+      "bytes": 9280,
+      "name": "globaltoposeplugin.elf",
+      "sha256": "a1a2bbe2834737b61f43e29cc2178c9c1f0a2c3d66af3b0d1aa411fb18989939",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 7136,
+        "constructors": [
+          3720,
+          6408,
+          7120
+        ],
+        "table": 7136,
+        "bss_start": 9280,
+        "bss_end": 9360
+      }
+    },
+    {
+      "source_ea": "0x20e6e80",
+      "bytes": 7056,
+      "name": "posetoglobalplugin.elf",
+      "sha256": "1e8f997d11c7d9f333236c9381ea8ad1145a275e31b470c40b870584bce15b2d",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5752,
+        "constructors": [
+          4680,
+          5024,
+          5736
+        ],
+        "table": 5760,
+        "bss_start": 7056,
+        "bss_end": 7136
+      }
+    },
+    {
+      "source_ea": "0x20e8c80",
+      "bytes": 27376,
+      "name": "dctcodec_clipnode.elf",
+      "sha256": "606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 24640,
+        "constructors": [
+          20472,
+          23912,
+          24624
+        ],
+        "table": 24640,
+        "bss_start": 27376,
+        "bss_end": 27456
+      }
+    },
+    {
+      "source_ea": "0x20ef880",
+      "bytes": 30736,
+      "name": "dctcodec_deltatrajectorynode.elf",
+      "sha256": "83d907f7c9f7c04fc26fbcfb3a3cdc507fd1f1fc13b8790495090e622914eb99",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 27104,
+        "constructors": [
+          22936,
+          26376,
+          27088
+        ],
+        "table": 27104,
+        "bss_start": 30736,
+        "bss_end": 30816
+      }
+    },
+    {
+      "source_ea": "0x20f7180",
+      "bytes": 8192,
+      "name": "framecodec_clipnode.elf",
+      "sha256": "3e0f36f1c1a5369b5aedf038e86845e3e1ef6b3a5ecfbc90a7b1679314a94789",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 6768,
+        "constructors": [
+          3312,
+          5224,
+          6752
+        ],
+        "table": 6768,
+        "bss_start": 8192,
+        "bss_end": 8272
+      }
+    },
+    {
+      "source_ea": "0x20f9380",
+      "bytes": 30064,
+      "name": "vbrslowbitcodec_clipnode.elf",
+      "sha256": "a58392b39e7998b851ca0cf8fe964c74cca0d010f5c508bd9cfc67dd806e3143",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 26152,
+        "constructors": [
+          19848,
+          22432,
+          26136
+        ],
+        "table": 26160,
+        "bss_start": 30064,
+        "bss_end": 30144
+      }
+    },
+    {
+      "source_ea": "0x2100a00",
+      "bytes": 29152,
+      "name": "vbrcodec_clipnode.elf",
+      "sha256": "e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 25248,
+        "constructors": [
+          18944,
+          21528,
+          25232
+        ],
+        "table": 25248,
+        "bss_start": 29152,
+        "bss_end": 29232
+      }
+    },
+    {
+      "source_ea": "0x2107c80",
+      "bytes": 13728,
+      "name": "vbrlitecodec_clipnode.elf",
+      "sha256": "f9ad40dcf62623ff3ba11152d4a1484bf6b4cd8f8f94c37baa892fa78acb00a2",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 11400,
+        "constructors": [
+          6768,
+          8920,
+          11384
+        ],
+        "table": 11408,
+        "bss_start": 13728,
+        "bss_end": 13808
+      }
+    },
+    {
+      "source_ea": "0x210b300",
+      "bytes": 5648,
+      "name": "defaultposenode_dofset.elf",
+      "sha256": "d4ab78e9f9c3c0fc453b18fb06cdbadd47481cec4e9a4d0da6c0ffb36b1f2504",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4344,
+        "constructors": [
+          3288,
+          3616,
+          4328
+        ],
+        "table": 4352,
+        "bss_start": 5648,
+        "bss_end": 5728
+      }
+    },
+    {
+      "source_ea": "0x210ca00",
+      "bytes": 5504,
+      "name": "setdofnode_exec.elf",
+      "sha256": "c83ad4290fd1d28dfa254ddb69ccca36bda3df8a8216fda318591dee82114cdf",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4208,
+        "constructors": [
+          3288,
+          3480,
+          4192
+        ],
+        "table": 4208,
+        "bss_start": 5504,
+        "bss_end": 5584
+      }
+    },
+    {
+      "source_ea": "0x210e080",
+      "bytes": 4752,
+      "name": "translatedeltanode_exec.elf",
+      "sha256": "4fc67d266e6a1bc54b616b14e43a956f7546574b020a2e8b3ed0bac2e4a1fac1",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3720,
+        "constructors": [
+          2584,
+          2992,
+          3704
+        ],
+        "table": 3728,
+        "bss_start": 4752,
+        "bss_end": 4832
+      }
+    },
+    {
+      "source_ea": "0x210f400",
+      "bytes": 4880,
+      "name": "bookmarknode_exec.elf",
+      "sha256": "54d300f62f717b5c67638883e9888eb90e1b197ff03419427df79964700b0a99",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 3848,
+        "constructors": [
+          2928,
+          3120,
+          3832
+        ],
+        "table": 3856,
+        "bss_start": 4880,
+        "bss_end": 4960
+      }
+    },
+    {
+      "source_ea": "0x2110800",
+      "bytes": 5408,
+      "name": "dofmodifynode_add_exec.elf",
+      "sha256": "0f02984952f96ea0469c50d4a3ecc827558c83b28bf69255847e45148443eb34",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4384,
+        "constructors": [
+          3464,
+          3656,
+          4368
+        ],
+        "table": 4384,
+        "bss_start": 5408,
+        "bss_end": 5488
+      }
+    },
+    {
+      "source_ea": "0x2111e00",
+      "bytes": 5408,
+      "name": "dofmodifynode_mul_exec.elf",
+      "sha256": "37f36b8e69cbd09b09b86e3396d130db495e185816685e9b3aba519b17018db3",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4384,
+        "constructors": [
+          3464,
+          3656,
+          4368
+        ],
+        "table": 4384,
+        "bss_start": 5408,
+        "bss_end": 5488
+      }
+    },
+    {
+      "source_ea": "0x2113400",
+      "bytes": 5376,
+      "name": "dofmodifynode_set_exec.elf",
+      "sha256": "afe853cb224cb6773ed6435f8a5ed4d594495b36eee67d46a8e06b24bd386363",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4344,
+        "constructors": [
+          3424,
+          3616,
+          4328
+        ],
+        "table": 4352,
+        "bss_start": 5376,
+        "bss_end": 5456
+      }
+    },
+    {
+      "source_ea": "0x2114a00",
+      "bytes": 8608,
+      "name": "mirrornode_exec.elf",
+      "sha256": "dae74bfb0357e6f6998f12d0851f616bc610e3ac2bd391d23afa8266931f03f3",
+      "entry": "0x30",
+      "bss_bytes": 112,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_rejection": "Unsupported raw PIC header"
+    },
+    {
+      "source_ea": "0x2116d80",
+      "bytes": 6160,
+      "name": "rotateposenode_exec.elf",
+      "sha256": "2b35d950df639d608b0db38e9f70ed50202869958c1ba6e1ea26cc32f8a96275",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4240,
+        "constructors": [
+          3104,
+          3512,
+          4224
+        ],
+        "table": 4240,
+        "bss_start": 6160,
+        "bss_end": 6240
+      }
+    },
+    {
+      "source_ea": "0x2118680",
+      "bytes": 5904,
+      "name": "setdofsetnode_exec.elf",
+      "sha256": "c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 4600,
+        "constructors": [
+          3680,
+          3872,
+          4584
+        ],
+        "table": 4608,
+        "bss_start": 5904,
+        "bss_end": 5984
+      }
+    },
+    {
+      "source_ea": "0x211a080",
+      "bytes": 7952,
+      "name": "weightedblendwithmasknode_exec.elf",
+      "sha256": "62378757eb7da43f318182630f6117bfac1c1c31ac4fcaa49475f50cd04be2fc",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5904,
+        "constructors": [
+          3424,
+          5080,
+          5888
+        ],
+        "table": 5904,
+        "bss_start": 7952,
+        "bss_end": 8032
+      }
+    },
+    {
+      "source_ea": "0x211c080",
+      "bytes": 8064,
+      "name": "faceposerplugin.elf",
+      "sha256": "703a8aeb7aed722e72973aef9cfb93b6110e9654b12f83a0f8b150869f02f125",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 6008,
+        "constructors": [
+          3248,
+          4920,
+          5992
+        ],
+        "table": 6016,
+        "bss_start": 8064,
+        "bss_end": 8144
+      }
+    },
+    {
+      "source_ea": "0x211e180",
+      "bytes": 7520,
+      "name": "jointtoeffectorplugin.elf",
+      "sha256": "d3695a1c595dd396818fba48abdd223519f2bc593757b46a329b193b7c1b0774",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": true,
+      "common_crt_review": {
+        "code_end": 5600,
+        "constructors": [
+          4544,
+          4872,
+          5584
+        ],
+        "table": 5600,
+        "bss_start": 7520,
+        "bss_end": 7600
+      }
+    },
+    {
+      "source_ea": "0x211ff80",
+      "bytes": 28000,
+      "name": "facialplugin.elf",
+      "sha256": "fe0c4daa6ddb73436ebe3c08bfb1c9255933211b0b9ee03019368a658ca39adf",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2126d80",
+      "bytes": 27040,
+      "name": "headtrackplugin.elf",
+      "sha256": "2f813761e7f9351efa27575c56cd233d9c78cc1a06683f1f17d34e5eab7506b0",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x212d800",
+      "bytes": 25472,
+      "name": "rigamateplugin.elf",
+      "sha256": "8ea851fc7075836e236535f39d7676c49c2770bf15f158bfd26d9a73ed15e2c4",
+      "entry": "0x30",
+      "bss_bytes": 80,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    },
+    {
+      "source_ea": "0x2133c80",
+      "bytes": 11424,
+      "name": "facinganglesmootherplugin.elf",
+      "sha256": "9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776",
+      "entry": "0x30",
+      "bss_bytes": 3120,
+      "flags": "0x80000000",
+      "ant_common_path": false
+    }
+  ],
+  "raw_image_count": 157,
+  "common_ant_count": 49,
+  "automatic_admission": false,
+  "algorithm_validation": false,
+  "inventory_exhaustive": false
+}
