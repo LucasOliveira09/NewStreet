@@ -1451,3 +1451,30 @@ coerentes encontrou 157 programas raw no ELF. Isso não implica tradução nem
 cobertura completa do inventário. Há uma família numerosa de plugins ANT com
 CRT equivalente; o próximo incremento preparará revisão estrutural e testes
 em lote, mantendo limites explícitos, hashes e parada estrita de execução.
+
+
+## Inventário raw e revisão estrutural da família ANT (2026-10-26)
+
+A ferramenta tools/inventory_spu_raw.py valida o hash do ELF, segmentos PT_LOAD,
+alinhamento, quatro ila r2, marcador BuiltElfName, tamanho e nome terminado em
+NUL dentro de limite. reports/spu-raw-inventory.json registra 157 imagens raw
+reconhecidas, sem afirmar inventário exaustivo e sem incluir bytes do jogo.
+
+O revisor compara o CRT com o VBR original já conferido e de hash fixado, permitindo
+variação somente nas construções de endereço de BSS/tabela e chamada de main.
+Confere registradores/opcodes, limites de BSS, três construtores alinhados em
+ordem, terminador, cauda final il/ila/br/lnop, destino dentro do código e zero
+no padding de oito bytes quando presente. O limite final vem da cauda revisada,
+não de procurar o último bi ou de classificar todos os bytes como instruções.
+A ferramenta não altera o manifesto nem admite código automaticamente.
+
+49 plugins de antcommonplugins satisfazem essa revisão. Predictable blend e
+mirror não correspondem ao perfil de cabeçalho e exigem análise separada.
+O próximo incremento acrescentará os 39 ainda não integrados e executará seus
+construtores em quatro bases. Isso não valida os algoritmos completos de animação.
+Quatro testes com bytes SPU autorais cobrem padrões aceitos e rejeitados,
+truncamento, desalinhamento, fonte estruturalmente diferente e padding inválido.
+Falharam por ferramenta ausente antes da implementação e passaram depois.
+
+Validação do inventário: 112 testes do projeto passaram em 7,651 s. O
+executável do jogo não mudou neste incremento; checkpoint nativo permanece DCT.
