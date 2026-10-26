@@ -70,7 +70,7 @@ extern "C" void spu_overlay_note_get(spu_context*, uint32_t, const uint8_t*, uin
 // The original PIC constructors run through checked source ownership, including
 // both observed LS placements. This fixture never calls a replacement main.
 static int run_pic_constructors(const char* image, uint32_t source, size_t bytes,
-                                uint32_t code_end, const uint32_t* entries) {
+                                uint32_t code_end, const uint32_t* entries, uint32_t observed_base) {
     std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(image, "rb");
     if (!file) return 3;
@@ -84,7 +84,7 @@ static int run_pic_constructors(const char* image, uint32_t source, size_t bytes
     spu_begin_image(81);
     spu_register_function(0x3d000, fixture_return);
     spu_begin_image(0);
-    const uint32_t bases[] = {0, 0x48f0, 0x4910, 0x10000};
+    const uint32_t bases[] = {0, observed_base, 0x4910, 0x10000};
     std::vector<uint8_t> reference;
     unsigned count = 0;
     for (uint32_t base : bases) {
@@ -132,10 +132,15 @@ static int run_pic_constructors(const char* image, uint32_t source, size_t bytes
 
 extern "C" int fifa_test_spu_ant_vbr_constructors(const char* image) {
     const uint32_t entries[] = {0x4a00,0x5418,0x6290};
-    return run_pic_constructors(image, 0x2100a00, 0x71e0, 0x62a0, entries);
+    return run_pic_constructors(image, 0x2100a00, 0x71e0, 0x62a0, entries, 0x48f0);
 }
 
 extern "C" int fifa_test_spu_ant_pose_constructors(const char* image) {
     const uint32_t entries[] = {0xcd8,0xe20,0x10e8};
-    return run_pic_constructors(image, 0x210b300, 0x1610, 0x10f8, entries);
+    return run_pic_constructors(image, 0x210b300, 0x1610, 0x10f8, entries, 0x48f0);
+}
+
+extern "C" int fifa_test_spu_ant_clear_constructors(const char* image) {
+    const uint32_t entries[] = {0x330,0x3f0,0x6b8};
+    return run_pic_constructors(image, 0x20bba00, 0xad0, 0x6c8, entries, 0x5fa0);
 }

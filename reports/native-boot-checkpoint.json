@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Default pose ANT plugin entered; a 64-byte VBR header read is incorrectly treated as a complete executable image",
+  "stage": "VBR and clear activity ANT plugins entered; next plugin at 0x2118680 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792984404123856500",
-  "elapsed_seconds": 80.66,
+  "logs": "private\\analysis\\runs\\1792985246954273600",
+  "elapsed_seconds": 95.523,
   "block": {
-    "kind": "spu-overlay-layout",
-    "value": 250624,
+    "kind": "spu-indirect",
+    "value": 2259970271706377024,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -66,8 +66,8 @@
     "unchanged_after_game_reload": true
   },
   "checks": {
-    "boot": 42,
-    "project": 99,
+    "boot": 43,
+    "project": 101,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,11 +866,12 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "issue": "Partial 64-byte header read at LS 0x3d300 must not admit a complete PIC image",
-    "source_ea": "0x2100a00",
-    "current_pc": "0x99c",
-    "other_worker_missing_pc": "0x5fd0",
-    "strict_execution_retained": true
+    "source_ea": "0x2118680",
+    "pc": "0x6b40",
+    "ls_base": "0x6b10",
+    "source_sha256": "c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f",
+    "snapshot_byte_differences": 0,
+    "bytes": 5904
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -945,10 +946,10 @@
     "ai_algorithm_result_validated": false
   },
   "diagnostic_recovery": {
-    "raw_event_errors": 0,
-    "valid_events": 136,
+    "raw_event_errors": 1,
+    "valid_events": 138,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792984404123856500/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792985246954273600/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -982,8 +983,9 @@
         18704,
         65536
       ],
-      "native_entry_observed": false,
-      "complete_animation_algorithm_validated": false
+      "native_entry_observed": true,
+      "complete_animation_algorithm_validated": false,
+      "native_thread": 8192
     },
     {
       "name": "ant_defaultposenode_dofset",
@@ -997,6 +999,27 @@
       ],
       "native_entry_observed": true,
       "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_clearactivitymasknode_exec",
+      "native_functions": 38,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        24480,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8193,
+      "complete_animation_algorithm_validated": false
     }
-  ]
+  ],
+  "pic_metadata_fix": {
+    "native_run_validated": true,
+    "partial_data_executable": false,
+    "source_hash_required": true,
+    "complete_image_layout_checks_retained": true,
+    "general_partial_admission_redesigned": false
+  }
 }

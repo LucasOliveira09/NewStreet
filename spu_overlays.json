@@ -676,6 +676,22 @@
         "0x10e8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_clearactivitymasknode_exec",
+      "source_ea": "0x20bba00",
+      "size": "0xad0",
+      "sha256": "5ebd1592be5f06df6d2176da36b700bb75511693b853b3051ac16332d8f685ba",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x6c8",
+      "extra_entries": [
+        "0x330",
+        "0x3f0",
+        "0x6b8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

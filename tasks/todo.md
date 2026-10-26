@@ -136,8 +136,11 @@ de funções ou por abrir uma janela.
 - [x] Preservar status antes do parsing e registrar linhas inválidas sem perder eventos.
 - [x] Traduzir a segunda versão ANT_kernel de 0x2030080 e observar entrada real.
 - [x] Traduzir VBR e pose ANT PIC e testar construtores em quatro posições.
-- [ ] Separar leitura de cabeçalho parcial e admissão executável PIC.
-- [ ] Observar entrada VBR e identificar o próximo plugin em PC 0x5fd0.
+- [x] Permitir cabeçalho PIC parcial na pilha mantendo os bytes não executáveis.
+- [x] Identificar clearactivitymasknode_exec em PC 0x5fd0.
+- [x] Traduzir clearactivitymasknode_exec e confirmar sua entrada.
+- [x] Observar entrada VBR e identificar o plugin seguinte em 0x2118680.
+- [ ] Traduzir o plugin de 0x2118680 e seguir a cadeia ANT.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

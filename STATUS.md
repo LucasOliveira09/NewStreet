@@ -10,7 +10,7 @@ capturas conferidas. O código original gravou e releu integralmente o perfil
 BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
 navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A compilação inclui 99.127 entradas PPU, 369 imports e 37 registros de overlays
+A compilação inclui 99.127 entradas PPU, 369 imports e 38 registros de overlays
 raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
 de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
 conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
@@ -28,12 +28,11 @@ não medidos nesse ensaio. O parser foi corrigido para preservar o status antes 
 análise e registrar linhas inválidas sem descartar eventos completos.
 
 A segunda versão de ANT está traduzida e seus dois construtores passaram.
-FullGame compilou; 42 testes de boot e 99 do projeto passaram. O ensaio
-ant-plugins-native entrou no plugin de pose e parou ao ler um cabeçalho VBR
-parcial na pilha, com saída 90 medida aos 80,660 s. O runtime precisa separar
-essa leitura de metadados da admissão do módulo executável completo. A evidência
-consolidada fica em reports/native-boot-checkpoint.json. O próximo trabalho é
-corrigir a admissão parcial e seguir até menu, partida e persistência completa.
+FullGame compilou; 43 testes de boot e 101 do projeto passaram. O ensaio
+ant-clear-native entrou em VBR e clearactivitymasknode_exec e parou no plugin
+seguinte (PC 0x6b40, origem 0x2118680), com saída 90 aos 95,523 s. Menu e partida
+permanecem pendentes. A evidência consolidada fica em
+reports/native-boot-checkpoint.json; o próximo trabalho é traduzir esse plugin.
 
 ## Implementação comprovada
 
@@ -1706,3 +1705,41 @@ novos falharam antes da correção. O patch do SDK permanece versionado e passou
 apply --cached --check em índice isolado da revisão fixada. Boot: 43 testes;
 runtime: 16 CTest. FullGame compilou e os 100 testes do projeto passaram
 em 14,830 s. O ensaio real deste ajuste será registrado no próximo checkpoint.
+
+
+## Plugin clearactivitymasknode_exec (2026-10-26)
+
+O stderr de ant-plugins-native registrou PC 0x5fd0 em outro worker. Embora seu
+JSON tenha ficado vazio, o arquivo .ls de 262144 bytes foi persistido. Em LS
+0x5fa0 há um cabeçalho original que corresponde unicamente ao ELF em 0x20bba00;
+os 0xad0 bytes conferem integralmente, SHA
+5ebd1592be5f06df6d2176da36b700bb75511693b853b3051ac16332d8f685ba.
+O nome completo após BuiltElfName é clearactivitymasknode_exec.elf. Essa análise
+usa bytes do LS e PC do log, sem preencher o JSON original incompleto.
+
+Cabeçalho PIC modo 1, entrada 0x30, BSS 0xad0..0xb20. Código termina em 0x6c8:
+a rotina 0x6b8 termina com branch 0x3f8; a tabela começa em 0x6d0 e contém
+0x330, 0x3f0, 0x6b8 na ordem percorrida pelo CRT. O teste usa os construtores
+originais em quatro bases, incluindo a posição real 0x5fa0, com as mesmas
+checagens de código, guardas e dados relocados. A CLI ausente retornou 2 antes
+da integração. A tradução gerou 38 entradas, sem instruções ou chamadas diretas
+pendentes. FullGame compilou; seis testes de construtores passaram em 5,494 s.
+43 testes de boot e 101 do projeto passaram. O ensaio ant-clear-native verifica
+a entrada real; ant-header-native usou somente a correção de metadados anterior.
+
+
+Ensaio ant-header-native (1792984939460393700): saída estrita 90 aos 82,530 s,
+sem spu-overlay-layout. O carregamento passa da inspeção de cabeçalho e para
+no PC 0x5fd0 do clearactivitymasknode_exec. Foram preservados os cinco hashes
+do perfil e passaram 65 amostras de assets. Não houve entrada VBR registrada
+antes da parada concorrente; isso permanece pendente. A correção de metadados
+foi exercitada no carregamento real sem retirar a checagem de execução ausente.
+
+
+Ensaio ant-clear-native (1792985246954273600): saída estrita 90 aos 95,523 s.
+VBR entrou na SPU 8192, e clearactivitymasknode_exec na 8193. O próximo módulo
+PIC aparece em LS 0x6b10, PC 0x6b40, origem 0x2118680, tamanho 0x1710;
+dois snapshots completos conferem integralmente seus bytes. Os cinco hashes
+do perfil permanecem preservados e 65 amostras de assets passaram. Uma linha
+SPU truncada foi registrada sem perda do status/relatório. Menu e partida ainda
+não foram alcançados. Próxima ação: conferir e traduzir o módulo de 0x2118680.
