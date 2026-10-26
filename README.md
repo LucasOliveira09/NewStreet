@@ -6,10 +6,19 @@ Multiplayer fica para uma etapa posterior. A investigação começou em 24/10/20
 
 ## Prompt de continuidade
 
-O [prompt completo de execução](PROMPT_EXECUCAO_COMPLETA.md) reúne contexto,
-requisitos, marcos, validação e disciplina de commits para o agente que assumir
-o port. O [plano](tasks/plan.md) e o [checklist](tasks/todo.md) organizam a retomada.
-Preparar esses documentos não altera o estado de implementação descrito abaixo.
+Comece pelas [instruções do projeto](AGENTS.md), pelo [checkpoint curto](STATUS.md)
+e pela etapa atual do [plano](tasks/plan.md). O [checklist](tasks/todo.md) separa
+os marcos parciais do aceite final. O [prompt completo](PROMPT_EXECUCAO_COMPLETA.md)
+preserva os requisitos integrais; o [histórico](docs/history/README.md) fica disponível
+para consultas específicas.
+
+O [kit de agentes adaptado](.agents/model-routing.md) usa somente modelos 6+:
+Sol 6.1 no principal/implementação/revisão, Luna 6 em exploração delimitada e
+Astra 6 em escaladas. A configuração real está em `.codex/`, com um auxiliar no
+máximo. Abra esta pasta como projeto no Codex e inicie uma sessão para carregar
+os padrões, confirmando a confiança no projeto pela interface quando solicitado.
+Este arquivo não altera o modelo de um chat já aberto em outra pasta.
+Validação local: `private/python-env/Scripts/python.exe tools/check_agent_setup.py`.
 
 ## Resultado atual
 
@@ -19,8 +28,9 @@ e o aviso de autosave foram renderizados; Start e Cross chegaram ao código
 original, que gravou e releu após reinício o perfil `BLUS308820000A`, incluindo
 os 2.127.971 bytes de `SYS-DATA`.
 O diagnóstico atualizado está em `reports/native-boot-checkpoint.json` e o
-histórico de correções em `STATUS.md`. Menu navegável, partida e progressão
-ainda precisam de validação. A abertura tem artefatos gráficos conhecidos.
+checkpoint curto em `STATUS.md` e o histórico em `docs/history/`. Menu navegável,
+partida e progressão ainda precisam de validação. A abertura tem artefatos
+gráficos conhecidos.
 
 O patch em `patches/0001-strict-native-boot.patch` faz o alvo de boot parar em
 imports, syscalls, funções e instruções sem suporte, em vez de fabricar sucesso.

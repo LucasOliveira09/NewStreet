@@ -46,15 +46,17 @@ posteriores. Não crie outro repositório dentro dele. Se estiver reconstruindo 
 projeto em outra pasta sem Git, inicialize um repositório próprio antes de editar.
 O repositório de vídeos continua separado.
 
-Leia primeiro:
+Leia primeiro as instruções `AGENTS.md` aplicáveis, `STATUS.md` e a etapa atual
+de `tasks/plan.md`; confira branch, HEAD e alterações. O estado atual é o checkpoint,
+não o baseline histórico abaixo. Consulte código, testes, locks e relatórios
+pertinentes à tarefa; não carregue scripts e relatórios inteiros por rotina.
+Se o pedido exigir leitura integral deste documento, cumpra essa leitura.
 
-- As instruções `AGENTS.md` aplicáveis.
-- `README.md`, `toolchain.lock.json`, `requirements.lock.txt` e `probe_manifest.json`.
-- `reports/validation.json`, `reports/import-coverage.json`,
-  `reports/iso-inventory.json` e `reports/rea-fifazf-admission.json`.
-- `tasks/plan.md`, `tasks/todo.md`, os scripts em `tools/` e os testes existentes.
+O roteiro de modelos está em `.agents/model-routing.md`, com configuração real
+em `.codex/`: somente modelos 6+, principal e no máximo um auxiliar. Preserve os
+critérios de entrega e evidência abaixo ao aplicar a organização de contexto.
 
-Resultados anteriores, sujeitos a reprodução local:
+Baseline inicial histórico (24/10/2026), superado pelo checkpoint atual:
 
 - Os SELF foram extraídos e os ELF obtidos usando `RPCS3 --decrypt`.
 - `private/EBOOT.elf`: 74.656 bytes; `private/FIFAZF.elf`: 36.128.408 bytes.
@@ -68,7 +70,8 @@ Resultados anteriores, sujeitos a reprodução local:
 - Duas funções de FIFAZF, `0x23d4c` e `0x261f0`, foram traduzidas e compiladas num
   PE x64. Retornos inteiros passaram em 20.020 casos contra um oráculo matemático.
 - O runtime compilou com clang-cl e seus 16 testes CTest passaram.
-- Nenhum boot nativo do jogo, primeiro frame, menu ou partida foi validado.
+- Naquele baseline inicial ainda não havia boot/frame. Hoje título e autosave
+  estão validados; menu navegável e partida permanecem pendentes em `STATUS.md`.
 
 Esses números não demonstram conformidade completa da CPU ou compatibilidade do
 jogo. O teste com Unicorn 2.1.4 não completou a referência PPC64 no perfil tentado;
@@ -289,8 +292,9 @@ com boot, menu, partidas, áudio, controles, saves, progressão e instalação
 reproduzível validados, e quando os limites remanescentes estiverem explícitos.
 Se houver requisito obrigatório pendente, declare o marco efetivamente alcançado.
 
-Comece agora conferindo o repositório e reproduzindo o baseline; depois implemente
-a menor integração capaz de executar a inicialização real da PPU com diagnóstico.
+Comece conferindo o repositório e o checkpoint atual. Execute a etapa vigente de
+`tasks/plan.md`, reproduzindo somente a falha ou o baseline pertinente à mudança.
+Não reinicie marcos já concluídos sem uma regressão ou outra razão verificável.
 
 ## Fontes da base técnica
 

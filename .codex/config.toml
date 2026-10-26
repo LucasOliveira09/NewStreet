@@ -1,0 +1,10 @@
+# Project-local defaults. Open this repository in Codex to load them.
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+
+[agents]
+enabled = true
+# Excludes the primary agent: one primary + at most one auxiliary.
+max_concurrent_threads_per_session = 1
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "high"

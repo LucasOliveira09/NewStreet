@@ -1,0 +1,31 @@
+{
+  "source_commit": "9439c8573eafb5e83955d0d454c7f76190da27ff",
+  "archived_on": "2026-10-26",
+  "files": [
+    {
+      "source": "STATUS.md",
+      "archive": "docs/history/STATUS-2026-10-26.md",
+      "bytes": 131862,
+      "lines": 2085,
+      "sha256": "97a452871bcf50d1ff4b0c47325814c77b8600155fea0c193ef1e1db99058347",
+      "git_blob_sha256": "bdab609bff09fa30f1e55f4e1aea8d19b5f076396ae7dd7f91091ca58c977f55"
+    },
+    {
+      "source": "tasks/plan.md",
+      "archive": "docs/history/PLAN-2026-10-26.md",
+      "bytes": 101904,
+      "lines": 1633,
+      "sha256": "8cc240292edff7b887cf1090da7f4b3d811e47e61436a5f02eb05083261dc769",
+      "git_blob_sha256": "a573679ce23227d9b5771e44515463cf3904e2087de74117c75913fc57037597"
+    },
+    {
+      "source": "tasks/todo.md",
+      "archive": "docs/history/TODO-2026-10-26.md",
+      "bytes": 10088,
+      "lines": 162,
+      "sha256": "ab2bb432d7aa68f4a7de965dc4020e5e3f8be6ac95a7810d0890c1a8e72ccdda",
+      "git_blob_sha256": "1afc041b32fbf940dcbc9e4b628b02ae548c2d92ab2b164674a9ad348b96b2fb"
+    }
+  ],
+  "line_endings": "Archives preserve original working-tree CRLF bytes; source Git blobs use LF."
+}
