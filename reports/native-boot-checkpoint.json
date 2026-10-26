@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Secondary ANT kernel entered; original relocatable ANT plugin at 0x2100a00 blocks further loading",
+  "stage": "Default pose ANT plugin entered; a 64-byte VBR header read is incorrectly treated as a complete executable image",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792983860434703700",
-  "elapsed_seconds": 81.795,
+  "logs": "private\\analysis\\runs\\1792984404123856500",
+  "elapsed_seconds": 80.66,
   "block": {
-    "kind": "spu-indirect",
-    "value": 2259970271706368320,
+    "kind": "spu-overlay-layout",
+    "value": 250624,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 97,
+    "project": 99,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,13 +866,11 @@
     "native_thread": 8196
   },
   "next_spu": {
+    "issue": "Partial 64-byte header read at LS 0x3d300 must not admit a complete PIC image",
     "source_ea": "0x2100a00",
-    "pc": "0x4940",
-    "ls_base": "0x4910",
-    "bytes": 29152,
-    "sha256": "e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2",
-    "snapshot_byte_differences": 0,
-    "relocatable_pic": true
+    "current_pc": "0x99c",
+    "other_worker_missing_pc": "0x5fd0",
+    "strict_execution_retained": true
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -947,10 +945,10 @@
     "ai_algorithm_result_validated": false
   },
   "diagnostic_recovery": {
-    "raw_event_errors": 1,
-    "valid_events": 140,
+    "raw_event_errors": 0,
+    "valid_events": 136,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792983860434703700/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792984404123856500/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -972,5 +970,33 @@
     "native_entry_observed": true,
     "native_thread": 8194,
     "complete_task_validated": false
-  }
+  },
+  "spu_ant_plugins": [
+    {
+      "name": "ant_vbrcodec_clipnode",
+      "native_functions": 279,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        18672,
+        18704,
+        65536
+      ],
+      "native_entry_observed": false,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_defaultposenode_dofset",
+      "native_functions": 75,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        18672,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "complete_animation_algorithm_validated": false
+    }
+  ]
 }

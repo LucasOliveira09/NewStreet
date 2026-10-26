@@ -1188,3 +1188,50 @@ e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2;
 o blob desse snapshot confere integralmente. Outros workers param em 0x4920.
 42 testes de boot e 97 do projeto passaram. Não se afirma conclusão das tarefas
 ANT, menu ou gameplay; o próximo incremento examinará o plugin e suas relocações.
+
+
+## Dois plugins ANT relocáveis após o kernel (2026-10-26)
+
+O ensaio do kernel secundário revelou módulos diferentes em workers concorrentes:
+- vbrcodec_clipnode.elf: origem 0x2100a00, 0x71e0 bytes, LS observado 0x4910;
+  SHA e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2.
+- defaultposenode_dofset.elf: origem 0x210b300, 0x1610 bytes, LS 0x48f0;
+  SHA d4ab78e9f9c3c0fc453b18fb06cdbadd47481cec4e9a4d0da6c0ffb36b1f2504.
+
+Os três snapshots conferem integralmente os respectivos plugins. Cabeçalhos
+PIC declaram flag 0x80000000, modo 1 e entrada relativa 0x30. A tradução usa
+base canônica zero com deslocamento de ownership já existente, preservando
+memória absoluta do kernel e referências relativas do plugin. Não se criam
+variantes fixas por endereço nem se reutiliza código diferente só pelo nome.
+
+Em VBR, código termina em 0x62a0: a última rotina em 0x6290 termina com branch
+para 0x5fd8; em pose, código termina em 0x10f8, antes do padding/tabela 0x1100.
+As tabelas de três construtores ficam em 0x62a0 e 0x1100, percorridas para frente
+pelo CRT, ao contrário do CRT dos módulos anteriores. BSS tem 0x50 bytes em ambos.
+
+Dois testes novos falharam por CLI ausente antes da integração. O fixture novo
+executa os três construtores originais, com fonte conferida/ownership PIC, nas
+bases 0, 0x48f0, 0x4910 e 0x10000. Confere preservação de código, guardas de dados
+e consistência dos dados finais entre posições, permitindo somente diferenças
+de ponteiros que somam a base. Exige haver ponteiros efetivamente relocados.
+Isso cobre inicialização estática, não o algoritmo de animação nem o main completo.
+A tradução gerou 279 entradas VBR e 75 de pose, sem instruções ou chamadas
+diretas pendentes. Os cinco testes de construtores passaram (24 execuções dos
+novos construtores nas quatro bases, além dos módulos anteriores), em 4,292 s.
+O primeiro fixture falhou nas guardas porque usava sizeof do ponteiro LS ao
+preencher a memória; a correção usa SPU_LS_SIZE. Não houve ajuste no código
+original nem relaxamento das guardas para obter aprovação. FullGame compilou;
+boot passou seus 42 testes e os 99 testes do projeto passaram em 7,662 s.
+O ensaio ant-plugins-native foi concluído conforme registrado abaixo.
+
+
+Ensaio ant-plugins-native (1792984404123856500): saída estrita 90 aos 80,660 s.
+Entrada de defaultposenode_dofset observada em LS 0x48f0; a entrada VBR não foi
+observada. Nova parada spu-overlay-layout em LS 0x3d300 durante leitura de apenas
+64 bytes do cabeçalho VBR, feita pelo kernel em PC 0x99c, com r8=0x40.
+O runtime tentava admitir o span inteiro (0x71e0), que ultrapassaria a LS a partir
+da pilha. Essa leitura de metadados não demonstra tentativa de executar ali.
+Outro worker também relatou PC ausente 0x5fd0; seu JSON foi interrompido e
+permanece preservado. O próximo incremento separará leitura parcial e admissão
+executável com teste de regressão. 65 amostras de assets passaram; cinco hashes
+do perfil preservados. Menu e partida continuam pendentes.

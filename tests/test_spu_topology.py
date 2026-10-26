@@ -21,6 +21,24 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_original_constructors('ant_kernel_secondary', '--test-spu-ant-secondary-constructors',
             '18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4', 2)
 
+    def test_original_vbr_clip_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_vbrcodec_clipnode', '--test-spu-ant-vbr-constructors',
+            'e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2')
+
+    def test_original_default_pose_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_defaultposenode_dofset', '--test-spu-ant-pose-constructors',
+            'd4ab78e9f9c3c0fc453b18fb06cdbadd47481cec4e9a4d0da6c0ffb36b1f2504')
+
+    def check_pic_constructors(self, module, command, sha256):
+        image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+            command, str(image)], capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            original_constructors=12, positions=4, code_preserved=True,
+            relocated_data_consistent=True, ai_algorithm_validated=False))
+
     def check_original_constructors(self, module, command, sha256, count):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)

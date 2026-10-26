@@ -135,7 +135,9 @@ de funções ou por abrir uma janela.
 - [x] Traduzir Railtracks, testar quatro construtores e observar entrada no jogo.
 - [x] Preservar status antes do parsing e registrar linhas inválidas sem perder eventos.
 - [x] Traduzir a segunda versão ANT_kernel de 0x2030080 e observar entrada real.
-- [ ] Traduzir o plugin ANT PIC de 0x2100a00 após conferir relocações.
+- [x] Traduzir VBR e pose ANT PIC e testar construtores em quatro posições.
+- [ ] Separar leitura de cabeçalho parcial e admissão executável PIC.
+- [ ] Observar entrada VBR e identificar o próximo plugin em PC 0x5fd0.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

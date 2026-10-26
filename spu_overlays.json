@@ -644,6 +644,38 @@
         "0x1de8",
         "0x40b8"
       ]
+    },
+    {
+      "name": "ant_vbrcodec_clipnode",
+      "source_ea": "0x2100a00",
+      "size": "0x71e0",
+      "sha256": "e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x62a0",
+      "extra_entries": [
+        "0x4a00",
+        "0x5418",
+        "0x6290"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "ant_defaultposenode_dofset",
+      "source_ea": "0x210b300",
+      "size": "0x1610",
+      "sha256": "d4ab78e9f9c3c0fc453b18fb06cdbadd47481cec4e9a4d0da6c0ffb36b1f2504",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x10f8",
+      "extra_entries": [
+        "0xcd8",
+        "0xe20",
+        "0x10e8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }
