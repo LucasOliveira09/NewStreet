@@ -17,12 +17,12 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/shader-failure-native-run.json.
-- Logs: private/analysis/runs/1793044165569337700.
-- Timeout aos **180,218 s**, sem nova parada estrita; não equivale a jogo completo.
+- Resultado: private/analysis/fp-snapshot-native-run.json.
+- Logs: private/analysis/runs/1793045363092741200.
+- Timeout aos **180,176 s**, sem nova parada estrita; não equivale a jogo completo.
 - LOADING observado; depois tela preta. Falhas de shaders capturadas/reproduzidas.
 - 48 testes Boot, 146 do projeto e 65 amostras de assets passaram.
-- 16 testes runtime CTest passaram após atualização do patch do SDK.
+- 18 testes runtime CTest passaram, incluindo os dois novos de FP/snapshot.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
 ## Incrementos recentes validados
@@ -49,18 +49,17 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Bloqueio atual
 
-- Fila GPU corrigida: antes4186/draws2048/upload96MiB; depois5568/draws0/upload0.
-  Fronteiras FIFO explícitas impedem cruzar marker/avançar sem apresentação.
-- 16 falhas de compilação e16 de pipeline capturadas no ponto real de erro,
-  com HLSL, microcódigo antes/depois, VS e mensagens D3D12 em área privada.
-- Reprodução: private/analysis/runs/1793044165569337700/shaders/reproduction.json.
-- Input4KiB semEND aceito pelo tradutor: 179/184 instruções, helper omitido.
-  HLSL nativo idêntico ao offline; não é preciso supor corrida para reproduzir.
-- Erro independente: root signature cobre só4 samplers; shader requer unidade4.
-- Próximo: validar span completo (máx64KiB) e ampliar contrato de texturas16.
-  Revisar também hash de código vs constantes literais/APIbuffered incompatível.
-- 48 Boot/146 projeto/16 runtime passaram; instrumentação revisada sem achados.
-- Menu navegável, cena e gameplay ainda não comprovados.
+- Span FP completo validado/possuído no consumo do draw, máximo64KiB.
+  Hash literal inclui constantes; cache compara bytes. PSOs retirados só após
+  confirmação do fence dedicado, sem assumir que timeout legado prova conclusão.
+- Novo ensaio: zero falhas de compilação capturadas; programas5024/5472bytes
+  chegaram à criação de pipeline. 18 runtime/48 Boot/146 projeto passaram.
+- Erro atual: sampler4 fora da root signature limitada a4 unidades.
+  Ampliar banco real para16: estado por draw, SRVs/samplers, strides e heaps.
+- Validação D3D12 também acusa recurso destruído antes de executar comandos
+  (ID921), já presente antes deste incremento. Corrigir retirement das texturas.
+- Verificar sobreposição de descritores: VPcache1..96, RT5..20 e drawbase32.
+- Nenhum menu/cena/gameplay validado; última imagem apósLOADING é preta.
 
 ## Retomada e comandos
 

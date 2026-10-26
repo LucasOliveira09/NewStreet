@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index bdd2f85..7ff6838 100644
+index bdd2f85..5b65269 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -105,6 +105,7 @@ list(FILTER RUNTIME_SOURCES EXCLUDE REGEX "/tests/|/runtime/ppu/|/runtime/host/|
@@ -10,6 +10,30 @@ index bdd2f85..7ff6838 100644
  )
  
  target_include_directories(ps3recomp_runtime PUBLIC
+@@ -405,6 +406,23 @@ if(PS3RECOMP_BUILD_TESTS)
+     target_include_directories(test_log_first PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+     add_test(NAME log_first COMMAND test_log_first)
+ 
++    # Complete fragment-program snapshots and immutable content identity.
++    # CPU-only: link the decompiler directly, without runtime/GPU dependencies.
++    add_executable(test_fp_snapshot
++        tests/test_fp_snapshot.c
++        libs/video/rsx_fp_decompiler.c)
++    target_include_directories(test_fp_snapshot PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/include"
++        "${CMAKE_CURRENT_SOURCE_DIR}/libs/video")
++    add_test(NAME fp_snapshot COMMAND test_fp_snapshot)
++
++    add_executable(test_fp_decompiler
++        libs/video/tests/test_fp_decompiler.c
++        libs/video/rsx_fp_decompiler.c)
++    target_include_directories(test_fp_decompiler PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/include")
++    add_test(NAME fp_decompiler COMMAND test_fp_decompiler)
++
+     find_package(Python3 3.10 COMPONENTS Interpreter QUIET)
+     if(Python3_Interpreter_FOUND)
+         add_test(NAME spinlock_word_width
 diff --git a/include/ps3emu/guest_call.h b/include/ps3emu/guest_call.h
 index 2df28d9..ee98b67 100644
 --- a/include/ps3emu/guest_call.h
@@ -1310,18 +1334,28 @@ index eab83e1..d12276e 100644
  s32 cellGcmSetInvalidateTile(u8 index);
  
 diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
-index 0ecca8e..1902c67 100644
+index 0ecca8e..ea933be 100644
 --- a/libs/video/rsx_d3d12_backend.c
 +++ b/libs/video/rsx_d3d12_backend.c
-@@ -22,6 +22,7 @@
+@@ -22,6 +22,8 @@
  #include "rsx_primitives.h"
  #include "rsx_vertex_fetch.h"
  #include "rsx_texture_layout.h"
 +#include "rsx_texture_fingerprint.h"
++#include "rsx_fp_snapshot.h"
  #include <stdio.h>
  #include <string.h>
  #include <stdlib.h>
-@@ -166,7 +167,7 @@ typedef struct {
+@@ -80,6 +82,8 @@ typedef struct {
+     int is_vp;          /* 1 = real VP path: vb_byte_offset indexes vp_vb (float4) */
+     /* VP path per-draw shader/texture state, captured at draw_arrays time. */
+     u32 fp_addr;        /* SET_SHADER_PROGRAM value (guest FP ucode location)   */
++    rsx_fp_snapshot* fp_program; /* CPU-owned bytes captured when the draw is decoded */
++    u32 fp_source_ea;
+     int fp_exp32;       /* SET_SHADER_CONTROL 32-bit-exports bit at draw time   */
+     u32 alpha_ctl;      /* alpha test: enable<<16 | (func&0xFF)<<8 | ref */
+     u32 begin_epoch;    /* SET_BEGIN_END generation, for batch concatenation */
+@@ -166,7 +170,7 @@ typedef struct {
      ID3D12Resource* res;
      ID3D12Resource* up;
      u32 off, w, h, fmt; /* current contents (resource reused when dims match) */
@@ -1330,7 +1364,21 @@ index 0ecca8e..1902c67 100644
      int cube;           /* resource is a 6-face cube, sampled as TextureCube */
      u32 key;            /* the ORIGINAL bound offset -- the cache lookup key.
                           * off is the RESOLVED source after TEX_OFF_BIAS/TEX_REMAP
-@@ -349,6 +350,7 @@ typedef struct {
+@@ -208,10 +212,9 @@ typedef struct {
+     int nrt;                /* bound colour target count (PSO key)       */
+     u32 rtfmt;              /* DXGI format of the colour targets (PSO key) */
+     int exp32;              /* 32-bit-exports control bit (PSO key)       */
+-    u32 ucode_hash;         /* FNV-1a of the FP ucode: apps re-patch inline
+-                             * constants per frame (wave's stamp position/
+-                             * amplitude) -- address-only keying served the
+-                             * stale compile forever. */
++    u64 ucode_hash;         /* Literal HLSL depends on code AND inline constants. */
++    u32 ucode_size;
++    u8* ucode_bytes;        /* Exact identity check after the hash match. */
+     u32 cmask;              /* colour write mask (PSO key) */
+     u32 cull;               /* packed face culling (PSO key) */
+     u32 cube_mask;          /* which units are cube textures (PSO key): the HLSL
+@@ -349,12 +352,66 @@ typedef struct {
      /* Stats */
      u64 frame_count;
      u64 last_fps_time;
@@ -1338,7 +1386,66 @@ index 0ecca8e..1902c67 100644
      u32 fps;
  
      int initialized;
-@@ -1973,6 +1975,71 @@ static u32 dr_cube_mask(const D3D12DrawRecord* dr)
+ } D3D12State;
+ 
+ static D3D12State s_d3d;
++static rsx_fp_snapshot* s_frame_fp_programs;
++
++typedef struct RetiredFPPSO {
++    struct RetiredFPPSO* next;
++    ID3D12PipelineState* pso;
++    u64 submission;
++} RetiredFPPSO;
++static RetiredFPPSO* s_retired_fp_psos[FRAME_COUNT];
++/* Separate monotonically signaled fence: legacy frame waits can time out and
++ * reuse their value, so a swap-chain index alone cannot prove retirement. */
++static ID3D12Fence* s_fp_retirement_fence;
++static u64 s_fp_submission;
++
++static void release_frame_fp_programs(void)
++{
++    while (s_frame_fp_programs) {
++        rsx_fp_snapshot* next = s_frame_fp_programs->next;
++        rsx_fp_snapshot_free(s_frame_fp_programs);
++        s_frame_fp_programs = next;
++    }
++}
++
++static void release_retired_fp_psos(u32 frame)
++{
++    if (!s_fp_retirement_fence) return;
++    u64 completed = s_fp_retirement_fence->lpVtbl->GetCompletedValue(s_fp_retirement_fence);
++    if (completed == UINT64_MAX) return; /* device removed, not proof of completion */
++    RetiredFPPSO** link = &s_retired_fp_psos[frame];
++    while (*link) {
++        RetiredFPPSO* item = *link;
++        if (completed >= item->submission) {
++            *link = item->next;
++            item->pso->lpVtbl->Release(item->pso);
++            free(item);
++        } else link = &item->next;
++    }
++}
++
++static void retire_fp_pso(ID3D12PipelineState* pso)
++{
++    if (!pso) return;
++    RetiredFPPSO* item = (RetiredFPPSO*)malloc(sizeof(*item));
++    if (!item) {
++        /* Keep the reference alive rather than release an object still named
++         * by a submitted or currently recording command list. */
++        fprintf(stderr, "[FP] retirement allocation failed; retaining pipeline\n");
++        return;
++    }
++    u32 frame = s_d3d.frame_index;
++    item->pso = pso; item->next = s_retired_fp_psos[frame];
++    item->submission = s_fp_submission + 1;
++    s_retired_fp_psos[frame] = item;
++}
+ char g_rsx_title_base[128] = "ps3recomp";
+ static u32 s_dbg_last_draws = 0;
+ static u64 s_req_verts = 0, s_req_draws = 0, s_drop_draws = 0;
+@@ -1973,15 +2030,85 @@ static u32 dr_cube_mask(const D3D12DrawRecord* dr)
      return m;
  }
  
@@ -1346,7 +1453,7 @@ index 0ecca8e..1902c67 100644
 + * guest program buffer. Files stay in the host-supplied diagnostic directory. */
 +static void fp_dump_failure(int pipeline, u32 fp_addr, u32 off, u32 ctrl,
 +                            int nrt, u32 rtfmt, u32 blend, int vs_idx, int instructions,
-+                            HRESULT result, const u8 before[4096], const char* hlsl,
++                            HRESULT result, const rsx_fp_snapshot* program, const char* hlsl,
 +                            ID3DBlob* vs)
 +{
 +    const char* dir = getenv("RSX_FP_FAIL_DUMP_DIR");
@@ -1359,9 +1466,11 @@ index 0ecca8e..1902c67 100644
 +    if (len < 0 || (size_t)len >= sizeof stem) return;
 +    CreateDirectoryA(dir, NULL);
 +    extern uint8_t* vm_base;
-+    u8 after[4096]; memcpy(after, vm_base + off, sizeof after);
-+    const void* data[] = {before, after, hlsl};
-+    size_t sizes[] = {4096, 4096, strlen(hlsl)};
++    u8* after = (u8*)malloc(program->size);
++    if (!after) return;
++    memcpy(after, vm_base + off, program->size);
++    const void* data[] = {program->bytes, after, hlsl};
++    size_t sizes[] = {program->size, program->size, strlen(hlsl)};
 +    const char* suffix[] = {"before.bin", "after.bin", "hlsl"};
 +    for (int i = 0; i < 3; i++) {
 +        snprintf(path, sizeof path, "%s.%s", stem, suffix[i]);
@@ -1373,11 +1482,13 @@ index 0ecca8e..1902c67 100644
 +    if (f) {
 +        fprintf(f, "{\"fp_addr\":%u,\"resolved_ea\":%u,\"control\":%u,"
 +                   "\"host_thread\":%lu,\"instructions\":%d,\"hr\":%u,\"nrt\":%d,"
-+                   "\"rtfmt\":%u,\"blend\":%u,\"vs_idx\":%d,\"same_before_after\":%s}\n",
++                   "\"rtfmt\":%u,\"blend\":%u,\"vs_idx\":%d,\"program_bytes\":%u,\"same_before_after\":%s}\n",
 +                fp_addr, off, ctrl, GetCurrentThreadId(), instructions, (u32)result,
-+                nrt, rtfmt, blend, vs_idx, memcmp(before, after, sizeof after) ? "false" : "true");
++                nrt, rtfmt, blend, vs_idx, program->size,
++                memcmp(program->bytes, after, program->size) ? "false" : "true");
 +        fclose(f);
 +    }
++    free(after);
 +    if (vs) {
 +        snprintf(path, sizeof path, "%s.vs.bin", stem);
 +        f = fopen(path, "wb");
@@ -1409,36 +1520,139 @@ index 0ecca8e..1902c67 100644
 +
  static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, int nrt,
                                            DXGI_FORMAT rtfmt, int exp32, u32 cmask, u32 cull,
-                                           u32 cube_mask)
-@@ -1996,6 +2063,9 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
-     extern u32 cellGcmResolveLocated(int local, u32 offset);
-     u32 off = cellGcmResolveLocated((fp_addr & 0x3u) == 1, fp_addr & ~0x3u);
-     if (off == 0xFFFFFFFFu) return NULL;
-+    u8 evidence_before[4096];
-+    const int capture_failure = getenv("RSX_FP_FAIL_DUMP_DIR") != NULL && off <= 0xfffff000u;
-+    if (capture_failure) memcpy(evidence_before, vm_base + off, sizeof evidence_before);
+-                                          u32 cube_mask)
++                                          u32 cube_mask, const rsx_fp_snapshot* program,
++                                          u32 source_ea)
+ {
+     if (nrt < 1) nrt = 1; if (nrt > 4) nrt = 4;
+     if (rtfmt == 0) rtfmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+     extern uint8_t* vm_base;
+     extern u32 cellGcmResolveOffset(u32);
+-    if (!fp_addr || !vm_base) return NULL;
++    if (!fp_addr || !vm_base || !program) return NULL;
+     { static int _off=-1; if(_off<0)_off=getenv("FP_OFF")?1:0; if(_off) return NULL; }
+     /* Resolve the VS: the draw's cached per-VP blob, else the primary. */
+     ID3DBlob* vsb = NULL; u32 vs_hash = 0;
+@@ -1993,36 +2120,17 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
  
-     /* Content hash: inline constants are patched in place per frame (wave's
-      * stamp), so identity is the BYTES, not the address. */
-@@ -2294,6 +2364,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+     /* SET_SHADER_PROGRAM low bits = location+1 (same as textures): 1 = LOCAL
+      * (VRAM), 2 = MAIN (gcm/cube emits 0x00B90001 for its VRAM-resident FP). */
+-    extern u32 cellGcmResolveLocated(int local, u32 offset);
+-    u32 off = cellGcmResolveLocated((fp_addr & 0x3u) == 1, fp_addr & ~0x3u);
+-    if (off == 0xFFFFFFFFu) return NULL;
+-
+-    /* Content hash: inline constants are patched in place per frame (wave's
+-     * stamp), so identity is the BYTES, not the address. */
+-    /* Hash the CODE, not the constants: with fp_k[] hoisted into the per-draw
+-     * constant buffer the compiled shader is invariant under constant changes,
+-     * so hashing them made the pipeline key move every draw. */
+-    u32 uhash;
+-    {
+-        u32 usz = rsx_fp_program_size(vm_base + off, 4096);
+-        if (usz == 0) usz = 64;
+-        s_perf_pso_hashbytes += (int)usz;
+-        if (getenv("FP_CONSTBUF") && getenv("FP_CONSTBUF")[0] == '0') {
+-            uhash = 2166136261u;
+-            const u8* up = vm_base + off;
+-            for (u32 i = 0; i < usz; i++) { uhash ^= up[i]; uhash *= 16777619u; }
+-        } else {
+-            uhash = rsx_fp_code_hash(vm_base + off, 4096);
+-        }
+-    }
++    u32 off = source_ea;
++    const int capture_failure = getenv("RSX_FP_FAIL_DUMP_DIR") != NULL;
++
++    /* This entry point emits literal constants. Hash and compare the complete
++     * draw-time snapshot, including constants, never a later guest-memory read. */
++    const u64 uhash = program->hash;
++    s_perf_pso_hashbytes += (int)program->size;
+ 
+     s_perf_pso_calls++;
+-    /* Keyed on the code, not on where it lives. The compiled shader reads its
+-     * inline constants from the draw's own fp_addr (fp_k[], refilled per draw),
+-     * so a program's pipeline is the same wherever the title puts it. God of
+-     * War HD uploads its fragment programs into a ring every frame: keyed on the
+-     * address, every draw of every frame missed and went through a full
+-     * decompile + D3DCompile (179 draws -> seconds per frame on its menu). */
++    /* Exact bytes validate identity after the 64-bit hash rejection. A future
++     * buffered-constant adapter can split code identity from per-draw values. */
+     for (int i = 0; i < s_d3d.vp_fp_n; i++)
+         if (s_d3d.vp_fp[i].ucode_hash != uhash) continue;   /* cheap reject first */
+         else if (s_d3d.vp_fp[i].vs_idx == vs_idx &&
+@@ -2031,7 +2139,9 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+             s_d3d.vp_fp[i].rtfmt == (u32)rtfmt && s_d3d.vp_fp[i].exp32 == exp32 &&
+             s_d3d.vp_fp[i].ucode_hash == uhash && s_d3d.vp_fp[i].cmask == cmask &&
+             s_d3d.vp_fp[i].cull == cull &&
+-            s_d3d.vp_fp[i].cube_mask == cube_mask)
++            s_d3d.vp_fp[i].cube_mask == cube_mask &&
++            s_d3d.vp_fp[i].ucode_size == program->size &&
++            !memcmp(s_d3d.vp_fp[i].ucode_bytes, program->bytes, program->size))
+             return s_d3d.vp_fp[i].pso;
+     s_perf_pso_miss++;      /* falls through to a full decompile + D3DCompile */
+     /* PSOMISSDBG=1: on a miss, name the key field that differs from an existing
+@@ -2093,7 +2203,7 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+     if (ctrl_auto < 0) ctrl_auto = getenv("RSX_FP_CTRL_AUTO") ? 1 : 0;
+     u32 fp_ctrl = ctrl_auto ? RSX_FP_CTRL_AUTO
+                             : (exp32 ? CELL_GCM_SHADER_CONTROL_32_BITS_EXPORTS : 0u);
+-    int n = rsx_fp_decompile(vm_base + off, 4096, fp_ctrl, hlsl, sizeof(hlsl));
++    int n = rsx_fp_decompile(program->bytes, program->size, fp_ctrl, hlsl, sizeof(hlsl));
+     if (n <= 0) { static int _e=0; if(PS3_LOG_FIRST(_e, 16)) printf("[FP] decompile fail (fp=0x%08X)\n", fp_addr); return NULL; }
+     /* FP_LIST=1: every program the title actually compiles, with its size. A
+      * fragment program that hangs the GPU shows up here as an implausible
+@@ -2107,9 +2217,9 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+       if (PS3_LOG_FIRST(_d, _cap)) {
+         FILE* f = fopen("fp_dump.hlsl", _d==1 ? "w" : "a");
+         if (f) {
+-            const u8* uc = vm_base + off;
++            const u8* uc = program->bytes;
+             fprintf(f, "/* fp_addr=0x%08X vmoff=0x%08X raw:", fp_addr, off);
+-            for (int _b = 0; _b < 32; _b++) fprintf(f, " %02X", uc[_b]);
++            for (u32 _b = 0; _b < 32 && _b < program->size; _b++) fprintf(f, " %02X", uc[_b]);
+             fprintf(f, " */\n%s\n", hlsl); fclose(f);
+         } } }
+ 
+@@ -2294,6 +2404,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
      HRESULT hr = D3DCompile(hlsl, strlen(hlsl), "guest_fp", NULL, NULL,
                              "main", "ps_5_0", 0, 0, &pb, &e);
      if (FAILED(hr) || !pb) {
 +        if (capture_failure) fp_dump_failure(0, fp_addr, off, fp_ctrl, nrt, (u32)rtfmt,
-+            blend, vs_idx, n, hr, evidence_before, hlsl, vsb);
++            blend, vs_idx, n, hr, program, hlsl, vsb);
          static int _e2=0; if (PS3_LOG_FIRST(_e2, 16))
              printf("[FP] PS compile FAIL (fp=0x%08X): %s\n", fp_addr,
                     e ? (const char*)e->lpVtbl->GetBufferPointer(e) : "?");
-@@ -2384,6 +2456,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+@@ -2384,14 +2496,20 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
          s_d3d.device, &pd, &IID_ID3D12PipelineState, (void**)&pso);
      pb->lpVtbl->Release(pb);
      if (FAILED(hr)) {
 +        if (capture_failure) fp_dump_failure(1, fp_addr, off, fp_ctrl, nrt, (u32)rtfmt,
-+            blend, vs_idx, n, hr, evidence_before, hlsl, vsb);
++            blend, vs_idx, n, hr, program, hlsl, vsb);
          static int _e3=0; if (PS3_LOG_FIRST(_e3, 16)) printf("[FP] PSO FAIL (fp=0x%08X, 0x%08lX)\n", fp_addr, hr);
          return NULL;
      }
-@@ -2455,22 +2529,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
+     { static int _ok=0; if (PS3_LOG_FIRST(_ok, 32)) printf("[FP] guest FP pipeline ready (fp=0x%08X)\n", fp_addr); }
+ 
+-    /* insert (evict oldest when full) */
++    u8* cached_bytes = (u8*)malloc(program->size);
++    if (!cached_bytes) { pso->lpVtbl->Release(pso); return NULL; }
++    memcpy(cached_bytes, program->bytes, program->size);
++    /* Retain evicted PSOs until their last possible GPU consumer has fenced. */
+     if (s_d3d.vp_fp_n >= VP_FP_CACHE) {
+-        if (s_d3d.vp_fp[0].pso) s_d3d.vp_fp[0].pso->lpVtbl->Release(s_d3d.vp_fp[0].pso);
++        retire_fp_pso(s_d3d.vp_fp[0].pso);
++        free(s_d3d.vp_fp[0].ucode_bytes);
+         memmove(&s_d3d.vp_fp[0], &s_d3d.vp_fp[1], sizeof(VPFPEntry) * (VP_FP_CACHE - 1));
+         s_d3d.vp_fp_n = VP_FP_CACHE - 1;
+     }
+@@ -2404,6 +2522,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+     s_d3d.vp_fp[s_d3d.vp_fp_n].rtfmt   = (u32)rtfmt;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].exp32   = exp32;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].ucode_hash = uhash;
++    s_d3d.vp_fp[s_d3d.vp_fp_n].ucode_size = program->size;
++    s_d3d.vp_fp[s_d3d.vp_fp_n].ucode_bytes = cached_bytes;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cmask   = cmask;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cull    = cull;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cube_mask = cube_mask;
+@@ -2455,22 +2575,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
   * NV40 layout (matches RPCS3 convert_linear_swizzle). POT dims only, which is
   * what the hardware requires for swizzled textures. */
  
@@ -1461,7 +1675,7 @@ index 0ecca8e..1902c67 100644
  static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips)
  {
      /* TEX_BUDGET=<n>: cap texture uploads per frame. Off by default -- it was
-@@ -2522,11 +2580,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2522,11 +2626,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      u32 blkrow  = dxt ? tl.row_bytes : 0;
      u32 blkrows = dxt ? tl.rows      : 0;
      const u32 key_off = off;         /* lookup key: the offset as bound */
@@ -1476,7 +1690,7 @@ index 0ecca8e..1902c67 100644
      int slot = -1, freeslot = -1;
      for (int i = 0; i < VP_TEX_SLOTS; i++) {
          VPTexSlot* c = &s_d3d.vp_tex[i];
-@@ -2541,7 +2597,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2541,7 +2643,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
               * changed. Most of this scene's textures are static, and converting
               * every one of them every frame was ~70% of the frame's CPU time. */
              u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
@@ -1485,7 +1699,7 @@ index 0ecca8e..1902c67 100644
              if (cs == c->csum) { c->used = 1; return i; }
              slot = i; break;                      /* stale: fall through and redo */
          }
-@@ -2729,6 +2785,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2729,6 +2831,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      }
      const u32 _nfaces     = cube ? 6u : 1u;
      const u32 _off0 = off; u8* const _map0 = (u8*)mapped;
@@ -1498,7 +1712,7 @@ index 0ecca8e..1902c67 100644
      for (u32 _f = 0; _f < _nfaces; _f++) {
      off    = _off0 + _f * _face_bytes;
      if (cube && getenv("CUBEDBG")) { u32 _s=0; const u8* _p = vm_base + off;
-@@ -3058,8 +3120,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -3058,8 +3166,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
  
      t->off = off; t->key = key_off; t->w = w; t->h = h; t->fmt = fmt;
      t->cube = cube; t->used = 1;
@@ -1508,7 +1722,97 @@ index 0ecca8e..1902c67 100644
      #undef TEX_CSUM
      return slot;
  }
-@@ -5209,9 +5270,12 @@ static void d3d12_present(void* ud, u32 buffer_id)
+@@ -3078,9 +3185,30 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+ /* Snapshot the VP constant bank + viewport epilogue for one draw into its
+  * vp_cb slot. Runs at record time so every draw keeps the constants that
+  * were live when the guest issued it. */
+-static void vp_record_cb(u32 slot, int vs_idx, const D3D12DrawRecord* dr)
++static void vp_record_cb(u32 slot, int vs_idx, D3D12DrawRecord* dr)
+ {
+     const rsx_state* st = s_d3d.current_rsx_state;
++    dr->fp_program = NULL;
++    dr->fp_source_ea = 0;
++    if (dr->fp_addr) {
++        extern uint8_t* vm_base;
++        extern u32 cellGcmResolveLocated(int, u32);
++        u32 ea = cellGcmResolveLocated((dr->fp_addr & 3u) == 1, dr->fp_addr & ~3u);
++        if (vm_base && ea != 0xffffffffu) {
++            u32 available = ea <= 0xffff0000u ? 0x10000u : (u32)(0x100000000ull - ea);
++            dr->fp_program = rsx_fp_snapshot_capture(vm_base + ea, available);
++            dr->fp_source_ea = ea;
++            if (dr->fp_program) {
++                dr->fp_program->next = s_frame_fp_programs;
++                s_frame_fp_programs = dr->fp_program;
++            } else {
++                static int invalid = 0;
++                if (PS3_LOG_FIRST(invalid, 16))
++                    fprintf(stderr, "[FP] incomplete or unavailable draw-time program fp=0x%08X ea=0x%08X\n",
++                            dr->fp_addr, ea);
++            }
++        }
++    }
+     if (!s_d3d.vp_cb_mapped || !st || slot >= MAX_DRAWS) return;
+     /* FP texcoord scale (b1): 1/size for UNnormalized textures (fmt bit
+      * 0x40 -- wave samples everything in texel space), 1.0 otherwise. */
+@@ -3802,6 +3930,14 @@ static void render_frame(void)
+ {
+     double _rf0 = perf_on() ? perf_now() : 0.0;
+     u32 fi = s_d3d.frame_index;
++    if (!s_fp_retirement_fence) {
++        HRESULT fence_hr = s_d3d.device->lpVtbl->CreateFence(s_d3d.device, 0,
++            D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, (void**)&s_fp_retirement_fence);
++        if (FAILED(fence_hr))
++            fprintf(stderr, "[FP] retirement fence unavailable (0x%08lX); pipelines retained\n", fence_hr);
++    }
++    /* Confirm the actual submission fence; a timed-out frame wait is insufficient. */
++    release_retired_fp_psos(fi);
+ 
+     /* Drain the GPU before touching shared upload resources (vp_vb vertices,
+      * vp_cb constants, per-frame texture staging): the previous frame's draws
+@@ -4267,7 +4403,8 @@ static void render_frame(void)
+                                        dr_num_rts(dr),
+                                        dr->rt_off ? rsx_surface_dxgi(dr->rt_fmt)
+                                                   : DXGI_FORMAT_R8G8B8A8_UNORM,
+-                                       dr->fp_exp32, dr->cmask, dr->cull, dr_cube_mask(dr));
++                                       dr->fp_exp32, dr->cmask, dr->cull, dr_cube_mask(dr),
++                                       dr->fp_program, dr->fp_source_ea);
+         if (perf_on()) s_perf_pso += perf_now() - _ps0;
+     }
+ 
+@@ -4605,7 +4742,8 @@ static void render_frame(void)
+                                                 dr->rt_off ? rsx_surface_dxgi(dr->rt_fmt)
+                                                            : DXGI_FORMAT_R8G8B8A8_UNORM,
+                                                 dr->fp_exp32, dr->cmask, dr->cull,
+-                                                dr_cube_mask(dr)) : NULL;
++                                                dr_cube_mask(dr), dr->fp_program,
++                                                dr->fp_source_ea) : NULL;
+                 s_d3d.cmd_list->lpVtbl->SetPipelineState(s_d3d.cmd_list,
+                                                          dpso ? dpso : vpso);
+                 /* Per-draw viewport: the guest rect when sane, else the
+@@ -4810,6 +4948,9 @@ static void render_frame(void)
+         s_lock_sx = s_lock_sy = 0.0; s_lock_n = 0;
+     }
+     s_dbg_last_draws = s_d3d.draw_count;
++    /* D3DCompile/CreateGraphicsPipelineState have consumed the CPU snapshots;
++     * the GPU references compiled PSOs retained separately through its fence. */
++    release_frame_fp_programs();
+     s_d3d.vb_offset  = 0; /* reset for next frame */
+     s_d3d.vp_vb_offset = 0;
+     s_d3d.draw_count = 0;
+@@ -4958,6 +5099,12 @@ skip_dump_consider: ;
+     s_d3d.cmd_list->lpVtbl->Close(s_d3d.cmd_list);
+     ID3D12CommandList* cmd_lists[] = {(ID3D12CommandList*)s_d3d.cmd_list};
+     s_d3d.cmd_queue->lpVtbl->ExecuteCommandLists(s_d3d.cmd_queue, 1, cmd_lists);
++    if (s_fp_retirement_fence) {
++        HRESULT fence_hr = s_d3d.cmd_queue->lpVtbl->Signal(s_d3d.cmd_queue,
++            s_fp_retirement_fence, ++s_fp_submission);
++        if (FAILED(fence_hr))
++            fprintf(stderr, "[FP] retirement signal failed (0x%08lX); pipelines retained\n", fence_hr);
++    }
+ 
+     /* D3D12_IQ=1: drain the debug layer's message queue after submitting the
+      * frame. The legacy (is_vp=0) DrawInstanced path silently produced ZERO
+@@ -5209,9 +5356,12 @@ static void d3d12_present(void* ud, u32 buffer_id)
      /* FPS tracking */
      ULONGLONG now = GetTickCount64();
      if (now - s_d3d.last_fps_time >= 1000) {
@@ -1523,7 +1827,37 @@ index 0ecca8e..1902c67 100644
      }
  }
  
-@@ -6754,13 +6818,14 @@ void rsx_d3d12_backend_present(void)
+@@ -6706,6 +6856,29 @@ void rsx_d3d12_backend_shutdown(void)
+     wait_for_gpu();
+ 
+     /* Release D3D12 resources */
++    if (!s_fp_retirement_fence && (s_d3d.vp_fp_n ||
++        s_retired_fp_psos[0] || s_retired_fp_psos[1])) {
++        fprintf(stderr, "[FP] no retirement fence; shutdown retains resources\n");
++        return;
++    }
++    if (s_fp_retirement_fence) {
++        u64 completed = s_fp_retirement_fence->lpVtbl->GetCompletedValue(s_fp_retirement_fence);
++        if (completed == UINT64_MAX || completed < s_fp_submission) {
++            fprintf(stderr, "[FP] GPU completion unconfirmed; shutdown retains resources\n");
++            return;
++        }
++    }
++    release_frame_fp_programs();
++    for (u32 i = 0; i < FRAME_COUNT; i++) release_retired_fp_psos(i);
++    for (int i = 0; i < s_d3d.vp_fp_n; i++) {
++        if (s_d3d.vp_fp[i].pso) s_d3d.vp_fp[i].pso->lpVtbl->Release(s_d3d.vp_fp[i].pso);
++        free(s_d3d.vp_fp[i].ucode_bytes);
++    }
++    s_d3d.vp_fp_n = 0;
++    if (s_fp_retirement_fence) {
++        s_fp_retirement_fence->lpVtbl->Release(s_fp_retirement_fence);
++        s_fp_retirement_fence = NULL; s_fp_submission = 0;
++    }
+     if (s_d3d.vertex_buffer) {
+         s_d3d.vertex_buffer->lpVtbl->Unmap(s_d3d.vertex_buffer, 0, NULL);
+         s_d3d.vertex_buffer->lpVtbl->Release(s_d3d.vertex_buffer);
+@@ -6754,13 +6927,14 @@ void rsx_d3d12_backend_present(void)
                 s_d3d.draw_count, s_dbg_clears_since_present, s_clear_presents);
      s_dbg_clears_since_present = 0;
  
@@ -1545,6 +1879,355 @@ index 0ecca8e..1902c67 100644
          return;
  
      /* Same display gate as d3d12_present: a batch of offscreen pass work only
+diff --git a/libs/video/rsx_fp_decompiler.c b/libs/video/rsx_fp_decompiler.c
+index 5ce72ef..836f296 100644
+--- a/libs/video/rsx_fp_decompiler.c
++++ b/libs/video/rsx_fp_decompiler.c
+@@ -112,38 +112,35 @@ u32 rsx_fp_read_word(const u8* p)
+     return (be << 16) | (be >> 16);   /* 16-bit half-word swap */
+ }
+ 
++static int fp_instruction_has_constant(u32 w1, u32 w2, u32 w3)
++{
++    /* Branch words carry conditions/addresses, never source operands. */
++    return !(w2 & FP_BRANCH) && (
++        ((w1 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST ||
++        ((w2 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST ||
++        ((w3 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST);
++}
++
+ u32 rsx_fp_program_size(const u8* ucode, u32 max_bytes)
+ {
+     if (!ucode) return 0;
+     u32 off = 0;
+-    while (off + 16 <= max_bytes) {
+-        u32 w0 = rsx_fp_read_word(ucode + off + 0);
+-        u32 w1 = rsx_fp_read_word(ucode + off + 4);
+-        u32 w2 = rsx_fp_read_word(ucode + off + 8);
+-        u32 w3 = rsx_fp_read_word(ucode + off + 12);
++    while (max_bytes - off >= 16) {
++        const u32 w0 = rsx_fp_read_word(ucode + off);
++        const u32 w1 = rsx_fp_read_word(ucode + off + 4);
++        const u32 w2 = rsx_fp_read_word(ucode + off + 8);
++        const u32 w3 = rsx_fp_read_word(ucode + off + 12);
+         off += 16;
+-        /* A CONST source pulls an inline 16-byte constant slot. */
+-        if (((w1 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST ||
+-            ((w2 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST ||
+-            ((w3 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST) {
+-            if (off + 16 <= max_bytes) off += 16;
++        if (fp_instruction_has_constant(w1, w2, w3)) {
++            /* END still requires its complete inline payload. */
++            if (max_bytes - off < 16) return 0;
++            off += 16;
+         }
+         if (w0 & FP_END) return off;
+     }
+     return 0;
+ }
+ 
+-static int fp_instruction_has_constant(u32 w1, u32 w2, u32 w3)
+-{
+-    return
+-        ((w1 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) ==
+-            FP_REG_TYPE_CONST ||
+-        ((w2 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) ==
+-            FP_REG_TYPE_CONST ||
+-        ((w3 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) ==
+-            FP_REG_TYPE_CONST;
+-}
+-
+ unsigned long long g_rsx_fp_nonfinite_constants = 0;
+ 
+ /* An inline fragment constant is never legitimately non-finite.  A NaN one
+@@ -471,7 +468,7 @@ u32 rsx_fp_texture_units(const u8* ucode, u32 max_bytes)
+             op == OP_TEXBEM || op == OP_TXPBEM))
+             units |= 1u << ((w0 >> FP_TEX_UNIT_SHIFT) & 15u);
+         off += 16;
+-        if (!(w2 & FP_BRANCH) && ((w1 & 3u) == 2 || (w2 & 3u) == 2 || (w3 & 3u) == 2))
++        if (fp_instruction_has_constant(w1, w2, w3))
+             off += 16;
+         if (w0 & FP_END) break;
+     }
+@@ -537,7 +534,7 @@ u32 rsx_fp_texture_gamma_units(const u8* ucode, u32 max_bytes,
+              op == OP_TXD || op == OP_TEXBEM || op == OP_TXPBEM))
+             units |= 1u << unit;
+         off += 16;
+-        if (!(w2 & FP_BRANCH) && ((w1 & 3u) == 2 || (w2 & 3u) == 2 || (w3 & 3u) == 2)) off += 16;
++        if (fp_instruction_has_constant(w1, w2, w3)) off += 16;
+         if (w0 & FP_END) return units;
+     }
+     return 0;
+@@ -576,7 +573,7 @@ u32 rsx_fp_texture_expand_units(const u8* ucode, u32 max_bytes,
+             (op == OP_TEX || op == OP_TXP || op == OP_TXB || op == OP_TXL))
+             units |= 1u << unit;
+         off += 16;
+-        if (!(w2 & FP_BRANCH) && ((w1 & 3u) == 2 || (w2 & 3u) == 2 || (w3 & 3u) == 2)) off += 16;
++        if (fp_instruction_has_constant(w1, w2, w3)) off += 16;
+         if (w0 & FP_END) return units;
+     }
+     return 0;
+@@ -597,7 +594,7 @@ u32 rsx_fp_texture_bx2_units(const u8* ucode, u32 max_bytes)
+             (op == OP_TEX || op == OP_TXP || op == OP_TXB || op == OP_TXL))
+             units |= 1u << unit;
+         off += 16;
+-        if (!(w2 & FP_BRANCH) && ((w1 & 3u) == 2 || (w2 & 3u) == 2 || (w3 & 3u) == 2)) off += 16;
++        if (fp_instruction_has_constant(w1, w2, w3)) off += 16;
+         if (w0 & FP_END) return units;
+     }
+     return 0;
+@@ -616,13 +613,28 @@ static void fp_expand_helper(Out* out)
+         "                  (mask & 8u) ? e.a : v.a);\n}\n");
+ }
+ 
++/* Never expose a partial shader or stale constant count after rejection. */
++static int fp_decompile_error(char* out, u32 out_size, u32* out_constant_count)
++{
++    if (out && out_size) out[0] = '\0';
++    if (out_constant_count) *out_constant_count = 0;
++    return -1;
++}
++
+ static int rsx_fp_decompile_internal(
+     const u8* ucode, u32 max_bytes, u32 ctrl, u32 tex_cube_mask, u32 tex_vol_mask,
+     int buffered, const rsx_fp_shadow_desc* shadow, const u8 gamma_masks[16],
+     const u8* expand_masks,
+     char* out, u32 out_size, u32* out_constant_count)
+ {
+-    if (!ucode || !out || out_size == 0) return -1;
++    if (out && out_size) out[0] = '\0';
++    if (out_constant_count) *out_constant_count = 0;
++    if (!ucode || !out || out_size == 0) return fp_decompile_error(out, out_size, out_constant_count);
++    const u32 program_bytes = rsx_fp_program_size(ucode, max_bytes);
++    if (!program_bytes) return fp_decompile_error(out, out_size, out_constant_count);
++    /* Every pass consumes the same complete span. The caller must provide
++     * stable bytes throughout translation (native backends use a snapshot). */
++    max_bytes = program_bytes;
+     /* Cube and volume units are declared on their own t-register; with none
+      * the 2D array keeps every 2D-only program byte-identical. */
+     const u32 tex_sep_mask = tex_cube_mask | tex_vol_mask;
+@@ -643,7 +655,7 @@ static int rsx_fp_decompile_internal(
+             static u32 n_layout_errors;
+             if (PS3_LOG_FIRST(n_layout_errors, 32))
+                 fprintf(stderr, "[RSX fp] unsupported depth comparison layout on texture unit %u\n", u);
+-            return -1;
++            return fp_decompile_error(out, out_size, out_constant_count);
+         }
+     u32 buffered_constant_count = 0;
+     if (buffered) {
+@@ -651,7 +663,7 @@ static int rsx_fp_decompile_internal(
+         const int result =
+             rsx_fp_collect_constants(ucode, max_bytes, &constants);
+         if (result < 0)
+-            return -1;
++            return fp_decompile_error(out, out_size, out_constant_count);
+         buffered_constant_count = constants.count;
+     }
+     if (out_constant_count)
+@@ -742,7 +754,7 @@ static int rsx_fp_decompile_internal(
+             static u32 n_fetch_errors;
+             if (PS3_LOG_FIRST(n_fetch_errors, 32))
+                 fprintf(stderr, "[RSX fp] unsupported depth comparison fetch on texture unit %u\n", tex_unit);
+-            return -1;
++            return fp_decompile_error(out, out_size, out_constant_count);
+         }
+         int is_branch = (w2 & FP_BRANCH) ? 1 : 0;
+ 
+@@ -783,8 +795,7 @@ static int rsx_fp_decompile_internal(
+          * float4 literal and advances past it. */
+         float k[4] = {0,0,0,0};
+         int has_k = 0;
+-        if (s0.type == FP_REG_TYPE_CONST || s1.type == FP_REG_TYPE_CONST ||
+-            s2.type == FP_REG_TYPE_CONST) {
++        if (fp_instruction_has_constant(w1, w2, w3)) {
+             if (off + 16 <= max_bytes) {
+                 for (int i = 0; i < 4; i++) {
+                     u32 cw = rsx_fp_sanitize_constant_word(
+@@ -875,7 +886,7 @@ static int rsx_fp_decompile_internal(
+             static u32 reported;
+             if (PS3_LOG_FIRST(reported, 32))
+                 fprintf(stderr, "[RSX fp] gamma fetch opcode %u unsupported on unit %u\n", opcode, tex_unit);
+-            return -1;
++            return fp_decompile_error(out, out_size, out_constant_count);
+         }
+ 
+         if (dbg_here && !dbg_done && dbg_count == (u32)dbg_n) {
+@@ -1051,7 +1062,7 @@ static int rsx_fp_decompile_internal(
+             char sample[sizeof rhs]; memcpy(sample, rhs, sizeof sample);
+             const int length = snprintf(rhs, sizeof rhs, "_rsx_gamma_input(%s, %uu)",
+                                         sample, gamma_masks[tex_unit] & 15u);
+-            if (length < 0 || (size_t)length >= sizeof rhs) return -1;
++            if (length < 0 || (size_t)length >= sizeof rhs) return fp_decompile_error(out, out_size, out_constant_count);
+         }
+         /* Texture sign expansion (RPCS3 _process_texel). A unit whose
+          * SET_TEXTURE_ADDRESS asks for UNSIGNED_REMAP_BIASED returns every
+@@ -1070,7 +1081,7 @@ static int rsx_fp_decompile_internal(
+                 char sample[sizeof rhs]; memcpy(sample, rhs, sizeof sample);
+                 const int length = snprintf(rhs, sizeof rhs, "_rsx_expand_input(%s, %uu, %s)",
+                                             sample, mask, bx2 ? "true" : "false");
+-                if (length < 0 || (size_t)length >= sizeof rhs) return -1;
++                if (length < 0 || (size_t)length >= sizeof rhs) return fp_decompile_error(out, out_size, out_constant_count);
+             }
+         } else if (((w0 & (1u << 21)) || (expand_masks && expand_masks[tex_unit])) &&
+                    (opcode == OP_TXD || opcode == OP_TEXBEM || opcode == OP_TXPBEM)) {
+@@ -1342,8 +1353,8 @@ static int rsx_fp_decompile_internal(
+                      "PSOutput main(PSInput input) {\n");
+     }
+ 
+-    if (!o.ok || !p.ok) return -1;
+-    if (o.len + p.len + 1 > out_size) return -1;
++    if (!o.ok || !p.ok) return fp_decompile_error(out, out_size, out_constant_count);
++    if (o.len + p.len + 1 > out_size) return fp_decompile_error(out, out_size, out_constant_count);
+     memmove(out + p.len, out, o.len + 1);
+     memcpy(out, preamble, p.len);
+     return count;
+@@ -1574,11 +1585,7 @@ int rsx_fp_extract_consts(const u8* ucode, u32 max_bytes, float* out, int max_ou
+         u32 w2 = rsx_fp_read_word(ucode + off + 8);
+         u32 w3 = rsx_fp_read_word(ucode + off + 12);
+         off += 16;
+-        int is_branch = (w2 & FP_BRANCH) != 0;
+-        int has_k = !is_branch &&
+-            ((((w1 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST) ||
+-             (((w2 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST) ||
+-             (((w3 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST));
++        int has_k = fp_instruction_has_constant(w1, w2, w3);
+         if (has_k) {
+             if (off + 16 <= max_bytes) {
+                 for (int i = 0; i < 4; i++) {
+@@ -1620,11 +1627,7 @@ u32 rsx_fp_code_hash(const u8* ucode, u32 max_bytes)
+         u32 w3 = rsx_fp_read_word(ucode + off + 12);
+         for (u32 i = 0; i < 16; i++) { h ^= ucode[off + i]; h *= 16777619u; }
+         off += 16;
+-        int is_branch = (w2 & FP_BRANCH) != 0;
+-        int has_k = !is_branch &&
+-            ((((w1 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST) ||
+-             (((w2 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST) ||
+-             (((w3 & FP_REG_TYPE_MASK) >> FP_REG_TYPE_SHIFT) == FP_REG_TYPE_CONST));
++        int has_k = fp_instruction_has_constant(w1, w2, w3);
+         if (has_k) off += 16;            /* skip the constant, do not hash it */
+         if (w0 & FP_END) break;
+     }
+diff --git a/libs/video/rsx_fp_decompiler.h b/libs/video/rsx_fp_decompiler.h
+index 670e886..712b156 100644
+--- a/libs/video/rsx_fp_decompiler.h
++++ b/libs/video/rsx_fp_decompiler.h
+@@ -21,7 +21,7 @@ extern "C" {
+ #define RSX_FP_BUFFERED_CONSTANTS_API 1
+ #define RSX_FP_MAX_INLINE_CONSTANTS 2048u
+ 
+-/* Source capacity for native backends decoding up to 4096 bytecode bytes.
++/* Suggested source capacity for native backends. Larger programs can require more.
+  * Predicated instructions can expand beyond 32 KiB of HLSL. This is a caller
+  * allocation size, not a limit imposed by the decompiler API. */
+ #define RSX_FP_HLSL_BUFFER_SIZE (256u * 1024u)
+@@ -48,13 +48,15 @@ extern unsigned long long g_rsx_fp_nonfinite_constants;
+  *   ucode     : pointer to the fragment-program bytecode in guest memory
+  *               (big-endian, half-word-swapped — i.e. exactly as the RSX
+  *               reads it; this function applies rsx_fp_read_word internally).
+- *   max_bytes : safety bound on how far to read (program stops at PROGRAM_END
+- *               or when this many bytes are consumed).
++ *   max_bytes : readable byte bound; a complete PROGRAM_END instruction and
++ *               any inline CONST payload must fit. Bytes must remain stable
++ *               throughout this call; backends should pass an owned snapshot.
+  *   out       : caller buffer for the generated HLSL (NUL-terminated).
+  *   out_size  : size of `out` in bytes.
+  *
+  * Returns the number of instructions decoded (>=0) on success, or -1 on
+- * error (null args, output overflow). The emitted entry point is
++ * error (null args, incomplete program, output overflow). Rejection clears out[0]
++ * when out/out_size permit. The emitted entry point is
+  * `float4 main(PSInput input) : SV_TARGET`, matching the backend's
+  * placeholder PSInput { float4 position : SV_POSITION; float4 col : COLOR; }.
+  *
+@@ -231,7 +233,7 @@ const char* rsx_fp_opcode_name(u32 opcode);
+ 
+ /* Total byte length of the fragment program at `ucode` (including inline
+  * CONST slots), up to and including the PROGRAM_END instruction, bounded by
+- * `max_bytes`. Returns 0 if no terminator is found within the bound. Shared
++ * `max_bytes`. Returns 0 for a missing terminator or truncated CONST payload. Shared
+  * walk logic so callers (e.g. a shader cache hashing the bytecode) agree with
+  * the decompiler on where a program ends. */
+ u32 rsx_fp_program_size(const u8* ucode, u32 max_bytes);
+diff --git a/libs/video/rsx_fp_snapshot.h b/libs/video/rsx_fp_snapshot.h
+new file mode 100644
+index 0000000..27aa03e
+--- /dev/null
++++ b/libs/video/rsx_fp_snapshot.h
+@@ -0,0 +1,74 @@
++/* Owned, CPU-only fragment program capture. No graphics API dependency. */
++#ifndef PS3RECOMP_RSX_FP_SNAPSHOT_H
++#define PS3RECOMP_RSX_FP_SNAPSHOT_H
++
++#include "rsx_fp_decompiler.h"
++#include <stdlib.h>
++#include <string.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define RSX_FP_SNAPSHOT_MAX_BYTES (64u * 1024u)
++
++typedef struct rsx_fp_snapshot {
++    struct rsx_fp_snapshot* next; /* Optional intrusive link, owned by caller. */
++    u32 size;
++    u64 hash; /* FNV-1a64 of every byte, then size as four little-endian bytes. */
++    const u8* bytes;
++} rsx_fp_snapshot;
++
++/* available must name readable guest bytes. Capture includes END and its
++ * inline CONST payload and is bounded to 64 KiB, even if available is larger.
++ * One allocation owns both the descriptor and bytes. NULL means malformed,
++ * truncated, over-limit input or allocation failure; no partial result escapes.
++ *
++ * Coherence presupposes the guest publishes a complete program before draw
++ * consumption and does not mutate it during capture. Revalidating the copy
++ * catches structural changes between the walk and copy, but is not an atomic
++ * snapshot or a substitute for guest publication/synchronization. Afterwards,
++ * source changes cannot affect bytes/hash; the owner must not mutate bytes.
++ * Hash is an accelerator: cache identity must also compare size and bytes. */
++static inline rsx_fp_snapshot* rsx_fp_snapshot_capture(const u8* source, u32 available)
++{
++    const u32 limit = available < RSX_FP_SNAPSHOT_MAX_BYTES
++        ? available : RSX_FP_SNAPSHOT_MAX_BYTES;
++    const u32 size = rsx_fp_program_size(source, limit);
++    rsx_fp_snapshot* snapshot;
++    u8* bytes;
++    u64 hash = 14695981039346656037ull;
++    if (!size) return NULL;
++    snapshot = (rsx_fp_snapshot*)malloc(sizeof(*snapshot) + size);
++    if (!snapshot) return NULL;
++    bytes = (u8*)(snapshot + 1);
++    memcpy(bytes, source, size);
++    if (rsx_fp_program_size(bytes, size) != size) {
++        free(snapshot);
++        return NULL;
++    }
++    for (u32 i = 0; i < size; ++i) {
++        hash ^= bytes[i];
++        hash *= 1099511628211ull;
++    }
++    for (u32 i = 0; i < 4; ++i) {
++        hash ^= (u8)(size >> (8 * i));
++        hash *= 1099511628211ull;
++    }
++    snapshot->next = NULL;
++    snapshot->size = size;
++    snapshot->hash = hash;
++    snapshot->bytes = bytes;
++    return snapshot;
++}
++
++/* Frees exactly this node. List traversal and retirement belong to the caller. */
++static inline void rsx_fp_snapshot_free(rsx_fp_snapshot* snapshot)
++{
++    free(snapshot);
++}
++
++#ifdef __cplusplus
++}
++#endif
++#endif
 diff --git a/libs/video/rsx_texture_fingerprint.h b/libs/video/rsx_texture_fingerprint.h
 new file mode 100644
 index 0000000..0e6b282
@@ -1578,6 +2261,107 @@ index 0000000..0e6b282
 +}
 +
 +#endif
+diff --git a/libs/video/tests/test_fp_decompiler.c b/libs/video/tests/test_fp_decompiler.c
+index 650c021..ddfb9a8 100644
+--- a/libs/video/tests/test_fp_decompiler.c
++++ b/libs/video/tests/test_fp_decompiler.c
+@@ -18,6 +18,11 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#ifdef _WIN32
++#define setenv(name, value, overwrite) _putenv_s(name, value)
++#define unsetenv(name) _putenv_s(name, "")
++#endif
++
+ static int g_pass = 0, g_fail = 0;
+ 
+ /* Store host word H into guest bytes so that rsx_fp_read_word(p) == H.
+@@ -520,6 +525,84 @@ int main(void)
+         check_absent("persp_off_no_helper", hlsl, "_rsx_inv_w");
+     }
+ 
++    /* Bounds are a contract: END does not make a missing CONST slot valid. */
++    {
++        u8 prog[48] = {0};
++        put_word(prog, OPC(0x01) | OUTMASK_ALL | END);
++        put_word(prog + 4, T_CONST | SWZ_IDENT | EXEC_ALWAYS);
++        put_float(prog + 16, 1.0f);
++        put_float(prog + 20, 2.0f);
++        put_float(prog + 24, 3.0f);
++        put_float(prog + 28, 4.0f);
++        for (u32 n = 16; n < 32; ++n) {
++            strcpy(hlsl, "stale shader");
++            check_true("truncated_END_CONST_size", rsx_fp_program_size(prog, n) == 0);
++            check_true("truncated_END_CONST_decompile",
++                rsx_fp_decompile(prog, n, CTRL_32BIT, hlsl, sizeof hlsl) == -1 && hlsl[0] == 0);
++        }
++        u32 count = 123;
++        strcpy(hlsl, "stale shader");
++        check_true("truncated_buffered_rejection",
++            rsx_fp_decompile_buffered_ex(prog, 31, CTRL_32BIT, 0,
++                hlsl, sizeof hlsl, &count) == -1 && hlsl[0] == 0 && count == 0);
++        strcpy(hlsl, "stale shader");
++        check_true("overflow_clears_shader",
++            rsx_fp_decompile(prog, 32, CTRL_32BIT, hlsl, 2) == -1 && hlsl[0] == 0);
++        check_true("END_CONST_exact_size", rsx_fp_program_size(prog, sizeof prog) == 32);
++        put_word(prog, OPC(0x01) | OUTMASK_ALL); /* CONST complete, END absent. */
++        strcpy(hlsl, "stale shader");
++        check_true("unterminated_size", rsx_fp_program_size(prog, 32) == 0);
++        check_true("unterminated_decompile",
++            rsx_fp_decompile(prog, 32, CTRL_32BIT, hlsl, sizeof hlsl) == -1 && hlsl[0] == 0);
++    }
++    /* Branch words are control fields even when their low bits spell CONST.
++     * A bogus slot skip would swallow the actual final MOV and its payload. */
++    {
++        u8 prog[48] = {0};
++        rsx_fp_constant_block constants;
++        put_word(prog, OPC(0x05)); /* RET, currently emitted as unsupported flow. */
++        put_word(prog + 4, EXEC_ALWAYS | 2u);
++        put_word(prog + 8, (1u << 31) | 2u);
++        put_word(prog + 12, 2u);
++        put_word(prog + 16, OPC(0x01) | OUTMASK_ALL | END);
++        put_word(prog + 20, T_CONST | SWZ_IDENT | EXEC_ALWAYS);
++        for (int c = 0; c < 4; ++c) put_float(prog + 32 + c * 4, 3.0f);
++        check_true("branch_control_is_not_CONST", rsx_fp_program_size(prog, sizeof prog) == 48);
++        check_true("branch_collect_one_CONST",
++            rsx_fp_collect_constants(prog, sizeof prog, &constants) == 1);
++        check_true("branch_hash_complete", rsx_fp_structural_hash(prog, sizeof prog, 1) != 0);
++        check_true("branch_body_keeps_final_instruction",
++            rsx_fp_decompile(prog, sizeof prog, CTRL_32BIT, hlsl, sizeof hlsl) == 2);
++        check("branch_body_final_literal", hlsl, "float4(3,3,3,3)");
++        put_word(prog, OPC(0x05) | END);
++        check_true("branch_END_no_payload", rsx_fp_program_size(prog, 16) == 16);
++        check_true("branch_END_no_constants", rsx_fp_collect_constants(prog, 16, &constants) == 0);
++        check_true("branch_END_decompile", rsx_fp_decompile(prog, 16, CTRL_32BIT, hlsl, sizeof hlsl) == 1);
++        /* Prepasses must see the same second instruction as the body. */
++        put_word(prog, OPC(0x05));
++        put_word(prog + 16, OPC(0x17) | OUTMASK_ALL | INSRC(4) | TEXU(4) | (1u << 21) | END);
++        put_word(prog + 20, T_INPUT | SWZ_IDENT | EXEC_ALWAYS);
++        check_true("branch_prepass_sees_final_texture", rsx_fp_texture_units(prog, 32) == (1u << 4));
++        check_true("branch_prepass_sees_bx2", rsx_fp_texture_bx2_units(prog, 32) == (1u << 4));
++        check_true("branch_texture_body_count", rsx_fp_decompile(prog, 32, CTRL_32BIT, hlsl, sizeof hlsl) == 2);
++        check("branch_texture_helper", hlsl, "float4 _rsx_expand_input(float4 v, uint mask, bool bx2)");
++    }
++    /* The last instruction and CONST are beyond the old backend's 4 KiB cap. */
++    {
++        u8 prog[4160] = {0};
++        char* large_hlsl = (char*)malloc(RSX_FP_HLSL_BUFFER_SIZE);
++        const u32 tail = sizeof prog - 32;
++        put_word(prog + tail, OPC(0x01) | OUTMASK_ALL | END);
++        put_word(prog + tail + 4, T_CONST | SWZ_IDENT | EXEC_ALWAYS);
++        for (int c = 0; c < 4; ++c) put_float(prog + tail + 16 + c * 4, 7.0f);
++        check_true("long_complete_size", rsx_fp_program_size(prog, sizeof prog) == sizeof prog);
++        check_true("long_4KiB_prefix_rejected", rsx_fp_program_size(prog, 4096) == 0);
++        check_true("long_complete_decompile", large_hlsl &&
++            rsx_fp_decompile(prog, sizeof prog, CTRL_32BIT, large_hlsl, RSX_FP_HLSL_BUFFER_SIZE) == 259);
++        if (large_hlsl) check("long_final_literal", large_hlsl, "float4(7,7,7,7)");
++        free(large_hlsl);
++    }
++
+     printf("\n===========================================\n");
+     printf("Results: %d passed, %d failed\n", g_pass, g_fail);
+     return g_fail ? 1 : 0;
 diff --git a/runtime/ppu/ppu_fs.cpp b/runtime/ppu/ppu_fs.cpp
 index 4d54b72..5e95b39 100644
 --- a/runtime/ppu/ppu_fs.cpp
@@ -2586,6 +3370,80 @@ index f076ef8..16d94e1 100644
      /* Lazily adopt PS3_VFS_ROOT if the root is still the default ".", so this
       * sys_fs layer points at the same place as the cellFs layer (ppu_vfs_root). */
      if (g_sys_fs_root[0] == '.' && g_sys_fs_root[1] == '\0') {
+diff --git a/tests/test_fp_snapshot.c b/tests/test_fp_snapshot.c
+new file mode 100644
+index 0000000..5d66d15
+--- /dev/null
++++ b/tests/test_fp_snapshot.c
+@@ -0,0 +1,68 @@
++/* CPU-only ownership and complete-program identity regression tests. */
++#include "rsx_fp_snapshot.h"
++#include <stdio.h>
++#include <string.h>
++
++#define CHECK(expr) do { if (!(expr)) { \
++    fprintf(stderr, "line %d: %s\n", __LINE__, #expr); return 1; \
++} } while (0)
++
++static void put_word(u8* p, u32 w)
++{
++    p[0] = (u8)(w >> 8); p[1] = (u8)w;
++    p[2] = (u8)(w >> 24); p[3] = (u8)(w >> 16);
++}
++
++int main(void)
++{
++    u8 source[65568] = {0};
++    u8 expected[4160];
++    const u32 size = sizeof expected;
++    const u32 tail = size - 32;
++    rsx_fp_snapshot *a, *b, *c;
++    put_word(source + tail, (1u << 24) | 1u); /* END MOV CONST */
++    put_word(source + tail + 4, 2u);
++    put_word(source + tail + 16, 0x3f800000u);
++    memcpy(expected, source, size);
++    CHECK(rsx_fp_snapshot_capture(NULL, sizeof source) == NULL);
++    CHECK(rsx_fp_snapshot_capture(source, 0) == NULL);
++    CHECK(rsx_fp_snapshot_capture(source, 4096) == NULL);
++    CHECK(rsx_fp_snapshot_capture(source, size - 1) == NULL);
++    a = rsx_fp_snapshot_capture(source, sizeof source);
++    CHECK(a && a->size == size && a->next == NULL);
++    CHECK(a->bytes != source && memcmp(a->bytes, expected, size) == 0);
++    b = rsx_fp_snapshot_capture(source, size);
++    CHECK(b && b->hash == a->hash && b->size == a->size);
++    source[tail + 16] ^= 0x40; /* Only a literal changed. */
++    c = rsx_fp_snapshot_capture(source, sizeof source);
++    CHECK(c && c->hash != a->hash && c->size == a->size);
++    CHECK(memcmp(a->bytes, expected, size) == 0);
++    CHECK(memcmp(c->bytes, a->bytes, size) != 0);
++    memset(source, 0xff, sizeof source);
++    CHECK(memcmp(b->bytes, expected, size) == 0);
++    a->next = b; b->next = c; /* Intrusive ownership belongs to caller. */
++    rsx_fp_snapshot_free(c); rsx_fp_snapshot_free(b); rsx_fp_snapshot_free(a);
++    rsx_fp_snapshot_free(NULL);
++
++    memset(source, 0, sizeof source);
++    CHECK(rsx_fp_snapshot_capture(source, sizeof source) == NULL); /* No END. */
++    put_word(source + 65536, 1u); /* END outside the 64 KiB limit. */
++    CHECK(rsx_fp_snapshot_capture(source, sizeof source) == NULL);
++    put_word(source + 65520, 1u);
++    put_word(source + 65524, 2u); /* END inside, CONST outside. */
++    CHECK(rsx_fp_snapshot_capture(source, sizeof source) == NULL);
++    put_word(source + 65524, 0u);
++    a = rsx_fp_snapshot_capture(source, sizeof source);
++    CHECK(a && a->size == 65536u); /* Inclusive exact limit. */
++    rsx_fp_snapshot_free(a);
++    memset(source, 0, sizeof source);
++    put_word(source, 1u);
++    put_word(source + 4, 2u);
++    put_word(source + 8, 0x80000002u); /* Branch: no inline CONST. */
++    a = rsx_fp_snapshot_capture(source, 16);
++    CHECK(a && a->size == 16);
++    CHECK(a->hash == 0x8baeb5dc8fd0d0faull); /* Independent full-byte/length vector. */
++    rsx_fp_snapshot_free(a);
++    puts("fragment program snapshots: passed");
++    return 0;
++}
 diff --git a/tools/gen_hle_nids.py b/tools/gen_hle_nids.py
 index ac13929..c288642 100644
 --- a/tools/gen_hle_nids.py

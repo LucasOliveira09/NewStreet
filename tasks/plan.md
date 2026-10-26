@@ -21,17 +21,18 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Corrigir contratos de programas de fragmento e texturas
+## 1. Banco real de16texturas e retirement de recursos
 
-- Reprodução real: 16 shaders com limite4KiB semEND geram HLSL inválido;
-  samplers root0..3 insuficientes para unidade4 pedida por outro shader.
-- Evidências privadas no checkpoint JSON e diretório shaders do último run.
-- Usar span limitado/terminado (SDK eng/live jálimitam64KiB), validar truncamentos.
-- Tornar hash/constantes/HLSL coerentes; não confundir APIbuffered atual comCBlegado.
-- Ampliar unidades de textura para16 sem alterar MRTs/vetoresfloat4 inadvertidamente.
-- Etapas pequenas, fixtures autorais e revisão antes de novo ensaio nativo.
-- Fronteiras FIFO járesolvidas; 48 Boot/146 projeto/16 runtime passaram.
-- Não há menu navegável ou gameplay validado; continuar até os próximos marcos.
+- FP completo/snapshot por draw concluído; zerocompilefail no ensaio180s,
+  programas5024/5472bytes compilaram. Literal/hash/constantes agora coerentes.
+- Falha atual: sampler4 fora da root signature. Mapear16unidades em estado,
+  SRVs/samplers, cubemaps, heaps, strides e descritores ausentes.
+- Espaços atuais se sobrepõem (VPcache1..96, RT5..20, draw32+); tornar disjuntos
+  e reservar bancos de descritores por frame com testes de exclusividade/limites.
+- ID3D12Resource foi destruído antes Execute (ID921) já no baseline. Retirar
+  texturas/RTs apenas após fence de submissão, sem aguardar trabalho ainda não enviado.
+- 18 runtime/48 Boot/146 projeto passaram; revisão FP sem pendências.
+- Menu navegável e gameplay ainda não validados; continuar até próximos marcos.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Exact shader failures reproduced: truncated4KiB input accepted; sampler4 outside D3D12 root signature",
+  "stage": "Complete draw-time FP snapshots compile beyond4KiB; sampler bank and texture resource retirement remain",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": "timeout",
-  "logs": "private\\analysis\\runs\\1793044165569337700",
-  "elapsed_seconds": 180.218,
+  "logs": "private\\analysis\\runs\\1793045363092741200",
+  "elapsed_seconds": 180.176,
   "block": null,
   "menu_navigable_validated": false,
   "gameplay_tested": false,
@@ -1486,7 +1486,7 @@
     "profile_files_unchanged": 5,
     "native_result": "timeout_without_strict_fault",
     "menu_validated": false,
-    "runtime_tests": 16
+    "runtime_tests": 18
   },
   "capture_blocker": {
     "previous_live_state": "private/analysis/frame-clock-live-render-state.json",
@@ -1511,7 +1511,7 @@
       "D3DCompile X3004 _rsx_expand_input undeclared",
       "root signature missing sampler register4"
     ],
-    "native_diagnostics": "private/analysis/runs/1793044165569337700/shaders",
+    "native_diagnostics": "private/analysis/runs/1793045363092741200/shaders",
     "offline_reproduction": "private/analysis/runs/1793044165569337700/shaders/reproduction.json",
     "captured_compile_failures": 16,
     "captured_pipeline_failures": 16,
@@ -1520,6 +1520,34 @@
     "before_after_same_bytes": true,
     "mutation_not_needed_to_reproduce": true,
     "full_program_span_pending": true,
-    "menu_or_scene_identity_validated": false
+    "menu_or_scene_identity_validated": false,
+    "sampler4_root_signature_still_missing": true,
+    "resource_lifetime_error_D3D12_921": true,
+    "resource_lifetime_error_present_before_snapshot_change": true
+  },
+  "fp_snapshot": {
+    "max_program_bytes": 65536,
+    "complete_END_and_CONST_required": true,
+    "branches_do_not_consume_CONST": true,
+    "owned_at_draw_decode": true,
+    "literal_HLSL_hash_includes_constants": true,
+    "cache_identity_verified_by_bytes": true,
+    "CPU_arena_released_after_consumption": true,
+    "evicted_PSO_release_requires_dedicated_submission_fence": true,
+    "authored_CTests": [
+      "fp_snapshot",
+      "fp_decompiler"
+    ],
+    "native_compile_failures_captured": 0,
+    "native_pipeline_failures_captured": 16,
+    "pipeline_program_sizes": [
+      1392,
+      3232,
+      3824,
+      5024,
+      5472
+    ],
+    "native_compiles_beyond4KiB": 2,
+    "menu_or_gameplay_validated": false
   }
 }
