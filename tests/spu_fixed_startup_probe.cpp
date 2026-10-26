@@ -24,6 +24,10 @@ ORIGINAL_CTOR(00000738);
 extern "C" void fifa_replay_matrixload_spu_func_00003978(spu_context*);
 extern "C" void fifa_fifarna_batchplayer_pass0_spu_func_00015830(spu_context*);
 extern "C" void fifa_fifarna_batchplayer_pass0_spu_func_00001758(spu_context*);
+extern "C" void fifa_railtracks_pathestimates_spu_func_0002A2B8(spu_context*);
+extern "C" void fifa_railtracks_pathestimates_spu_func_00028488(spu_context*);
+extern "C" void fifa_railtracks_pathestimates_spu_func_00022800(spu_context*);
+extern "C" void fifa_railtracks_pathestimates_spu_func_00020E38(spu_context*);
 namespace {
 constexpr int image_id = 0x256ac370;
 constexpr uint32_t constructors[] = {
@@ -39,8 +43,30 @@ const native_fn originals[] = {
 };
 unsigned calls;
 bool ordered, zeroed, stopped;
+uint32_t expected_stop_code, expected_pc_start, expected_pc_end;
 spu_context* active;
 decltype(spu_missing_execution_hook) strict_missing;
+constexpr uint32_t path_constructors[] = {0x2a2b8, 0x28488, 0x22800, 0x20e38};
+const native_fn path_originals[] = {
+    fifa_railtracks_pathestimates_spu_func_0002A2B8,
+    fifa_railtracks_pathestimates_spu_func_00028488,
+    fifa_railtracks_pathestimates_spu_func_00022800,
+    fifa_railtracks_pathestimates_spu_func_00020E38
+};
+
+void observe_path_constructor(spu_context* ctx) {
+    for (unsigned i = 0; i < 4; ++i) {
+        if (ctx->pc != path_constructors[i]) continue;
+        if (!calls)
+            zeroed = std::all_of(ctx->ls + 0x2e180, ctx->ls + 0x34370,
+                                 [](uint8_t value) { return value == 0; });
+        ordered = ordered && calls == i;
+        ++calls;
+        path_originals[i](ctx);
+        return;
+    }
+    std::abort();
+}
 
 void observe_constructor(spu_context* ctx) {
     for (unsigned i = 0; i < 10; ++i) {
@@ -78,12 +104,12 @@ void observe_batchplayer_constructor(spu_context* ctx) {
 }
 
 void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
-    // This test-only caller sets r125=1: the original CRT stops before main.
-    // Only that exact diagnostic is captured; every other fault stays strict.
+    // Capture only the exact original stop selected by this test-only caller.
+    // Image, PC range and stop code must match; every other fault stays strict.
     if (!std::strcmp(kind, "spu-stop") &&
-        value == ((uint64_t(active->image_id) << 32) | 0x3fff) &&
-        active->pc >= 0x184 && active->pc < 0x1a8 &&
-        active->stop_code == 0x3fff && active->status == SPU_STATUS_STOPPED_BY_STOP) {
+        value == ((uint64_t(active->image_id) << 32) | expected_stop_code) &&
+        active->pc >= expected_pc_start && active->pc < expected_pc_end &&
+        active->stop_code == expected_stop_code && active->status == SPU_STATUS_STOPPED_BY_STOP) {
         stopped = true;
         spu_halt(active);
         return;
@@ -91,18 +117,26 @@ void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
     strict_missing(kind, value, ppu);
 }
 
-int run_to_original_crt_stop(spu_context& ctx) {
+int run_to_fixture_stop(spu_context& ctx, uint32_t entry, uint32_t stop_code,
+                        uint32_t pc_start, uint32_t pc_end) {
     active = &ctx;
     stopped = false;
-    ctx.gpr[1]._u32[0] = 0x3f000;
-    ctx.gpr[125]._u32[0] = 1; // Authored harness input; never used in game execution.
-    ctx.pc = 0xb0;
+    expected_stop_code = stop_code;
+    expected_pc_start = pc_start;
+    expected_pc_end = pc_end;
+    ctx.pc = entry;
     ctx.status = SPU_STATUS_RUNNING;
     strict_missing = spu_missing_execution_hook;
     spu_missing_execution_hook = observe_original_stop;
     int halted = spu_run_with_halt(spu_indirect_branch, &ctx);
     spu_missing_execution_hook = strict_missing;
     return halted;
+}
+
+int run_to_original_crt_stop(spu_context& ctx) {
+    ctx.gpr[1]._u32[0] = 0x3f000;
+    ctx.gpr[125]._u32[0] = 1; // Authored harness input; never used in game execution.
+    return run_to_fixture_stop(ctx, 0xb0, 0x3fff, 0x184, 0x1a8);
 }
 }
 
@@ -260,9 +294,51 @@ extern "C" int fifa_test_spu_batchplayer_startup(const char* path) {
                 "\"original_stop\":16383,\"main_executed\":false,\"algorithm_validated\":false}\n");
     return 0;
 }
+extern "C" int fifa_test_spu_pathestimates_startup(const char* path, bool exit_tail) {
+    std::vector<uint8_t> blob(0x2e100);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    spu_begin_image(0x2baccdc7);
+    for (auto address : path_constructors) spu_register_function(address, observe_path_constructor);
+    spu_begin_image(0);
+    fifa_install_spu_policy();
+    static spu_context ctx;
+    spu_context_init(&ctx, 81);
+    ctx.image_id = 0x2baccdc7;
+    std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+    std::memcpy(ctx.ls + 0x80, blob.data(), blob.size());
+    for (unsigned i = 0; i < 4; ++i)
+        if (spu_ls_read32(&ctx, 0x2e10c - 4 * i) != path_constructors[i] ||
+            spu_lifted_lookup(&ctx, path_constructors[i]) != observe_path_constructor) return 77;
+    if (!spu_lifted_lookup(&ctx, 0xb0)) return 77;
+    calls = 0;
+    zeroed = false;
+    ordered = true;
+    if (!run_to_original_crt_stop(ctx) || !stopped || calls != 4 || !zeroed || !ordered) return 5;
+    if (std::memcmp(ctx.ls + 0x80, blob.data(), 0x2cacc - 0x80)) return 6;
+    for (unsigned i = 0; i < 16; ++i)
+        if (ctx.ls[0x70 + i] != 0xa5 || ctx.ls[0x34370 + i] != 0xa5) return 7;
+    if (exit_tail) {
+        if (!run_to_fixture_stop(ctx, 0x2ca88, 0, 0x2ca88, 0x2cacc) || !stopped) return 10;
+        if (std::memcmp(ctx.ls + 0x80, blob.data(), 0x2cacc - 0x80)) return 6;
+        std::printf("{\"exit_tail_executed\":true,\"original_stop\":0,"
+                    "\"main_executed\":false,\"code_preserved\":true}\n");
+        return 0;
+    }
+    std::printf("{\"original_constructors\":4,\"reverse_order\":true,\"bss_bytes\":25072,"
+                "\"bss_zero_before_constructors\":true,\"code_preserved\":true,"
+                "\"bss_guards_preserved\":true,\"original_stop\":16383,"
+                "\"main_executed\":false,\"algorithm_validated\":false}\n");
+    return 0;
+}
 #else
 extern "C" int fifa_test_spu_fixed_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_matrixsave_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_matrixload_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_batchplayer_startup(const char*) { return 77; }
+extern "C" int fifa_test_spu_pathestimates_startup(const char*, bool) { return 77; }
 #endif

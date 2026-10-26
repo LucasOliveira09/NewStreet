@@ -12,16 +12,17 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Replay_matrixsave: 78 entradas, CRT vazio e guardas validados.
 - Replay_matrixload: 189 entradas, BSS/construtor e constantes validados; entrada real.
 - FIFARNA batchplayer pass0: 477 entradas, BSS448 e dois construtores validados; entrada real.
-- 133 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Railtracks path estimates: 1.769 entradas, CRT/BSS25072/4ctors e cauda stop0 validados; entrada real.
+- 135 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Revisar e traduzir railtracks_calculatepathestimates
+## 1. Traduzir o plugin PIC user music arbiter
 
-- Fonte 0x205ed80, base LS 0x80, entrada 0xb0, tamanho 0x2e100 e SHA no checkpoint.
-- Fonte confere integralmente com dois snapshots completos; nome na fronteira.
-- Imagem/disassembly privados já extraídos, sem análise semântica completa.
-- Revisar código/dados, BSS, tabela de construtores e entradas indiretas do CRT.
-- Aceite: tradução completa dentro de limites revisados; fixture de inicialização
-  pertinente e entrada real no próximo ensaio estrito. Não deduzir função só pelo nome.
+- Fonte 0x2004900, tamanho0x4c0, base observada1b780/PC1b7b0; SHA no checkpoint.
+- Cabeçalho PIC modo1: usar base canônica0 e entrada relativa0x30.
+- Init configura callback interno e recebe callback externo por cadeia de parâmetros.
+- Aceite: tradução completa em limites revisados, init em quatro bases e fixture
+  de processamento pertinente, sem substituir o código do plugin por um resultado.
+- Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

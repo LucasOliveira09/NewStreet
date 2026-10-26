@@ -43,6 +43,9 @@ só se aplicam a pedidos de conteúdo. Responda ao Lucas em português brasileir
 - Um teste de construtores não demonstra o algoritmo inteiro nem gameplay.
 - Nome inferido é hipótese. Vincule identificação SPU a bytes, limites e hashes;
   não use o nome Replay atribuído indevidamente à fonte `0x1ee9580`.
+- Ao definir code_end, confira os PCs de retorno de chamadas: um callee pode
+  retornar para um stop original na fronteira. Preserve esse fluxo sem admitir
+  constantes ou tabelas como instruções; teste a cauda quando houver dúvida.
 - ISO, ELF, assets, código derivado do jogo, binários e capturas permanecem em
   áreas ignoradas. Nunca sobrescreva saves privados para facilitar um teste.
 - Dependência fixada em `toolchain.lock.json`; mudanças autorais no SDK precisam

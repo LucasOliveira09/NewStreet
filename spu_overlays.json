@@ -1936,6 +1936,27 @@
         "0x15830",
         "0x15af0"
       ]
+    },
+    {
+      "name": "railtracks_pathestimates",
+      "source_ea": "0x205ed80",
+      "size": "0x2e100",
+      "sha256": "baccdc7f601823d404686b79fadeab5292015834af196101f3f99053493d1f76",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x2cacc",
+      "extra_entries": [
+        "0x118",
+        "0x154",
+        "0x20e38",
+        "0x22800",
+        "0x28488",
+        "0x2a2b8",
+        "0x20e28",
+        "0x2ca78",
+        "0x2cac8"
+      ]
     }
   ]
 }
