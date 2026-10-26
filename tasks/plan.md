@@ -21,13 +21,14 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Corrigir contador compartilhado de frames/capturas
+## 1. Reproduzir shaders rejeitados após carregamento
 
-- NP message count offline concluído; 360s sem parada estrita, menu não validado.
-- Callback d3d12_present zera frame_count para FPS; captura usa o mesmo contador.
-- Manter frame_count monotônico e usar delta separado no cálculo do FPS.
-- Validar capturas posteriores a4081 e inspecionar estado real do jogo.
-- Continuar rumo a menu/partida, sem confundir timeout com sucesso.
+- Fronteiras FIFO corrigidas/testadas; 73 capturas, buffers livres entre frames.
+- LOADING visível, depois backbuffer preto com147ops em frame8041.
+- Erros reais: `_rsx_expand_input` ausente no HLSL e PSO E_INVALIDARG80070057.
+- Capturar fontes privadas e reproduzir com compilador, antes de alterar a hipótese.
+- 48 Boot/146 projeto/16 runtime passaram; patch SDK reproduzível/revisado.
+- Não há menu navegável ou gameplay validado; continuar até os próximos marcos.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

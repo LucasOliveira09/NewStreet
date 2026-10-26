@@ -1137,10 +1137,50 @@ index 53bbaf8..bd99d02 100644
                             u32 errDialog,
                             CellSaveDataSetBuf* setBuf,
 diff --git a/libs/video/cellGcmSys.c b/libs/video/cellGcmSys.c
-index efad9b9..a4131ee 100644
+index efad9b9..cf162a6 100644
 --- a/libs/video/cellGcmSys.c
 +++ b/libs/video/cellGcmSys.c
-@@ -888,6 +888,18 @@ unsigned long long ps3_ms_now(void)
+@@ -114,6 +114,24 @@ static u32 s_current_display_buffer_id = 0;
+  * presenting on a raw flip-count change raced the drain and showed empty or
+  * mixed batches (wave: black flashes, layout flicker). */
+ static volatile int s_flip_pending = 0;
++/* Hosts which present completed batches must consume each decoded boundary
++ * before the walker appends commands from the next frame. Opt-in: legacy
++ * hosts retain their existing backlog-recovery behavior. */
++static int s_exact_frame_boundaries = 0;
++static int s_fifo_frame_ready = 0; /* renderer/FIFO-consumer thread owned */
++
++void ps3recomp_gcm_fifo_set_frame_boundaries(int enabled)
++{
++    s_exact_frame_boundaries = enabled != 0;
++    if (!enabled) s_fifo_frame_ready = 0;
++}
++
++int ps3recomp_gcm_fifo_frame_boundaries_enabled(void)
++{
++    return s_exact_frame_boundaries;
++}
++
++int cellGcm_take_flip_pending_synced(void);
+ /* A flip _cellGcmSetFlipCommand queued in the FIFO: | bufferId, bit 8 = ours. */
+ #define GCM_FLIP_MARKER 0xFEAD0100u
+ /* Flips queued into the command stream by gcm_flip_into_fifo, and how many of
+@@ -148,8 +166,14 @@ static int gcm_flip_executed_take(void)
+ 
+ int cellGcm_take_flip_pending(void)
+ {
++    if (!s_flip_pending) return 0;
++    /* A direct CPU request has no decoded marker yet. Wait until all queued
++     * commands have been consumed; a request alone cannot authorize a present. */
++    if (s_exact_frame_boundaries && !s_fifo_frame_ready)
++        return cellGcm_take_flip_pending_synced();
+     int v = s_flip_pending;
+     s_flip_pending = 0;
++    s_fifo_frame_ready = 0;
+     return v;
+ }
+ 
+@@ -888,6 +912,18 @@ unsigned long long ps3_ms_now(void)
  static u32 s_sema_offset = 0;   /* NV406E semaphore offset (label window) */
  static int s_sema_blocked_pass = 0;   /* this drain stopped on a semaphore acquire */
  static int s_park_pass = 0;           /* this drain stopped on a self-JUMP park */
@@ -1159,7 +1199,7 @@ index efad9b9..a4131ee 100644
  /* Backlog past which the drain stops honouring one-flip-per-tick and
   * catches up instead. Sized well above a frame's command list so a
   * title that keeps up never sees this path. */
-@@ -1517,6 +1529,7 @@ static u32 gcm_spu_block_for_put(u32 put)
+@@ -1517,6 +1553,7 @@ static u32 gcm_spu_block_for_put(u32 put)
   * is not, it deadlocks the title. Sweep the skipped range first. */
  static void gcm_fifo_resync_why(const char* why, u32* getoff, u32 put)
  {
@@ -1167,7 +1207,17 @@ index efad9b9..a4131ee 100644
      static int n = 0;
      if (PS3_LOG_FIRST(n, 8))
          fprintf(stderr, "[cellGcmSys] FIFO resync (%s) 0x%08X -> put 0x%08X\n",
-@@ -1849,6 +1862,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -1728,6 +1765,9 @@ static int gcm_get_eq_put(void)
+ 
+ static void gcm_rsx_process_fifo_unlocked(void)
+ {
++    /* A second drain must not mix the next frame into a batch whose marker
++     * the host has not consumed yet, even when substantial backlog remains. */
++    if (s_exact_frame_boundaries && s_fifo_frame_ready) return;
+     { static unsigned _n = 0; static unsigned long long _t0 = 0;
+       extern unsigned long long ps3_ms_now(void);
+       _n++;
+@@ -1849,6 +1889,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
      while (s_fifo_getoff != put && budget-- > 0) {
          u32 ea = gcm_io2ea(s_fifo_getoff);
          if (!ea) {
@@ -1175,7 +1225,19 @@ index efad9b9..a4131ee 100644
              /* get is sitting on an IO offset with no mapping -- the title
               * branched into a region and then unmapped it, or the offset was
               * never valid. Breaking silently (what this did) leaves get stuck
-@@ -1996,7 +2010,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -1960,6 +2001,11 @@ static void gcm_rsx_process_fifo_unlocked(void)
+              * 3 MB ring at boot, wraps, and a walker stopping at every flip
+              * then crawled ~1 KB a tick while the title wrote over the
+              * commands ahead of it. */
++            if (s_exact_frame_boundaries && s_flip_pending) {
++                s_fifo_frame_ready = 1;
++                why = "frame-boundary";
++                break;
++            }
+             if (gcm_fifo_backlog(put, s_fifo_getoff) < GCM_FIFO_CATCHUP_BYTES)
+                 { why = "flip"; break; }
+             continue;
+@@ -1996,7 +2042,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
                     * patch time to arrive, and resync only for a park that
                     * has stood with the same put for longer than any title
                     * takes between the two stores. */
@@ -1184,7 +1246,7 @@ index efad9b9..a4131ee 100644
                        extern unsigned long long ps3_ms_now(void);
                        static u32 park_off, park_put;
                        static unsigned long long park_since;
-@@ -2111,7 +2125,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -2111,7 +2157,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
              static int blk = -1; static unsigned blk_ms;
              if (blk < 0) { const char* e = getenv("GCM_SEMA_ACQUIRE"); blk = e ? atoi(e) : 0;
                             const char* t = getenv("GCM_SEMA_ACQUIRE_MS"); blk_ms = t ? (unsigned)atoi(t) : 0; }
@@ -1193,7 +1255,7 @@ index efad9b9..a4131ee 100644
                  /* GCM_SEMA_ACQUIRE_MS=<ms>: a bounded wait. The hardware waits
                   * for ever; an emulated producer that never comes (a boot-time
                   * label nobody services yet) would wedge the drain, so after
-@@ -2122,7 +2136,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -2122,7 +2168,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
                  extern unsigned long long ps3_ms_now(void);
                  const unsigned long long now = ps3_ms_now();
                  if (!b_t0 || b_off != s_sema_offset || b_val != v) { b_off = s_sema_offset; b_val = v; b_t0 = now; }
@@ -1202,7 +1264,7 @@ index efad9b9..a4131ee 100644
                      if (PS3_FT_ON() && !s_ft_sema_t0) s_ft_sema_t0 = ps3_ft_now();
                      sem_blocked = 1; break;
                  }
-@@ -2326,6 +2340,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -2326,6 +2372,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
          }
          { static int _uw = 0; if (PS3_LOG_FIRST(_uw, 16) && getenv("RTT_DUMP"))
              fprintf(stderr, "[FIFOUW] unknown word 0x%08X at getoff 0x%X\n", w, s_fifo_getoff); }
@@ -1210,7 +1272,7 @@ index efad9b9..a4131ee 100644
          s_fifo_getoff += 4;                    /* unknown word: skip */
      }
  
-@@ -2427,7 +2442,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
+@@ -2427,7 +2474,7 @@ static void gcm_rsx_process_fifo_unlocked(void)
       *
       * ponytail: append the JUMP at `current` the way the SDK's own callback
       * does, rather than tracking a second copy of the ring's geometry. */
@@ -1220,7 +1282,7 @@ index efad9b9..a4131ee 100644
          u32 begin = ctx ? vm_read32(ctx + 0x0) : 0;
          u32 end   = ctx ? vm_read32(ctx + 0x4) : 0;
 diff --git a/libs/video/cellGcmSys.h b/libs/video/cellGcmSys.h
-index eab83e1..30ce48f 100644
+index eab83e1..d12276e 100644
 --- a/libs/video/cellGcmSys.h
 +++ b/libs/video/cellGcmSys.h
 @@ -98,6 +98,12 @@ typedef struct CellGcmControl {
@@ -1236,8 +1298,19 @@ index eab83e1..30ce48f 100644
  /* GCM context data — the game reads/writes this to submit RSX commands.
   * On PS3, gCellGcmCurrentContext points to one of these.
   * All pointer fields are guest addresses (u32) in the recomp.
+@@ -446,6 +452,10 @@ void cellGcmSetUserCommand(u32 cmd);
+ /* Host FIFO consumer: defer the retired command to ppu_gcm_pump. */
+ void cellGcmQueueUserCommand(u32 cmd);
+ 
++/* Host renderer: stop at each decoded FIFO flip until presentation consumes it. */
++void ps3recomp_gcm_fifo_set_frame_boundaries(int enabled);
++int ps3recomp_gcm_fifo_frame_boundaries_enabled(void);
++
+ /* Invalidate tile */
+ s32 cellGcmSetInvalidateTile(u8 index);
+ 
 diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
-index 0ecca8e..ebfb103 100644
+index 0ecca8e..a5046d6 100644
 --- a/libs/video/rsx_d3d12_backend.c
 +++ b/libs/video/rsx_d3d12_backend.c
 @@ -22,6 +22,7 @@
@@ -1257,7 +1330,15 @@ index 0ecca8e..ebfb103 100644
      int cube;           /* resource is a 6-face cube, sampled as TextureCube */
      u32 key;            /* the ORIGINAL bound offset -- the cache lookup key.
                           * off is the RESOLVED source after TEX_OFF_BIAS/TEX_REMAP
-@@ -2455,22 +2456,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
+@@ -349,6 +350,7 @@ typedef struct {
+     /* Stats */
+     u64 frame_count;
+     u64 last_fps_time;
++    u64 last_fps_frame_count;
+     u32 fps;
+ 
+     int initialized;
+@@ -2455,22 +2457,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
   * NV40 layout (matches RPCS3 convert_linear_swizzle). POT dims only, which is
   * what the hardware requires for swizzled textures. */
  
@@ -1280,7 +1361,7 @@ index 0ecca8e..ebfb103 100644
  static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips)
  {
      /* TEX_BUDGET=<n>: cap texture uploads per frame. Off by default -- it was
-@@ -2522,11 +2507,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2522,11 +2508,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      u32 blkrow  = dxt ? tl.row_bytes : 0;
      u32 blkrows = dxt ? tl.rows      : 0;
      const u32 key_off = off;         /* lookup key: the offset as bound */
@@ -1295,7 +1376,7 @@ index 0ecca8e..ebfb103 100644
      int slot = -1, freeslot = -1;
      for (int i = 0; i < VP_TEX_SLOTS; i++) {
          VPTexSlot* c = &s_d3d.vp_tex[i];
-@@ -2541,7 +2524,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2541,7 +2525,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
               * changed. Most of this scene's textures are static, and converting
               * every one of them every frame was ~70% of the frame's CPU time. */
              u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
@@ -1304,7 +1385,7 @@ index 0ecca8e..ebfb103 100644
              if (cs == c->csum) { c->used = 1; return i; }
              slot = i; break;                      /* stale: fall through and redo */
          }
-@@ -2729,6 +2712,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2729,6 +2713,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      }
      const u32 _nfaces     = cube ? 6u : 1u;
      const u32 _off0 = off; u8* const _map0 = (u8*)mapped;
@@ -1317,7 +1398,7 @@ index 0ecca8e..ebfb103 100644
      for (u32 _f = 0; _f < _nfaces; _f++) {
      off    = _off0 + _f * _face_bytes;
      if (cube && getenv("CUBEDBG")) { u32 _s=0; const u8* _p = vm_base + off;
-@@ -3058,8 +3047,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -3058,8 +3048,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
  
      t->off = off; t->key = key_off; t->w = w; t->h = h; t->fmt = fmt;
      t->cube = cube; t->used = 1;
@@ -1327,6 +1408,43 @@ index 0ecca8e..ebfb103 100644
      #undef TEX_CSUM
      return slot;
  }
+@@ -5209,9 +5198,12 @@ static void d3d12_present(void* ud, u32 buffer_id)
+     /* FPS tracking */
+     ULONGLONG now = GetTickCount64();
+     if (now - s_d3d.last_fps_time >= 1000) {
+-        s_d3d.fps = (u32)s_d3d.frame_count; /* rough estimate */
++        /* frame_count also gates captures, readbacks and frame-local caches.
++         * Keep it monotonic when FIFO flips start invoking this legacy callback. */
++        s_d3d.fps = (u32)((s_d3d.frame_count - s_d3d.last_fps_frame_count) * 1000 /
++                          (now - s_d3d.last_fps_time));
++        s_d3d.last_fps_frame_count = s_d3d.frame_count;
+         s_d3d.last_fps_time = now;
+-        s_d3d.frame_count = 0;
+     }
+ }
+ 
+@@ -6754,13 +6746,14 @@ void rsx_d3d12_backend_present(void)
+                s_d3d.draw_count, s_dbg_clears_since_present, s_clear_presents);
+     s_dbg_clears_since_present = 0;
+ 
+-    /* Once frame-boundary presents are active (d3d12_clear presents each
+-     * completed frame as the drain crosses into the next one), the ticker
+-     * present would only ever show the partially-accumulated NEXT frame --
+-     * that partial present right after the FIFO ring recycle was the visible
+-     * blink. Keep the ticker present solely as the boot-time fallback (before
+-     * the first framed clear arrives). */
+-    if (s_clear_presents > 0)
++    /* A clear may already have submitted this frame. Do not present an empty
++     * duplicate in that case. A later frame can omit display clears entirely;
++     * its draws still need submission at the decoded FIFO flip boundary.
++     * Suppressing every flip after the first clear stranded those draws until
++     * both the draw-record array and vertex upload buffer were exhausted. */
++    extern int ps3recomp_gcm_fifo_frame_boundaries_enabled(void);
++    if (s_clear_presents > 0 &&
++        (!ps3recomp_gcm_fifo_frame_boundaries_enabled() || s_d3d.draw_count == 0))
+         return;
+ 
+     /* Same display gate as d3d12_present: a batch of offscreen pass work only
 diff --git a/libs/video/rsx_texture_fingerprint.h b/libs/video/rsx_texture_fingerprint.h
 new file mode 100644
 index 0000000..0e6b282

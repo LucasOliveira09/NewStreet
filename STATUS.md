@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: consulta NP offline e diagnóstico de capturas.
+Branch: codex/ps3-native-bootstrap. Incremento atual: fronteiras FIFO reais e shaders após carregamento.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -17,12 +17,12 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/np-message-native-run.json.
-- Logs: private/analysis/runs/1793041586143459600.
-- Timeout aos **360,178 s**, sem nova parada estrita; não equivale a jogo completo.
-- Consulta de mensagens NP offline atravessada; buffers preservados em erro.
-- 46 testes Boot, 144 do projeto e 65 amostras de assets passaram.
-- 16 runtime CTest são registro anterior; runtime não foi alterado neste incremento.
+- Resultado: private/analysis/flip-boundary-native-run.json.
+- Logs: private/analysis/runs/1793043026655581100.
+- Timeout aos **360,185 s**, sem nova parada estrita; não equivale a jogo completo.
+- 73 capturas; LOADING observado, depois backbuffer preto com erros de shaders.
+- 48 testes Boot, 146 do projeto e 65 amostras de assets passaram.
+- 16 testes runtime CTest passaram após atualização do patch do SDK.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
 
 ## Incrementos recentes validados
@@ -49,14 +49,16 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Bloqueio atual
 
-- Capturas pararam em frame_count4081 (~70s), embora draws/flips continuassem.
-- Callback d3d12_present zera frame_count a cada segundo para calcular FPS;
-  o mesmo contador determina o ponto de captura3001 e não deveria retroceder.
-- Corrigir a contabilidade sem alterar renderização, depois inspecionar imagens
-  posteriores para avaliar menu/estado de carregamento de forma confiável.
-- Consulta NP: NIDecd503de, erros init/tipo/null/offline e domínioa66x testados.
-  Contrato por referência RPCS3 com TODOs upstream; sem validação em hardware.
-- Route: 64 entradas PIC, entryd8, init4bases e entrada real confirmados.
+- Fila GPU corrigida: frame5568 com draws0/upload0, antes4186/draws2048/upload96MiB.
+- Fronteiras FIFO explícitas: backlog não cruza marker; segundo drain aguarda
+  apresentação. Flip direto aguarda GET==PUT. Opt-in preserva outros hosts.
+- Capturas continuaram: 73 imagens. LOADING em frame16, tela preta em frame42
+  (frame_count8041, 147 operações). Identidade de menu/cena ainda não comprovada.
+- D3DCompile: `_rsx_expand_input` não declarado; há PSO E_INVALIDARG80070057.
+- Próxima ação: capturar shader/código HLSL privado e reproduzir a falha;
+  investigar seleção de helpers, limites e layout de pipelines por evidência.
+- Correção do contador FPS preservada, mas não era a causa observada do bloqueio.
+- 48 Boot/146 projeto/16 runtime passaram; revisão independente sem pendências.
 
 ## Retomada e comandos
 

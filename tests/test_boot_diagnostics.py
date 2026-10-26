@@ -263,6 +263,21 @@ class BootDiagnosticsTests(unittest.TestCase):
                     self.assertEqual(observed, dict(entries=4 if populated else 2,
                                                     eof_bytes=0, first_eof=True, repeated_eof=True))
 
+    def test_fifo_frames_wait_for_presentation_even_with_backlog(self):
+        result = subprocess.run([str(BOOT), '--test-rsx-fifo', 'frame-markers'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(first_get=20, second_untouched=True, held=True,
+                              first_ready=1, second_get=40, second_ready=1, label=9))
+
+    def test_direct_flip_waits_for_queued_commands(self):
+        result = subprocess.run([str(BOOT), '--test-rsx-fifo', 'direct-frame'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]),
+                         dict(before_drain=0, after_drain=1, final_get=16, label=7))
+
     def test_np_message_count_preserves_outputs_and_orders_offline_errors(self):
         env = os.environ.copy()
         env.pop('PS3_NET_ONLINE', None)

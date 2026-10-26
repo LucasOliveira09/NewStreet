@@ -20,6 +20,7 @@ int cellGcm_take_flip_pending(void);
 void cellGcm_rsx_process_fifo(void);
 void cellGcm_fifo_kick_wait(unsigned);
 void ps3recomp_gcm_fifo_set_fault_handler(void (*)(const char*, uint32_t, uint32_t));
+void ps3recomp_gcm_fifo_set_frame_boundaries(int);
 }
 
 static std::atomic<bool> started{false};
@@ -29,6 +30,7 @@ static void fifo_fault(const char* reason, uint32_t get, uint32_t put) {
 }
 extern "C" void fifa_install_fifo_policy(void) {
     ps3recomp_gcm_fifo_set_fault_handler(fifo_fault);
+    ps3recomp_gcm_fifo_set_frame_boundaries(1);
 }
 static HANDLE ready = nullptr;
 static uint64_t guest_flips = 0; // Renderer-thread owned; no empty-window presents counted.
