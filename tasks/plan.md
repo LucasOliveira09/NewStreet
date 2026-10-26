@@ -1094,3 +1094,42 @@ SHA f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b,
 zero diferenças contra o snapshot. A entrada de topologia está confirmada;
 não se afirma conclusão de todas as tarefas/algoritmos concorrentes.
 Menu e partida continuam pendentes.
+
+
+## Módulo railtracks_movetotarget em integração (2026-10-25)
+
+Blob identificado integralmente: origem 0x2034680, LS 0x80, 0x2a6a0 bytes,
+SHA f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b.
+A análise não usou o último bi r0 como fim do código: há retornos condicionais
+e rotinas de saída depois de 0x28f58. O limite revisado é 0x29080, antes das
+constantes. A BSS é 0x2a720..0x2f770 e o salto calculado do CRT entra em 0x140.
+A tabela 0x2a6a0..0x2a6ac contém quatro construtores: 0x1d390, 0x1edb0,
+0x24a38, 0x26868; a execução percorre a ordem inversa. Destinos explícitos
+no manifesto preservam a entrada original e a checagem estrita.
+A tradução gerou 1571 entradas, sem instruções nem chamadas diretas pendentes.
+
+O runner de construtores foi reaproveitado, preservando a CLI de topologia,
+e ganhou uma CLI separada para Railtracks. O teste novo falhou antes da nova
+CLI/tradução; os construtores anteriores continuaram passando. O aceite do
+novo teste é retornar dos quatro construtores sem modificar cabeçalho/código;
+isso não valida o algoritmo de movimentação nem substitui o main do jogo.
+
+
+Validação: FullGame compilou; quatro construtores de Railtracks e sete de
+topologia passaram, preservando código. 42 testes de boot e 93 do projeto
+passaram. Ensaio railtracks-native (1792982437186954100): entrada original
+observada na SPU 8194, após Start/Cross autorizados pelas capturas legíveis.
+Perfil relido inteiro e cinco hashes preservados; 65 amostras de assets passaram.
+O próximo bloqueio é uma segunda versão ANT_kernel.elf, origem 0x2030080,
+LS 0x80, entrada 0x180, 0x45c0 bytes, SHA
+18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4.
+Dois snapshots completos conferiram integralmente; outro JSON ficou vazio
+quando o processo terminou durante falhas concorrentes.
+
+Uma linha fifa-spu-state truncada fez o parser do runner abortar depois da
+execução. O código de saída e o tempo final não foram persistidos e permanecem
+null, sem inferir 90 como medição do processo. Foram recuperados do log bruto
+139 eventos válidos, o fifa-block completo e os oráculos de assets, com um
+erro de parsing registrado em railtracks-recovered.json. A próxima correção
+preservará o status do processo antes do parsing e registrará linhas inválidas.
+Não se afirma resultado do algoritmo de movimentação nem menu/partida funcional.

@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Topology SPU module entered with readable autosave UI; railtracks move-to-target SPU module is the next untranslated module",
+  "stage": "Railtracks module entered; a distinct ANT kernel is untranslated; final process status lost to a truncated diagnostic line",
   "native_process": true,
   "emulator_launched": false,
-  "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792981780866319400",
-  "elapsed_seconds": 102.27,
+  "exit_code": null,
+  "logs": "private\\analysis\\runs\\1792982437186954100",
+  "elapsed_seconds": null,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706349744,
+    "value": 2259970271706349952,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 92,
+    "project": 93,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,11 +866,11 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "railtracks_movetotarget_spu.elf",
-    "source_ea": "0x2034680",
-    "pc": "0xb0",
-    "bytes": 173728,
-    "sha256": "f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b",
+    "name": "ANT_kernel.elf",
+    "source_ea": "0x2030080",
+    "pc": "0x180",
+    "bytes": 17856,
+    "sha256": "18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4",
     "snapshot_byte_differences": 0
   },
   "spu_lzma": {
@@ -944,5 +944,21 @@
     "native_entry_observed": true,
     "native_thread": 8192,
     "ai_algorithm_result_validated": false
+  },
+  "diagnostic_recovery": {
+    "raw_event_errors": 1,
+    "valid_events": 139,
+    "process_status_recorded": false,
+    "recovered_report": "private/analysis/railtracks-recovered.json"
+  },
+  "spu_railtracks": {
+    "source_ea": "0x2034680",
+    "entry": "0xb0",
+    "bytes": 173728,
+    "sha256": "f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b",
+    "native_functions": 1571,
+    "original_constructors_tested": 4,
+    "native_entry_observed": true,
+    "movement_algorithm_result_validated": false
   }
 }

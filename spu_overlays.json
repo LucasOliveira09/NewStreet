@@ -610,6 +610,24 @@
         "0xcfd0",
         "0xd090"
       ]
+    },
+    {
+      "name": "railtracks_movetotarget",
+      "source_ea": "0x2034680",
+      "size": "0x2a6a0",
+      "sha256": "f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x29080",
+      "extra_entries": [
+        "0x140",
+        "0x154",
+        "0x1d390",
+        "0x1edb0",
+        "0x24a38",
+        "0x26868"
+      ]
     }
   ]
 }
