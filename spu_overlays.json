@@ -2028,6 +2028,62 @@
         "0x2f8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_bandpass_fir64",
+      "source_ea": "0x1fcca80",
+      "size": "0x1a60",
+      "sha256": "0f79910a2458b2f5769c4c924bb61258d9bf124a877431acba1bf098ccd293ed",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1938",
+      "extra_entries": [
+        "0xb8"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "audio_bandpass_iir2",
+      "source_ea": "0x1fce580",
+      "size": "0xcc0",
+      "sha256": "d8e840f15c74513b8a033fc4a60c536ec51a0fde784919c7390c4046e7bda539",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcc0",
+      "extra_entries": [
+        "0xb8"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "audio_distortion_clip",
+      "source_ea": "0x1fd4a00",
+      "size": "0x400",
+      "sha256": "fdc2c46f854a82b18b0152e09afd0dc13569f8c3447d183ed6734d58cf38b102",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x400",
+      "extra_entries": [
+        "0xb8"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "audio_spureverbir1",
+      "source_ea": "0x1fb6d00",
+      "size": "0x7f00",
+      "sha256": "60f7f69085a1ffaca04f125b1ff2adb76fa9577125ddd69d078da7a3d4eaf0bc",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x7d58",
+      "extra_entries": [
+        "0xc8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

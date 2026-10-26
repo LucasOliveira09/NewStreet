@@ -131,7 +131,7 @@ extern "C" int fifa_test_spu_usermusic(const char* path) {
 
 static int run_audio_context_init(const char* path, uint32_t source, uint32_t bytes,
                                   uint32_t bss_bytes, uint32_t callback,
-                                  uint32_t observed_base, const char* algorithm,
+                                  uint32_t alternate_base, const char* algorithm,
                                   bool copies_context = true) {
     std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(path, "rb");
@@ -149,7 +149,7 @@ static int run_audio_context_init(const char* path, uint32_t source, uint32_t by
     spu_register_function(return_pc, fixture_return);
     spu_begin_image(0);
     const uint32_t context_words[] = {0x10203040, 0x50607080, 0x90a0b0c0, 0xd0e0f000};
-    const uint32_t bases[] = {0, observed_base, 0x4910, 0x10000};
+    const uint32_t bases[] = {0, alternate_base, 0x4910, 0x10000};
     getter_calls = 0;
     for (auto base : bases) {
         static spu_context ctx;
@@ -209,4 +209,25 @@ extern "C" int fifa_test_spu_matrixpanner_init(const char* path) {
 
 extern "C" int fifa_test_spu_delay_init(const char* path) {
     return run_audio_context_init(path, 0x1fd2c00, 0x1d70, 0x30, 0x2f8, 0x8300, "delay");
+}
+
+extern "C" int fifa_test_spu_audio_effect_init(const char* name, const char* path) {
+    struct Effect {
+        const char* name;
+        uint32_t source, bytes, bss, callback, alternate_base;
+        bool context;
+    };
+    // Each case was reviewed independently against its locked source bytes.
+    const Effect effects[] = {
+        {"bandpass_fir64", 0x1fcca80, 0x1a60, 0x20, 0xb8, 0x8000, false},
+        {"bandpass_iir2", 0x1fce580, 0xcc0, 0x20, 0xb8, 0x8000, false},
+        {"distortion_clip", 0x1fd4a00, 0x400, 0x20, 0xb8, 0x8000, false},
+        {"spureverbir1", 0x1fb6d00, 0x7f00, 0x100, 0xc8, 0xa100, true}
+    };
+    for (const auto& effect : effects)
+        if (!std::strcmp(name, effect.name))
+            return run_audio_context_init(path, effect.source, effect.bytes, effect.bss,
+                                          effect.callback, effect.alternate_base,
+                                          effect.name, effect.context);
+    return 2;
 }
