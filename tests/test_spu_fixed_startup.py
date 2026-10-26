@@ -9,6 +9,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FixedSpuStartupTests(unittest.TestCase):
+    def test_replay_matrixsave_empty_crt_preserves_image_and_guards(self):
+        image = ROOT / 'private/analysis/replay_matrixsave.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         '3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-matrixsave-startup', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            original_constructors=0, bss_bytes=0, image_preserved=True,
+            image_guards_preserved=True, original_stop=0x3fff,
+            main_executed=False, algorithm_validated=False))
+
     def test_raw_1ee9580_crt_zeros_bss_and_walks_ten_original_constructors(self):
         image = ROOT / 'private/analysis/job_1ee9580.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),

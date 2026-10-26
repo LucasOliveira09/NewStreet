@@ -8,11 +8,12 @@ Histórico preservado: [índice](../docs/history/README.md).
 
 - Identificador não associa rótulos fora dos limites; dez regressões autorais passaram.
 - Imagem 0x1ee9580 traduzida: 173 entradas; CRT/BSS e dez construtores validados.
-- Entrada real observada; 65 amostras de assets e cinco hashes do perfil preservados.
+- Entradas reais de 0x1ee9580 e Replay_matrixsave observadas; perfil preservado.
+- Replay_matrixsave: 78 entradas, CRT vazio e guardas validados; 131 testes passaram.
 
-## 1. Traduzir Replay_matrixsave na base fixa observada
+## 1. Traduzir Replay_matrixload na base fixa observada
 
-- Fonte 0x1f23500, base LS 0x80, entrada 0xb0, tamanho 0x1950 e SHA no checkpoint.
+- Fonte 0x1f1f880, base LS 0x80, entrada 0xb0, tamanho 0x3be0 e SHA no checkpoint.
 - Revisar código/dados, BSS, tabela de construtores e entradas indiretas do CRT.
 - Flags 0x80000080/modo 0: não relaxar a admissão PIC modo 1.
 - Aceite: fonte/snapshots conferem, tradução completa nos limites revisados,

@@ -1894,6 +1894,16 @@
         "0x47e8",
         "0x4a30"
       ]
+    },
+    {
+      "name": "replay_matrixsave",
+      "source_ea": "0x1f23500",
+      "size": "0x1950",
+      "sha256": "3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x19b8"
     }
   ]
 }

@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Fixed-address program 0x1ee9580 entered; Replay_matrixsave.elf at 0x1f23500 is untranslated",
+  "stage": "Replay_matrixsave entered; Replay_matrixload at 0x1f1f880 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793030318269513100",
-  "elapsed_seconds": 90.29,
+  "logs": "private\\analysis\\runs\\1793030862357211100",
+  "elapsed_seconds": 82.044,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 130,
+    "project": 131,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,14 +866,14 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1f23500",
+    "source_ea": "0x1f1f880",
     "ls_base": "0x80",
     "pc": "0xb0",
-    "initialized_bytes": 6480,
-    "source_sha256": "3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380",
+    "initialized_bytes": 15328,
+    "source_sha256": "00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e",
     "snapshot_byte_differences": 0,
     "verified_snapshots": 2,
-    "source_name": "Replay_matrixsave.elf",
+    "source_name": "Replay_matrixload.elf",
     "source_name_verified": true,
     "header_flags": "0x80000080",
     "header_mode": 0
@@ -1223,5 +1223,24 @@
     "native_entry_observed": true,
     "algorithm_result_validated": false,
     "source_name_verified": false
+  },
+  "registered_raw_spu_overlays": 109,
+  "spu_replay_matrixsave": {
+    "source_ea": "0x1f23500",
+    "ls_base": "0x80",
+    "entry": "0xb0",
+    "bytes": 6480,
+    "sha256": "3c34933980f768ca7d70bfd9cb937c0e318ad890ac68597469319ac7a5801380",
+    "code_end": "0x19b8",
+    "native_entries": 78,
+    "header_flags": "0x80000080",
+    "header_mode": 0,
+    "relocatable_pic": false,
+    "original_constructor_calls": 0,
+    "bss_bytes": 0,
+    "image_preserved": true,
+    "image_guards_preserved": true,
+    "native_entry_observed": true,
+    "algorithm_result_validated": false
   }
 }

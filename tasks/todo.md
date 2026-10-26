@@ -10,7 +10,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Criação e releitura real do perfil original; arquivos preservados por hash.
 - [x] Falhas sem suporte interrompem execução com diagnóstico estrito.
 - [x] Corrigir identificação e executar módulo SPU de 0x1ee9580.
-- [ ] Traduzir e executar Replay_matrixsave de 0x1f23500.
+- [x] Traduzir e executar Replay_matrixsave de 0x1f23500.
+- [ ] Traduzir e executar Replay_matrixload de 0x1f1f880.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.

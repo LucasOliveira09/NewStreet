@@ -57,7 +57,7 @@ void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
     // This test-only caller sets r125=1: the original CRT stops before main.
     // Only that exact diagnostic is captured; every other fault stays strict.
     if (!std::strcmp(kind, "spu-stop") &&
-        value == ((uint64_t(image_id) << 32) | 0x3fff) &&
+        value == ((uint64_t(active->image_id) << 32) | 0x3fff) &&
         active->pc >= 0x184 && active->pc < 0x1a8 &&
         active->stop_code == 0x3fff && active->status == SPU_STATUS_STOPPED_BY_STOP) {
         stopped = true;
@@ -65,6 +65,20 @@ void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
         return;
     }
     strict_missing(kind, value, ppu);
+}
+
+int run_to_original_crt_stop(spu_context& ctx) {
+    active = &ctx;
+    stopped = false;
+    ctx.gpr[1]._u32[0] = 0x3f000;
+    ctx.gpr[125]._u32[0] = 1; // Authored harness input; never used in game execution.
+    ctx.pc = 0xb0;
+    ctx.status = SPU_STATUS_RUNNING;
+    strict_missing = spu_missing_execution_hook;
+    spu_missing_execution_hook = observe_original_stop;
+    int halted = spu_run_with_halt(spu_indirect_branch, &ctx);
+    spu_missing_execution_hook = strict_missing;
+    return halted;
 }
 }
 
@@ -92,18 +106,10 @@ extern "C" int fifa_test_spu_fixed_startup(const char* path) {
         if (spu_lifted_lookup(&ctx, constructors[i]) != observe_constructor) return 77;
     }
     if (!spu_lifted_lookup(&ctx, 0xb0)) return 77;
-    active = &ctx;
     calls = 0;
     ordered = true;
     zeroed = stopped = false;
-    ctx.gpr[1]._u32[0] = 0x3f000;
-    ctx.gpr[125]._u32[0] = 1; // Authored harness input; never used for game execution.
-    ctx.pc = 0xb0;
-    ctx.status = SPU_STATUS_RUNNING;
-    strict_missing = spu_missing_execution_hook;
-    spu_missing_execution_hook = observe_original_stop;
-    int halted = spu_run_with_halt(spu_indirect_branch, &ctx);
-    spu_missing_execution_hook = strict_missing;
+    int halted = run_to_original_crt_stop(ctx);
     if (!halted || !stopped || calls != 10 || !ordered || !zeroed) return 5;
     if (std::memcmp(ctx.ls + 0x80, blob.data(), 0x4a40 - 0x80)) return 6;
     for (uint32_t address = 0x4fb0; address < 0x5000; ++address)
@@ -116,6 +122,32 @@ extern "C" int fifa_test_spu_fixed_startup(const char* path) {
                 "\"main_executed\":false,\"algorithm_validated\":false}\n");
     return 0;
 }
+
+extern "C" int fifa_test_spu_matrixsave_startup(const char* path) {
+    std::vector<uint8_t> blob(0x1950);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    fifa_install_spu_policy();
+    static spu_context ctx;
+    spu_context_init(&ctx, 81);
+    ctx.image_id = 0x23c34933;
+    std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+    std::memcpy(ctx.ls + 0x80, blob.data(), blob.size());
+    if (!spu_lifted_lookup(&ctx, 0xb0)) return 77;
+    if (!run_to_original_crt_stop(ctx) || !stopped) return 5;
+    if (std::memcmp(ctx.ls + 0x80, blob.data(), blob.size())) return 6;
+    for (unsigned i = 0; i < 16; ++i)
+        if (ctx.ls[0x70 + i] != 0xa5 || ctx.ls[0x19d0 + i] != 0xa5) return 7;
+    std::printf("{\"original_constructors\":0,\"bss_bytes\":0,\"image_preserved\":true,"
+                "\"image_guards_preserved\":true,\"original_stop\":16383,"
+                "\"main_executed\":false,\"algorithm_validated\":false}\n");
+    return 0;
+}
 #else
 extern "C" int fifa_test_spu_fixed_startup(const char*) { return 77; }
+extern "C" int fifa_test_spu_matrixsave_startup(const char*) { return 77; }
 #endif
