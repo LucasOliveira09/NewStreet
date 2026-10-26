@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`; incremento atual: Railtracks path estimates.
+Branch: `codex/ps3-native-bootstrap`; incremento atual: user music arbiter PIC.
 Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 
 ## Confirmado e ainda pendente
@@ -12,7 +12,7 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal finito; escuta e sincronia pendentes.
 - **Menu navegável, cena, gameplay, partida completa e progressão não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 112 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 113 registros raw SPU.
   Contagem não comprova semântica completa dos serviços ou tarefas.
 - 68 módulos ANT do perfil comum: 6.422 entradas e 816 chamadas de construtores.
   Quatro variantes específicas: 72 chamadas em quatro bases. São testes de
@@ -21,12 +21,12 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 ## Último ensaio do jogo
 
 - Fonte: `reports/native-boot-checkpoint.json`; resultado privado:
-  `private/analysis/railtracks-pathestimates-native-run.json`.
-- Logs: `private/analysis/runs/1793032983611929700`.
-- Saída estrita **90**, aos **82,678 s**: outra entrada SPU ainda não traduzida.
+  `private/analysis/usermusic-arbiter-native-run.json`.
+- Logs: `private/analysis/runs/1793033837679463600`.
+- Saída estrita **90**, aos **82,311 s**: outra entrada SPU ainda não traduzida.
 - Particle IK, footplant post, HIK reset, facial e face poser entraram no caminho real.
   Predictable blend/mirror foram compilados, sem entrada real observada.
-- Últimos checks registrados: 44 Boot, 135 do projeto, 16 runtime CTest;
+- Últimos checks registrados: 44 Boot, 137 do projeto, 16 runtime CTest;
   65 amostras de assets contra oráculos independentes. Runtime CTest é registro anterior; os demais checks foram executados neste incremento.
 
 ## Incremento validado e próximo bloqueio
@@ -48,19 +48,22 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
   Entrada real observada; algoritmo completo não validado.
 - Railtracks path estimates, fonte 0x205ed80: 1.769 entradas; CRT/BSS25072,
   quatro construtores reversos e stop0 original da cauda validados; entrada real.
-- Próxima imagem: **spuusermusicarbiter.elf**, fonte **0x2004900**, base observada
-  **0x1b780**, entrada **0x1b7b0**, **0x4c0 bytes** iguais a um snapshot completo.
-- SHA-256: `5297121e39d5e9b1d9feee385a35e07f9c22ecf9dfa1817f65a79179099a3701`.
-- PIC modo1, entrada relativa0x30, BSS0x20; init não é CRT de construtores.
-- Imagem/disassembly: `private/analysis/audio_spuusermusicarbiter.bin` e
-  `private/analysis/audio_spuusermusicarbiter-disassembly.txt`.
-- Identificação: `private/analysis/pathestimates-next-identified.json`.
+- User music arbiter, fonte0x2004900: 19 entradas PIC; init e duas transições de
+  volume em dois canais conferidas em quatro bases, 4.096 amostras contra oráculo
+  linear independente, código/guardas preservados. Entrada real observada.
+- Próxima imagem: **spucompressor1.elf**, fonte **0x1fcf280**, base observada
+  **0x24500**, entrada **0x24530**, **0x3930 bytes** iguais a um snapshot completo.
+- SHA-256: `78403fd4cfc8924d2d17a10ee1b58f06cb99db5246df630819eef4f9b09dec07`.
+- PIC modo1, entrada relativa0x30, BSS0x30; init configura callbacks/estado.
+- Imagem/disassembly: `private/analysis/audio_spucompressor1.bin` e
+  `private/analysis/audio_spucompressor1-disassembly.txt`.
+- Identificação: `private/analysis/usermusic-next-identified.json`.
 - Próximo incremento: traduzir PIC e verificar init/contrato de processamento.
 
 ## Retomada e validação proporcional
 
 1. Confira instruções, branch/HEAD/mudanças. Leia este checkpoint e a etapa do plano.
-2. Consulte a imagem audio_spuusermusicarbiter e seus limites; diagnóstico já foi corrigido.
+2. Consulte a imagem audio_spucompressor1 e seus limites; diagnóstico já foi corrigido.
 3. Para tradução: confira bytes, fronteiras e manifesto; só depois gere e compile.
 4. O principal é dono exclusivo de lift/build/probe/patch/commit. Nunca relinke
    enquanto um processo nativo pai ou filho estiver vivo.

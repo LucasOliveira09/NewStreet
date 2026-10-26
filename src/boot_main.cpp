@@ -92,6 +92,7 @@ int fifa_test_spu_matrixsave_startup(const char*);
 int fifa_test_spu_matrixload_startup(const char*);
 int fifa_test_spu_batchplayer_startup(const char*);
 int fifa_test_spu_pathestimates_startup(const char*, bool);
+int fifa_test_spu_usermusic(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -202,6 +203,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-batchplayer-startup")) return fifa_test_spu_batchplayer_startup(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-pathestimates-startup")) return fifa_test_spu_pathestimates_startup(argv[2], false);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-pathestimates-exit")) return fifa_test_spu_pathestimates_startup(argv[2], true);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-usermusic")) return fifa_test_spu_usermusic(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

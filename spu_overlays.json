@@ -1957,6 +1957,21 @@
         "0x2ca78",
         "0x2cac8"
       ]
+    },
+    {
+      "name": "audio_spuusermusicarbiter",
+      "source_ea": "0x2004900",
+      "size": "0x4c0",
+      "sha256": "5297121e39d5e9b1d9feee385a35e07f9c22ecf9dfa1817f65a79179099a3701",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x4b8",
+      "extra_entries": [
+        "0xb8",
+        "0x238"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

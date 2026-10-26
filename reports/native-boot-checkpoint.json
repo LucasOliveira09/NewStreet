@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Railtracks path estimates entered; user music arbiter PIC at 0x2004900 is untranslated",
+  "stage": "User music arbiter PIC entered; audio compressor1 at 0x1fcf280 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793032983611929700",
-  "elapsed_seconds": 82.678,
+  "logs": "private\\analysis\\runs\\1793033837679463600",
+  "elapsed_seconds": 82.311,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706462128,
+    "value": 2259970271706498352,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 135,
+    "project": 137,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,17 +866,17 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x2004900",
-    "ls_base": "0x1b780",
-    "pc": "0x1b7b0",
-    "initialized_bytes": 1216,
-    "source_sha256": "5297121e39d5e9b1d9feee385a35e07f9c22ecf9dfa1817f65a79179099a3701",
+    "source_ea": "0x1fcf280",
+    "ls_base": "0x24500",
+    "pc": "0x24530",
+    "initialized_bytes": 14640,
+    "source_sha256": "78403fd4cfc8924d2d17a10ee1b58f06cb99db5246df630819eef4f9b09dec07",
     "snapshot_byte_differences": 0,
     "verified_snapshots": 1,
-    "source_name": "spuusermusicarbiter.elf",
+    "source_name": "spucompressor1.elf",
     "source_name_verified": true,
     "relocatable_pic": true,
-    "bss_bytes": 32
+    "bss_bytes": 48
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -955,7 +955,8 @@
     "valid_events": 176,
     "process_status_recorded": true,
     "process_status_path": "private\\analysis\\runs\\1792989446164060900/process-exit.json",
-    "last_run_event_parse_errors": 0
+    "last_run_event_parse_errors": 0,
+    "incomplete_snapshot_metadata_reported_without_losing_valid_snapshots": true
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1224,7 +1225,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 112,
+  "registered_raw_spu_overlays": 113,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1294,5 +1295,26 @@
     "original_exit_stop_zero_validated": true,
     "native_entry_observed": true,
     "algorithm_result_validated": false
+  },
+  "spu_usermusic": {
+    "source_ea": "0x2004900",
+    "bytes": 1216,
+    "sha256": "5297121e39d5e9b1d9feee385a35e07f9c22ecf9dfa1817f65a79179099a3701",
+    "native_entries": 19,
+    "relocatable_pic": true,
+    "tested_bases": [
+      0,
+      112512,
+      18704,
+      65536
+    ],
+    "fade_cases": 8,
+    "channels": 2,
+    "compared_samples": 4096,
+    "linear_gain_oracle_passed": true,
+    "code_preserved": true,
+    "guards_preserved": true,
+    "native_entry_observed": true,
+    "all_audio_fidelity_validated": false
   }
 }

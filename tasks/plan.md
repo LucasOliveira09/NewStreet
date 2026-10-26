@@ -13,15 +13,16 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Replay_matrixload: 189 entradas, BSS/construtor e constantes validados; entrada real.
 - FIFARNA batchplayer pass0: 477 entradas, BSS448 e dois construtores validados; entrada real.
 - Railtracks path estimates: 1.769 entradas, CRT/BSS25072/4ctors e cauda stop0 validados; entrada real.
-- 135 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- User music arbiter: init PIC4bases e 4.096 amostras DSP conferidas contra oráculo; entrada real.
+- 137 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir o plugin PIC user music arbiter
+## 1. Traduzir o plugin PIC compressor1
 
-- Fonte 0x2004900, tamanho0x4c0, base observada1b780/PC1b7b0; SHA no checkpoint.
+- Fonte0x1fcf280, tamanho0x3930, base observada24500/PC24530; SHA no checkpoint.
 - Cabeçalho PIC modo1: usar base canônica0 e entrada relativa0x30.
-- Init configura callback interno e recebe callback externo por cadeia de parâmetros.
+- Revisar fronteira de código e cadeia de argumentos/callbacks da init.
 - Aceite: tradução completa em limites revisados, init em quatro bases e fixture
-  de processamento pertinente, sem substituir o código do plugin por um resultado.
+  pertinente; distinguir init de validação de todo algoritmo de compressão.
 - Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
 
 ## 3. Ensaiar o avanço real após o novo módulo

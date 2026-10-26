@@ -14,7 +14,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Traduzir e executar Replay_matrixload de 0x1f1f880.
 - [x] Revisar, traduzir e executar fifarna_batchplayer_pass0 de 0x1ecb100.
 - [x] Revisar, traduzir e executar railtracks_calculatepathestimates de 0x205ed80.
-- [ ] Traduzir e executar spuusermusicarbiter de 0x2004900.
+- [x] Traduzir e executar spuusermusicarbiter de 0x2004900.
+- [ ] Traduzir e executar spucompressor1 de 0x1fcf280.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.
