@@ -14,15 +14,16 @@ Histórico preservado: [índice](../docs/history/README.md).
 - FIFARNA batchplayer pass0: 477 entradas, BSS448 e dois construtores validados; entrada real.
 - Railtracks path estimates: 1.769 entradas, CRT/BSS25072/4ctors e cauda stop0 validados; entrada real.
 - User music arbiter: init PIC4bases e 4.096 amostras DSP conferidas contra oráculo; entrada real.
-- 137 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Compressor1: 114 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
+- 138 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir o plugin PIC compressor1
+## 1. Traduzir o plugin PIC reverb model1
 
-- Fonte0x1fcf280, tamanho0x3930, base observada24500/PC24530; SHA no checkpoint.
-- Cabeçalho PIC modo1: usar base canônica0 e entrada relativa0x30.
-- Revisar fronteira de código e cadeia de argumentos/callbacks da init.
-- Aceite: tradução completa em limites revisados, init em quatro bases e fixture
-  pertinente; distinguir init de validação de todo algoritmo de compressão.
+- Fonte1ff6580, tamanho50c0, base observada27f00/PC27f30; SHA no checkpoint.
+- Cabeçalho PIC modo1: usar base canônica0 e entrada relativa30.
+- Revisar fronteira de código, init, callbacks e preservação do restante da BSS.
+- Aceite: tradução completa em limites revisados e init em quatro bases;
+  distinguir init de validação de todo algoritmo de reverberação.
 - Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
 
 ## 3. Ensaiar o avanço real após o novo módulo

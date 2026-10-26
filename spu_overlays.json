@@ -1972,6 +1972,20 @@
         "0x238"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_spucompressor1",
+      "source_ea": "0x1fcf280",
+      "size": "0x3930",
+      "sha256": "78403fd4cfc8924d2d17a10ee1b58f06cb99db5246df630819eef4f9b09dec07",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x3930",
+      "extra_entries": [
+        "0x420"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

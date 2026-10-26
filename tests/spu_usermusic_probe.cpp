@@ -128,3 +128,60 @@ extern "C" int fifa_test_spu_usermusic(const char* path) {
                 "\"code_preserved\":true,\"guards_preserved\":true}\n");
     return 0;
 }
+
+extern "C" int fifa_test_spu_compressor_init(const char* path) {
+    std::vector<uint8_t> blob(0x3930);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    constexpr uint32_t source = 0x1fcf280;
+    vm_base = static_cast<uint8_t*>(std::calloc(1, source + blob.size()));
+    if (!vm_base) return 3;
+    std::memcpy(vm_base + source, blob.data(), blob.size());
+    fifa_install_spu_policy();
+    spu_begin_image(81);
+    spu_register_function(getter_pc, fixture_get_buffer);
+    spu_register_function(return_pc, fixture_return);
+    spu_begin_image(0);
+    const uint32_t context_words[] = {0x10203040, 0x50607080, 0x90a0b0c0, 0xd0e0f000};
+    const uint32_t bases[] = {0, 0x24500, 0x4910, 0x10000};
+    getter_calls = 0;
+    for (auto base : bases) {
+        static spu_context ctx;
+        spu_context_init(&ctx, 81);
+        ctx.image_id = 81;
+        std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+        std::memcpy(ctx.ls + base, blob.data(), blob.size());
+        spu_overlay_note_get(&ctx, source, ctx.ls + base, static_cast<uint32_t>(blob.size()));
+        std::memset(ctx.ls + parameters, 0, 0x300);
+        spu_ls_write32(&ctx, parameters + 20, parameters + 0x100);
+        spu_ls_write32(&ctx, parameters + 0x104, parameters + 0x200);
+        spu_ls_write32(&ctx, parameters + 0x200, getter_pc);
+        for (unsigned i = 0; i < 4; ++i)
+            spu_ls_write32(&ctx, parameters + 0x110 + 4 * i, context_words[i]);
+        ctx.gpr[3] = spu_splat_u32(parameters);
+        if (!invoke(ctx, base + 0x30)) return 4;
+        if (spu_ls_read32(&ctx, base + 0x3930) != getter_pc ||
+            spu_ls_read32(&ctx, base + 0x3950) != 0 ||
+            spu_ls_read32(&ctx, base + 0x3954) != 0 ||
+            spu_ls_read32(&ctx, base + 0x3958) != base + 0x420 ||
+            spu_ls_read32(&ctx, base + 0x395c) != 0xa5a5a5a5) return 5;
+        for (unsigned i = 0; i < 4; ++i)
+            if (spu_ls_read32(&ctx, base + 0x3940 + 4 * i) != context_words[i]) return 6;
+        if (std::memcmp(ctx.ls + base, blob.data(), blob.size())) return 7;
+        for (unsigned i = 0; i < 16; ++i)
+            if ((base && ctx.ls[base - 16 + i] != 0xa5) ||
+                ctx.ls[base + 0x3960 + i] != 0xa5) return 8;
+    }
+    if (getter_calls) return 9; // Initialization copies the callback; it must not call it.
+    std::free(vm_base);
+    vm_base = nullptr;
+    std::printf("{\"positions\":4,\"initialization_validated\":true,\"callbacks_relocated\":true,"
+                "\"external_pointer_preserved\":true,\"context_vector_preserved\":true,"
+                "\"code_preserved\":true,\"guards_preserved\":true,"
+                "\"compressor_algorithm_validated\":false}\n");
+    return 0;
+}
