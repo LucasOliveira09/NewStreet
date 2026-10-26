@@ -75,7 +75,33 @@ extern "C" int fifa_test_spu_overlay(const char* mode) {
         if (!std::strcmp(mode, "pic-boundary")) {
             std::memcpy(pic.ls + 0x3fff0, vm_base + 0x10000, 16);
             spu_overlay_note_get(&pic, 0x10000, pic.ls + 0x3fff0, 16);
+            pic.pc = 0x3fff0;
+            spu_indirect_branch(&pic);
             return 34;
+        }
+        if (!std::strncmp(mode, "pic-metadata", 12)) {
+            // A header can be read as data where the full image cannot fit.
+            // An older base-image entry must not make that copy executable.
+            spu_begin_image(111);
+            spu_register_function(0x3ff00, base_entry);
+            spu_begin_image(0);
+            std::memcpy(pic.ls + 0x3ff00, vm_base + 0x10000, 64);
+            spu_overlay_note_get(&pic, 0x10000, pic.ls + 0x3ff00, 64);
+            if (std::memcmp(pic.ls + 0x3ff00, vm_base + 0x10000, 64) ||
+                spu_lifted_lookup(&pic, 0x3ff00)) return 43;
+            if (!std::strcmp(mode, "pic-metadata-execute")) {
+                pic.pc = 0x3ff00;
+                spu_indirect_branch(&pic);
+                return 44;
+            }
+            std::memcpy(pic.ls + 0x800, vm_base + 0x10000, 0x180);
+            spu_overlay_note_get(&pic, 0x10000, pic.ls + 0x800, 0x180);
+            spu_ls_write32(&pic, 0x8a0, 0x55);
+            pic.pc = 0x880;
+            spu_indirect_branch(&pic);
+            if (pic.gpr[3]._u32[0] != 0x55) return 45;
+            std::puts("{\"metadata_bytes\":64,\"metadata_executable\":false,\"complete_image_runs\":true}");
+            return 0;
         }
         const uint32_t bases[] = {!std::strcmp(mode, "pic-unaligned") ? 0x801u : 0x800u, 0x1800, 0};
         for (uint32_t base : bases) {

@@ -1705,7 +1705,7 @@ index 1a393fd..5a276c6 100644
  }
  
 diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
-index 59f5e4b..95b9e92 100644
+index 59f5e4b..0204e2f 100644
 --- a/runtime/spu/spu_channels.c
 +++ b/runtime/spu/spu_channels.c
 @@ -16,6 +16,7 @@
@@ -1857,7 +1857,7 @@ index 59f5e4b..95b9e92 100644
  /* Register one-way runtime entries that replace the guest call stack.
   * Matching the resolved function, not just its LS address, avoids affecting
   * unrelated overlays using the same address. Registration precedes execution. */
-@@ -1695,35 +1785,147 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
+@@ -1695,35 +1785,160 @@ void spu_lockguard_check(spu_context* ctx, uint32_t ea, const uint8_t* src, uint
                  ea, size, os, on, ns, nn); }
  }
  
@@ -2006,6 +2006,19 @@ index 59f5e4b..95b9e92 100644
 +                if (o->checked == 2 && ((lsa & 15u) || lsa >= SPU_LS_SIZE ||
 +                    o->span > SPU_LS_SIZE - lsa || o->span < 32 ||
 +                    !(vm_base[o->src_ea + 28] & 0x80u))) {
++                    /* ANT inspects a small original header on its stack before
++                     * loading the executable elsewhere. A bounded partial read
++                     * is valid data even when the full image cannot fit here.
++                     * Tombstone the copied bytes so no old base-image function
++                     * can turn that metadata into executable ownership. */
++                    if (!(lsa & 15u) && lsa < SPU_LS_SIZE &&
++                        o->span > SPU_LS_SIZE - lsa && size && size < o->span &&
++                        size <= SPU_LS_SIZE - lsa && o->span >= 32 &&
++                        (vm_base[o->src_ea + 28] & 0x80u)) {
++                        spu_code_replace(ctx, lsa, size, ea,
++                            spu_missing_execution_hook ? -1 : 0, 0);
++                        return;
++                    }
 +                    if (spu_execution_diagnostic_hook) spu_execution_diagnostic_hook("spu-overlay-layout", ctx);
 +                    if (spu_missing_execution_hook) spu_missing_execution_hook("spu-overlay-layout", lsa, NULL);
 +                    return;
@@ -2020,7 +2033,7 @@ index 59f5e4b..95b9e92 100644
                  return;
              }
              if (ctx->resident_ovl != o->image_id) {
-@@ -1737,6 +1939,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
+@@ -1737,6 +1952,10 @@ void spu_overlay_note_get(spu_context* ctx, uint32_t ea, const uint8_t* ls, uint
              return;
          }
      }
@@ -2031,7 +2044,7 @@ index 59f5e4b..95b9e92 100644
  }
  
  /* Match a 16-byte module header against the registered content signatures.
-@@ -2278,14 +2484,7 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2278,14 +2497,7 @@ void spu_indirect_branch(spu_context* ctx)
       * is 0 outside the region, so this only ever fires for genuine task code.) */
      spu_fn fn = NULL;
      int code_owner = 0;
@@ -2047,7 +2060,7 @@ index 59f5e4b..95b9e92 100644
      if (!code_owner && ctx->resident_task)
          fn = spu_lookup(ctx->pc, ctx->resident_task);
      /* Resident overlay next: streamed code overwrote that LS range, so its lift
-@@ -2293,6 +2492,23 @@ void spu_indirect_branch(spu_context* ctx)
+@@ -2293,6 +2505,23 @@ void spu_indirect_branch(spu_context* ctx)
       * may also be registered (historical junk lifts) and must lose. */
      if (!code_owner && !fn && ctx->resident_ovl) fn = spu_lookup(ctx->pc, ctx->resident_ovl);
      if (!code_owner && !fn) fn = spu_lookup(ctx->pc, ctx->image_id);
@@ -2071,7 +2084,7 @@ index 59f5e4b..95b9e92 100644
      /* The job returned through the link register we planted: it is finished.
       * Its outermost frame ends in `bi $r0`, and r0 was 0 -- so without this the
       * return landed on LS 0, which is the job's OWN entry, and it ran a second
-@@ -2841,4 +3057,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
+@@ -2841,4 +3070,4 @@ void spu_trace_rt(spu_context* ctx, uint32_t rt)
  
  #ifdef __cplusplus
  }

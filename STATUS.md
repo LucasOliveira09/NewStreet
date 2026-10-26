@@ -1684,3 +1684,25 @@ Outro worker também relatou PC ausente 0x5fd0; seu JSON foi interrompido e
 permanece preservado. O próximo incremento separará leitura parcial e admissão
 executável com teste de regressão. 65 amostras de assets passaram; cinco hashes
 do perfil preservados. Menu e partida continuam pendentes.
+
+
+## Cabeçalhos PIC na pilha sem ownership executável (2026-10-26)
+
+O kernel lê 64 bytes de 0x2100a00 em LS 0x3d300 durante inspeção de metadados;
+o blob completo tem 0x71e0 bytes e não caberia nessa posição. O runtime conferia
+o hash da fonte e depois rejeitava o layout inteiro, apesar da leitura limitada
+ser válida. Agora uma cópia parcial alinhada, contida na LS, de fonte PIC válida,
+é mantida como dados quando somente o span inteiro ultrapassaria a LS.
+Os bytes efetivamente copiados recebem tombstone, impedindo fallback para uma
+função antiga no mesmo endereço. Não há admissão executável do restante do módulo.
+O comportamento das demais admissões parciais não foi redesenhado neste incremento.
+
+O fixture reproduz uma leitura de 64 bytes no fim da LS, verifica dados intactos,
+nega lookup mesmo com entrada antiga registrada e depois executa uma imagem
+completa em posição válida. Outros caminhos tentam executar os metadados (64 ou
+16 bytes) e continuam terminando com spu-indirect/90. Fonte alterada, flag
+absoluta e carga completa desalinhada continuam bloqueadas. Os três caminhos
+novos falharam antes da correção. O patch do SDK permanece versionado e passou
+apply --cached --check em índice isolado da revisão fixada. Boot: 43 testes;
+runtime: 16 CTest. FullGame compilou e os 100 testes do projeto passaram
+em 14,830 s. O ensaio real deste ajuste será registrado no próximo checkpoint.

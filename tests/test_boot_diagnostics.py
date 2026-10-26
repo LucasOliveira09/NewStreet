@@ -176,10 +176,18 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout), dict(positions=3, isolated=True,
                                                        negative_bias=True, split_preserved=True))
 
+    def test_partial_pic_header_can_be_read_as_data_without_admitting_code(self):
+        result = subprocess.run([str(BOOT), '--test-spu-overlay', 'pic-metadata'],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout), dict(metadata_bytes=64,
+            metadata_executable=False, complete_image_runs=True))
+
     def test_pic_admission_rejects_modified_source_invalid_layout_and_overwritten_code(self):
         for mode, kind in [('pic-source', 'spu-overlay-source'),
                            ('pic-unaligned', 'spu-overlay-layout'),
-                           ('pic-boundary', 'spu-overlay-layout'),
+                           ('pic-boundary', 'spu-indirect'),
+                           ('pic-metadata-execute', 'spu-indirect'),
                            ('pic-absolute-source', 'spu-overlay-layout'),
                            ('pic-overwrite', 'spu-indirect')]:
             with self.subTest(mode=mode):
