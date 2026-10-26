@@ -97,6 +97,19 @@ def scan_segment(data, guest_base):
     return records
 
 
+def review_images(records, read, reference):
+    # Directory labels are evidence about provenance, not executable admission.
+    # Every image must independently satisfy the same checked CRT structure.
+    for item in records:
+        item.pop('common_crt_review', None)
+        item.pop('common_crt_rejection', None)
+        try:
+            item['common_crt_review'] = inspect_common_ant(
+                read(int(item['source_ea'], 0), item['bytes']), reference)
+        except ValueError as error:
+            item['common_crt_rejection'] = str(error)
+
+
 def inventory():
     config = json.loads((ROOT / 'spu_overlays.json').read_text(encoding='utf-8'))
     source = ROOT / 'private/FIFAZF.elf'
@@ -117,14 +130,7 @@ def inventory():
     require(hashlib.sha256(reference).hexdigest() == anchor['sha256'], 'CRT reference differs')
     records = [item for base, data in segments for item in scan_segment(data, base)]
     require(len({item['source_ea'] for item in records}) == len(records), 'Duplicate raw image address')
-    for item in records:
-        if not item['ant_common_path']:
-            continue
-        try:
-            item['common_crt_review'] = inspect_common_ant(
-                read(int(item['source_ea'], 0), item['bytes']), reference)
-        except ValueError as error:
-            item['common_crt_rejection'] = str(error)
+    review_images(records, read, reference)
     return dict(generator='fifa_spu_raw_inventory', elf_sha256=config['elf_sha256'],
                 crt_reference_sha256=anchor['sha256'], images=records,
                 raw_image_count=len(records),

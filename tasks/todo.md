@@ -148,7 +148,9 @@ de funções ou por abrir uma janela.
 - [x] Traduzir DCT clip de 0x20e8c80 e confirmar entrada.
 - [x] Revisar 49 módulos ANT comuns, integrar 39 novos e testar 588 chamadas originais.
 - [x] Observar group final/blend no jogo após o lote.
-- [ ] Identificar/revisar o plugin de 0x2096f00 após o lote ANT.
+- [x] Integrar 19 plugins SBU/ANT adicionais do mesmo CRT e validar 816 chamadas.
+- [x] Observar translationscale/interactionscale no jogo.
+- [ ] Revisar especificamente o módulo de 0x2133c80.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

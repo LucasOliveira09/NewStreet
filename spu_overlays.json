@@ -1477,6 +1477,329 @@
       ],
       "relocatable_pic": true,
       "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_locoleannode_exec",
+      "source_ea": "0x208cf00",
+      "size": "0x1ea0",
+      "sha256": "3fb8204bbdf3928d300ccbab34d8b1cc0f9f062c72f4925a756df69a9c06a3fb",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1680",
+      "extra_entries": [
+        "0xcf0",
+        "0x12d0",
+        "0x1670"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_copyfloatplugin",
+      "source_ea": "0x208ee80",
+      "size": "0x10d0",
+      "sha256": "636769e59c8b03d838ac468ab9b9fac38ecb1b87c12ce2af3ef2c865e8cf944d",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcd0",
+      "extra_entries": [
+        "0x938",
+        "0xc00",
+        "0xcc0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_copytranslateplugin",
+      "source_ea": "0x2090000",
+      "size": "0x10c0",
+      "sha256": "b4cc1c8bb4b8230cbc4af6ccf4c7279f1d2228d98f318cf44dedc48ef2286407",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcc0",
+      "extra_entries": [
+        "0x928",
+        "0xbf0",
+        "0xcb0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_deltatimeresetplugin",
+      "source_ea": "0x2091180",
+      "size": "0xfe0",
+      "sha256": "75206dcd8fc2790ac5d7aa06839db4a9806aef5efcd542e40921fe0a4d77f523",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xbe0",
+      "extra_entries": [
+        "0x848",
+        "0xb10",
+        "0xbd0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_hikresetplugin",
+      "source_ea": "0x2092200",
+      "size": "0x1100",
+      "sha256": "0909943a4a48efe2a6b3454b6d05e44299aaac52d8b7cf49ff267ba9558116c9",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcf8",
+      "extra_entries": [
+        "0x960",
+        "0xc28",
+        "0xce8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_ikrigtohikrigplugin",
+      "source_ea": "0x2093380",
+      "size": "0x2370",
+      "sha256": "9b29c31b270a8dbb5e37f7ce9da4f4b27f5cfd0aedc8e4101af013c52bda8795",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1bf0",
+      "extra_entries": [
+        "0x17d0",
+        "0x1b20",
+        "0x1be0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_interactionscaleplugin",
+      "source_ea": "0x2095780",
+      "size": "0x16d0",
+      "sha256": "c4746dcb67c27298940cb08f809953b65f35b6e88bf196bf1f3c9e165db44ce3",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x12c8",
+      "extra_entries": [
+        "0xe58",
+        "0x11f8",
+        "0x12b8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_translationscaleplugin",
+      "source_ea": "0x2096f00",
+      "size": "0x10d0",
+      "sha256": "e7d1cf089f3329c8a2639671673d99d35dea90bcadbda953d5e9a95ce2abbaa5",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcc8",
+      "extra_entries": [
+        "0x930",
+        "0xbf8",
+        "0xcb8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_contactpointplugin_foot",
+      "source_ea": "0x2098080",
+      "size": "0x20f0",
+      "sha256": "2a73c1389d874ae55ae7beac3aef7197b5dde8ae3fdf058dc6e6ec80e5b9ce40",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1968",
+      "extra_entries": [
+        "0x15d0",
+        "0x1898",
+        "0x1958"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_contactpointplugin_hand",
+      "source_ea": "0x209a200",
+      "size": "0x1d60",
+      "sha256": "b7934fc261be6f1af32f3788c1f960c6cf6f62a83fd2bac6a259da5d1c701a4e",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x15e0",
+      "extra_entries": [
+        "0x1248",
+        "0x1510",
+        "0x15d0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_contactpointplugin_init",
+      "source_ea": "0x209c000",
+      "size": "0x14e0",
+      "sha256": "95052c5e55b842b717788eb588ca361e54b0a04be5b620b7f46a288aa839ec55",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x10d8",
+      "extra_entries": [
+        "0xd40",
+        "0x1008",
+        "0x10c8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_footplantpostplugin",
+      "source_ea": "0x209d580",
+      "size": "0x1d80",
+      "sha256": "0b59b9e433296084cc32bd29f7ba943e8302d2e35911bcd519f8602ab8c0308a",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1600",
+      "extra_entries": [
+        "0x11e0",
+        "0x1530",
+        "0x15f0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_footplantpreplugin",
+      "source_ea": "0x209f400",
+      "size": "0x3a10",
+      "sha256": "3a83df5cbe789663ea3d67daa397f6799f0e93b0079bb4a163ebd4d97f97fe59",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x3278",
+      "extra_entries": [
+        "0x2e58",
+        "0x31a8",
+        "0x3268"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_interactioneffectorscalingplugin",
+      "source_ea": "0x20a2f00",
+      "size": "0x2000",
+      "sha256": "69f7627fefd60e12b9f6462a0bbfa951a82137e704e7da149bde236784c4a154",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1890",
+      "extra_entries": [
+        "0x1398",
+        "0x17c0",
+        "0x1880"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_hipstotrajplugin",
+      "source_ea": "0x20a5000",
+      "size": "0x2880",
+      "sha256": "69baaa35ba4e7f51300b57d08ac67e474b2465a5bba9954ff0322214d1305a97",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1f00",
+      "extra_entries": [
+        "0xf10",
+        "0x1ac8",
+        "0x1ef0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_physicalreactionikadjustplugin",
+      "source_ea": "0x20a7980",
+      "size": "0x12d0",
+      "sha256": "95a94723da3cb66e5cae62ce7507551486f75a0f69f65e2fa99428a2033729c2",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xed0",
+      "extra_entries": [
+        "0xa60",
+        "0xe00",
+        "0xec0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_trajoffsetikadjustplugin",
+      "source_ea": "0x20a8d00",
+      "size": "0x15a0",
+      "sha256": "f8b5c50b55c9c5f660590c60e27fc6efc2fc5254fafd05caf206ca3c727db615",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x11a0",
+      "extra_entries": [
+        "0xd30",
+        "0x10d0",
+        "0x1190"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_facialplugin",
+      "source_ea": "0x211ff80",
+      "size": "0x6d60",
+      "sha256": "fe0c4daa6ddb73436ebe3c08bfb1c9255933211b0b9ee03019368a658ca39adf",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x6400",
+      "extra_entries": [
+        "0x57a0",
+        "0x60a0",
+        "0x63f0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_headtrackplugin",
+      "source_ea": "0x2126d80",
+      "size": "0x69a0",
+      "sha256": "2f813761e7f9351efa27575c56cd233d9c78cc1a06683f1f17d34e5eab7506b0",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x60d0",
+      "extra_entries": [
+        "0x5470",
+        "0x5d70",
+        "0x60c0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     }
   ]
 }

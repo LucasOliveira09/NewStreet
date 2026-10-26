@@ -10,7 +10,7 @@ capturas conferidas. O código original gravou e releu integralmente o perfil
 BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
 navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A compilação inclui 99.127 entradas PPU, 369 imports e 84 registros de overlays
+A compilação inclui 99.127 entradas PPU, 369 imports e 103 registros de overlays
 raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
 de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
 conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
@@ -28,12 +28,13 @@ não medidos nesse ensaio. O parser foi corrigido para preservar o status antes 
 análise e registrar linhas inválidas sem descartar eventos completos.
 
 A segunda versão de ANT está traduzida e seus dois construtores passaram.
-FullGame compilou; 44 testes de boot e 114 do projeto passaram. A família
-comum ANT inclui 49 módulos, 4465 entradas nativas e 588 chamadas de construtores
-originais aprovadas em quatro bases. O ensaio ant-family-native passou por group
-final/blend e parou no plugin de 0x2096f00 (LS 0x106e0/PC 0x10710), com saída 90
-aos 80,307 s. Menu e partida permanecem pendentes. A evidência consolidada fica
-em reports/native-boot-checkpoint.json. Próximo trabalho: revisar o novo plugin.
+FullGame compilou; 44 testes de boot e 115 do projeto passaram. A família
+com CRT revisado inclui 68 módulos, 6422 entradas nativas e 816 chamadas de
+construtores originais aprovadas em quatro bases. O ensaio ant-sbu-family-native
+entrou em translationscale/interactionscale e parou no plugin 0x2133c80
+(LS 0x12fa0/PC 0x12fd0), com saída 90 aos 80,653 s. Menu e partida permanecem
+pendentes. Evidência: reports/native-boot-checkpoint.json. Próximo trabalho:
+revisão específica do novo módulo, que não pertence ao perfil de CRT admitido.
 
 ## Implementação comprovada
 
@@ -1966,3 +1967,36 @@ Próximo módulo em LS 0x106e0/PC 0x10710, origem 0x2096f00, tamanho 0x10d0,
 conferido integralmente em dois snapshots completos. Cinco hashes do perfil
 preservados; 65 amostras de assets aprovadas. Menu e partida continuam pendentes.
 Próxima ação: identificar a família do plugin em 0x2096f00 e revisar seu CRT.
+
+
+## Extensão estrutural para SBU ANT e plugins adicionais (2026-10-26)
+
+O bloqueio de 0x2096f00 é translationscaleplugin.elf, da família sbuantplugins,
+com o mesmo CRT/binário de inicialização e perfil BSS 0x50 já revisados.
+A revisão foi aplicada aos bytes dos demais programas reconhecidos, sem usar o
+nome do diretório original como critério de aprovação. Somente 19 imagens
+adicionais passaram exatamente pelas mesmas regras: plugins SBU de locomoção,
+interação/contato/IK, translationscale, facial e headtrack. Nenhum limite de
+código/BSS/constructores nem checagem de hash foi relaxado.
+
+Um teste autoral novo exige que a mesma estrutura seja aceita sob rótulos de
+origem diferentes e que BSS incompatível continue rejeitada. Falhou antes da
+extração do revisor e passou depois. O relatório foi regenerado: 157 programas
+reconhecidos, 68 com o CRT revisado. Manifesto agora tem 103 registros raw;
+os 19 novos usam base canônica zero e o mesmo fixture de quatro posições.
+O teste em lote exige 68 x 3 x 4 = 816 chamadas originais, sem simular main ou
+algoritmos. Predictable blend/mirror continuam excluídos por BSS diferente.
+Todas as traduções ficaram sem instruções ou destinos diretos pendentes.
+FullGame compilou; as 816 chamadas originais passaram em 9,193 s. Os 115 testes
+do projeto passaram em 9,887 s. Um reprocessamento de metadados com fonte
+alterada agora remove a classificação antiga antes de revalidar, com regressão
+reproduzida e aprovada. O ensaio ant-sbu-family-native segue em validação.
+
+
+Ensaio ant-sbu-family-native (1792988672963477600): saída estrita 90 aos
+80,653 s. Translationscale e interactionscale entraram no jogo. O próximo
+plugin está em 0x2133c80, LS 0x12fa0/PC 0x12fd0, 0x2ca0 bytes, conferido
+integralmente em dois snapshots completos. Ele não satisfez o perfil comum e
+exige revisão específica, sem relaxar a classificação existente. Os cinco hashes
+do perfil permanecem iguais e 65 amostras de assets passaram. Menu e gameplay
+continuam pendentes. Próxima ação: revisar o módulo de 0x2133c80.

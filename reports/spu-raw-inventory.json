@@ -11,7 +11,8 @@
       "entry": "0x80",
       "bss_bytes": 32,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e59200",
@@ -21,7 +22,8 @@
       "entry": "0x30",
       "bss_bytes": 0,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e59c80",
@@ -31,7 +33,8 @@
       "entry": "0x80",
       "bss_bytes": 33120,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e61b80",
@@ -41,7 +44,8 @@
       "entry": "0x30",
       "bss_bytes": 0,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e63880",
@@ -51,7 +55,8 @@
       "entry": "0x30",
       "bss_bytes": 4224,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e64380",
@@ -61,7 +66,8 @@
       "entry": "0x30",
       "bss_bytes": 11200,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e7da80",
@@ -71,7 +77,8 @@
       "entry": "0x30",
       "bss_bytes": 12736,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1e9a200",
@@ -81,7 +88,8 @@
       "entry": "0x30",
       "bss_bytes": 9136,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1eb3500",
@@ -91,7 +99,8 @@
       "entry": "0x30",
       "bss_bytes": 6416,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ebd580",
@@ -101,7 +110,8 @@
       "entry": "0x30",
       "bss_bytes": 8752,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ecb100",
@@ -111,7 +121,8 @@
       "entry": "0x30",
       "bss_bytes": 448,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f1e380",
@@ -121,7 +132,8 @@
       "entry": "0x30",
       "bss_bytes": 0,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f1f880",
@@ -131,7 +143,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f23500",
@@ -141,7 +154,8 @@
       "entry": "0x30",
       "bss_bytes": 0,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f24f00",
@@ -151,7 +165,8 @@
       "entry": "0x30",
       "bss_bytes": 128,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f8d580",
@@ -161,7 +176,8 @@
       "entry": "0x30",
       "bss_bytes": 240,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f8f880",
@@ -171,7 +187,8 @@
       "entry": "0x190",
       "bss_bytes": 160,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f90700",
@@ -181,7 +198,8 @@
       "entry": "0x4c8",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f91300",
@@ -191,7 +209,8 @@
       "entry": "0x570",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f91f80",
@@ -201,7 +220,8 @@
       "entry": "0x1df0",
       "bss_bytes": 512,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f9ef80",
@@ -211,7 +231,8 @@
       "entry": "0x30",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1f9fc00",
@@ -221,7 +242,8 @@
       "entry": "0x5c0",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa0900",
@@ -231,7 +253,8 @@
       "entry": "0x530",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa1580",
@@ -241,7 +264,8 @@
       "entry": "0x530",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa2200",
@@ -251,7 +275,8 @@
       "entry": "0x4d8",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa2e00",
@@ -261,7 +286,8 @@
       "entry": "0x4d8",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa3a00",
@@ -271,7 +297,8 @@
       "entry": "0x4e0",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa4600",
@@ -281,7 +308,8 @@
       "entry": "0x2e8",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fa5880",
@@ -291,7 +319,8 @@
       "entry": "0x2b8",
       "bss_bytes": 512,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fb3580",
@@ -301,7 +330,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fb4600",
@@ -311,7 +341,8 @@
       "entry": "0xe0",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fb6d00",
@@ -321,7 +352,8 @@
       "entry": "0x30",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fbec80",
@@ -331,7 +363,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fbf380",
@@ -341,7 +374,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fbff00",
@@ -351,7 +385,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fc0a80",
@@ -361,7 +396,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fc4b80",
@@ -371,7 +407,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fc6000",
@@ -381,7 +418,8 @@
       "entry": "0x38",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fc6f00",
@@ -391,7 +429,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fc7f80",
@@ -401,7 +440,8 @@
       "entry": "0x130",
       "bss_bytes": 64,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fca800",
@@ -411,7 +451,8 @@
       "entry": "0x208",
       "bss_bytes": 64,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fcc680",
@@ -421,7 +462,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fcca80",
@@ -431,7 +473,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fce580",
@@ -441,7 +484,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fcf280",
@@ -451,7 +495,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fd2c00",
@@ -461,7 +506,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fd4a00",
@@ -471,7 +517,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fd4e80",
@@ -481,7 +528,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fd8800",
@@ -491,7 +539,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fda900",
@@ -501,7 +550,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fdd100",
@@ -511,7 +561,8 @@
       "entry": "0x160",
       "bss_bytes": 64,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fded00",
@@ -521,7 +572,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe0480",
@@ -531,7 +583,8 @@
       "entry": "0x1a8",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe1d80",
@@ -541,7 +594,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe2a80",
@@ -551,7 +605,8 @@
       "entry": "0x30",
       "bss_bytes": 16,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x1fe2b80",
@@ -561,7 +616,8 @@
       "entry": "0x30",
       "bss_bytes": 16,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x1fe2c80",
@@ -571,7 +627,8 @@
       "entry": "0x30",
       "bss_bytes": 16,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x1fe2d80",
@@ -581,7 +638,8 @@
       "entry": "0x30",
       "bss_bytes": 16,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x1fe2e80",
@@ -591,7 +649,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe6580",
@@ -601,7 +660,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe7d00",
@@ -611,7 +671,8 @@
       "entry": "0x1c8",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fe9500",
@@ -621,7 +682,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fea200",
@@ -631,7 +693,8 @@
       "entry": "0x38",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1feaa80",
@@ -641,7 +704,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1feb280",
@@ -651,7 +715,8 @@
       "entry": "0x178",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1febb00",
@@ -661,7 +726,8 @@
       "entry": "0xf0",
       "bss_bytes": 64,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1feca80",
@@ -671,7 +737,8 @@
       "entry": "0x260",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ff3480",
@@ -681,7 +748,8 @@
       "entry": "0x40",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x1ff3580",
@@ -691,7 +759,8 @@
       "entry": "0x260",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ff4300",
@@ -701,7 +770,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ff6580",
@@ -711,7 +781,8 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "CRT differs at 0x30"
     },
     {
       "source_ea": "0x1ffb680",
@@ -721,7 +792,8 @@
       "entry": "0xd8",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ffc800",
@@ -731,7 +803,8 @@
       "entry": "0x30",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1ffeb00",
@@ -741,7 +814,8 @@
       "entry": "0x60",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x1fff700",
@@ -751,7 +825,8 @@
       "entry": "0x1c0",
       "bss_bytes": 48,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2004900",
@@ -761,7 +836,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2004e00",
@@ -771,7 +847,8 @@
       "entry": "0x30",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2006180",
@@ -781,7 +858,8 @@
       "entry": "0x38",
       "bss_bytes": 32,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Truncated CRT"
     },
     {
       "source_ea": "0x2006280",
@@ -791,7 +869,8 @@
       "entry": "0x30",
       "bss_bytes": 1072,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2009580",
@@ -801,7 +880,8 @@
       "entry": "0x2d8",
       "bss_bytes": 256,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2018e80",
@@ -811,7 +891,8 @@
       "entry": "0x30",
       "bss_bytes": 128,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2030080",
@@ -821,7 +902,8 @@
       "entry": "0x100",
       "bss_bytes": 560,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x2034680",
@@ -831,7 +913,8 @@
       "entry": "0x30",
       "bss_bytes": 20560,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x205ed80",
@@ -841,7 +924,8 @@
       "entry": "0x30",
       "bss_bytes": 25072,
       "flags": "0x80000080",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x208cf00",
@@ -851,7 +935,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 5760,
+        "constructors": [
+          3312,
+          4816,
+          5744
+        ],
+        "table": 5760,
+        "bss_start": 7840,
+        "bss_end": 7920
+      }
     },
     {
       "source_ea": "0x208ee80",
@@ -861,7 +956,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3280,
+        "constructors": [
+          2360,
+          3072,
+          3264
+        ],
+        "table": 3280,
+        "bss_start": 4304,
+        "bss_end": 4384
+      }
     },
     {
       "source_ea": "0x2090000",
@@ -871,7 +977,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3264,
+        "constructors": [
+          2344,
+          3056,
+          3248
+        ],
+        "table": 3264,
+        "bss_start": 4288,
+        "bss_end": 4368
+      }
     },
     {
       "source_ea": "0x2091180",
@@ -881,7 +998,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3040,
+        "constructors": [
+          2120,
+          2832,
+          3024
+        ],
+        "table": 3040,
+        "bss_start": 4064,
+        "bss_end": 4144
+      }
     },
     {
       "source_ea": "0x2092200",
@@ -891,7 +1019,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3320,
+        "constructors": [
+          2400,
+          3112,
+          3304
+        ],
+        "table": 3328,
+        "bss_start": 4352,
+        "bss_end": 4432
+      }
     },
     {
       "source_ea": "0x2093380",
@@ -901,7 +1040,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 7152,
+        "constructors": [
+          6096,
+          6944,
+          7136
+        ],
+        "table": 7152,
+        "bss_start": 9072,
+        "bss_end": 9152
+      }
     },
     {
       "source_ea": "0x2095780",
@@ -911,7 +1061,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 4808,
+        "constructors": [
+          3672,
+          4600,
+          4792
+        ],
+        "table": 4816,
+        "bss_start": 5840,
+        "bss_end": 5920
+      }
     },
     {
       "source_ea": "0x2096f00",
@@ -921,7 +1082,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3272,
+        "constructors": [
+          2352,
+          3064,
+          3256
+        ],
+        "table": 3280,
+        "bss_start": 4304,
+        "bss_end": 4384
+      }
     },
     {
       "source_ea": "0x2098080",
@@ -931,7 +1103,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 6504,
+        "constructors": [
+          5584,
+          6296,
+          6488
+        ],
+        "table": 6512,
+        "bss_start": 8432,
+        "bss_end": 8512
+      }
     },
     {
       "source_ea": "0x209a200",
@@ -941,7 +1124,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 5600,
+        "constructors": [
+          4680,
+          5392,
+          5584
+        ],
+        "table": 5600,
+        "bss_start": 7520,
+        "bss_end": 7600
+      }
     },
     {
       "source_ea": "0x209c000",
@@ -951,7 +1145,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 4312,
+        "constructors": [
+          3392,
+          4104,
+          4296
+        ],
+        "table": 4320,
+        "bss_start": 5344,
+        "bss_end": 5424
+      }
     },
     {
       "source_ea": "0x209d580",
@@ -961,7 +1166,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 5632,
+        "constructors": [
+          4576,
+          5424,
+          5616
+        ],
+        "table": 5632,
+        "bss_start": 7552,
+        "bss_end": 7632
+      }
     },
     {
       "source_ea": "0x209f400",
@@ -971,7 +1187,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 12920,
+        "constructors": [
+          11864,
+          12712,
+          12904
+        ],
+        "table": 12928,
+        "bss_start": 14864,
+        "bss_end": 14944
+      }
     },
     {
       "source_ea": "0x20a2f00",
@@ -981,7 +1208,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 6288,
+        "constructors": [
+          5016,
+          6080,
+          6272
+        ],
+        "table": 6288,
+        "bss_start": 8192,
+        "bss_end": 8272
+      }
     },
     {
       "source_ea": "0x20a5000",
@@ -991,7 +1229,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 7936,
+        "constructors": [
+          3856,
+          6856,
+          7920
+        ],
+        "table": 7936,
+        "bss_start": 10368,
+        "bss_end": 10448
+      }
     },
     {
       "source_ea": "0x20a7980",
@@ -1001,7 +1250,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 3792,
+        "constructors": [
+          2656,
+          3584,
+          3776
+        ],
+        "table": 3792,
+        "bss_start": 4816,
+        "bss_end": 4896
+      }
     },
     {
       "source_ea": "0x20a8d00",
@@ -1011,7 +1271,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 4512,
+        "constructors": [
+          3376,
+          4304,
+          4496
+        ],
+        "table": 4512,
+        "bss_start": 5536,
+        "bss_end": 5616
+      }
     },
     {
       "source_ea": "0x20aa380",
@@ -1021,7 +1292,8 @@
       "entry": "0x30",
       "bss_bytes": 304,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     },
     {
       "source_ea": "0x20b7900",
@@ -2082,7 +2354,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 25600,
+        "constructors": [
+          22432,
+          24736,
+          25584
+        ],
+        "table": 25600,
+        "bss_start": 28000,
+        "bss_end": 28080
+      }
     },
     {
       "source_ea": "0x2126d80",
@@ -2092,7 +2375,18 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_review": {
+        "code_end": 24784,
+        "constructors": [
+          21616,
+          23920,
+          24768
+        ],
+        "table": 24784,
+        "bss_start": 27040,
+        "bss_end": 27120
+      }
     },
     {
       "source_ea": "0x212d800",
@@ -2102,7 +2396,8 @@
       "entry": "0x30",
       "bss_bytes": 80,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Code/data padding"
     },
     {
       "source_ea": "0x2133c80",
@@ -2112,11 +2407,12 @@
       "entry": "0x30",
       "bss_bytes": 3120,
       "flags": "0x80000000",
-      "ant_common_path": false
+      "ant_common_path": false,
+      "common_crt_rejection": "Unsupported raw PIC header"
     }
   ],
   "raw_image_count": 157,
-  "common_ant_count": 49,
+  "common_ant_count": 68,
   "automatic_admission": false,
   "algorithm_validation": false,
   "inventory_exhaustive": false

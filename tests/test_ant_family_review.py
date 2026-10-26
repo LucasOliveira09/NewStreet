@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from inventory_spu_raw import inspect_common_ant, scan_segment
+from inventory_spu_raw import inspect_common_ant, scan_segment, review_images
 
 
 def word(blob, offset, value):
@@ -38,6 +38,21 @@ def fixture(size=0x400, table=0x200):
 
 
 class CommonAntReviewTests(unittest.TestCase):
+    def test_structural_review_does_not_depend_on_original_build_directory_name(self):
+        first, second, invalid = bytes(fixture()), bytes(fixture(0x500, 0x300)), fixture()
+        word(invalid, 24, 0x70)
+        blobs = {0x1000: first, 0x2000: second, 0x3000: bytes(invalid)}
+        records = [dict(source_ea=hex(ea), bytes=len(blob), ant_common_path=ea == 0x1000)
+                   for ea, blob in blobs.items()]
+        review_images(records, lambda ea, size: blobs[ea][:size], first)
+        self.assertEqual([item.get('common_crt_review') is not None for item in records],
+                         [True, True, False])
+        self.assertIn('common_crt_rejection', records[2])
+        blobs[0x1000] = bytes(invalid)
+        review_images(records, lambda ea, size: blobs[ea][:size], first)
+        self.assertNotIn('common_crt_review', records[0])
+        self.assertIn('common_crt_rejection', records[0])
+
     def test_same_crt_with_different_sizes_tables_and_main_target_is_bounded(self):
         original = fixture()
         other = fixture(0x500, 0x300)
