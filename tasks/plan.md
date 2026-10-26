@@ -1588,3 +1588,46 @@ Próxima parada: particleikplugin.elf, origem 0x20aa380, LS 0x8390/PC 0x83c0,
 hashes do perfil permanecem iguais e 65 amostras de assets passaram. Próximo
 incremento: três variantes ANT de BSS diferente revisadas individualmente:
 particle IK, predictable blend e mirror. Menu/partida continuam pendentes.
+
+
+## Três variantes ANT específicas restantes (2026-10-26)
+
+Além de facing angle, os três plugins PIC com BSS diferente foram revisados
+individualmente. Eles preservam o CRT de encaminhamento/ordem para frente,
+mas não recebem o perfil ant_common_v1 de BSS 0x50/três construtores.
+- particleikplugin, 0x20aa380, 0xd4c0 bytes: BSS 0x130, construtores
+  0x6900/0xb610/0xbfa0/0xc310. Código até 0xc340, após o getter em 0xc320..0xc33c;
+  a tabela começa em 0xc340. Inclui a posição real 0x8390 nos testes.
+- predictableblendplugin, 0x20cf280, 0x3480 bytes: BSS 0xc30, construtores
+  0x118/0x11a8/0x1820/0x2ab8/0x2eb8. Código até 0x2ec8; branch final 0x2ec0
+  para 0x2c00, padding de oito bytes e tabela em 0x2ed0.
+- mirrornode_exec, 0x2114a00, 0x21a0 bytes: BSS 0x70, construtores
+  0x118/0x1958/0x1aa0/0x1d68. Código até 0x1d78; branch final 0x1d70 para
+  0x1ab0, padding de oito bytes e tabela em 0x1d80.
+
+Cada fonte confere com o hash do inventário. As CLIs ausentes retornaram 2 antes
+da integração. Serão 52 chamadas originais adicionais em quatro bases, com
+extensões reais de BSS e guardas, mantendo as regressões do perfil comum.
+Predictable blend/mirror ainda não têm entrada real observada; a tradução visa
+cobrir os módulos presentes no conteúdo offline e não presume execução deles.
+As três traduções ficaram sem instruções nem destinos diretos pendentes.
+FullGame compilou; os 17 testes de construtores passaram em 7,884 s, incluindo
+as 52 chamadas das variantes novas. Boot passou 44 testes e os 119 testes
+do projeto passaram em 10,469 s. O ensaio ant-specific-variants-native segue
+em validação. As variantes têm 528/104/111 entradas nativas, respectivamente.
+
+
+Ensaio ant-specific-variants-native (1792989446164060900): saída estrita 90 aos
+79,515 s. Particle IK entrou e o jogo avançou por footplant post, HIK reset,
+facial e face poser. Predictable blend/mirror ainda não tiveram entrada observada.
+Perfil preservado pelos cinco hashes; 65 amostras de assets aprovadas.
+
+O próximo programa está em 0x1ee9580, LS 0x80/PC 0xb0. Há 0x4f30 bytes de
+imagem inicializada até LS 0x4fb0, SHA
+56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f,
+conferidos integralmente em dois snapshots. O CRT usa BSS 0x5000..0x25a60.
+O identificador antigo procurou BuiltElfName muito além da imagem inicializada
+e atribuiu Replay_deltacompress.elf de outra região. Essa identificação não é
+válida e não será usada para traduzir o programa. Seu nome real não foi verificado.
+Menu e gameplay ainda pendentes. Próximo incremento: corrigir o diagnóstico e
+revisar/traduzir a imagem inicializada efetivamente carregada.

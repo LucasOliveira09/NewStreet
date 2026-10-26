@@ -208,3 +208,18 @@ extern "C" int fifa_test_spu_ant_facingangle_constructors(const char* image) {
     const uint32_t entries[] = {0x118,0x8d0,0xfe0,0x1330,0x25c8};
     return run_pic_constructors(image, 0x2133c80, 0x2ca0, 0x2760, entries, 0x12fa0, 5, 0xc30);
 }
+
+extern "C" int fifa_test_spu_ant_particleik_constructors(const char* image) {
+    const uint32_t entries[] = {0x6900,0xb610,0xbfa0,0xc310};
+    return run_pic_constructors(image, 0x20aa380, 0xd4c0, 0xc340, entries, 0x8390, 4, 0x130);
+}
+
+extern "C" int fifa_test_spu_ant_predictableblend_constructors(const char* image) {
+    const uint32_t entries[] = {0x118,0x11a8,0x1820,0x2ab8,0x2eb8};
+    return run_pic_constructors(image, 0x20cf280, 0x3480, 0x2ec8, entries, 0x8000, 5, 0xc30);
+}
+
+extern "C" int fifa_test_spu_ant_mirror_constructors(const char* image) {
+    const uint32_t entries[] = {0x118,0x1958,0x1aa0,0x1d68};
+    return run_pic_constructors(image, 0x2114a00, 0x21a0, 0x1d78, entries, 0x8000, 4, 0x70);
+}

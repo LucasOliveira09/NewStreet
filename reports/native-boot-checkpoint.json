@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Facing angle smoother entered; head tracking and contact plugins advanced; particle IK is untranslated",
+  "stage": "Particle IK and facial plugins entered; a fixed-address raw program at 0x1ee9580 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792989126512759400",
-  "elapsed_seconds": 81.015,
+  "logs": "private\\analysis\\runs\\1792989446164060900",
+  "elapsed_seconds": 79.515,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706383296,
+    "value": 2259970271706349744,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 116,
+    "project": 119,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,13 +866,17 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x20aa380",
-    "pc": "0x83c0",
-    "ls_base": "0x8390",
-    "source_sha256": "65430b1fbbdde93eaa896edd9f2cde28cc9166db2829814f5e3553858b255a90",
+    "source_ea": "0x1ee9580",
+    "ls_base": "0x80",
+    "pc": "0xb0",
+    "initialized_bytes": 20272,
+    "source_sha256": "56ac370c9307000bf6b33c207a065bedd7812ce2066b6a10faade884cb4f5a0f",
     "snapshot_byte_differences": 0,
-    "bytes": 54464,
-    "name": "particleikplugin.elf"
+    "verified_snapshots": 2,
+    "bss_start": "0x5000",
+    "bss_end": "0x25a60",
+    "source_name_verified": false,
+    "distant_label_misattribution": "Replay_deltacompress.elf is not the name of this initialized image"
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -947,10 +951,10 @@
     "ai_algorithm_result_validated": false
   },
   "diagnostic_recovery": {
-    "raw_event_errors": 0,
-    "valid_events": 167,
+    "raw_event_errors": 1,
+    "valid_events": 176,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792989126512759400/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792989446164060900/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1173,6 +1177,33 @@
       "original_constructor_calls": 20,
       "native_entry_observed": true,
       "native_thread": 8193,
+      "algorithm_result_validated": false
+    },
+    {
+      "name": "ant_particleikplugin",
+      "bss_bytes": 304,
+      "constructor_count": 4,
+      "native_entries": 528,
+      "original_constructor_calls": 16,
+      "native_entry_observed": true,
+      "algorithm_result_validated": false
+    },
+    {
+      "name": "ant_predictableblendplugin",
+      "bss_bytes": 3120,
+      "constructor_count": 5,
+      "native_entries": 104,
+      "original_constructor_calls": 20,
+      "native_entry_observed": false,
+      "algorithm_result_validated": false
+    },
+    {
+      "name": "ant_mirrornode_exec",
+      "bss_bytes": 112,
+      "constructor_count": 4,
+      "native_entries": 111,
+      "original_constructor_calls": 16,
+      "native_entry_observed": false,
       "algorithm_result_validated": false
     }
   ]

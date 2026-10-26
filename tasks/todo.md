@@ -152,7 +152,10 @@ de funções ou por abrir uma janela.
 - [x] Observar translationscale/interactionscale no jogo.
 - [x] Integrar facing angle de 0x2133c80 com cinco construtores/BSS 0xc30.
 - [x] Observar headtrack/IK/contact e identificar particle IK após facing angle.
-- [ ] Integrar particle IK, predictable blend e mirror com testes específicos.
+- [x] Integrar particle IK, predictable blend e mirror com testes específicos.
+- [x] Observar particle IK/facial/face poser na execução real.
+- [ ] Corrigir associação de rótulo distante no identificador de snapshots.
+- [ ] Traduzir a imagem inicializada de 0x1ee9580 e seguir o carregamento.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

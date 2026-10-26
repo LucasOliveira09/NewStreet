@@ -1818,6 +1818,58 @@
         "0x25c8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_particleikplugin",
+      "source_ea": "0x20aa380",
+      "size": "0xd4c0",
+      "sha256": "65430b1fbbdde93eaa896edd9f2cde28cc9166db2829814f5e3553858b255a90",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xc340",
+      "extra_entries": [
+        "0x6900",
+        "0xb610",
+        "0xbfa0",
+        "0xc310"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "ant_predictableblendplugin",
+      "source_ea": "0x20cf280",
+      "size": "0x3480",
+      "sha256": "d4590eba722f59e261f34817790ca02e4715aba585f2004c2ade9eb3406f6cc2",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x2ec8",
+      "extra_entries": [
+        "0x118",
+        "0x11a8",
+        "0x1820",
+        "0x2ab8",
+        "0x2eb8"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "ant_mirrornode_exec",
+      "source_ea": "0x2114a00",
+      "size": "0x21a0",
+      "sha256": "dae74bfb0357e6f6998f12d0851f616bc610e3ac2bd391d23afa8266931f03f3",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1d78",
+      "extra_entries": [
+        "0x118",
+        "0x1958",
+        "0x1aa0",
+        "0x1d68"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

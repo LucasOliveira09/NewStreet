@@ -65,6 +65,18 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_pic_constructors('ant_facinganglesmootherplugin', '--test-spu-ant-facingangle-constructors',
             '9866099c790cc0e579f14b42b9f4709a71b08789d9f2e944f00ea68e06841776', 20)
 
+    def test_original_particleik_constructors_with_reviewed_bss_relocate(self):
+        self.check_pic_constructors('ant_particleikplugin', '--test-spu-ant-particleik-constructors',
+            '65430b1fbbdde93eaa896edd9f2cde28cc9166db2829814f5e3553858b255a90', 16)
+
+    def test_original_predictableblend_constructors_with_reviewed_bss_relocate(self):
+        self.check_pic_constructors('ant_predictableblendplugin', '--test-spu-ant-predictableblend-constructors',
+            'd4590eba722f59e261f34817790ca02e4715aba585f2004c2ade9eb3406f6cc2', 20)
+
+    def test_original_mirror_constructors_with_reviewed_bss_relocate(self):
+        self.check_pic_constructors('ant_mirrornode_exec', '--test-spu-ant-mirror-constructors',
+            'dae74bfb0357e6f6998f12d0851f616bc610e3ac2bd391d23afa8266931f03f3', 16)
+
     def check_pic_constructors(self, module, command, sha256, calls=12):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)
