@@ -1986,6 +1986,20 @@
         "0x420"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "audio_spureverbmodel1",
+      "source_ea": "0x1ff6580",
+      "size": "0x50c0",
+      "sha256": "9f527fbfc677a8d598b9b3b635f5bbfeafa9e273fc738893a4a3496489a653c0",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x4ec0",
+      "extra_entries": [
+        "0xc48"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

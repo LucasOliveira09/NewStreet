@@ -15,15 +15,16 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Railtracks path estimates: 1.769 entradas, CRT/BSS25072/4ctors e cauda stop0 validados; entrada real.
 - User music arbiter: init PIC4bases e 4.096 amostras DSP conferidas contra oráculo; entrada real.
 - Compressor1: 114 entradas, init PIC4bases/callbacks/contexto/guardas validados; entrada real.
-- 138 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- Reverb1: 287 entradas, init PIC4bases/contexto/32bytes de estado preservados; entrada real.
+- 139 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir o plugin PIC reverb model1
+## 1. Traduzir o plugin PIC matrix panner
 
-- Fonte1ff6580, tamanho50c0, base observada27f00/PC27f30; SHA no checkpoint.
-- Cabeçalho PIC modo1: usar base canônica0 e entrada relativa30.
-- Revisar fronteira de código, init, callbacks e preservação do restante da BSS.
-- Aceite: tradução completa em limites revisados e init em quatro bases;
-  distinguir init de validação de todo algoritmo de reverberação.
+- Fonte1feaa80, tamanho770, base observada3780/PC37b0; SHA no checkpoint.
+- PIC modo1: base canônica0, entrada30, code_end750 exclui tabela final.
+- Init: callback externo770, descriptor780/784zero,788=base+b8,78cpreservado.
+- Aceite: tradução completa e init em quatro bases com imagem/guardas preservadas;
+  não alegar processamento matricial correto sem reconstruir o layout de buffers.
 - Rodar novo ensaio nativo estrito; preservar saves e oráculos de assets.
 
 ## 3. Ensaiar o avanço real após o novo módulo

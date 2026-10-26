@@ -16,7 +16,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Revisar, traduzir e executar railtracks_calculatepathestimates de 0x205ed80.
 - [x] Traduzir e executar spuusermusicarbiter de 0x2004900.
 - [x] Traduzir e executar spucompressor1 de 0x1fcf280.
-- [ ] Traduzir e executar spureverbmodel1 de 0x1ff6580.
+- [x] Traduzir e executar spureverbmodel1 de 0x1ff6580.
+- [ ] Traduzir e executar spumatrixpanner de 0x1feaa80.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.

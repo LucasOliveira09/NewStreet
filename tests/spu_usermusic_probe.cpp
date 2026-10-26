@@ -129,15 +129,16 @@ extern "C" int fifa_test_spu_usermusic(const char* path) {
     return 0;
 }
 
-extern "C" int fifa_test_spu_compressor_init(const char* path) {
-    std::vector<uint8_t> blob(0x3930);
+static int run_audio_context_init(const char* path, uint32_t source, uint32_t bytes,
+                                  uint32_t bss_bytes, uint32_t callback,
+                                  uint32_t observed_base, const char* algorithm) {
+    std::vector<uint8_t> blob(bytes);
     FILE* file = std::fopen(path, "rb");
     if (!file) return 3;
     bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
                  std::fgetc(file) == EOF;
     std::fclose(file);
     if (!valid) return 3;
-    constexpr uint32_t source = 0x1fcf280;
     vm_base = static_cast<uint8_t*>(std::calloc(1, source + blob.size()));
     if (!vm_base) return 3;
     std::memcpy(vm_base + source, blob.data(), blob.size());
@@ -147,7 +148,7 @@ extern "C" int fifa_test_spu_compressor_init(const char* path) {
     spu_register_function(return_pc, fixture_return);
     spu_begin_image(0);
     const uint32_t context_words[] = {0x10203040, 0x50607080, 0x90a0b0c0, 0xd0e0f000};
-    const uint32_t bases[] = {0, 0x24500, 0x4910, 0x10000};
+    const uint32_t bases[] = {0, observed_base, 0x4910, 0x10000};
     getter_calls = 0;
     for (auto base : bases) {
         static spu_context ctx;
@@ -164,17 +165,20 @@ extern "C" int fifa_test_spu_compressor_init(const char* path) {
             spu_ls_write32(&ctx, parameters + 0x110 + 4 * i, context_words[i]);
         ctx.gpr[3] = spu_splat_u32(parameters);
         if (!invoke(ctx, base + 0x30)) return 4;
-        if (spu_ls_read32(&ctx, base + 0x3930) != getter_pc ||
-            spu_ls_read32(&ctx, base + 0x3950) != 0 ||
-            spu_ls_read32(&ctx, base + 0x3954) != 0 ||
-            spu_ls_read32(&ctx, base + 0x3958) != base + 0x420 ||
-            spu_ls_read32(&ctx, base + 0x395c) != 0xa5a5a5a5) return 5;
+        const uint32_t state = base + bytes;
+        if (spu_ls_read32(&ctx, state) != getter_pc ||
+            spu_ls_read32(&ctx, state + 0x20) != 0 ||
+            spu_ls_read32(&ctx, state + 0x24) != 0 ||
+            spu_ls_read32(&ctx, state + 0x28) != base + callback ||
+            spu_ls_read32(&ctx, state + 0x2c) != 0xa5a5a5a5) return 5;
         for (unsigned i = 0; i < 4; ++i)
-            if (spu_ls_read32(&ctx, base + 0x3940 + 4 * i) != context_words[i]) return 6;
+            if (spu_ls_read32(&ctx, state + 0x10 + 4 * i) != context_words[i]) return 6;
+        for (uint32_t offset = 0x30; offset < bss_bytes; ++offset)
+            if (ctx.ls[state + offset] != 0xa5) return 10;
         if (std::memcmp(ctx.ls + base, blob.data(), blob.size())) return 7;
         for (unsigned i = 0; i < 16; ++i)
             if ((base && ctx.ls[base - 16 + i] != 0xa5) ||
-                ctx.ls[base + 0x3960 + i] != 0xa5) return 8;
+                ctx.ls[state + bss_bytes + i] != 0xa5) return 8;
     }
     if (getter_calls) return 9; // Initialization copies the callback; it must not call it.
     std::free(vm_base);
@@ -182,6 +186,15 @@ extern "C" int fifa_test_spu_compressor_init(const char* path) {
     std::printf("{\"positions\":4,\"initialization_validated\":true,\"callbacks_relocated\":true,"
                 "\"external_pointer_preserved\":true,\"context_vector_preserved\":true,"
                 "\"code_preserved\":true,\"guards_preserved\":true,"
-                "\"compressor_algorithm_validated\":false}\n");
+                "\"untouched_state_bytes\":%u,\"%s_algorithm_validated\":false}\n",
+                bss_bytes - 0x30, algorithm);
     return 0;
+}
+
+extern "C" int fifa_test_spu_compressor_init(const char* path) {
+    return run_audio_context_init(path, 0x1fcf280, 0x3930, 0x30, 0x420, 0x24500, "compressor");
+}
+
+extern "C" int fifa_test_spu_reverb_init(const char* path) {
+    return run_audio_context_init(path, 0x1ff6580, 0x50c0, 0x50, 0xc48, 0x27f00, "reverb");
 }

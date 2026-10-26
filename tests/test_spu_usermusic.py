@@ -9,6 +9,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UserMusicTests(unittest.TestCase):
+    def test_reverb_init_preserves_additional_state_at_four_placements(self):
+        image = ROOT / 'private/analysis/audio_spureverbmodel1.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         '9f527fbfc677a8d598b9b3b635f5bbfeafa9e273fc738893a4a3496489a653c0')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-reverb-init', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            positions=4, initialization_validated=True, callbacks_relocated=True,
+            external_pointer_preserved=True, context_vector_preserved=True,
+            code_preserved=True, guards_preserved=True, untouched_state_bytes=32,
+            reverb_algorithm_validated=False))
+
     def test_compressor_init_relocates_internal_callback_and_preserves_external_context(self):
         image = ROOT / 'private/analysis/audio_spucompressor1.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
@@ -20,7 +34,8 @@ class UserMusicTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
             positions=4, initialization_validated=True, callbacks_relocated=True,
             external_pointer_preserved=True, context_vector_preserved=True,
-            code_preserved=True, guards_preserved=True, compressor_algorithm_validated=False))
+            code_preserved=True, guards_preserved=True, untouched_state_bytes=0,
+            compressor_algorithm_validated=False))
 
     def test_original_fades_match_linear_sample_oracle_at_four_placements(self):
         image = ROOT / 'private/analysis/audio_spuusermusicarbiter.bin'
