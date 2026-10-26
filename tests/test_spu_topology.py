@@ -17,6 +17,10 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_original_constructors('railtracks_movetotarget', '--test-spu-railtracks-constructors',
             'f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b', 4)
 
+    def test_original_secondary_ant_constructors_return_without_modifying_code(self):
+        self.check_original_constructors('ant_kernel_secondary', '--test-spu-ant-secondary-constructors',
+            '18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4', 2)
+
     def check_original_constructors(self, module, command, sha256, count):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)

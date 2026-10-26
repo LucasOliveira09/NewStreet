@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Railtracks module entered; a distinct ANT kernel is untranslated; final process status lost to a truncated diagnostic line",
+  "stage": "Secondary ANT kernel entered; original relocatable ANT plugin at 0x2100a00 blocks further loading",
   "native_process": true,
   "emulator_launched": false,
-  "exit_code": null,
-  "logs": "private\\analysis\\runs\\1792982437186954100",
-  "elapsed_seconds": null,
+  "exit_code": 90,
+  "logs": "private\\analysis\\runs\\1792983860434703700",
+  "elapsed_seconds": 81.795,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706349952,
+    "value": 2259970271706368320,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 93,
+    "project": 97,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,12 +866,13 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "ANT_kernel.elf",
-    "source_ea": "0x2030080",
-    "pc": "0x180",
-    "bytes": 17856,
-    "sha256": "18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4",
-    "snapshot_byte_differences": 0
+    "source_ea": "0x2100a00",
+    "pc": "0x4940",
+    "ls_base": "0x4910",
+    "bytes": 29152,
+    "sha256": "e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2",
+    "snapshot_byte_differences": 0,
+    "relocatable_pic": true
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -947,9 +948,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 139,
-    "process_status_recorded": false,
-    "recovered_report": "private/analysis/railtracks-recovered.json"
+    "valid_events": 140,
+    "process_status_recorded": true,
+    "process_status_path": "private\\analysis\\runs\\1792983860434703700/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -960,5 +961,16 @@
     "original_constructors_tested": 4,
     "native_entry_observed": true,
     "movement_algorithm_result_validated": false
+  },
+  "spu_ant_secondary": {
+    "source_ea": "0x2030080",
+    "entry": "0x180",
+    "bytes": 17856,
+    "sha256": "18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4",
+    "native_functions": 305,
+    "original_constructors_tested": 2,
+    "native_entry_observed": true,
+    "native_thread": 8194,
+    "complete_task_validated": false
   }
 }

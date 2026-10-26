@@ -628,6 +628,22 @@
         "0x24a38",
         "0x26868"
       ]
+    },
+    {
+      "name": "ant_kernel_secondary",
+      "source_ea": "0x2030080",
+      "size": "0x45c0",
+      "sha256": "18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4",
+      "ls_base": "0x80",
+      "entry": "0x180",
+      "code_start": "0x180",
+      "code_end": "0x4130",
+      "extra_entries": [
+        "0x218",
+        "0x224",
+        "0x1de8",
+        "0x40b8"
+      ]
     }
   ]
 }

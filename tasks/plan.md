@@ -1154,3 +1154,37 @@ O parser novo leu o log real: 139 eventos íntegros e um erro registrado.
 O status perdido do ensaio antigo não foi retroativamente inventado.
 
 Validação final do runner: 96 testes do projeto passaram.
+
+
+## Segunda versão do kernel ANT (2026-10-25)
+
+O snapshot de 0x180 contém ANT_kernel.elf de 0x2030080, não o binário de
+0x201d880 já traduzido. O novo blob tem 0x45c0 bytes, SHA
+18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4,
+entrada 0x180 e código até 0x4130. A cauda após o último bi r0 contém uma
+rotina que termina em br 0x3d98; esse trecho foi preservado como código.
+A BSS 0x4640..0x4870 faz o CRT entrar em 0x218; 0x224 e os construtores
+0x1de8/0x40b8 foram conferidos e admitidos explicitamente. A tabela original
+em 0x4240/0x4244 é percorrida em ordem inversa.
+
+A tradução produziu 305 entradas, sem instruções nem chamadas diretas pendentes.
+O teste novo reproduziu CLI ausente; depois os dois construtores retornaram
+com código preservado. Os três testes de construtores passaram em 3,853 s
+(topologia, Railtracks e ANT secundário). FullGame compilou. O mapa real de
+ownership mostrou o kernel novo ocupando o prefixo LS e código de Railtracks
+residente acima de 0x4670; não se reutilizou código do ANT antigo só pelo nome.
+A execução no carregamento real foi observada no ensaio abaixo; callbacks e
+conclusão de todas as tarefas ainda não estão validados.
+
+
+Validação nativa ant-secondary-native (1792983860434703700): saída estrita 90
+medida aos 81,795 s e entrada ant_kernel_secondary observada na SPU 8194.
+Start/Cross foram autorizados pelos mesmos ROIs conferidos; a captura posterior
+mostra carregamento, sem menu. Os cinco hashes do perfil foram preservados.
+O parser novo conservou o relatório mesmo com uma linha fifa-spu-state truncada;
+process-exit.json já estava salvo. O próximo PC 0x4940 está em um plugin ANT
+PIC, origem 0x2100a00, LS 0x4910, tamanho 0x71e0, SHA
+e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2;
+o blob desse snapshot confere integralmente. Outros workers param em 0x4920.
+42 testes de boot e 97 do projeto passaram. Não se afirma conclusão das tarefas
+ANT, menu ou gameplay; o próximo incremento examinará o plugin e suas relocações.

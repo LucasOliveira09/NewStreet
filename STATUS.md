@@ -1,45 +1,38 @@
 # Estado para retomada
 
-Atualizado em 24/10/2026 durante a integração de boot nativo.
+Atualizado em 26/10/2026 durante a integração de boot nativo.
 
 ## Checkpoint atual
 
-O primeiro frame original foi conferido visualmente: logo FIFA Street sobre
-seu fundo, renderizado em D3D12 pelo fluxo nativo do jogo, 1280x720. O manifesto
-registra DRAW e textura, não apenas clear. A captura mais antiga já estava na
-tentativa `1792846643102912600`; a imagem foi inspecionada somente depois.
-As afirmações históricas abaixo de ausência de frame eram conservadoras e
-ficaram desatualizadas: a inspeção das capturas confirmou o marco, sem menu.
-SHA-256 do BMP: c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f.
+O executável Windows x64 renderiza a tela original FIFA STREET / PRESS START
+BUTTON e o aviso de autosave. Start e Cross são entregues somente depois de
+capturas conferidas. O código original gravou e releu integralmente o perfil
+BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
+navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A consulta NP offline e a enumeração de diretórios já foram corrigidas e
-validadas. O EOF de Readdir deixava o último tipo de arquivo no buffer e prendia
-a thread DLC; o adaptador agora respeita a diferença entre HDD0 e HDD1. Os 21
-testes de boot e 37 métodos de teste do projeto passaram após essa correção.
+A compilação inclui 99.127 entradas PPU, 369 imports e 35 registros de overlays
+raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
+de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
+conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
+assets do último ensaio concluído passaram nos oráculos independentes.
 
-Há 14 ELFs SPU e 17 programas raw compilados, incluindo ANT kernel e generic
-player, mais doze posições adicionais (29 registros raw no total). O build
-passa, mas o alcance varia entre tentativas concorrentes. A execução mais
-recente, 1792873875418408300, foi encerrada aos 75,265 s sem fronteira estrita.
-O registro optativo confirmou entradas reais de nove programas da primeira
-cadeia (AssetStream, patch, mixer, submix, sample capture, gain, VU e DAC).
-ANT e generic player ainda não tiveram suas entradas confirmadas nessa coleta.
+O atlas de fontes foi corrigido e o texto de autosave conferido com cache normal.
+Os vídeos de abertura ainda apresentam artefatos. O sinal de áudio foi medido,
+mas audição e sincronização não foram validadas. As seções seguintes conservam
+histórico de implementação; seus bloqueios antigos não substituem este checkpoint.
 
-O watchdog mostra main em sleep, mutex 8 com dono thread 22 e outra thread
-esperando esse mutex. Próximo passo: examinar a stack do dono e as consultas
-NetCtl offline restantes, sem forçar flags/callbacks. Logo original validado;
-menu, som audível e partida pendentes. 24 testes de boot e 40 do projeto passam.
+O ensaio anterior de Railtracks (1792982437186954100), identificou uma
+segunda versão de ANT em 0x2030080, entrada LS 0x180. Uma linha de diagnóstico
+truncada impediu o runner antigo de persistir status/tempo finais; eles permanecem
+não medidos nesse ensaio. O parser foi corrigido para preservar o status antes da
+análise e registrar linhas inválidas sem descartar eventos completos.
 
-`tools/identify_spu_resident.py` produz evidências limitadas a partir do snapshot
-e dos segmentos PT_LOAD do ELF com hash fixado. Não admite programas nem altera
-configuração automaticamente. Cabeçalhos, tamanho e limites de código exigem
-revisão porque os módulos contêm dados e usam layouts diferentes.
-
-Os 16 CTest do runtime passaram. A extração UDF verificou 104 arquivos,
-4.800.945.013 bytes, preservando DATA0. As 47 capturas AssetStream observadas
-(15 RefPack, 32 DEFLATE, 2.671.706 bytes de saída) coincidiram integralmente
-com oráculos independentes, sem capturas incompletas; limite de 32 por codec.
-Áudio audível, menu, partida, saves e progressão continuam sem validação.
+A segunda versão de ANT está traduzida e seus dois construtores passaram.
+FullGame compilou; 42 testes de boot e 97 do projeto passaram. O ensaio
+ant-secondary-native entrou no kernel e parou num plugin ANT PIC em 0x4940
+(origem 0x2100a00), com saída 90 medida aos 81,795 s. A evidência consolidada fica em
+reports/native-boot-checkpoint.json e o próximo trabalho é seguir o bloqueio real
+até menu, partida e persistência completa, sem bypass ou interpretação/JIT.
 
 ## Implementação comprovada
 
@@ -1609,3 +1602,37 @@ O parser novo leu o log real: 139 eventos íntegros e um erro registrado.
 O status perdido do ensaio antigo não foi retroativamente inventado.
 
 Validação final do runner: 96 testes do projeto passaram.
+
+
+## Segunda versão do kernel ANT (2026-10-25)
+
+O snapshot de 0x180 contém ANT_kernel.elf de 0x2030080, não o binário de
+0x201d880 já traduzido. O novo blob tem 0x45c0 bytes, SHA
+18664f851235de1b95b6fc827b73bfc18b9714425043fdcbf416a029373a94e4,
+entrada 0x180 e código até 0x4130. A cauda após o último bi r0 contém uma
+rotina que termina em br 0x3d98; esse trecho foi preservado como código.
+A BSS 0x4640..0x4870 faz o CRT entrar em 0x218; 0x224 e os construtores
+0x1de8/0x40b8 foram conferidos e admitidos explicitamente. A tabela original
+em 0x4240/0x4244 é percorrida em ordem inversa.
+
+A tradução produziu 305 entradas, sem instruções nem chamadas diretas pendentes.
+O teste novo reproduziu CLI ausente; depois os dois construtores retornaram
+com código preservado. Os três testes de construtores passaram em 3,853 s
+(topologia, Railtracks e ANT secundário). FullGame compilou. O mapa real de
+ownership mostrou o kernel novo ocupando o prefixo LS e código de Railtracks
+residente acima de 0x4670; não se reutilizou código do ANT antigo só pelo nome.
+A execução no carregamento real foi observada no ensaio abaixo; callbacks e
+conclusão de todas as tarefas ainda não estão validados.
+
+
+Validação nativa ant-secondary-native (1792983860434703700): saída estrita 90
+medida aos 81,795 s e entrada ant_kernel_secondary observada na SPU 8194.
+Start/Cross foram autorizados pelos mesmos ROIs conferidos; a captura posterior
+mostra carregamento, sem menu. Os cinco hashes do perfil foram preservados.
+O parser novo conservou o relatório mesmo com uma linha fifa-spu-state truncada;
+process-exit.json já estava salvo. O próximo PC 0x4940 está em um plugin ANT
+PIC, origem 0x2100a00, LS 0x4910, tamanho 0x71e0, SHA
+e10fdf3acb9f374397a13bd37f843cf866891f8c7432a5fb9b545b3a13af65d2;
+o blob desse snapshot confere integralmente. Outros workers param em 0x4920.
+42 testes de boot e 97 do projeto passaram. Não se afirma conclusão das tarefas
+ANT, menu ou gameplay; o próximo incremento examinará o plugin e suas relocações.

@@ -57,3 +57,8 @@ extern "C" int fifa_test_spu_railtracks_constructors(const char* image) {
     const uint32_t entries[] = {0x26868,0x24a38,0x1edb0,0x1d390};
     return run_original_constructors(image, 0x2a6a0, 0x2f0d60bc, 0x29080, entries, 4);
 }
+
+extern "C" int fifa_test_spu_ant_secondary_constructors(const char* image) {
+    const uint32_t entries[] = {0x40b8,0x1de8};
+    return run_original_constructors(image, 0x45c0, 0x218664f8, 0x4130, entries, 2);
+}
