@@ -78,6 +78,8 @@ int fifa_test_spu_ant_clear_constructors(const char*);
 int fifa_test_spu_ant_setdof_constructors(const char*);
 int fifa_test_spu_ant_trajectory_constructors(const char*);
 int fifa_test_spu_ant_scratch_constructors(const char*);
+int fifa_test_spu_ant_globalpose_constructors(const char*);
+int fifa_test_spu_ant_singledof_constructors(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -173,6 +175,8 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-ant-setdof-constructors")) return fifa_test_spu_ant_setdof_constructors(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-ant-trajectory-constructors")) return fifa_test_spu_ant_trajectory_constructors(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-ant-scratch-constructors")) return fifa_test_spu_ant_scratch_constructors(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-ant-globalpose-constructors")) return fifa_test_spu_ant_globalpose_constructors(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-ant-singledof-constructors")) return fifa_test_spu_ant_singledof_constructors(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

@@ -740,6 +740,38 @@
         "0xbc8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_posetoglobalplugin",
+      "source_ea": "0x20e6e80",
+      "size": "0x1b90",
+      "sha256": "1e8f997d11c7d9f333236c9381ea8ad1145a275e31b470c40b870584bce15b2d",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1678",
+      "extra_entries": [
+        "0x1248",
+        "0x13a0",
+        "0x1668"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "ant_setdofnode_exec",
+      "source_ea": "0x210ca00",
+      "size": "0x1580",
+      "sha256": "c83ad4290fd1d28dfa254ddb69ccca36bda3df8a8216fda318591dee82114cdf",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1070",
+      "extra_entries": [
+        "0xcd8",
+        "0xd98",
+        "0x1060"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

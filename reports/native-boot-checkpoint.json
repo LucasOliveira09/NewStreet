@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Trajectory and scratch plugins entered; VBR relocated to a second LS position; next ANT plugins are untranslated",
+  "stage": "Pose to global and single DOF plugins entered; next ANT plugin at 0x20bd280 remains untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792986197997724500",
-  "elapsed_seconds": 88.383,
+  "logs": "private\\analysis\\runs\\1792986607398190400",
+  "elapsed_seconds": 82.973,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706404416,
+    "value": 2259970271706422288,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 43,
-    "project": 104,
+    "project": 106,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -865,22 +865,14 @@
     "native_entry_observed": true,
     "native_thread": 8196
   },
-  "next_spu": [
-    {
-      "source_ea": "0x20e6e80",
-      "pc": "0xd640",
-      "ls_base": "0xd610",
-      "source_sha256": "1e8f997d11c7d9f333236c9381ea8ad1145a275e31b470c40b870584bce15b2d",
-      "snapshot_byte_differences": 0
-    },
-    {
-      "source_ea": "0x210ca00",
-      "pc": "0x105f0",
-      "ls_base": "0x105c0",
-      "source_sha256": "c83ad4290fd1d28dfa254ddb69ccca36bda3df8a8216fda318591dee82114cdf",
-      "snapshot_byte_differences": 0
-    }
-  ],
+  "next_spu": {
+    "source_ea": "0x20bd280",
+    "pc": "0x11c10",
+    "ls_base": "0x11be0",
+    "source_sha256": "5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e",
+    "snapshot_byte_differences": 0,
+    "bytes": 3440
+  },
   "spu_lzma": {
     "source_ea": "0x1e57180",
     "entry": "0x100",
@@ -955,9 +947,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 142,
+    "valid_events": 144,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792986197997724500/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792986607398190400/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1061,6 +1053,34 @@
       "positions": [
         0,
         33472,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8192,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_posetoglobalplugin",
+      "native_functions": 74,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        54800,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8193,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_setdofnode_exec",
+      "native_functions": 74,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        67008,
         18704,
         65536
       ],

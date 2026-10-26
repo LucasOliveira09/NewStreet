@@ -1358,3 +1358,36 @@ Ambos conferem integralmente nos snapshots completos. Perfil preservado pelos
 cinco hashes e 65 amostras de assets aprovadas. O tempo final medido não confirma
 regressão de desempenho. Menu, partida e resultados completos de animação
 seguem pendentes. Próximo incremento: os dois módulos efetivamente alcançados.
+
+
+## Pose to global e set DOF node (2026-10-26)
+
+O ensaio trajectory/scratch alcançou dois plugins adicionais:
+- posetoglobalplugin.elf: 0x20e6e80, 0x1b90 bytes, LS 0xd610, SHA
+  1e8f997d11c7d9f333236c9381ea8ad1145a275e31b470c40b870584bce15b2d.
+- setdofnode_exec.elf: 0x210ca00, 0x1580 bytes, LS 0x105c0, SHA
+  c83ad4290fd1d28dfa254ddb69ccca36bda3df8a8216fda318591dee82114cdf.
+
+Os dois blobs completos conferem nos snapshots. Cabeçalhos PIC modo 1,
+entrada relativa 0x30 e BSS de 0x50 bytes. Global pose: código até 0x1678,
+rotina final 0x1668 terminando com branch 0x13b0; padding até a tabela 0x1680,
+construtores 0x1248/0x13a0/0x1668. Single DOF: código até 0x1070, rotina
+final 0x1060 terminando com branch 0xda8; a tabela começa imediatamente em
+0x1070, com 0xcd8/0xd98/0x1060. Ambos percorrem os construtores para frente.
+
+As CLIs ausentes retornaram 2 antes da integração. Testes novos incluem a
+posição observada de cada plugin, além de 0, 0x4910 e 0x10000, preservando as
+checagens de código/guardas e consistência de dados relocados. A tradução gerou
+74 entradas por módulo, sem instruções nem chamadas diretas pendentes. FullGame
+compilou; os 11 testes de construtores passaram em 9,968 s. Boot passou seus
+43 testes, e 106 testes do projeto passaram em 9,344 s. O ensaio
+ant-globalpose-singledof-native segue em validação; não se afirma animação completa.
+
+
+Ensaio ant-globalpose-singledof-native (1792986607398190400): saída estrita 90
+aos 82,973 s. Entradas de posetoglobalplugin (SPU 8193) e setdofnode_exec
+(SPU 8192) observadas. Próximo plugin em LS 0x11be0/PC 0x11c10, origem
+0x20bd280, 0xd70 bytes, integralmente conferido em dois snapshots completos.
+Os cinco hashes do perfil permanecem iguais e 65 amostras de assets passaram.
+Menu, partida e resultado completo dos algoritmos de animação seguem pendentes.
+Próximo incremento: examinar e traduzir o módulo de 0x20bd280.
