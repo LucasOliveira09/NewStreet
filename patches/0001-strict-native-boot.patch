@@ -1310,7 +1310,7 @@ index eab83e1..d12276e 100644
  s32 cellGcmSetInvalidateTile(u8 index);
  
 diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
-index 0ecca8e..a5046d6 100644
+index 0ecca8e..1902c67 100644
 --- a/libs/video/rsx_d3d12_backend.c
 +++ b/libs/video/rsx_d3d12_backend.c
 @@ -22,6 +22,7 @@
@@ -1338,7 +1338,107 @@ index 0ecca8e..a5046d6 100644
      u32 fps;
  
      int initialized;
-@@ -2455,22 +2457,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
+@@ -1973,6 +1975,71 @@ static u32 dr_cube_mask(const D3D12DrawRecord* dr)
+     return m;
+ }
+ 
++/* Opt-in evidence at the failing call, rather than a later read of a reused
++ * guest program buffer. Files stay in the host-supplied diagnostic directory. */
++static void fp_dump_failure(int pipeline, u32 fp_addr, u32 off, u32 ctrl,
++                            int nrt, u32 rtfmt, u32 blend, int vs_idx, int instructions,
++                            HRESULT result, const u8 before[4096], const char* hlsl,
++                            ID3DBlob* vs)
++{
++    const char* dir = getenv("RSX_FP_FAIL_DUMP_DIR");
++    static unsigned captured[2];
++    if (!dir || !*dir || captured[pipeline] >= 16) return;
++    unsigned index = captured[pipeline]++;
++    char stem[480], path[512];
++    int len = snprintf(stem, sizeof stem, "%s/fp-%s-%02u-%08X", dir,
++                       pipeline ? "pipeline" : "compile", index, fp_addr);
++    if (len < 0 || (size_t)len >= sizeof stem) return;
++    CreateDirectoryA(dir, NULL);
++    extern uint8_t* vm_base;
++    u8 after[4096]; memcpy(after, vm_base + off, sizeof after);
++    const void* data[] = {before, after, hlsl};
++    size_t sizes[] = {4096, 4096, strlen(hlsl)};
++    const char* suffix[] = {"before.bin", "after.bin", "hlsl"};
++    for (int i = 0; i < 3; i++) {
++        snprintf(path, sizeof path, "%s.%s", stem, suffix[i]);
++        FILE* f = fopen(path, "wb");
++        if (f) { fwrite(data[i], 1, sizes[i], f); fclose(f); }
++    }
++    snprintf(path, sizeof path, "%s.json", stem);
++    FILE* f = fopen(path, "w");
++    if (f) {
++        fprintf(f, "{\"fp_addr\":%u,\"resolved_ea\":%u,\"control\":%u,"
++                   "\"host_thread\":%lu,\"instructions\":%d,\"hr\":%u,\"nrt\":%d,"
++                   "\"rtfmt\":%u,\"blend\":%u,\"vs_idx\":%d,\"same_before_after\":%s}\n",
++                fp_addr, off, ctrl, GetCurrentThreadId(), instructions, (u32)result,
++                nrt, rtfmt, blend, vs_idx, memcmp(before, after, sizeof after) ? "false" : "true");
++        fclose(f);
++    }
++    if (vs) {
++        snprintf(path, sizeof path, "%s.vs.bin", stem);
++        f = fopen(path, "wb");
++        if (f) {
++            fwrite(vs->lpVtbl->GetBufferPointer(vs), 1, vs->lpVtbl->GetBufferSize(vs), f);
++            fclose(f);
++        }
++    }
++    if (pipeline) {
++        ID3D12InfoQueue* queue = NULL;
++        if (SUCCEEDED(s_d3d.device->lpVtbl->QueryInterface(
++                s_d3d.device, &IID_ID3D12InfoQueue, (void**)&queue)) && queue) {
++            snprintf(path, sizeof path, "%s.validation.txt", stem);
++            f = fopen(path, "w");
++            UINT64 count = queue->lpVtbl->GetNumStoredMessages(queue);
++            for (UINT64 i = count > 16 ? count - 16 : 0; f && i < count; i++) {
++                SIZE_T size = 0; queue->lpVtbl->GetMessage(queue, i, NULL, &size);
++                if (!size || size > 65536) continue;
++                D3D12_MESSAGE* message = (D3D12_MESSAGE*)malloc(size);
++                if (message && SUCCEEDED(queue->lpVtbl->GetMessage(queue, i, message, &size)))
++                    fprintf(f, "%u: %s\n", message->ID, message->pDescription);
++                free(message);
++            }
++            if (f) fclose(f);
++            queue->lpVtbl->Release(queue);
++        }
++    }
++}
++
+ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, int nrt,
+                                           DXGI_FORMAT rtfmt, int exp32, u32 cmask, u32 cull,
+                                           u32 cube_mask)
+@@ -1996,6 +2063,9 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+     extern u32 cellGcmResolveLocated(int local, u32 offset);
+     u32 off = cellGcmResolveLocated((fp_addr & 0x3u) == 1, fp_addr & ~0x3u);
+     if (off == 0xFFFFFFFFu) return NULL;
++    u8 evidence_before[4096];
++    const int capture_failure = getenv("RSX_FP_FAIL_DUMP_DIR") != NULL && off <= 0xfffff000u;
++    if (capture_failure) memcpy(evidence_before, vm_base + off, sizeof evidence_before);
+ 
+     /* Content hash: inline constants are patched in place per frame (wave's
+      * stamp), so identity is the BYTES, not the address. */
+@@ -2294,6 +2364,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+     HRESULT hr = D3DCompile(hlsl, strlen(hlsl), "guest_fp", NULL, NULL,
+                             "main", "ps_5_0", 0, 0, &pb, &e);
+     if (FAILED(hr) || !pb) {
++        if (capture_failure) fp_dump_failure(0, fp_addr, off, fp_ctrl, nrt, (u32)rtfmt,
++            blend, vs_idx, n, hr, evidence_before, hlsl, vsb);
+         static int _e2=0; if (PS3_LOG_FIRST(_e2, 16))
+             printf("[FP] PS compile FAIL (fp=0x%08X): %s\n", fp_addr,
+                    e ? (const char*)e->lpVtbl->GetBufferPointer(e) : "?");
+@@ -2384,6 +2456,8 @@ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, in
+         s_d3d.device, &pd, &IID_ID3D12PipelineState, (void**)&pso);
+     pb->lpVtbl->Release(pb);
+     if (FAILED(hr)) {
++        if (capture_failure) fp_dump_failure(1, fp_addr, off, fp_ctrl, nrt, (u32)rtfmt,
++            blend, vs_idx, n, hr, evidence_before, hlsl, vsb);
+         static int _e3=0; if (PS3_LOG_FIRST(_e3, 16)) printf("[FP] PSO FAIL (fp=0x%08X, 0x%08lX)\n", fp_addr, hr);
+         return NULL;
+     }
+@@ -2455,22 +2529,6 @@ static u32 rsx_remap_to_d3d(u32 c1, u32 basef)
   * NV40 layout (matches RPCS3 convert_linear_swizzle). POT dims only, which is
   * what the hardware requires for swizzled textures. */
  
@@ -1361,7 +1461,7 @@ index 0ecca8e..a5046d6 100644
  static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips)
  {
      /* TEX_BUDGET=<n>: cap texture uploads per frame. Off by default -- it was
-@@ -2522,11 +2508,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2522,11 +2580,9 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      u32 blkrow  = dxt ? tl.row_bytes : 0;
      u32 blkrows = dxt ? tl.rows      : 0;
      const u32 key_off = off;         /* lookup key: the offset as bound */
@@ -1376,7 +1476,7 @@ index 0ecca8e..a5046d6 100644
      int slot = -1, freeslot = -1;
      for (int i = 0; i < VP_TEX_SLOTS; i++) {
          VPTexSlot* c = &s_d3d.vp_tex[i];
-@@ -2541,7 +2525,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2541,7 +2597,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
               * changed. Most of this scene's textures are static, and converting
               * every one of them every frame was ~70% of the frame's CPU time. */
              u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
@@ -1385,7 +1485,7 @@ index 0ecca8e..a5046d6 100644
              if (cs == c->csum) { c->used = 1; return i; }
              slot = i; break;                      /* stale: fall through and redo */
          }
-@@ -2729,6 +2713,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -2729,6 +2785,12 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
      }
      const u32 _nfaces     = cube ? 6u : 1u;
      const u32 _off0 = off; u8* const _map0 = (u8*)mapped;
@@ -1398,7 +1498,7 @@ index 0ecca8e..a5046d6 100644
      for (u32 _f = 0; _f < _nfaces; _f++) {
      off    = _off0 + _f * _face_bytes;
      if (cube && getenv("CUBEDBG")) { u32 _s=0; const u8* _p = vm_base + off;
-@@ -3058,8 +3048,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
+@@ -3058,8 +3120,7 @@ static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips
  
      t->off = off; t->key = key_off; t->w = w; t->h = h; t->fmt = fmt;
      t->cube = cube; t->used = 1;
@@ -1408,7 +1508,7 @@ index 0ecca8e..a5046d6 100644
      #undef TEX_CSUM
      return slot;
  }
-@@ -5209,9 +5198,12 @@ static void d3d12_present(void* ud, u32 buffer_id)
+@@ -5209,9 +5270,12 @@ static void d3d12_present(void* ud, u32 buffer_id)
      /* FPS tracking */
      ULONGLONG now = GetTickCount64();
      if (now - s_d3d.last_fps_time >= 1000) {
@@ -1423,7 +1523,7 @@ index 0ecca8e..a5046d6 100644
      }
  }
  
-@@ -6754,13 +6746,14 @@ void rsx_d3d12_backend_present(void)
+@@ -6754,13 +6818,14 @@ void rsx_d3d12_backend_present(void)
                 s_d3d.draw_count, s_dbg_clears_since_present, s_clear_presents);
      s_dbg_clears_since_present = 0;
  

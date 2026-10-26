@@ -53,6 +53,8 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     env['FIFA_SPU_DUMP_DIR'] = str(output / 'spu')
     (output / 'ppu').mkdir()
     env['FIFA_PPU_DUMP_DIR'] = str(output / 'ppu')
+    (output / 'shaders').mkdir()
+    env['RSX_FP_FAIL_DUMP_DIR'] = str(output / 'shaders')
     if observe_assets:
         (output / 'jobs').mkdir()
         env['FIFA_SPU_JOB_TRACE_DIR'] = str(output / 'jobs')

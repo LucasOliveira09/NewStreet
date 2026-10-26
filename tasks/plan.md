@@ -21,13 +21,16 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Reproduzir shaders rejeitados após carregamento
+## 1. Corrigir contratos de programas de fragmento e texturas
 
-- Fronteiras FIFO corrigidas/testadas; 73 capturas, buffers livres entre frames.
-- LOADING visível, depois backbuffer preto com147ops em frame8041.
-- Erros reais: `_rsx_expand_input` ausente no HLSL e PSO E_INVALIDARG80070057.
-- Capturar fontes privadas e reproduzir com compilador, antes de alterar a hipótese.
-- 48 Boot/146 projeto/16 runtime passaram; patch SDK reproduzível/revisado.
+- Reprodução real: 16 shaders com limite4KiB semEND geram HLSL inválido;
+  samplers root0..3 insuficientes para unidade4 pedida por outro shader.
+- Evidências privadas no checkpoint JSON e diretório shaders do último run.
+- Usar span limitado/terminado (SDK eng/live jálimitam64KiB), validar truncamentos.
+- Tornar hash/constantes/HLSL coerentes; não confundir APIbuffered atual comCBlegado.
+- Ampliar unidades de textura para16 sem alterar MRTs/vetoresfloat4 inadvertidamente.
+- Etapas pequenas, fixtures autorais e revisão antes de novo ensaio nativo.
+- Fronteiras FIFO járesolvidas; 48 Boot/146 projeto/16 runtime passaram.
 - Não há menu navegável ou gameplay validado; continuar até os próximos marcos.
 
 ## 3. Ensaiar o avanço real após o novo módulo

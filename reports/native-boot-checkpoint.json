@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "FIFO frame boundaries consumed without buffer saturation; post-loading frame black with shader compilation/pipeline errors",
+  "stage": "Exact shader failures reproduced: truncated4KiB input accepted; sampler4 outside D3D12 root signature",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": "timeout",
-  "logs": "private\\analysis\\runs\\1793043026655581100",
-  "elapsed_seconds": 360.185,
+  "logs": "private\\analysis\\runs\\1793044165569337700",
+  "elapsed_seconds": 180.218,
   "block": null,
   "menu_navigable_validated": false,
   "gameplay_tested": false,
@@ -1509,9 +1509,17 @@
     "symptoms": [
       "black backbuffer after loading",
       "D3DCompile X3004 _rsx_expand_input undeclared",
-      "PSO creation E_INVALIDARG 0x80070057"
+      "root signature missing sampler register4"
     ],
-    "shader_source_evidence_pending": true,
+    "native_diagnostics": "private/analysis/runs/1793044165569337700/shaders",
+    "offline_reproduction": "private/analysis/runs/1793044165569337700/shaders/reproduction.json",
+    "captured_compile_failures": 16,
+    "captured_pipeline_failures": 16,
+    "compile_input_4KiB_without_END": true,
+    "native_HLSL_reproduced_from_immutable_before": true,
+    "before_after_same_bytes": true,
+    "mutation_not_needed_to_reproduce": true,
+    "full_program_span_pending": true,
     "menu_or_scene_identity_validated": false
   }
 }

@@ -17,10 +17,10 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Último ensaio e verificações
 
-- Resultado: private/analysis/flip-boundary-native-run.json.
-- Logs: private/analysis/runs/1793043026655581100.
-- Timeout aos **360,185 s**, sem nova parada estrita; não equivale a jogo completo.
-- 73 capturas; LOADING observado, depois backbuffer preto com erros de shaders.
+- Resultado: private/analysis/shader-failure-native-run.json.
+- Logs: private/analysis/runs/1793044165569337700.
+- Timeout aos **180,218 s**, sem nova parada estrita; não equivale a jogo completo.
+- LOADING observado; depois tela preta. Falhas de shaders capturadas/reproduzidas.
 - 48 testes Boot, 146 do projeto e 65 amostras de assets passaram.
 - 16 testes runtime CTest passaram após atualização do patch do SDK.
 - Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
@@ -49,16 +49,18 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 
 ## Bloqueio atual
 
-- Fila GPU corrigida: frame5568 com draws0/upload0, antes4186/draws2048/upload96MiB.
-- Fronteiras FIFO explícitas: backlog não cruza marker; segundo drain aguarda
-  apresentação. Flip direto aguarda GET==PUT. Opt-in preserva outros hosts.
-- Capturas continuaram: 73 imagens. LOADING em frame16, tela preta em frame42
-  (frame_count8041, 147 operações). Identidade de menu/cena ainda não comprovada.
-- D3DCompile: `_rsx_expand_input` não declarado; há PSO E_INVALIDARG80070057.
-- Próxima ação: capturar shader/código HLSL privado e reproduzir a falha;
-  investigar seleção de helpers, limites e layout de pipelines por evidência.
-- Correção do contador FPS preservada, mas não era a causa observada do bloqueio.
-- 48 Boot/146 projeto/16 runtime passaram; revisão independente sem pendências.
+- Fila GPU corrigida: antes4186/draws2048/upload96MiB; depois5568/draws0/upload0.
+  Fronteiras FIFO explícitas impedem cruzar marker/avançar sem apresentação.
+- 16 falhas de compilação e16 de pipeline capturadas no ponto real de erro,
+  com HLSL, microcódigo antes/depois, VS e mensagens D3D12 em área privada.
+- Reprodução: private/analysis/runs/1793044165569337700/shaders/reproduction.json.
+- Input4KiB semEND aceito pelo tradutor: 179/184 instruções, helper omitido.
+  HLSL nativo idêntico ao offline; não é preciso supor corrida para reproduzir.
+- Erro independente: root signature cobre só4 samplers; shader requer unidade4.
+- Próximo: validar span completo (máx64KiB) e ampliar contrato de texturas16.
+  Revisar também hash de código vs constantes literais/APIbuffered incompatível.
+- 48 Boot/146 projeto/16 runtime passaram; instrumentação revisada sem achados.
+- Menu navegável, cena e gameplay ainda não comprovados.
 
 ## Retomada e comandos
 
