@@ -53,6 +53,10 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_pic_constructors('ant_setdofnode_exec', '--test-spu-ant-singledof-constructors',
             'c83ad4290fd1d28dfa254ddb69ccca36bda3df8a8216fda318591dee82114cdf')
 
+    def test_original_groupcombine_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_groupnode_combine_exec', '--test-spu-ant-groupcombine-constructors',
+            '5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e')
+
     def check_pic_constructors(self, module, command, sha256):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)

@@ -1391,3 +1391,31 @@ aos 82,973 s. Entradas de posetoglobalplugin (SPU 8193) e setdofnode_exec
 Os cinco hashes do perfil permanecem iguais e 65 amostras de assets passaram.
 Menu, partida e resultado completo dos algoritmos de animação seguem pendentes.
 Próximo incremento: examinar e traduzir o módulo de 0x20bd280.
+
+
+## Plugin groupnode_combine_exec (2026-10-26)
+
+Dois snapshots completos de globalpose/singledof apontam o mesmo plugin em
+LS 0x11be0/PC 0x11c10: origem 0x20bd280, 0xd70 bytes, SHA
+5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e,
+sem diferença nos bytes. BuiltElfName registra groupnode_combine_exec.elf.
+Cabeçalho PIC modo 1, entrada 0x30 e BSS 0xd70..0xdc0. Código até 0x968,
+com rotina final 0x958 terminando em branch 0x6a0; padding até a tabela
+0x970. Construtores 0x5d0/0x690/0x958, percorridos para frente.
+
+A CLI ausente retornou 2 antes da integração. O fixture testa quatro bases,
+incluindo 0x11be0, com checagem de código, guardas e dados relocados.
+A tradução gerou 57 entradas, sem instruções nem chamadas diretas pendentes.
+FullGame compilou; os 12 testes de construtores passaram em 4,476 s. Boot passou
+43 testes e os 107 testes do projeto passaram em 7,923 s. O ensaio
+ant-groupcombine-native segue em validação. Não se afirma conclusão do algoritmo
+de combinação de animação nem gameplay validado.
+
+
+Ensaio ant-groupcombine-native (1792986961606971500): saída estrita 90 aos
+81,132 s. Entrada groupnode_combine_exec observada na SPU 8192, LS 0x11be0.
+O próximo módulo já substitui a região inicial em LS 0x48f0, PC 0x4920,
+origem 0x20e8c80, 0x6af0 bytes. Dois snapshots completos conferem os bytes
+inteiros do módulo novo; ele não deve usar a tradução do antigo dono de 0x48f0.
+Perfil preservado pelos cinco hashes e 65 amostras de assets aprovadas.
+Não houve menu ou gameplay validado. Próximo incremento: módulo de 0x20e8c80.

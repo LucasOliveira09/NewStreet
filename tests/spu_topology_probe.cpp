@@ -169,3 +169,8 @@ extern "C" int fifa_test_spu_ant_singledof_constructors(const char* image) {
     const uint32_t entries[] = {0xcd8,0xd98,0x1060};
     return run_pic_constructors(image, 0x210ca00, 0x1580, 0x1070, entries, 0x105c0);
 }
+
+extern "C" int fifa_test_spu_ant_groupcombine_constructors(const char* image) {
+    const uint32_t entries[] = {0x5d0,0x690,0x958};
+    return run_pic_constructors(image, 0x20bd280, 0xd70, 0x968, entries, 0x11be0);
+}

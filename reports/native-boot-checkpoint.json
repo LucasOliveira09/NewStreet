@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Pose to global and single DOF plugins entered; next ANT plugin at 0x20bd280 remains untranslated",
+  "stage": "Group combine ANT plugin entered; next plugin at 0x20e8c80 replaces the earlier LS region",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792986607398190400",
-  "elapsed_seconds": 82.973,
+  "logs": "private\\analysis\\runs\\1792986961606971500",
+  "elapsed_seconds": 81.132,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706422288,
+    "value": 2259970271706368288,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 43,
-    "project": 106,
+    "project": 107,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,12 +866,12 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x20bd280",
-    "pc": "0x11c10",
-    "ls_base": "0x11be0",
-    "source_sha256": "5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e",
+    "source_ea": "0x20e8c80",
+    "pc": "0x4920",
+    "ls_base": "0x48f0",
+    "source_sha256": "606fcdb43d4b7692d5cf3a19dbad7dc52b75da52d4e4f73b016504847fb80c8f",
     "snapshot_byte_differences": 0,
-    "bytes": 3440
+    "bytes": 27376
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -947,9 +947,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 144,
+    "valid_events": 150,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792986607398190400/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792986961606971500/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1081,6 +1081,20 @@
       "positions": [
         0,
         67008,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8192,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_groupnode_combine_exec",
+      "native_functions": 57,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        72672,
         18704,
         65536
       ],

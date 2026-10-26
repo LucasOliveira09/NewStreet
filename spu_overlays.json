@@ -772,6 +772,22 @@
         "0x1060"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_groupnode_combine_exec",
+      "source_ea": "0x20bd280",
+      "size": "0xd70",
+      "sha256": "5b33018d3516f1633158aa79ca7c90f2e5d2f70b704ebdf4bd6f76f7a773054e",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x968",
+      "extra_entries": [
+        "0x5d0",
+        "0x690",
+        "0x958"
+      ],
+      "relocatable_pic": true
     }
   ]
 }
