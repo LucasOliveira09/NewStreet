@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "DCT ANT clip plugin entered; group final node at 0x20bc580 remains untranslated",
+  "stage": "Reviewed common ANT family integrated; group final and blend node entered; next plugin at 0x2096f00 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792987320028365500",
-  "elapsed_seconds": 80.563,
+  "logs": "private\\analysis\\runs\\1792988241346363100",
+  "elapsed_seconds": 80.307,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706395824,
+    "value": 2259970271706416912,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -66,8 +66,8 @@
     "unchanged_after_game_reload": true
   },
   "checks": {
-    "boot": 43,
-    "project": 108,
+    "boot": 44,
+    "project": 114,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,13 +866,12 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x20bc580",
-    "pc": "0xb4b0",
-    "ls_base": "0xb480",
-    "source_sha256": "154511f159eadba5f6ebc2610db507c8e06b59ec6f9f41fda67b840b572ee061",
+    "source_ea": "0x2096f00",
+    "pc": "0x10710",
+    "ls_base": "0x106e0",
+    "source_sha256": "e7d1cf089f3329c8a2639671673d99d35dea90bcadbda953d5e9a95ce2abbaa5",
     "snapshot_byte_differences": 0,
-    "bytes": 3168,
-    "name": "groupnode_final_exec.elf"
+    "bytes": 4304
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -948,9 +947,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 158,
+    "valid_events": 157,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792987320028365500/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792988241346363100/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1124,5 +1123,32 @@
     "source_hash_required": true,
     "complete_image_layout_checks_retained": true,
     "general_partial_admission_redesigned": false
+  },
+  "common_ant_family": {
+    "compiled_modules": 49,
+    "new_modules_in_increment": 39,
+    "native_entries": 4465,
+    "original_constructor_calls": 588,
+    "tested_bases": [
+      0,
+      32768,
+      18704,
+      65536
+    ],
+    "entered_modules_in_last_run": [
+      "ant_blendnode_exec",
+      "ant_clearactivitymasknode_exec",
+      "ant_dctcodec_clipnode",
+      "ant_defaultposenode_dofset",
+      "ant_deltatrajectoryplugin",
+      "ant_groupnode_combine_exec",
+      "ant_groupnode_final_exec",
+      "ant_posetoglobalplugin",
+      "ant_scratchmemclear_exec",
+      "ant_setdofnode_exec",
+      "ant_setdofsetnode_exec",
+      "ant_vbrcodec_clipnode"
+    ],
+    "all_animation_algorithms_validated": false
   }
 }

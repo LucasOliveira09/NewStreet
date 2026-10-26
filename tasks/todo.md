@@ -146,7 +146,9 @@ de funções ou por abrir uma janela.
 - [x] Traduzir global pose/single DOF de 0x20e6e80/0x210ca00 e confirmar entradas.
 - [x] Traduzir groupnode_combine_exec de 0x20bd280 e confirmar entrada.
 - [x] Traduzir DCT clip de 0x20e8c80 e confirmar entrada.
-- [ ] Revisar/testar em lote a família ANT de CRT comum, incluindo group final.
+- [x] Revisar 49 módulos ANT comuns, integrar 39 novos e testar 588 chamadas originais.
+- [x] Observar group final/blend no jogo após o lote.
+- [ ] Identificar/revisar o plugin de 0x2096f00 após o lote ANT.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

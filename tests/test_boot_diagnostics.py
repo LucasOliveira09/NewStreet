@@ -176,6 +176,18 @@ class BootDiagnosticsTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout), dict(positions=3, isolated=True,
                                                        negative_bias=True, split_preserved=True))
 
+    def test_common_ant_fixture_rejects_unsafe_sizes_entries_and_positions(self):
+        arguments = ['unused', '0x2100a00', '0x71e0', '0x62a0',
+                     '0x4a00', '0x5418', '0x6290', '0x8000']
+        for index, value in [(1, '0xffffffff'), (2, '0x40000'), (3, '0x7200'),
+                             (4, '0x4a01'), (7, '0x3c000'), (1, '-1')]:
+            with self.subTest(index=index, value=value):
+                changed = arguments.copy(); changed[index] = value
+                result = subprocess.run([str(BOOT), '--test-spu-ant-family-constructors',
+                    *changed], capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 2, result.stderr + result.stdout)
+                self.assertNotIn('[fifa-block]', result.stderr)
+
     def test_partial_pic_header_can_be_read_as_data_without_admitting_code(self):
         result = subprocess.run([str(BOOT), '--test-spu-overlay', 'pic-metadata'],
                                 capture_output=True, text=True, timeout=10)

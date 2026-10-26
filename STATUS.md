@@ -10,7 +10,7 @@ capturas conferidas. O código original gravou e releu integralmente o perfil
 BLUS308820000A; os cinco arquivos permanecem com hashes preservados. Menu
 navegável, partida, progressão completa e fidelidade geral ainda não foram validados.
 
-A compilação inclui 99.127 entradas PPU, 369 imports e 45 registros de overlays
+A compilação inclui 99.127 entradas PPU, 369 imports e 84 registros de overlays
 raw SPU. Há testes dos construtores de topologia, Railtracks e da segunda versão
 de ANT, além de cópias, LZMA e compressão BC. Entrar num módulo não comprova a
 conclusão de todas as suas tarefas concorrentes. As 65 amostras capturadas de
@@ -28,11 +28,12 @@ não medidos nesse ensaio. O parser foi corrigido para preservar o status antes 
 análise e registrar linhas inválidas sem descartar eventos completos.
 
 A segunda versão de ANT está traduzida e seus dois construtores passaram.
-FullGame compilou; 43 testes de boot e 108 do projeto passaram. O ensaio
-ant-dct-native entrou no DCT e parou em groupnode_final_exec, origem 0x20bc580
-(LS 0xb480/PC 0xb4b0), com saída 90 aos 80,563 s. Menu e partida permanecem
-pendentes. A evidência consolidada fica em reports/native-boot-checkpoint.json.
-O próximo trabalho é revisar/testar em lote a família ANT de CRT comum.
+FullGame compilou; 44 testes de boot e 114 do projeto passaram. A família
+comum ANT inclui 49 módulos, 4465 entradas nativas e 588 chamadas de construtores
+originais aprovadas em quatro bases. O ensaio ant-family-native passou por group
+final/blend e parou no plugin de 0x2096f00 (LS 0x106e0/PC 0x10710), com saída 90
+aos 80,307 s. Menu e partida permanecem pendentes. A evidência consolidada fica
+em reports/native-boot-checkpoint.json. Próximo trabalho: revisar o novo plugin.
 
 ## Implementação comprovada
 
@@ -1926,3 +1927,42 @@ Falharam por ferramenta ausente antes da implementação e passaram depois.
 
 Validação do inventário: 112 testes do projeto passaram em 7,651 s. O
 executável do jogo não mudou neste incremento; checkpoint nativo permanece DCT.
+
+
+## Integração em lote da família ANT comum (2026-10-26)
+
+Foram acrescentados 39 módulos com o perfil estrutural revisado ant_common_v1,
+incluindo groupnode_final_exec alcançado no último ensaio. Os dez módulos já
+integrados recebem o mesmo identificador de perfil, sem alterar código, hash
+ou limites anteriores. São 49 módulos comuns e 84 registros raw no manifesto.
+Predictable blend (BSS 0xc30) e mirror (BSS 0x70) permanecem excluídos do perfil
+0x50 e precisam de revisão específica; demais famílias também não são admitidas.
+
+O teste em lote cruza cada manifesto com o inventário de hash fixado, verifica
+os bytes do arquivo extraído e chama a CLI exclusiva de testes com os endereços
+revisados. O fixture preserva o dispatch por ownership/hash da política nativa;
+o caller autoral fica restrito ao processo de teste. Ele usa as bases 0, 0x8000,
+0x4910 e 0x10000: 49 x 3 x 4 = 588 chamadas de construtores originais, com
+código/guardas e dados relocados conferidos. Não chama substituto para main nem
+atribui cobertura dos algoritmos completos de animação a esses testes.
+
+A CLI genérica valida números, limites de alocação/fonte, alinhamento, ordem
+dos construtores e separação da pilha/caller. Argumentos inválidos devem retornar
+2 antes de I/O/execução. O teste novo falhou antes por zero casos admitidos,
+e a CLI genérica ausente retornou 2. Critérios do incremento: tradução sem
+instruções/destinos diretos pendentes, build, 588 chamadas aprovadas, regressões
+anteriores e ensaio nativo estrito após o lote. FullGame compilou; todas as 588
+chamadas de construtores originais passaram em 5,324 s, nas 49 imagens
+conferidas por hash. Boot passou 44 testes; os 114 testes do projeto passaram
+em 9,456 s. A família tem 4465 entradas nativas geradas, sem instruções ou
+destinos diretos pendentes. O ensaio ant-family-native continua em validação.
+
+
+Ensaio ant-family-native (1792988241346363100): saída estrita 90 aos 80,307 s.
+Group final e blend node entraram no jogo; o rastreio também observou relocação
+adicional de módulos existentes. O checkpoint lista precisamente os módulos
+com entrada observada; não presume que os 39 novos foram todos executados.
+Próximo módulo em LS 0x106e0/PC 0x10710, origem 0x2096f00, tamanho 0x10d0,
+conferido integralmente em dois snapshots completos. Cinco hashes do perfil
+preservados; 65 amostras de assets aprovadas. Menu e partida continuam pendentes.
+Próxima ação: identificar a família do plugin em 0x2096f00 e revisar seu CRT.

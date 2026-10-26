@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <cstdlib>
+#include <cerrno>
 
 extern "C" void fifa_install_spu_policy(void);
 extern "C" void spu_indirect_branch(spu_context*);
@@ -178,4 +179,26 @@ extern "C" int fifa_test_spu_ant_groupcombine_constructors(const char* image) {
 extern "C" int fifa_test_spu_ant_dct_constructors(const char* image) {
     const uint32_t entries[] = {0x4ff8,0x5d68,0x6030};
     return run_pic_constructors(image, 0x20e8c80, 0x6af0, 0x6040, entries, 0x48f0);
+}
+
+// Test-only CLI for the explicitly reviewed common CRT family. All executable
+// dispatch still comes from checked source registrations installed by policy.
+extern "C" int fifa_test_spu_ant_family_case(const char* const* args) {
+    uint32_t values[7];
+    for (unsigned i = 0; i < 7; ++i) {
+        char* end = nullptr;
+        errno = 0;
+        unsigned long value = std::strtoul(args[i + 1], &end, 0);
+        if (!args[i + 1][0] || args[i + 1][0] == '-' || errno || *end || value > UINT32_MAX) return 2;
+        values[i] = (uint32_t)value;
+    }
+    const uint32_t source = values[0], bytes = values[1], code_end = values[2], base = values[6];
+    const uint32_t largest_base = base > 0x10000u ? base : 0x10000u;
+    if (source < 0x10000 || source > 0x4000000 || bytes < 0xd8 || bytes > 0x2cfb0 ||
+        source > 0x4000000 - bytes || code_end < 0xd8 || code_end > bytes ||
+        (base & 15u) || largest_base > 0x3d000 - bytes - 0x50) return 2;
+    for (unsigned i = 3; i < 6; ++i)
+        if ((values[i] & 3u) || values[i] < 0xd8 || values[i] >= code_end ||
+            (i > 3 && values[i] <= values[i - 1])) return 2;
+    return run_pic_constructors(args[0], source, bytes, code_end, values + 3, base);
 }

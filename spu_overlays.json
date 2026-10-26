@@ -659,7 +659,8 @@
         "0x5418",
         "0x6290"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_defaultposenode_dofset",
@@ -675,7 +676,8 @@
         "0xe20",
         "0x10e8"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_clearactivitymasknode_exec",
@@ -691,7 +693,8 @@
         "0x3f0",
         "0x6b8"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_setdofsetnode_exec",
@@ -707,7 +710,8 @@
         "0xf20",
         "0x11e8"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_deltatrajectoryplugin",
@@ -723,7 +727,8 @@
         "0xf00",
         "0x11c8"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_scratchmemclear_exec",
@@ -739,7 +744,8 @@
         "0x900",
         "0xbc8"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_posetoglobalplugin",
@@ -755,7 +761,8 @@
         "0x13a0",
         "0x1668"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_setdofnode_exec",
@@ -771,7 +778,8 @@
         "0xd98",
         "0x1060"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_groupnode_combine_exec",
@@ -787,7 +795,8 @@
         "0x690",
         "0x958"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     },
     {
       "name": "ant_dctcodec_clipnode",
@@ -803,7 +812,671 @@
         "0x5d68",
         "0x6030"
       ],
-      "relocatable_pic": true
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmaskcopyop_exec",
+      "source_ea": "0x20b7900",
+      "size": "0x980",
+      "sha256": "6b62ea9d905520e3e495083d3eedf9dede4f4f1441cbc5f106f88a73f48f8f80",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x578",
+      "extra_entries": [
+        "0x1e0",
+        "0x2a0",
+        "0x568"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dofweightcurvesmaskop_exec",
+      "source_ea": "0x20b8500",
+      "size": "0x1880",
+      "sha256": "c6e76d1a137a645fbbd503c5bb2a5294754be0e5721ae5b552ab128e4677e45e",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x10d0",
+      "extra_entries": [
+        "0xcb0",
+        "0xdf8",
+        "0x10c0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dofweightcurvesblendmaskop_exec",
+      "source_ea": "0x20b9e80",
+      "size": "0x1aa0",
+      "sha256": "2925cb90f6f9c32cb3c1721d5f4bfe7c27e2746838e61b8da85e3ee6d40b58bf",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x12e8",
+      "extra_entries": [
+        "0xec8",
+        "0x1010",
+        "0x12d8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_groupnode_final_exec",
+      "source_ea": "0x20bc580",
+      "size": "0xc60",
+      "sha256": "154511f159eadba5f6ebc2610db507c8e06b59ec6f9f41fda67b840b572ee061",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x860",
+      "extra_entries": [
+        "0x4c8",
+        "0x588",
+        "0x850"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_weightedblendnodesingleweight_exec",
+      "source_ea": "0x20bf180",
+      "size": "0x1d50",
+      "sha256": "d50fa0820846fcdf17296af5c197512cd3063abf65cd172c43f494c1c5dfc80c",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1550",
+      "extra_entries": [
+        "0xba0",
+        "0x1218",
+        "0x1540"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_defaultposenode_exec",
+      "source_ea": "0x20c0f80",
+      "size": "0x1df0",
+      "sha256": "ce06dea1eac74bd62548f1b9067ceeb6042c0f996189286886ff2d2034d1494b",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1858",
+      "extra_entries": [
+        "0xcd0",
+        "0x14f8",
+        "0x1848"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_defaultposenode_full",
+      "source_ea": "0x20c2e80",
+      "size": "0x1150",
+      "sha256": "d480787beb8c8211312b0920f6fd217c2d591158d4e83a74b8249e90983e9aaf",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xd50",
+      "extra_entries": [
+        "0x9b8",
+        "0xa78",
+        "0xd40"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_concatdeltatrajectorynode_execpass2",
+      "source_ea": "0x20c4080",
+      "size": "0x1670",
+      "sha256": "58f9bb69ca20b9b68f91392e8753228c824b251e6bf9a242fa0f42106df3a179",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xee8",
+      "extra_entries": [
+        "0xb50",
+        "0xc10",
+        "0xed8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_concatdeltatrajectorynode_execpass1",
+      "source_ea": "0x20c5800",
+      "size": "0x10d0",
+      "sha256": "cad71374b0c82c4d2866b295fe7ad30e6ec04b3954b3a2a691b3d13a0dfa8660",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xcc8",
+      "extra_entries": [
+        "0x930",
+        "0x9f0",
+        "0xcb8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_rotatedeltanode_exec",
+      "source_ea": "0x20c6980",
+      "size": "0x1700",
+      "sha256": "5d9358e221e704f4c23327e78658df6ac69ef33a8523af0cbc0c585f7aa86ace",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xf78",
+      "extra_entries": [
+        "0xb08",
+        "0xca0",
+        "0xf68"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendnode_exec",
+      "source_ea": "0x20c8180",
+      "size": "0x2d10",
+      "sha256": "098d615dd4ed98db382ebccbcbf134d65d744f52b14e051748db4aa254e8af10",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x2518",
+      "extra_entries": [
+        "0x2120",
+        "0x2240",
+        "0x2508"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendwithmasknode_exec",
+      "source_ea": "0x20caf80",
+      "size": "0x25f0",
+      "sha256": "05af2a9a3fa4e8cc7cbaba4cfabd1895f793957d7c8926ce4faf94925948dbc0",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1e78",
+      "extra_entries": [
+        "0x1a80",
+        "0x1ba0",
+        "0x1e68"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_accelblendplugin",
+      "source_ea": "0x20cd680",
+      "size": "0x1b00",
+      "sha256": "1516ffcaec4a1661dd8293e8c2496f1b7eb65252f93d24a846727c6cb82ef9d0",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x12f0",
+      "extra_entries": [
+        "0x9a0",
+        "0x1018",
+        "0x12e0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_applyposenode_full",
+      "source_ea": "0x20d2800",
+      "size": "0x11f0",
+      "sha256": "e71cf2f8fa4d389c5d7956a4bf4c0ab17b5dd289f4a33f9856d6e0172e170bb6",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xce0",
+      "extra_entries": [
+        "0x8a8",
+        "0x988",
+        "0xcd0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_applyposenode_exec",
+      "source_ea": "0x20d3b00",
+      "size": "0x1780",
+      "sha256": "932776ca87627ff8bb3d0c3b4995f9fa0e4feff1890048a06f629920867231ae",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1270",
+      "extra_entries": [
+        "0x9f8",
+        "0x1118",
+        "0x1260"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_identityposenode_exec",
+      "source_ea": "0x20d5380",
+      "size": "0x16d0",
+      "sha256": "391b84c8163341d1af99aea12d76ba68b5b0a1cfaf0e8914e8f50b6633052b7a",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1248",
+      "extra_entries": [
+        "0x800",
+        "0xee8",
+        "0x1238"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_weighteddeltanode_exec",
+      "source_ea": "0x20d6b00",
+      "size": "0x1c40",
+      "sha256": "9b55d8880b6f27d86ffc17536ff86b7f1282d136a575ac983e485dd908264e8e",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1438",
+      "extra_entries": [
+        "0xb20",
+        "0x1100",
+        "0x1428"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_subtractnode_exec",
+      "source_ea": "0x20d8800",
+      "size": "0x1b70",
+      "sha256": "cdfdeb328c8b2e9f0ad6dfac0fc64cdd38946fa74ebeaf040132b1ef33086b39",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x13e8",
+      "extra_entries": [
+        "0xff0",
+        "0x1110",
+        "0x13d8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_storeposenode_exec",
+      "source_ea": "0x20da480",
+      "size": "0xa40",
+      "sha256": "48d0b1e7bc8c14102df57eb3194ab05c9a9e6696a96e72dc232a463587ec7409",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x638",
+      "extra_entries": [
+        "0x2a0",
+        "0x360",
+        "0x628"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmasktimetrajop_exec",
+      "source_ea": "0x20daf80",
+      "size": "0x14e0",
+      "sha256": "a252771f23368d408035dabfd0f257686d294f8f6884ef86454c031c69b5e077",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x10d8",
+      "extra_entries": [
+        "0x930",
+        "0xf80",
+        "0x10c8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmaskfloatsetdofsetop_exec",
+      "source_ea": "0x20dc500",
+      "size": "0x1490",
+      "sha256": "c5036b4a0a82a231cc9adae4f07cf1c36610b7b5520c7a45aac1dd8b3a47f84c",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1090",
+      "extra_entries": [
+        "0xcf8",
+        "0xdb8",
+        "0x1080"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmasktimecurveop_exec",
+      "source_ea": "0x20dda80",
+      "size": "0x16a0",
+      "sha256": "3c2e5b895f46ebf3421ee0071ddae3af02bb14d4e1eed567172ad16876baea75",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1198",
+      "extra_entries": [
+        "0x9f0",
+        "0x1040",
+        "0x1188"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmaskmulscalarop_exec",
+      "source_ea": "0x20df200",
+      "size": "0x1340",
+      "sha256": "86fecd07a9328cb928e8803e6c7b4264d5e631ebc6539edf300d61af66857cc4",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xf40",
+      "extra_entries": [
+        "0x830",
+        "0xde8",
+        "0xf30"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmaskmulweightop_exec",
+      "source_ea": "0x20e0680",
+      "size": "0x1410",
+      "sha256": "5388e6f8e310fe027ddf19a9c4261cc337b49c667c065d37bc3352463ed58523",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1008",
+      "extra_entries": [
+        "0x860",
+        "0xeb0",
+        "0xff8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_blendmasktimeop_exec",
+      "source_ea": "0x20e1b80",
+      "size": "0x11d0",
+      "sha256": "781a3262222206530955cadc073258b8092e1e07214dd4d17e7b26abff3d3116",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xdc8",
+      "extra_entries": [
+        "0x6b8",
+        "0xc70",
+        "0xdb8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_globaltoposeplugin",
+      "source_ea": "0x20e4980",
+      "size": "0x2440",
+      "sha256": "a1a2bbe2834737b61f43e29cc2178c9c1f0a2c3d66af3b0d1aa411fb18989939",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1be0",
+      "extra_entries": [
+        "0xe88",
+        "0x1908",
+        "0x1bd0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dctcodec_deltatrajectorynode",
+      "source_ea": "0x20ef880",
+      "size": "0x7810",
+      "sha256": "83d907f7c9f7c04fc26fbcfb3a3cdc507fd1f1fc13b8790495090e622914eb99",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x69e0",
+      "extra_entries": [
+        "0x5998",
+        "0x6708",
+        "0x69d0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_framecodec_clipnode",
+      "source_ea": "0x20f7180",
+      "size": "0x2000",
+      "sha256": "3e0f36f1c1a5369b5aedf038e86845e3e1ef6b3a5ecfbc90a7b1679314a94789",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1a70",
+      "extra_entries": [
+        "0xcf0",
+        "0x1468",
+        "0x1a60"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_vbrslowbitcodec_clipnode",
+      "source_ea": "0x20f9380",
+      "size": "0x7570",
+      "sha256": "a58392b39e7998b851ca0cf8fe964c74cca0d010f5c508bd9cfc67dd806e3143",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x6628",
+      "extra_entries": [
+        "0x4d88",
+        "0x57a0",
+        "0x6618"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_vbrlitecodec_clipnode",
+      "source_ea": "0x2107c80",
+      "size": "0x35a0",
+      "sha256": "f9ad40dcf62623ff3ba11152d4a1484bf6b4cd8f8f94c37baa892fa78acb00a2",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x2c88",
+      "extra_entries": [
+        "0x1a70",
+        "0x22d8",
+        "0x2c78"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_translatedeltanode_exec",
+      "source_ea": "0x210e080",
+      "size": "0x1290",
+      "sha256": "4fc67d266e6a1bc54b616b14e43a956f7546574b020a2e8b3ed0bac2e4a1fac1",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xe88",
+      "extra_entries": [
+        "0xa18",
+        "0xbb0",
+        "0xe78"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_bookmarknode_exec",
+      "source_ea": "0x210f400",
+      "size": "0x1310",
+      "sha256": "54d300f62f717b5c67638883e9888eb90e1b197ff03419427df79964700b0a99",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xf08",
+      "extra_entries": [
+        "0xb70",
+        "0xc30",
+        "0xef8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dofmodifynode_add_exec",
+      "source_ea": "0x2110800",
+      "size": "0x1520",
+      "sha256": "0f02984952f96ea0469c50d4a3ecc827558c83b28bf69255847e45148443eb34",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1120",
+      "extra_entries": [
+        "0xd88",
+        "0xe48",
+        "0x1110"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dofmodifynode_mul_exec",
+      "source_ea": "0x2111e00",
+      "size": "0x1520",
+      "sha256": "37f36b8e69cbd09b09b86e3396d130db495e185816685e9b3aba519b17018db3",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1120",
+      "extra_entries": [
+        "0xd88",
+        "0xe48",
+        "0x1110"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_dofmodifynode_set_exec",
+      "source_ea": "0x2113400",
+      "size": "0x1500",
+      "sha256": "afe853cb224cb6773ed6435f8a5ed4d594495b36eee67d46a8e06b24bd386363",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x10f8",
+      "extra_entries": [
+        "0xd60",
+        "0xe20",
+        "0x10e8"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_rotateposenode_exec",
+      "source_ea": "0x2116d80",
+      "size": "0x1810",
+      "sha256": "2b35d950df639d608b0db38e9f70ed50202869958c1ba6e1ea26cc32f8a96275",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1090",
+      "extra_entries": [
+        "0xc20",
+        "0xdb8",
+        "0x1080"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_weightedblendwithmasknode_exec",
+      "source_ea": "0x211a080",
+      "size": "0x1f10",
+      "sha256": "62378757eb7da43f318182630f6117bfac1c1c31ac4fcaa49475f50cd04be2fc",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1710",
+      "extra_entries": [
+        "0xd60",
+        "0x13d8",
+        "0x1700"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_faceposerplugin",
+      "source_ea": "0x211c080",
+      "size": "0x1f80",
+      "sha256": "703a8aeb7aed722e72973aef9cfb93b6110e9654b12f83a0f8b150869f02f125",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x1778",
+      "extra_entries": [
+        "0xcb0",
+        "0x1338",
+        "0x1768"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
+    },
+    {
+      "name": "ant_jointtoeffectorplugin",
+      "source_ea": "0x211e180",
+      "size": "0x1d60",
+      "sha256": "d3695a1c595dd396818fba48abdd223519f2bc593757b46a329b193b7c1b0774",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x15e0",
+      "extra_entries": [
+        "0x11c0",
+        "0x1308",
+        "0x15d0"
+      ],
+      "relocatable_pic": true,
+      "constructor_profile": "ant_common_v1"
     }
   ]
 }
