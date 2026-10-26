@@ -1919,6 +1919,23 @@
         "0x154",
         "0x3978"
       ]
+    },
+    {
+      "name": "fifarna_batchplayer_pass0",
+      "source_ea": "0x1ecb100",
+      "size": "0x162f0",
+      "sha256": "c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x15bb8",
+      "extra_entries": [
+        "0x124",
+        "0x154",
+        "0x1758",
+        "0x15830",
+        "0x15af0"
+      ]
     }
   ]
 }

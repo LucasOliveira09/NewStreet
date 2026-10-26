@@ -11,12 +11,13 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Entradas reais de 0x1ee9580 e Replay_matrixsave observadas; perfil preservado.
 - Replay_matrixsave: 78 entradas, CRT vazio e guardas validados.
 - Replay_matrixload: 189 entradas, BSS/construtor e constantes validados; entrada real.
-- 132 testes do projeto, 44 Boot e 65 amostras de assets passaram.
+- FIFARNA batchplayer pass0: 477 entradas, BSS448 e dois construtores validados; entrada real.
+- 133 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Revisar e traduzir fifarna_batchplayer_pass0
+## 1. Revisar e traduzir railtracks_calculatepathestimates
 
-- Fonte 0x1ecb100, base LS 0x80, entrada 0xb0, tamanho 0x162f0 e SHA no checkpoint.
-- Fonte confere integralmente com um snapshot completo; nome identificado na fronteira.
+- Fonte 0x205ed80, base LS 0x80, entrada 0xb0, tamanho 0x2e100 e SHA no checkpoint.
+- Fonte confere integralmente com dois snapshots completos; nome na fronteira.
 - Imagem/disassembly privados já extraídos, sem análise semântica completa.
 - Revisar código/dados, BSS, tabela de construtores e entradas indiretas do CRT.
 - Aceite: tradução completa dentro de limites revisados; fixture de inicialização

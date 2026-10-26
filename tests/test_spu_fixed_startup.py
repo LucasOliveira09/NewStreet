@@ -9,6 +9,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FixedSpuStartupTests(unittest.TestCase):
+    def test_batchplayer_crt_initializes_two_original_constructors_in_reverse(self):
+        image = ROOT / 'private/analysis/fifarna_batchplayer_pass0.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         'c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-batchplayer-startup', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            original_constructors=2, reverse_order=True, bss_bytes=448,
+            bss_zero_before_constructors=True, constructor_constants_correct=True,
+            unused_bss_zero=True, code_preserved=True, bss_guards_preserved=True,
+            original_stop=0x3fff, main_executed=False, algorithm_validated=False))
+
     def test_replay_matrixload_crt_initializes_constants_after_clearing_bss(self):
         image = ROOT / 'private/analysis/replay_matrixload.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),

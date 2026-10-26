@@ -1,7 +1,7 @@
 # Checkpoint atual — 26/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`; incremento atual: CRT fixo e Replay MatrixSave/MatrixLoad.
+Branch: `codex/ps3-native-bootstrap`; incremento atual: FIFARNA batchplayer pass0.
 Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 
 ## Confirmado e ainda pendente
@@ -12,7 +12,7 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
   cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
 - Há artefatos na abertura. Áudio tem sinal finito; escuta e sincronia pendentes.
 - **Menu navegável, cena, gameplay, partida completa e progressão não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 110 registros raw SPU.
+- 99.127 entradas PPU, 369 wrappers de imports, 111 registros raw SPU.
   Contagem não comprova semântica completa dos serviços ou tarefas.
 - 68 módulos ANT do perfil comum: 6.422 entradas e 816 chamadas de construtores.
   Quatro variantes específicas: 72 chamadas em quatro bases. São testes de
@@ -21,12 +21,12 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 ## Último ensaio do jogo
 
 - Fonte: `reports/native-boot-checkpoint.json`; resultado privado:
-  `private/analysis/replay-matrixload-native-run.json`.
-- Logs: `private/analysis/runs/1793031414753414100`.
-- Saída estrita **90**, aos **81,731 s**: outra entrada SPU ainda não traduzida.
+  `private/analysis/batchplayer-pass0-native-run.json`.
+- Logs: `private/analysis/runs/1793032029783460100`.
+- Saída estrita **90**, aos **83,192 s**: outra entrada SPU ainda não traduzida.
 - Particle IK, footplant post, HIK reset, facial e face poser entraram no caminho real.
   Predictable blend/mirror foram compilados, sem entrada real observada.
-- Últimos checks registrados: 44 Boot, 132 do projeto, 16 runtime CTest;
+- Últimos checks registrados: 44 Boot, 133 do projeto, 16 runtime CTest;
   65 amostras de assets contra oráculos independentes. Runtime CTest é registro anterior; os demais checks foram executados neste incremento.
 
 ## Incremento validado e próximo bloqueio
@@ -43,19 +43,22 @@ Identificação SPU delimitada corrigida; novo módulo entrou no caminho real.
 - Replay_matrixload.elf, fonte 0x1f1f880: 189 entradas nativas; CRT original
   zerou 48 bytes de BSS e o único construtor produziu as constantes esperadas.
   Imagem/guardas preservadas; entrada real observada, algoritmo não validado.
-- Próxima imagem: **fifarna_batchplayer_pass0.elf**, fonte **0x1ecb100**, LS **0x80**,
-  entrada **0xb0**, **0x162f0 bytes**, conferidos integralmente em um snapshot completo.
-- SHA-256: `c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652`.
+- FIFARNA batchplayer pass0, fonte 0x1ecb100: 477 entradas; CRT/BSS448 e
+  dois construtores em ordem reversa validados, incluindo 24 constantes e guardas.
+  Entrada real observada; algoritmo completo não validado.
+- Próxima imagem: **railtracks_calculatepathestimates_spu.elf**, fonte **0x205ed80**,
+  LS **0x80**, entrada **0xb0**, **0x2e100 bytes**, iguais em dois snapshots completos.
+- SHA-256: `baccdc7f601823d404686b79fadeab5292015834af196101f3f99053493d1f76`.
 - Nome está exatamente na fronteira declarada, não em busca distante.
-- Imagem/disassembly: `private/analysis/fifarna_batchplayer_pass0.bin` e
-  `private/analysis/fifarna_batchplayer_pass0-disassembly.txt`.
-- Identificação: `private/analysis/replay-matrixload-next-identified.json`.
+- Imagem/disassembly: `private/analysis/railtracks_pathestimates.bin` e
+  `private/analysis/railtracks_pathestimates-disassembly.txt`.
+- Identificação: `private/analysis/batchplayer-pass0-next-identified.json`.
 - Próximo incremento: revisar CRT, construtores, BSS e código/dados antes de traduzir.
 
 ## Retomada e validação proporcional
 
 1. Confira instruções, branch/HEAD/mudanças. Leia este checkpoint e a etapa do plano.
-2. Consulte a imagem fifarna_batchplayer_pass0 e seus limites; diagnóstico já foi corrigido.
+2. Consulte a imagem railtracks_pathestimates e seus limites; diagnóstico já foi corrigido.
 3. Para tradução: confira bytes, fronteiras e manifesto; só depois gere e compile.
 4. O principal é dono exclusivo de lift/build/probe/patch/commit. Nunca relinke
    enquanto um processo nativo pai ou filho estiver vivo.

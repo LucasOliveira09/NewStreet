@@ -22,6 +22,8 @@ ORIGINAL_CTOR(00004328); ORIGINAL_CTOR(000042E8); ORIGINAL_CTOR(00003EE0);
 ORIGINAL_CTOR(00000738);
 #undef ORIGINAL_CTOR
 extern "C" void fifa_replay_matrixload_spu_func_00003978(spu_context*);
+extern "C" void fifa_fifarna_batchplayer_pass0_spu_func_00015830(spu_context*);
+extern "C" void fifa_fifarna_batchplayer_pass0_spu_func_00001758(spu_context*);
 namespace {
 constexpr int image_id = 0x256ac370;
 constexpr uint32_t constructors[] = {
@@ -59,6 +61,20 @@ void observe_matrixload_constructor(spu_context* ctx) {
                          [](uint8_t value) { return value == 0; });
     ++calls;
     fifa_replay_matrixload_spu_func_00003978(ctx);
+}
+
+void observe_batchplayer_constructor(spu_context* ctx) {
+    if (ctx->pc == 0x15830) {
+        ordered = ordered && calls == 0;
+        zeroed = std::all_of(ctx->ls + 0x16370, ctx->ls + 0x16530,
+                             [](uint8_t value) { return value == 0; });
+        ++calls;
+        fifa_fifarna_batchplayer_pass0_spu_func_00015830(ctx);
+    } else if (ctx->pc == 0x1758) {
+        ordered = ordered && calls == 1;
+        ++calls;
+        fifa_fifarna_batchplayer_pass0_spu_func_00001758(ctx);
+    } else std::abort();
 }
 
 void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
@@ -196,8 +212,57 @@ extern "C" int fifa_test_spu_matrixload_startup(const char* path) {
                 "\"original_stop\":16383,\"main_executed\":false,\"algorithm_validated\":false}\n");
     return 0;
 }
+extern "C" int fifa_test_spu_batchplayer_startup(const char* path) {
+    std::vector<uint8_t> blob(0x162f0);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    spu_begin_image(0x2c7b9464);
+    spu_register_function(0x15830, observe_batchplayer_constructor);
+    spu_register_function(0x1758, observe_batchplayer_constructor);
+    spu_begin_image(0);
+    fifa_install_spu_policy();
+    static spu_context ctx;
+    spu_context_init(&ctx, 81);
+    ctx.image_id = 0x2c7b9464;
+    std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+    std::memcpy(ctx.ls + 0x80, blob.data(), blob.size());
+    if (spu_ls_read32(&ctx, 0x16350) != 0x1758 ||
+        spu_ls_read32(&ctx, 0x16354) != 0x15830 ||
+        spu_lifted_lookup(&ctx, 0x15830) != observe_batchplayer_constructor ||
+        spu_lifted_lookup(&ctx, 0x1758) != observe_batchplayer_constructor ||
+        !spu_lifted_lookup(&ctx, 0xb0)) return 77;
+    calls = 0;
+    zeroed = false;
+    ordered = true;
+    if (!run_to_original_crt_stop(ctx) || !stopped || calls != 2 || !zeroed || !ordered) return 5;
+    if (std::memcmp(ctx.ls + 0x80, blob.data(), blob.size())) return 6;
+    for (unsigned i = 0; i < 4; ++i)
+        if (spu_ls_read32(&ctx, 0x16370 + 4 * i) != 0x43c80000 ||
+            spu_ls_read32(&ctx, 0x16380 + 4 * i) != 0x42652ee0 ||
+            spu_ls_read32(&ctx, 0x16390 + 4 * i) != 0x3c8efa34) return 8;
+    const uint32_t expected[] = {
+        0xffff8000, 0x00007c00, 0x7f800000, 0xffffff90,
+        0x80000000, 0x7f800000, 0x00007c00, 0x00000070, 0, 0, 0, 0
+    };
+    for (unsigned i = 0; i < 12; ++i)
+        if (spu_ls_read32(&ctx, 0x163a0 + 4 * i) != expected[i]) return 8;
+    if (!std::all_of(ctx.ls + 0x163d0, ctx.ls + 0x16530,
+                     [](uint8_t value) { return value == 0; })) return 9;
+    for (unsigned i = 0; i < 16; ++i)
+        if (ctx.ls[0x70 + i] != 0xa5 || ctx.ls[0x16530 + i] != 0xa5) return 7;
+    std::printf("{\"original_constructors\":2,\"reverse_order\":true,\"bss_bytes\":448,"
+                "\"bss_zero_before_constructors\":true,\"constructor_constants_correct\":true,"
+                "\"unused_bss_zero\":true,\"code_preserved\":true,\"bss_guards_preserved\":true,"
+                "\"original_stop\":16383,\"main_executed\":false,\"algorithm_validated\":false}\n");
+    return 0;
+}
 #else
 extern "C" int fifa_test_spu_fixed_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_matrixsave_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_matrixload_startup(const char*) { return 77; }
+extern "C" int fifa_test_spu_batchplayer_startup(const char*) { return 77; }
 #endif

@@ -90,6 +90,7 @@ int fifa_test_spu_ant_mirror_constructors(const char*);
 int fifa_test_spu_fixed_startup(const char*);
 int fifa_test_spu_matrixsave_startup(const char*);
 int fifa_test_spu_matrixload_startup(const char*);
+int fifa_test_spu_batchplayer_startup(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -197,6 +198,7 @@ int main(int argc, char** argv) {
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-fixed-startup")) return fifa_test_spu_fixed_startup(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-matrixsave-startup")) return fifa_test_spu_matrixsave_startup(argv[2]);
     if (argc == 3 && !std::strcmp(argv[1], "--test-spu-matrixload-startup")) return fifa_test_spu_matrixload_startup(argv[2]);
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-batchplayer-startup")) return fifa_test_spu_batchplayer_startup(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

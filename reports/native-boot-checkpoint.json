@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Replay_matrixload entered; fifarna_batchplayer_pass0 at 0x1ecb100 is untranslated",
+  "stage": "FIFARNA batchplayer pass0 entered; railtracks_calculatepathestimates at 0x205ed80 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793031414753414100",
-  "elapsed_seconds": 81.731,
+  "logs": "private\\analysis\\runs\\1793032029783460100",
+  "elapsed_seconds": 83.192,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 132,
+    "project": 133,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,29 +866,15 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1ecb100",
+    "source_ea": "0x205ed80",
     "ls_base": "0x80",
     "pc": "0xb0",
-    "initialized_bytes": 90864,
-    "source_sha256": "c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652",
+    "initialized_bytes": 188672,
+    "source_sha256": "baccdc7f601823d404686b79fadeab5292015834af196101f3f99053493d1f76",
     "snapshot_byte_differences": 0,
-    "verified_snapshots": 1,
-    "source_name": "fifarna_batchplayer_pass0.elf",
-    "source_name_verified": true,
-    "header_words": [
-      "0x42c0f602",
-      "0x43720082",
-      "0x42263702",
-      "0x43c0e782",
-      "0x30",
-      "0x162f0",
-      "0x1c0",
-      "0x80000080",
-      "0x16360",
-      "0x10",
-      "0x0",
-      "0x55011055"
-    ]
+    "verified_snapshots": 2,
+    "source_name": "railtracks_calculatepathestimates_spu.elf",
+    "source_name_verified": true
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -1236,7 +1222,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 110,
+  "registered_raw_spu_overlays": 111,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1268,6 +1254,22 @@
     "relocatable_pic": false,
     "original_constructor_calls": 1,
     "bss_bytes": 48,
+    "bss_zero_before_constructors": true,
+    "constructor_constants_validated": true,
+    "bss_guards_preserved": true,
+    "code_preserved": true,
+    "native_entry_observed": true,
+    "algorithm_result_validated": false
+  },
+  "spu_batchplayer_pass0": {
+    "source_ea": "0x1ecb100",
+    "bytes": 90864,
+    "sha256": "c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652",
+    "native_entries": 477,
+    "code_end": "0x15bb8",
+    "original_constructor_calls": 2,
+    "reverse_order_validated": true,
+    "bss_bytes": 448,
     "bss_zero_before_constructors": true,
     "constructor_constants_validated": true,
     "bss_guards_preserved": true,
