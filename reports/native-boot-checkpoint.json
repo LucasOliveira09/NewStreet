@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Both DXT encoder modules entered; autosave glyph cache fixed in the reviewed scene; topology SPU module remains untranslated",
+  "stage": "Topology SPU module entered with readable autosave UI; railtracks move-to-target SPU module is the next untranslated module",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792969354888225400",
-  "elapsed_seconds": 140.128,
+  "logs": "private\\analysis\\runs\\1792981780866319400",
+  "elapsed_seconds": 102.27,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 42,
-    "project": 91,
+    "project": 92,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,11 +866,11 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "name": "aififa_topologycache_spu.elf",
-    "source_ea": "0x1ebd580",
+    "name": "railtracks_movetotarget_spu.elf",
+    "source_ea": "0x2034680",
     "pc": "0xb0",
-    "bytes": 56128,
-    "sha256": "06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7",
+    "bytes": 173728,
+    "sha256": "f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b",
     "snapshot_byte_differences": 0
   },
   "spu_lzma": {
@@ -933,5 +933,16 @@
     "tex_nocache_override": false,
     "autosave_text_reference_sha256": "4ab853e27bb6238ca6188b7bd11529fe18f50f60aa494f769d0202598e9fe7ec",
     "broader_graphics_fidelity_validated": false
+  },
+  "spu_topologycache": {
+    "source_ea": "0x1ebd580",
+    "entry": "0xb0",
+    "bytes": 56128,
+    "sha256": "06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7",
+    "native_functions": 604,
+    "original_constructors_tested": 7,
+    "native_entry_observed": true,
+    "native_thread": 8192,
+    "ai_algorithm_result_validated": false
   }
 }

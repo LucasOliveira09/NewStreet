@@ -69,6 +69,7 @@ int fifa_test_spu_lzma(const char*, const char*, const char*, const char*);
 int fifa_test_spu_dxt(const char*, const char*, const char*, const char*, const char*, const char*);
 int fifa_test_spu_dxt_job(const char*, const char*, const char*, const char*, const char*, const char*);
 int fifa_test_texture_fingerprint(void);
+int fifa_test_spu_topology_constructors(const char*);
 uint64_t ppu_guest_call(uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 uint64_t ppu_guest_call_ct(uint32_t, uint32_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
@@ -155,6 +156,7 @@ int main(int argc, char** argv) {
     if (argc == 8 && !std::strcmp(argv[1], "--test-spu-dxt")) return fifa_test_spu_dxt(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
     if (argc == 8 && !std::strcmp(argv[1], "--test-spu-dxt-job")) return fifa_test_spu_dxt_job(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
     if (argc == 2 && !std::strcmp(argv[1], "--test-texture-fingerprint")) return fifa_test_texture_fingerprint();
+    if (argc == 3 && !std::strcmp(argv[1], "--test-spu-topology-constructors")) return fifa_test_spu_topology_constructors(argv[2]);
     if (argc == 2 && (!std::strcmp(argv[1], "--test-spawn") || !std::strcmp(argv[1], "--test-spawn-child"))) {
         bool child = !std::strcmp(argv[1], "--test-spawn-child");
         vm_base = (uint8_t*)std::calloc(1, 0x20000);

@@ -131,7 +131,8 @@ de funções ou por abrir uma janela.
 - [x] Traduzir sportsutil_dxt, testar BC1/BC3 e confirmar entrada no jogo.
 - [x] Traduzir dxt_encoder_job, testar 48 jobs completos e observar entrada no jogo.
 - [ ] Conferir conclusão das filas concorrentes e custos de blocos não uniformes.
-- [ ] Traduzir aififa_topologycache_spu de 0x1ebd580.
+- [x] Traduzir aififa_topologycache_spu, executar construtores e observar sua entrada.
+- [ ] Traduzir railtracks_movetotarget_spu de 0x2034680.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

@@ -1516,3 +1516,36 @@ O perfil foi relido inteiro e os cinco hashes foram preservados; 65 amostras
 de assets coincidiram. O próximo blob continuou sendo aififa_topologycache_spu,
 confirmado por SHA integral do snapshot. A correção dos glifos vale para essa
 cena revisada; menu, partida, fidelidade geral e desempenho seguem pendentes.
+
+
+## Inicialização original do módulo de topologia (2026-10-25)
+
+Integrado no manifesto o blob aififa_topologycache_spu.elf, origem 0x1ebd580,
+LS 0x80, 0xdb40 bytes, SHA 06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7.
+O código termina em 0xd360, antes das constantes; a BSS é 0xdbc0..0xfdf0.
+O CRT salta a 0x148 ao iniciar a limpeza parcial de 0x30 bytes. Os sete
+ponteiros da tabela 0xdb50..0xdb68 foram conferidos: 0xdc8, 0x68b8, 0x7a50,
+0x7db8, 0xa128, 0xcfd0 e 0xd090. A sequência real percorre a tabela ao contrário.
+Esses destinos e 0x154 foram admitidos explicitamente, sem interpretar código.
+A tradução gerou 604 entradas, sem instruções ou chamadas diretas pendentes.
+
+A fixture exclusiva de teste carrega o blob e executa os sete construtores
+originais em ordem do CRT, com BSS zerada na preparação do contexto e retorno
+para um chamador autoral fora do módulo. Os sete retornaram e a comparação
+confirmou que cabeçalho/código não foram modificados. Não há substituição do
+main nem validação de algoritmo de IA por esse teste. Antes da CLI/tradução o
+teste falhou; depois passou em 3,066 s. FullGame compilou. A entrada do módulo
+no boot e o processamento dos dados reais continuam sendo o próximo aceite.
+
+
+Validação do incremento: FullGame compilou, 42 testes de boot e 92 do projeto
+passaram. Ensaio topology-native (1792981780866319400): 90 em 102,270 s.
+Start e Cross foram autorizados pelos pixels do título e do aviso legível;
+o perfil foi relido integralmente, com os cinco hashes preservados. As 65
+amostras de assets conferiram. A entrada aififa_topologycache foi observada
+na SPU 8192. Outra SPU, 8194, atingiu o próximo módulo não traduzido:
+railtracks_movetotarget_spu.elf, origem 0x2034680, LS 0x80, 0x2a6a0 bytes,
+SHA f0d60bc73fa56d84a06dc6085e2308b6d502a416d5b27a7997fb76d2bb62cf8b,
+zero diferenças contra o snapshot. A entrada de topologia está confirmada;
+não se afirma conclusão de todas as tarefas/algoritmos concorrentes.
+Menu e partida continuam pendentes.

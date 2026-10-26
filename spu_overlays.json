@@ -589,6 +589,27 @@
         "0x134",
         "0x154"
       ]
+    },
+    {
+      "name": "aififa_topologycache",
+      "source_ea": "0x1ebd580",
+      "size": "0xdb40",
+      "sha256": "06cb06e15272bef85f694bb916226be58677518355088bb38c2d55ddbfa254b7",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0xd360",
+      "extra_entries": [
+        "0x148",
+        "0x154",
+        "0xdc8",
+        "0x68b8",
+        "0x7a50",
+        "0x7db8",
+        "0xa128",
+        "0xcfd0",
+        "0xd090"
+      ]
     }
   ]
 }
