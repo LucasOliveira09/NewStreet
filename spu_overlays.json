@@ -692,6 +692,22 @@
         "0x6b8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_setdofsetnode_exec",
+      "source_ea": "0x2118680",
+      "size": "0x1710",
+      "sha256": "c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x11f8",
+      "extra_entries": [
+        "0xe60",
+        "0xf20",
+        "0x11e8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

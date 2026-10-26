@@ -33,6 +33,10 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_pic_constructors('ant_clearactivitymasknode_exec', '--test-spu-ant-clear-constructors',
             '5ebd1592be5f06df6d2176da36b700bb75511693b853b3051ac16332d8f685ba')
 
+    def test_original_set_dof_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_setdofsetnode_exec', '--test-spu-ant-setdof-constructors',
+            'c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f')
+
     def check_pic_constructors(self, module, command, sha256):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)

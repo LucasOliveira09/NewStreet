@@ -1,14 +1,14 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "VBR and clear activity ANT plugins entered; next plugin at 0x2118680 is untranslated",
+  "stage": "Set DOF ANT plugin entered; two additional plugins at 0x20e2f00 and 0x20be100 remain untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1792985246954273600",
-  "elapsed_seconds": 95.523,
+  "logs": "private\\analysis\\runs\\1792985700118448800",
+  "elapsed_seconds": 106.49,
   "block": {
     "kind": "spu-indirect",
-    "value": 2259970271706377024,
+    "value": 2259970271706397632,
     "guest_lr": 0,
     "guest_pc": 0,
     "thread_id": 0,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 43,
-    "project": 101,
+    "project": 102,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -865,14 +865,22 @@
     "native_entry_observed": true,
     "native_thread": 8196
   },
-  "next_spu": {
-    "source_ea": "0x2118680",
-    "pc": "0x6b40",
-    "ls_base": "0x6b10",
-    "source_sha256": "c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f",
-    "snapshot_byte_differences": 0,
-    "bytes": 5904
-  },
+  "next_spu": [
+    {
+      "source_ea": "0x20e2f00",
+      "pc": "0xbbc0",
+      "ls_base": "0xbb90",
+      "source_sha256": "f0eed6604a62a7f6fc8745b17cd79ebf53f2556c1ece802da7e0c80d0ca1afa6",
+      "snapshot_byte_differences": 0
+    },
+    {
+      "source_ea": "0x20be100",
+      "pc": "0x82f0",
+      "ls_base": "0x82c0",
+      "source_sha256": "86b9892f5273873cac6129197232cde4c34474992d3ee34d3981aa673e7ef36d",
+      "snapshot_byte_differences": 0
+    }
+  ],
   "spu_lzma": {
     "source_ea": "0x1e57180",
     "entry": "0x100",
@@ -947,9 +955,9 @@
   },
   "diagnostic_recovery": {
     "raw_event_errors": 1,
-    "valid_events": 138,
+    "valid_events": 144,
     "process_status_recorded": true,
-    "process_status_path": "private\\analysis\\runs\\1792985246954273600/process-exit.json"
+    "process_status_path": "private\\analysis\\runs\\1792985700118448800/process-exit.json"
   },
   "spu_railtracks": {
     "source_ea": "0x2034680",
@@ -1012,6 +1020,20 @@
       ],
       "native_entry_observed": true,
       "native_thread": 8193,
+      "complete_animation_algorithm_validated": false
+    },
+    {
+      "name": "ant_setdofsetnode_exec",
+      "native_functions": 83,
+      "original_constructor_runs": 12,
+      "positions": [
+        0,
+        27408,
+        18704,
+        65536
+      ],
+      "native_entry_observed": true,
+      "native_thread": 8194,
       "complete_animation_algorithm_validated": false
     }
   ],

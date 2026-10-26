@@ -1295,3 +1295,31 @@ dois snapshots completos conferem integralmente seus bytes. Os cinco hashes
 do perfil permanecem preservados e 65 amostras de assets passaram. Uma linha
 SPU truncada foi registrada sem perda do status/relatório. Menu e partida ainda
 não foram alcançados. Próxima ação: conferir e traduzir o módulo de 0x2118680.
+
+
+## Plugin setdofsetnode_exec (2026-10-26)
+
+Dois snapshots completos do ensaio ant-clear-native identificaram o mesmo plugin
+em LS 0x6b10, PC 0x6b40: origem 0x2118680, 0x1710 bytes, SHA
+c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f,
+sem diferença nos bytes. BuiltElfName registra setdofsetnode_exec.elf.
+Cabeçalho PIC modo 1 e entrada relativa 0x30. O código termina em 0x11f8,
+seguido por padding de oito bytes e tabela de construtores em 0x1200.
+A rotina final 0x11e8 termina com branch 0xf30; esse trecho foi preservado.
+BSS 0x1710..0x1760; construtores 0xe60, 0xf20 e 0x11e8, percorridos para frente.
+
+O fixture usa as bases 0, 0x6b10, 0x4910 e 0x10000. A CLI ausente retornou 2
+antes da integração. A tradução produziu 83 entradas, sem instruções nem
+chamadas diretas pendentes. FullGame compilou; sete testes de construtores
+passaram em 6,621 s. Boot passou os 43 testes e os 102 testes do projeto
+passaram em 8,430 s. O ensaio ant-setdof-native segue em validação. Não se
+afirma resultado completo do processamento de animação.
+
+
+Ensaio ant-setdof-native (1792985700118448800): saída estrita 90 aos 106,490 s.
+Entrada de setdofsetnode_exec observada na SPU 8194. Dois próximos plugins:
+0x20e2f00 em LS 0xbb90/PC 0xbbc0 (0x19e0 bytes) e 0x20be100 em LS
+0x82c0/PC 0x82f0 (0xfe0 bytes). Os snapshots completos conferem os blobs
+inteiros. Cinco hashes do perfil preservados; 65 amostras de assets passaram.
+Ainda não há menu/partida validado. Próximo incremento: conferir e integrar
+os dois módulos alcançados, sem trocar os seus callbacks por implementações falsas.
