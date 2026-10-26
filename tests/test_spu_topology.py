@@ -37,6 +37,14 @@ class OriginalTopologyConstructorsTests(unittest.TestCase):
         self.check_pic_constructors('ant_setdofsetnode_exec', '--test-spu-ant-setdof-constructors',
             'c7c203e58e7e0005165cd965445d4c56aa2d07aecc9e3ac31d2bacfa9dcd858f')
 
+    def test_original_trajectory_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_deltatrajectoryplugin', '--test-spu-ant-trajectory-constructors',
+            'f0eed6604a62a7f6fc8745b17cd79ebf53f2556c1ece802da7e0c80d0ca1afa6')
+
+    def test_original_scratch_constructors_relocate_at_four_positions(self):
+        self.check_pic_constructors('ant_scratchmemclear_exec', '--test-spu-ant-scratch-constructors',
+            '86b9892f5273873cac6129197232cde4c34474992d3ee34d3981aa673e7ef36d')
+
     def check_pic_constructors(self, module, command, sha256):
         image = ROOT / 'private/generated/spu_overlays' / module / 'image.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), sha256)

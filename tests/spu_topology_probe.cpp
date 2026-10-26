@@ -149,3 +149,13 @@ extern "C" int fifa_test_spu_ant_setdof_constructors(const char* image) {
     const uint32_t entries[] = {0xe60,0xf20,0x11e8};
     return run_pic_constructors(image, 0x2118680, 0x1710, 0x11f8, entries, 0x6b10);
 }
+
+extern "C" int fifa_test_spu_ant_trajectory_constructors(const char* image) {
+    const uint32_t entries[] = {0x888,0xf00,0x11c8};
+    return run_pic_constructors(image, 0x20e2f00, 0x19e0, 0x11d8, entries, 0xbb90);
+}
+
+extern "C" int fifa_test_spu_ant_scratch_constructors(const char* image) {
+    const uint32_t entries[] = {0x840,0x900,0xbc8};
+    return run_pic_constructors(image, 0x20be100, 0xfe0, 0xbd8, entries, 0x82c0);
+}

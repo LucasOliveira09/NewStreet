@@ -141,7 +141,9 @@ de funções ou por abrir uma janela.
 - [x] Traduzir clearactivitymasknode_exec e confirmar sua entrada.
 - [x] Observar entrada VBR e identificar o plugin seguinte em 0x2118680.
 - [x] Traduzir setdofsetnode_exec de 0x2118680 e confirmar entrada.
-- [ ] Traduzir os plugins de 0x20e2f00 e 0x20be100 e seguir a cadeia ANT.
+- [x] Traduzir trajectory e scratch de 0x20e2f00/0x20be100 e confirmar entradas.
+- [x] Confirmar VBR real em segunda posição LS 0x9340.
+- [ ] Traduzir os plugins de 0x20e6e80/0x210ca00 e seguir a cadeia ANT.
 - [x] Corrigir invalidação do atlas e conferir o aviso de autosave no cache normal.
 - [ ] Validar preservação de save inteiro em falha de escrita e concorrência.
 - [ ] Implementar metadados/grades/desbloqueios reais de troféus quando alcançados.

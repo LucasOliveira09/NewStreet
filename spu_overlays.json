@@ -708,6 +708,38 @@
         "0x11e8"
       ],
       "relocatable_pic": true
+    },
+    {
+      "name": "ant_deltatrajectoryplugin",
+      "source_ea": "0x20e2f00",
+      "size": "0x19e0",
+      "sha256": "f0eed6604a62a7f6fc8745b17cd79ebf53f2556c1ece802da7e0c80d0ca1afa6",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0x11d8",
+      "extra_entries": [
+        "0x888",
+        "0xf00",
+        "0x11c8"
+      ],
+      "relocatable_pic": true
+    },
+    {
+      "name": "ant_scratchmemclear_exec",
+      "source_ea": "0x20be100",
+      "size": "0xfe0",
+      "sha256": "86b9892f5273873cac6129197232cde4c34474992d3ee34d3981aa673e7ef36d",
+      "ls_base": "0x0",
+      "entry": "0x30",
+      "code_start": "0x30",
+      "code_end": "0xbd8",
+      "extra_entries": [
+        "0x840",
+        "0x900",
+        "0xbc8"
+      ],
+      "relocatable_pic": true
     }
   ]
 }

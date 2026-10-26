@@ -1323,3 +1323,38 @@ Entrada de setdofsetnode_exec observada na SPU 8194. Dois próximos plugins:
 inteiros. Cinco hashes do perfil preservados; 65 amostras de assets passaram.
 Ainda não há menu/partida validado. Próximo incremento: conferir e integrar
 os dois módulos alcançados, sem trocar os seus callbacks por implementações falsas.
+
+
+## Delta trajectory e scratch memory clear (2026-10-26)
+
+O ensaio setdof revelou dois plugins distintos em workers concorrentes:
+- deltatrajectoryplugin.elf, origem 0x20e2f00, 0x19e0 bytes, LS 0xbb90,
+  SHA f0eed6604a62a7f6fc8745b17cd79ebf53f2556c1ece802da7e0c80d0ca1afa6.
+- scratchmemclear_exec.elf, origem 0x20be100, 0xfe0 bytes, LS 0x82c0,
+  SHA 86b9892f5273873cac6129197232cde4c34474992d3ee34d3981aa673e7ef36d.
+
+Bytes completos dos novos módulos conferidos nos snapshots. Ambos declaram
+PIC modo 1, entrada 0x30 e BSS de 0x50 bytes. Em trajectory, código termina em
+0x11d8: rotina 0x11c8 termina com branch 0xf10, antes de padding e tabela
+0x11e0; construtores 0x888/0xf00/0x11c8. Em scratch, código termina em 0xbd8:
+rotina 0xbc8 termina com branch 0x910, antes da tabela em 0xbe0;
+construtores 0x840/0x900/0xbc8. A ordem dos construtores é para frente.
+
+As duas CLIs ausentes retornaram 2 antes da integração. Cada teste usa quatro
+bases, incluindo a respectiva posição observada, e confere código, guardas e
+dados relocados. FullGame compilou; nove testes de construtores passaram em
+4,218 s. Boot passou seus 43 testes e 104 testes do projeto passaram em 8,481 s.
+O ensaio ant-trajectory-scratch-native segue em validação. A última captura
+do ensaio setdof foi inspecionada: continua na imagem original de carregamento,
+sem menu navegável. Não há conclusão validada dos algoritmos de animação.
+
+
+Ensaio ant-trajectory-scratch-native (1792986197997724500): saída estrita 90 aos
+88,383 s. Entrada de trajectory observada na SPU 8193 e scratch na 8192.
+VBR também entrou em outra posição, LS 0x9340 na SPU 8194, sem criar variante
+fixa adicional. Próximos módulos: 0x20e6e80 em LS 0xd610/PC 0xd640,
+0x1b90 bytes; e 0x210ca00 em LS 0x105c0/PC 0x105f0, 0x1580 bytes.
+Ambos conferem integralmente nos snapshots completos. Perfil preservado pelos
+cinco hashes e 65 amostras de assets aprovadas. O tempo final medido não confirma
+regressão de desempenho. Menu, partida e resultados completos de animação
+seguem pendentes. Próximo incremento: os dois módulos efetivamente alcançados.
