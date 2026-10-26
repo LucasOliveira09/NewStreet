@@ -1904,6 +1904,21 @@
       "entry": "0xb0",
       "code_start": "0xb0",
       "code_end": "0x19b8"
+    },
+    {
+      "name": "replay_matrixload",
+      "source_ea": "0x1f1f880",
+      "size": "0x3be0",
+      "sha256": "00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e",
+      "ls_base": "0x80",
+      "entry": "0xb0",
+      "code_start": "0xb0",
+      "code_end": "0x3988",
+      "extra_entries": [
+        "0x148",
+        "0x154",
+        "0x3978"
+      ]
     }
   ]
 }

@@ -11,7 +11,8 @@ Este checklist distingue demonstração parcial de jogo completo.
 - [x] Falhas sem suporte interrompem execução com diagnóstico estrito.
 - [x] Corrigir identificação e executar módulo SPU de 0x1ee9580.
 - [x] Traduzir e executar Replay_matrixsave de 0x1f23500.
-- [ ] Traduzir e executar Replay_matrixload de 0x1f1f880.
+- [x] Traduzir e executar Replay_matrixload de 0x1f1f880.
+- [ ] Revisar, traduzir e executar fifarna_batchplayer_pass0 de 0x1ecb100.
 - [ ] Serviços e tarefas necessários implementados com semântica validada.
 - [ ] Menu original navegável e seleção de conteúdo.
 - [ ] Cena de partida, jogadores, bola, animação, física e regras funcionando.

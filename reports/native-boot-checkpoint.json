@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Replay_matrixsave entered; Replay_matrixload at 0x1f1f880 is untranslated",
+  "stage": "Replay_matrixload entered; fifarna_batchplayer_pass0 at 0x1ecb100 is untranslated",
   "native_process": true,
   "emulator_launched": false,
   "exit_code": 90,
-  "logs": "private\\analysis\\runs\\1793030862357211100",
-  "elapsed_seconds": 82.044,
+  "logs": "private\\analysis\\runs\\1793031414753414100",
+  "elapsed_seconds": 81.731,
   "block": {
     "kind": "spu-indirect",
     "value": 2259970271706349744,
@@ -67,7 +67,7 @@
   },
   "checks": {
     "boot": 44,
-    "project": 131,
+    "project": 132,
     "independent_asset_jobs_passed": 65,
     "runtime_ctest": 16
   },
@@ -866,17 +866,29 @@
     "native_thread": 8196
   },
   "next_spu": {
-    "source_ea": "0x1f1f880",
+    "source_ea": "0x1ecb100",
     "ls_base": "0x80",
     "pc": "0xb0",
-    "initialized_bytes": 15328,
-    "source_sha256": "00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e",
+    "initialized_bytes": 90864,
+    "source_sha256": "c7b9464b73e1715963870666275c024085e842a3c28fb7928e461ad0f8ae6652",
     "snapshot_byte_differences": 0,
-    "verified_snapshots": 2,
-    "source_name": "Replay_matrixload.elf",
+    "verified_snapshots": 1,
+    "source_name": "fifarna_batchplayer_pass0.elf",
     "source_name_verified": true,
-    "header_flags": "0x80000080",
-    "header_mode": 0
+    "header_words": [
+      "0x42c0f602",
+      "0x43720082",
+      "0x42263702",
+      "0x43c0e782",
+      "0x30",
+      "0x162f0",
+      "0x1c0",
+      "0x80000080",
+      "0x16360",
+      "0x10",
+      "0x0",
+      "0x55011055"
+    ]
   },
   "spu_lzma": {
     "source_ea": "0x1e57180",
@@ -1224,7 +1236,7 @@
     "algorithm_result_validated": false,
     "source_name_verified": false
   },
-  "registered_raw_spu_overlays": 109,
+  "registered_raw_spu_overlays": 110,
   "spu_replay_matrixsave": {
     "source_ea": "0x1f23500",
     "ls_base": "0x80",
@@ -1240,6 +1252,26 @@
     "bss_bytes": 0,
     "image_preserved": true,
     "image_guards_preserved": true,
+    "native_entry_observed": true,
+    "algorithm_result_validated": false
+  },
+  "spu_replay_matrixload": {
+    "source_ea": "0x1f1f880",
+    "ls_base": "0x80",
+    "entry": "0xb0",
+    "bytes": 15328,
+    "sha256": "00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e",
+    "code_end": "0x3988",
+    "native_entries": 189,
+    "header_flags": "0x80000080",
+    "header_mode": 0,
+    "relocatable_pic": false,
+    "original_constructor_calls": 1,
+    "bss_bytes": 48,
+    "bss_zero_before_constructors": true,
+    "constructor_constants_validated": true,
+    "bss_guards_preserved": true,
+    "code_preserved": true,
     "native_entry_observed": true,
     "algorithm_result_validated": false
   }

@@ -9,15 +9,18 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Identificador não associa rótulos fora dos limites; dez regressões autorais passaram.
 - Imagem 0x1ee9580 traduzida: 173 entradas; CRT/BSS e dez construtores validados.
 - Entradas reais de 0x1ee9580 e Replay_matrixsave observadas; perfil preservado.
-- Replay_matrixsave: 78 entradas, CRT vazio e guardas validados; 131 testes passaram.
+- Replay_matrixsave: 78 entradas, CRT vazio e guardas validados.
+- Replay_matrixload: 189 entradas, BSS/construtor e constantes validados; entrada real.
+- 132 testes do projeto, 44 Boot e 65 amostras de assets passaram.
 
-## 1. Traduzir Replay_matrixload na base fixa observada
+## 1. Revisar e traduzir fifarna_batchplayer_pass0
 
-- Fonte 0x1f1f880, base LS 0x80, entrada 0xb0, tamanho 0x3be0 e SHA no checkpoint.
+- Fonte 0x1ecb100, base LS 0x80, entrada 0xb0, tamanho 0x162f0 e SHA no checkpoint.
+- Fonte confere integralmente com um snapshot completo; nome identificado na fronteira.
+- Imagem/disassembly privados já extraídos, sem análise semântica completa.
 - Revisar código/dados, BSS, tabela de construtores e entradas indiretas do CRT.
-- Flags 0x80000080/modo 0: não relaxar a admissão PIC modo 1.
-- Aceite: fonte/snapshots conferem, tradução completa nos limites revisados,
-  fixture pertinente e entrada real no próximo ensaio estrito.
+- Aceite: tradução completa dentro de limites revisados; fixture de inicialização
+  pertinente e entrada real no próximo ensaio estrito. Não deduzir função só pelo nome.
 
 ## 3. Ensaiar o avanço real após o novo módulo
 

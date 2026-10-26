@@ -9,6 +9,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FixedSpuStartupTests(unittest.TestCase):
+    def test_replay_matrixload_crt_initializes_constants_after_clearing_bss(self):
+        image = ROOT / 'private/analysis/replay_matrixload.bin'
+        self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),
+                         '00e35e03ec4bb7d52a9ac86b226d15e60e8bf3c79c5413a4c34081553ccbfc7e')
+        result = subprocess.run([str(ROOT / 'private/build/fifazf_full/fifa_boot.exe'),
+                                 '--test-spu-matrixload-startup', str(image)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1]), dict(
+            original_constructors=1, bss_bytes=48, bss_zero_before_constructors=True,
+            constructor_constants_correct=True, code_preserved=True,
+            bss_guards_preserved=True, original_stop=0x3fff,
+            main_executed=False, algorithm_validated=False))
+
     def test_replay_matrixsave_empty_crt_preserves_image_and_guards(self):
         image = ROOT / 'private/analysis/replay_matrixsave.bin'
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(),

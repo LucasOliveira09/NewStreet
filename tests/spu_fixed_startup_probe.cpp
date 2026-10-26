@@ -21,6 +21,7 @@ ORIGINAL_CTOR(00004580); ORIGINAL_CTOR(000044C0); ORIGINAL_CTOR(00004480);
 ORIGINAL_CTOR(00004328); ORIGINAL_CTOR(000042E8); ORIGINAL_CTOR(00003EE0);
 ORIGINAL_CTOR(00000738);
 #undef ORIGINAL_CTOR
+extern "C" void fifa_replay_matrixload_spu_func_00003978(spu_context*);
 namespace {
 constexpr int image_id = 0x256ac370;
 constexpr uint32_t constructors[] = {
@@ -51,6 +52,13 @@ void observe_constructor(spu_context* ctx) {
         return;
     }
     std::abort();
+}
+
+void observe_matrixload_constructor(spu_context* ctx) {
+    zeroed = std::all_of(ctx->ls + 0x3c60, ctx->ls + 0x3c90,
+                         [](uint8_t value) { return value == 0; });
+    ++calls;
+    fifa_replay_matrixload_spu_func_00003978(ctx);
 }
 
 void observe_original_stop(const char* kind, uint64_t value, void* ppu) {
@@ -147,7 +155,49 @@ extern "C" int fifa_test_spu_matrixsave_startup(const char* path) {
                 "\"main_executed\":false,\"algorithm_validated\":false}\n");
     return 0;
 }
+
+extern "C" int fifa_test_spu_matrixload_startup(const char* path) {
+    std::vector<uint8_t> blob(0x3be0);
+    FILE* file = std::fopen(path, "rb");
+    if (!file) return 3;
+    bool valid = std::fread(blob.data(), 1, blob.size(), file) == blob.size() &&
+                 std::fgetc(file) == EOF;
+    std::fclose(file);
+    if (!valid) return 3;
+    spu_begin_image(0x200e35e0);
+    spu_register_function(0x3978, observe_matrixload_constructor);
+    spu_begin_image(0);
+    fifa_install_spu_policy();
+    static spu_context ctx;
+    spu_context_init(&ctx, 81);
+    ctx.image_id = 0x200e35e0;
+    std::memset(ctx.ls, 0xa5, SPU_LS_SIZE);
+    std::memcpy(ctx.ls + 0x80, blob.data(), blob.size());
+    if (spu_ls_read32(&ctx, 0x3c50) != 0x3978 ||
+        spu_lifted_lookup(&ctx, 0x3978) != observe_matrixload_constructor ||
+        !spu_lifted_lookup(&ctx, 0xb0)) return 77;
+    calls = 0;
+    zeroed = false;
+    if (!run_to_original_crt_stop(ctx) || !stopped || calls != 1 || !zeroed) return 5;
+    if (std::memcmp(ctx.ls + 0x80, blob.data(), blob.size())) return 6;
+    // The original packing helper at 0x38c8 assembles four authored constants
+    // from scalar arguments; compare those words independently of the lift.
+    const uint32_t expected[] = {
+        0xffff8000, 0x00007c00, 0x7f800000, 0xffffff90,
+        0x80000000, 0x7f800000, 0x00007c00, 0x00000070, 0, 0, 0, 0
+    };
+    for (unsigned i = 0; i < 12; ++i)
+        if (spu_ls_read32(&ctx, 0x3c60 + 4 * i) != expected[i]) return 8;
+    for (unsigned i = 0; i < 16; ++i)
+        if (ctx.ls[0x70 + i] != 0xa5 || ctx.ls[0x3c90 + i] != 0xa5) return 7;
+    std::printf("{\"original_constructors\":1,\"bss_bytes\":48,"
+                "\"bss_zero_before_constructors\":true,\"constructor_constants_correct\":true,"
+                "\"code_preserved\":true,\"bss_guards_preserved\":true,"
+                "\"original_stop\":16383,\"main_executed\":false,\"algorithm_validated\":false}\n");
+    return 0;
+}
 #else
 extern "C" int fifa_test_spu_fixed_startup(const char*) { return 77; }
 extern "C" int fifa_test_spu_matrixsave_startup(const char*) { return 77; }
+extern "C" int fifa_test_spu_matrixload_startup(const char*) { return 77; }
 #endif
