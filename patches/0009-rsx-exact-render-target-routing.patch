@@ -1,0 +1,35 @@
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -4327,6 +4327,17 @@
+         for (int _u = 0; _u < FP_SRV_SLOTS; _u++) {
+             u32 wslot = rsx_d3d12_draw_srv_slot((u32)s_d3d.vp_parity, _d, (u32)_u);
+             dr->tex_rt[_u] = -1;
++            /* An exact RSX surface identity takes precedence over dimension-based
++             * fallbacks. Mark it so submission transitions the producer to PSR. */
++            if (dr->tex[_u].set) {
++                int rt = off_rt_find(dr->tex[_u].raw);
++                if (rt >= 0) {
++                    dr->tex_rt[_u] = rt;
++                    srv_write(wslot, s_d3d.off_rt[rt].res, (DXGI_FORMAT)s_d3d.off_rt[rt].dxgi,
++                              D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING);
++                    continue;
++                }
++            }
+             /* Display-sized sampler source -> the rendered frame. */
+             if (dr->tex[_u].set && s_screen_copy &&
+                 dr->tex[_u].w == s_d3d.width && dr->tex[_u].h == s_d3d.height) {
+@@ -4365,13 +4376,6 @@
+                 }
+             }
+             if (dr->tex[_u].set) {
+-                int rt = off_rt_find(dr->tex[_u].raw);
+-                if (rt >= 0) {
+-                    dr->tex_rt[_u] = rt;
+-                    srv_write(wslot, s_d3d.off_rt[rt].res, (DXGI_FORMAT)s_d3d.off_rt[rt].dxgi,
+-                              D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING);
+-                    continue;
+-                }
+                 u32 _bf = dr->tex[_u].fmt & 0x9F;
+                 if (dr->tex[_u].off &&
+                     (_bf == 0x81 || _bf == 0x85 || _bf == 0x8B ||

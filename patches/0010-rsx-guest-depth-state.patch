@@ -1,0 +1,199 @@
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -23,6 +23,7 @@
+ #include "rsx_vertex_fetch.h"
+ #include "rsx_texture_layout.h"
+ #include "rsx_d3d12_texture_slots.h"
++#include "rsx_d3d12_depth_state.h"
+ #include "rsx_texture_fingerprint.h"
+ #include "rsx_fp_snapshot.h"
+ #include <stdio.h>
+@@ -86,6 +87,7 @@
+     rsx_fp_snapshot* fp_program; /* CPU-owned bytes captured when the draw is decoded */
+     u32 fp_source_ea;
+     int fp_exp32;       /* SET_SHADER_CONTROL 32-bit-exports bit at draw time   */
++    u32 depth_key;      /* draw-time guest depth state and PSO identity */
+     u32 alpha_ctl;      /* alpha test: enable<<16 | (func&0xFF)<<8 | ref */
+     u32 begin_epoch;    /* SET_BEGIN_END generation, for batch concatenation */
+     u32 cull;           /* packed face culling: bit0 enable, bit1 cull FRONT
+@@ -216,6 +218,7 @@
+     u8* ucode_bytes;        /* Exact identity check after the hash match. */
+     u32 cmask;              /* colour write mask (PSO key) */
+     u32 cull;               /* packed face culling (PSO key) */
++    u32 depth_key;          /* guest depth enable/write/compare (PSO key) */
+     u32 cube_mask;          /* which units are cube textures (PSO key): the HLSL
+                              * declares those samplers as TextureCube, so a cube
+                              * and a 2D variant of the same program are different
+@@ -1561,10 +1564,10 @@
+                         r->cc[0], r->cc[1], r->cc[2], r->cc[3]);
+             else {
+                 fprintf(mf, "op%03u DRAW  rt=0x%08X mrt=0x%X/0x%X/0x%X vp=%u,%u,%ux%u fp=0x%08X vs=%d "
+-                            "n=%u cmask=%X blend=%d bk=0x%X t0=0x%08X t1=0x%08X t2=0x%08X t3=0x%08X\n",
++                            "n=%u cmask=%X blend=%d bk=0x%X dk=0x%X t0=0x%08X t1=0x%08X t2=0x%08X t3=0x%08X\n",
+                         d, r->rt_off, r->rt_mrt[0], r->rt_mrt[1], r->rt_mrt[2],
+                         r->vp_x, r->vp_y, r->vp_w, r->vp_h,
+-                        r->fp_addr, r->vs_idx, r->vertex_count, r->cmask, r->blend, r->blend_key,
++                        r->fp_addr, r->vs_idx, r->vertex_count, r->cmask, r->blend, r->blend_key, r->depth_key,
+                         r->tex[0].raw, r->tex[1].raw, r->tex[2].raw, r->tex[3].raw);
+                 for (int u = 0; u < RSX_D3D12_TEXTURE_UNITS; u++)
+                     if (r->tex[u].set)
+@@ -2110,7 +2113,7 @@
+ }
+ 
+ static ID3D12PipelineState* vp_get_fp_pso(int vs_idx, u32 fp_addr, u32 blend, int nrt,
+-                                          DXGI_FORMAT rtfmt, int exp32, u32 cmask, u32 cull,
++                                          DXGI_FORMAT rtfmt, int exp32, u32 cmask, u32 cull, u32 depth_key,
+                                           u32 cube_mask, const rsx_fp_snapshot* program,
+                                           u32 source_ea)
+ {
+@@ -2148,7 +2151,7 @@
+             s_d3d.vp_fp[i].blend == blend && s_d3d.vp_fp[i].nrt == nrt &&
+             s_d3d.vp_fp[i].rtfmt == (u32)rtfmt && s_d3d.vp_fp[i].exp32 == exp32 &&
+             s_d3d.vp_fp[i].ucode_hash == uhash && s_d3d.vp_fp[i].cmask == cmask &&
+-            s_d3d.vp_fp[i].cull == cull &&
++            s_d3d.vp_fp[i].cull == cull && s_d3d.vp_fp[i].depth_key == depth_key &&
+             s_d3d.vp_fp[i].cube_mask == cube_mask &&
+             s_d3d.vp_fp[i].ucode_size == program->size &&
+             !memcmp(s_d3d.vp_fp[i].ucode_bytes, program->bytes, program->size))
+@@ -2494,9 +2497,10 @@
+     for (int _r = 0; _r < nrt; _r++)
+         pd.BlendState.RenderTarget[_r].RenderTargetWriteMask = (UINT8)(cmask & 0xF);
+     pd.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+-    pd.DepthStencilState.DepthEnable = TRUE;
+-    pd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+-    pd.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
++    pd.DepthStencilState.DepthEnable = (depth_key & 1u) ? TRUE : FALSE;
++    pd.DepthStencilState.DepthWriteMask = rsx_d3d12_depth_writes(depth_key)
++        ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
++    pd.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)rsx_d3d12_depth_comparison(depth_key);
+     pd.DepthStencilState.StencilEnable = FALSE;
+     /* DEPTH_OFF=1: drop the depth test for guest-FP draws, so submission order
+      * alone decides what is on top. Paired with DRAW_LAST_TEX this puts one
+@@ -2544,6 +2548,7 @@
+     s_d3d.vp_fp[s_d3d.vp_fp_n].ucode_bytes = cached_bytes;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cmask   = cmask;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cull    = cull;
++    s_d3d.vp_fp[s_d3d.vp_fp_n].depth_key = depth_key;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].cube_mask = cube_mask;
+     s_d3d.vp_fp[s_d3d.vp_fp_n].pso     = pso;
+     s_d3d.vp_fp_n++;
+@@ -4425,7 +4430,7 @@
+                                        dr_num_rts(dr),
+                                        dr->rt_off ? rsx_surface_dxgi(dr->rt_fmt)
+                                                   : DXGI_FORMAT_R8G8B8A8_UNORM,
+-                                       dr->fp_exp32, dr->cmask, dr->cull, dr_cube_mask(dr),
++                                       dr->fp_exp32, dr->cmask, dr->cull, dr->depth_key, dr_cube_mask(dr),
+                                        dr->fp_program, dr->fp_source_ea);
+         if (perf_on()) s_perf_pso += perf_now() - _ps0;
+     }
+@@ -4763,7 +4768,7 @@
+                                                 dr_num_rts(dr),
+                                                 dr->rt_off ? rsx_surface_dxgi(dr->rt_fmt)
+                                                            : DXGI_FORMAT_R8G8B8A8_UNORM,
+-                                                dr->fp_exp32, dr->cmask, dr->cull,
++                                                dr->fp_exp32, dr->cmask, dr->cull, dr->depth_key,
+                                                 dr_cube_mask(dr), dr->fp_program,
+                                                 dr->fp_source_ea) : NULL;
+                 s_d3d.cmd_list->lpVtbl->SetPipelineState(s_d3d.cmd_list,
+@@ -6257,6 +6262,10 @@
+                 dr->fp_exp32 = s_d3d.current_rsx_state ?
+                     ((s_d3d.current_rsx_state->shader_control & 0x40) != 0) : 1;
+                 dr->cull = rsx_cull_key(s_d3d.current_rsx_state);
++                dr->depth_key = rsx_d3d12_depth_key(
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_test_enable : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_mask : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_func : 0x203u);
+         dr->begin_epoch = s_d3d.current_rsx_state ? s_d3d.current_rsx_state->begin_epoch : 0;
+             dr->begin_epoch = s_d3d.current_rsx_state ? s_d3d.current_rsx_state->begin_epoch : 0;
+                 dr->cmask = 0xF;
+@@ -6379,6 +6388,10 @@
+             dr->fp_exp32 = s_d3d.current_rsx_state ?
+                 ((s_d3d.current_rsx_state->shader_control & 0x40) != 0) : 1;
+             dr->cull = rsx_cull_key(s_d3d.current_rsx_state);
++                dr->depth_key = rsx_d3d12_depth_key(
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_test_enable : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_mask : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_func : 0x203u);
+         dr->begin_epoch = s_d3d.current_rsx_state ? s_d3d.current_rsx_state->begin_epoch : 0;
+             dr->begin_epoch = s_d3d.current_rsx_state ? s_d3d.current_rsx_state->begin_epoch : 0;
+             dr->cmask = 0xF;
+@@ -6523,6 +6536,10 @@
+         dr->fp_exp32 = s_d3d.current_rsx_state ?
+             ((s_d3d.current_rsx_state->shader_control & 0x40) != 0) : 1;
+         dr->cull = rsx_cull_key(s_d3d.current_rsx_state);
++                dr->depth_key = rsx_d3d12_depth_key(
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_test_enable : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_mask : 1,
++                    s_d3d.current_rsx_state ? s_d3d.current_rsx_state->depth_func : 0x203u);
+         dr->begin_epoch = s_d3d.current_rsx_state ? s_d3d.current_rsx_state->begin_epoch : 0;
+         dr->cmask = 0xF;
+         if (s_d3d.current_rsx_state) {
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -431,6 +431,11 @@
+         "${CMAKE_CURRENT_SOURCE_DIR}/libs/video")
+     add_test(NAME d3d12_texture_slots COMMAND test_d3d12_texture_slots)
+ 
++    add_executable(test_d3d12_depth_state tests/test_d3d12_depth_state.c)
++    target_include_directories(test_d3d12_depth_state PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/libs/video")
++    add_test(NAME d3d12_depth_state COMMAND test_d3d12_depth_state)
++
+     find_package(Python3 3.10 COMPONENTS Interpreter QUIET)
+     if(Python3_Interpreter_FOUND)
+         add_test(NAME spinlock_word_width
+diff --git a/libs/video/rsx_d3d12_depth_state.h b/libs/video/rsx_d3d12_depth_state.h
+new file mode 100644
+--- /dev/null
++++ b/libs/video/rsx_d3d12_depth_state.h
+@@ -0,0 +1,19 @@
++/* RSX GL comparison enums to D3D12 values, independent of Windows. */
++#ifndef PS3RECOMP_RSX_D3D12_DEPTH_STATE_H
++#define PS3RECOMP_RSX_D3D12_DEPTH_STATE_H
++#include <stdint.h>
++static inline uint32_t rsx_d3d12_depth_key(int enabled, int writes, uint32_t compare)
++{
++    return (enabled ? 1u : 0u) | (writes ? 2u : 0u) | ((compare & 0xFFFFu) << 2);
++}
++static inline int rsx_d3d12_depth_writes(uint32_t key)
++{
++    return (key & 3u) == 3u;
++}
++static inline uint32_t rsx_d3d12_depth_comparison(uint32_t key)
++{
++    const uint32_t compare = key >> 2;
++    /* RSX NEVER..ALWAYS = 0x0200..0x0207; D3D12 = 1..8. */
++    return compare >= 0x0200u && compare <= 0x0207u ? compare - 0x01FFu : 4u;
++}
++#endif
+diff --git a/tests/test_d3d12_depth_state.c b/tests/test_d3d12_depth_state.c
+new file mode 100644
+--- /dev/null
++++ b/tests/test_d3d12_depth_state.c
+@@ -0,0 +1,24 @@
++#include "rsx_d3d12_depth_state.h"
++#include <stdio.h>
++#define CHECK(e) do { if (!(e)) { fprintf(stderr, "line %d: %s\n", __LINE__, #e); return 1; } } while (0)
++int main(void)
++{
++    for (uint32_t compare = 0x0200u; compare <= 0x0207u; ++compare)
++        for (int enable = 0; enable <= 1; ++enable)
++            for (int write = 0; write <= 1; ++write) {
++                uint32_t key = rsx_d3d12_depth_key(enable, write, compare);
++                CHECK((key & 1u) == (uint32_t)enable);
++                CHECK(rsx_d3d12_depth_writes(key) == (enable && write));
++                CHECK(rsx_d3d12_depth_comparison(key) == compare - 0x01FFu);
++                CHECK((key >> 2) == compare);
++            }
++    /* UI with depth disabled must not write, even with an enabled write mask. */
++    CHECK(!rsx_d3d12_depth_writes(rsx_d3d12_depth_key(0, 1, 0x0203u)));
++    CHECK(rsx_d3d12_depth_comparison(rsx_d3d12_depth_key(1, 1, 0x0207u)) == 8u);
++    CHECK(rsx_d3d12_depth_comparison(rsx_d3d12_depth_key(1, 0, 0x0201u)) == 2u);
++    CHECK(rsx_d3d12_depth_key(0, 1, 0x0203u) != rsx_d3d12_depth_key(1, 1, 0x0203u));
++    CHECK(rsx_d3d12_depth_key(1, 0, 0x0203u) != rsx_d3d12_depth_key(1, 1, 0x0203u));
++    CHECK(rsx_d3d12_depth_comparison(rsx_d3d12_depth_key(1, 1, 0u)) == 4u);
++    puts("D3D12 guest depth state: passed");
++    return 0;
++}

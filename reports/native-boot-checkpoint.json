@@ -1,13 +1,13 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Complete draw-time FP snapshots compile beyond4KiB; sampler bank and texture resource retirement remain",
+  "stage": "Original native main menu navigates; confirmation opens sign-in dialog and returns to menu",
   "native_process": true,
   "emulator_launched": false,
-  "exit_code": "timeout",
-  "logs": "private\\analysis\\runs\\1793045363092741200",
-  "elapsed_seconds": 180.176,
+  "exit_code": 1,
+  "logs": "private\\analysis\\runs\\1793122289140347600",
+  "elapsed_seconds": 363.708,
   "block": null,
-  "menu_navigable_validated": false,
+  "menu_navigable_validated": true,
   "gameplay_tested": false,
   "game_save_reload_validated": true,
   "profile": {
@@ -1549,5 +1549,15 @@
     ],
     "native_compiles_beyond4KiB": 2,
     "menu_or_gameplay_validated": false
+  },
+  "menu_renderer_progress": {
+    "report": "reports/menu-renderer-progress.json",
+    "exe_sha256": "f0030564f6432fa93a8a016f676707ed8a7a04282c877c3118a869e0e5ef08c3",
+    "intentional_stop": true,
+    "clean_shutdown_validated": false,
+    "menu_visible": true,
+    "dialog_round_trip_validated": true,
+    "graphics_correct": false,
+    "offline_mode_loaded": false
   }
 }

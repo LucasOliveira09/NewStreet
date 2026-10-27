@@ -28,3 +28,5 @@ reports/*
 !reports/trophy-storage-admission.json
 !reports/spu-raw-inventory.json
 !reports/performance-opening.json
+
+!reports/menu-renderer-progress.json

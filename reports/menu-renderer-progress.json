@@ -1,0 +1,224 @@
+{
+  "date": "2026-10-27",
+  "target": "FIFA Street 2012 PS3 BLUS30882 01.00 to native Windows x64",
+  "exe": "private/build/fifazf_full/fifa_boot.exe",
+  "exe_sha256": "f0030564f6432fa93a8a016f676707ed8a7a04282c877c3118a869e0e5ef08c3",
+  "patches": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "acceptance": {
+    "main_menu_visible": true,
+    "menu_navigation_validated": true,
+    "dialog_confirmation_and_return_validated": true,
+    "offline_mode_loaded": false,
+    "gameplay_validated": false,
+    "graphics_correct": false,
+    "framerate_benchmarked": false
+  },
+  "runs": [
+    {
+      "label": "menu-tex8-12d041-continue",
+      "logs": "private\\analysis\\runs\\1793121142880380300",
+      "exit_code": "timeout",
+      "elapsed_seconds": 150.966,
+      "faults": [],
+      "pso_failures": 0,
+      "fp_tex_rewrites": 1,
+      "asset_jobs_passed": 65,
+      "asset_jobs_total": 65,
+      "event_parse_errors": 0,
+      "pad_file_presses": [
+        "[cellPad] PAD_FILE press 0x0008",
+        "[cellPad] PAD_FILE press 0x4000",
+        "[cellPad] PAD_FILE press 0x0008"
+      ]
+    },
+    {
+      "label": "menu-no-screen-copy-continue",
+      "logs": "private\\analysis\\runs\\1793121307288728000",
+      "exit_code": "timeout",
+      "elapsed_seconds": 180.234,
+      "faults": [],
+      "pso_failures": 0,
+      "fp_tex_rewrites": 0,
+      "asset_jobs_passed": 65,
+      "asset_jobs_total": 65,
+      "event_parse_errors": 0,
+      "pad_file_presses": [
+        "[cellPad] PAD_FILE press 0x0008",
+        "[cellPad] PAD_FILE press 0x4000"
+      ]
+    },
+    {
+      "label": "menu-depth-exact-continue",
+      "logs": "private\\analysis\\runs\\1793121771830751100",
+      "exit_code": "timeout",
+      "elapsed_seconds": 180.201,
+      "faults": [],
+      "pso_failures": 0,
+      "fp_tex_rewrites": 0,
+      "asset_jobs_passed": 65,
+      "asset_jobs_total": 65,
+      "event_parse_errors": 0,
+      "pad_file_presses": [
+        "[cellPad] PAD_FILE press 0x0008",
+        "[cellPad] PAD_FILE press 0x4000"
+      ]
+    },
+    {
+      "label": "menu-navigation-depth-exact",
+      "logs": "private\\analysis\\runs\\1793122289140347600",
+      "exit_code": 1,
+      "elapsed_seconds": 363.708,
+      "faults": [],
+      "pso_failures": 0,
+      "fp_tex_rewrites": 0,
+      "asset_jobs_passed": 65,
+      "asset_jobs_total": 65,
+      "event_parse_errors": 0,
+      "pad_file_presses": [
+        "[cellPad] PAD_FILE press 0x0008",
+        "[cellPad] PAD_FILE press 0x4000",
+        "[cellPad] PAD_FILE press 0x0040",
+        "[cellPad] PAD_FILE press 0x0040",
+        "[cellPad] PAD_FILE press 0x4000",
+        "[cellPad] PAD_FILE press 0x4000"
+      ]
+    }
+  ],
+  "reviewed_captures": [
+    {
+      "path": "private/analysis/menu-navigation-depth-exact-frames/frame_32/backbuffer.bmp",
+      "sha256": "7259d48cf655dfbe61aff64bff85b14e858c5ef1acba00e53a6d52d1d224c7a6",
+      "reviewed_state": "Main menu: MY SQUAD highlighted"
+    },
+    {
+      "path": "private/analysis/menu-navigation-depth-exact-frames/frame_36/backbuffer.bmp",
+      "sha256": "46ca222c7c57203ede4dd2ea5bde4aef815c08ea32b06aebc73744f654b87fd8",
+      "reviewed_state": "Main menu: ONLINE highlighted"
+    },
+    {
+      "path": "private/analysis/menu-navigation-depth-exact-frames/frame_46/backbuffer.bmp",
+      "sha256": "0e7f4437079ea02e9a31bc5517bee150d98a0ceb4119f8ad6ce19264c63b9692",
+      "reviewed_state": "Main menu: PRACTICE ARENA highlighted"
+    },
+    {
+      "path": "private/analysis/menu-navigation-depth-exact-frames/frame_55/backbuffer.bmp",
+      "sha256": "3c86c1f3ea79502340bfc310f57a79e5b3cf9fae8f492365dfff39984e90842a",
+      "reviewed_state": "SIGN IN FAILED dialog with OK"
+    },
+    {
+      "path": "private/analysis/menu-navigation-depth-exact-frames/frame_67/backbuffer.bmp",
+      "sha256": "84fe907fc761c0fa8d825c7bc0cf542dea4fee8cf4d9aa2dc7d3ed094b12a4c9",
+      "reviewed_state": "Returned to main menu after confirming OK"
+    }
+  ],
+  "manual_inputs": [
+    {
+      "action": "down",
+      "mask": "0x0040",
+      "reports": 4,
+      "before_capture": "private\\analysis\\menu-navigation-depth-exact-frames\\frame_32\\backbuffer.bmp",
+      "sha256": "7259d48cf655dfbe61aff64bff85b14e858c5ef1acba00e53a6d52d1d224c7a6",
+      "region": [
+        185,
+        580,
+        230,
+        60
+      ],
+      "match_sha256": "3d5e0f754956b5ba9f9297a5cd3aa28303ac0cac40a4857b07c7d9e81aa398d7",
+      "time_ns": 1793122381676103100
+    },
+    {
+      "action": "down",
+      "mask": "0x0040",
+      "reports": 1,
+      "before_capture": "private\\analysis\\menu-navigation-depth-exact-frames\\frame_36\\backbuffer.bmp",
+      "sha256": "46ca222c7c57203ede4dd2ea5bde4aef815c08ea32b06aebc73744f654b87fd8",
+      "time_ns": 1793122451891696400,
+      "reviewed_selection": "ONLINE"
+    },
+    {
+      "action": "cross",
+      "mask": "0x4000",
+      "reports": 1,
+      "before_capture": "private\\analysis\\menu-navigation-depth-exact-frames\\frame_46\\backbuffer.bmp",
+      "sha256": "0e7f4437079ea02e9a31bc5517bee150d98a0ceb4119f8ad6ce19264c63b9692",
+      "time_ns": 1793122487901513700,
+      "reviewed_selection": "PRACTICE ARENA"
+    },
+    {
+      "action": "cross",
+      "mask": "0x4000",
+      "reports": 1,
+      "before_capture": "private\\analysis\\menu-navigation-depth-exact-frames\\frame_55\\backbuffer.bmp",
+      "sha256": "3c86c1f3ea79502340bfc310f57a79e5b3cf9fae8f492365dfff39984e90842a",
+      "time_ns": 1793122553071435000,
+      "reviewed_screen": "SIGN IN FAILED / OK"
+    }
+  ],
+  "stop": {
+    "reason": "Intentional stop after reviewed main-menu navigation and dialog round trip",
+    "pid": 25628,
+    "final_capture": "private/analysis/menu-navigation-depth-exact-frames/frame_67/backbuffer.bmp"
+  },
+  "validation": {
+    "runtime_tests_passed": 20,
+    "runtime_tests_total": 20,
+    "title_probe_tests_passed": 6,
+    "patch_series_reconstructed": true,
+    "save_files": [
+      {
+        "name": "ICON0.PNG",
+        "matches_checkpoint": true
+      },
+      {
+        "name": "PARAM.PFD",
+        "matches_checkpoint": true
+      },
+      {
+        "name": "PARAM.SFO",
+        "matches_checkpoint": true
+      },
+      {
+        "name": "PIC1.PNG",
+        "matches_checkpoint": true
+      },
+      {
+        "name": "SYS-DATA",
+        "matches_checkpoint": true
+      }
+    ]
+  },
+  "findings": [
+    "0005/0006: all16 RSX texture units and non-overlapping SRV regions/parity banks",
+    "0007/0008: diagnostic output rewriting supports current HLSL return and MRT forms; FP_TEX uses a fixed centre sample",
+    "0009: exact render-target identity precedes screen/subviewport dimension heuristics and records tex_rt for transitions",
+    "0010: guest depth enable/write/compare are captured per draw and included in the PSO cache"
+  ],
+  "limitations": [
+    "Original menu has visible grey blocks, diagonal artifacts and incomplete icon/texture rendering",
+    "Selection changes and dialog round trip were reviewed, but exact one-press/one-item timing and keyboard/controller parity remain unmeasured",
+    "Cross after the reviewed Practice Arena highlight opened a sign-in dialog; do not claim Practice Arena or a match loaded",
+    "All probes use copied userdata; original profile hashes remain unchanged",
+    "Navigation run was intentionally stopped via taskkill after visual validation (exit1); this is not a clean shutdown or stability claim",
+    "RT aliases, linear guest pitch, self-sampling and safe retirement of resources recreated before command-list submission remain open",
+    "FP_TEX rewrote FP0x12D041 to sample unit8 once; final captures remained black, which does not isolate texture contents from downstream composition",
+    "rsx_commands.c initializes depth_func=1 rather than GL0x201; invalid comparison fallback remains LEQUAL, matching the old renderer until a valid command"
+  ],
+  "interactive_launcher": "Iniciar-FIFA.cmd",
+  "reproduce_build": [
+    "tools/build.ps1 -Target Runtime",
+    "Copy-Item private/build/runtime-clang/ps3recomp_runtime.lib private/build/boot/sdk/ps3recomp_runtime.lib -Force",
+    "tools/build.ps1 -Target FullGame -SkipLift -WithSpu"
+  ]
+}

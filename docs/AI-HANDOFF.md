@@ -23,17 +23,19 @@ nativa, sem RPCS3/Xenia e sem trocar silenciosamente a recompilação por
 interpretador/JIT. O usuário autorizou continuar até alcançar partida jogável.
 O aceite completo está no prompt de execução; os próximos marcos estão no plano.
 
-No checkpoint desta revisão, o executável nativo mostra o logo FIFA STREET em
-1280×720. START/CROSS/DOWN foram escritos em relatórios válidos; o caller
-`0x014351D0` lê o comprimento e o word de botões do buffer local. A imagem não
-muda. O helper `0x01434DB8` traduz entradas em bitset digital e array de
-pressão do dispositivo guest. A análise estática segue pelo sampler `0x011AA178`
-e dispatcher de vínculos `0x011A9EE0`, mas os metadados reais e a
-ação/transição de UI ainda não foram observados. Perfil de probe foi copiado e
-os saves originais foram preservados.
-**Menu navegável, seleção, cena 3D, controle de jogadores, bola e partida não estão comprovados.** Não descreva o
-projeto como jogável. Janela, pedido de flip ou imagem preta não equivalem a
-partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
+No checkpoint atual, o menu principal original do executável nativo está visível
+**e sua navegação foi confirmada**. Inputs mudaram a seleção; Cross abriu o
+aviso SIGN IN FAILED; confirmar OK retornou ao menu. Evidência e hashes em
+[`menu-renderer-progress.json`](../reports/menu-renderer-progress.json), run
+`1793122289140347600`, capturas32/36/46/55/67. Há artefatos gráficos. Arena 3D,
+seleção de times e partida não foram validadas. O ensaio foi encerrado
+intencionalmente por taskkill (exit1), sem block/crash; não é clean shutdown.
+Perfis copiados foram usados e os cinco hashes originais foram preservados.
+
+Não retome o diagnóstico antigo como se o controle ainda estivesse preso no
+logo. A prioridade agora é entrar em um modo offline e seguir o próximo
+bloqueio real. `Iniciar-FIFA.cmd` / `tools/play.ps1` abre os binários com assets
+locais, teclado e perfil interativo separado; ainda não é um pacote autônomo.
 
 ## Onde estão código, dependências e evidências
 
@@ -41,7 +43,7 @@ partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 - `tools/`: extração/lifting, build, probes, inspeção e validação de manifests.
 - `tests/`: probes nativos e testes Python/C++; use os checks pertinentes ao código alterado.
 - `vendor/ps3recomp/`: SDK externo fixado; não commitar alteração solta nesse submódulo.
-- `patches/0001-strict-native-boot.patch` e `patches/0002`–`0004`: reprodução dos patches autorais do SDK.
+- `patches/0001`–`0010`: patches autorais do SDK; o relatório do menu descreve 0005–0010.
 - `toolchain.lock.json`: commits e versões fixadas; confira o checkout antes de atualizar algo.
 - `private/`: ISO/ELF/assets, executáveis, gerados, perfis, logs e capturas locais; nunca versionar.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
@@ -134,64 +136,49 @@ use lifter e correlação de bytes/hash/runtime para SPU.
 
 ## Checkpoint técnico ativo
 
-1. **Input e navegação.** Run `1793112938625277900` usou cópia do perfil e
-   `PAD_ALWAYS_CHANGE=1`, `PAD_REPORT_TRACE=1`, `PAD_SCRIPT='4:0x0008,7:0x4000,10:0x0040'`.
-   Seis transições válidas (`len=20`, `mode=122`) foram escritas em
-   `0xD0189CE0`; oito capturas tiveram o mesmo hash e mostram o logo. Follow-up
-   `1793113545266437400` e REA identificam NID `0x8B72CDA1`, LR `0x014351D0`;
-   o guest lê `len` e o word de botões no buffer stack-local e chama helper
-   `0x01434DB8`. Isso prova que o parser do guest recebe o relatório, não que a
-   ação seja mapeada à troca de tela. Evidência em
-   [`pad-input-consumer.json`](../reports/pad-input-consumer.json) e
-   [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
-2. **Handshaking e flips.** Run direto `1793111736649624200`, trace de 12 s:
-   472 pedidos de flip, mediana 15.8 ms (63.2 solicitações/s, não FPS visível),
-   237 stores de status 1 e 236 MFC GET/PUT de status. Correlação aproximada por
-   ordem encontrou 236 ciclos; não há ID do job e causalidade não está provada.
-   Ver [`spu-handshake-timing.json`](../reports/spu-handshake-timing.json).
-3. **Identidade do MFC.** `wrch MFC_Cmd` em `sportsrna_spupatch`, PC `0x015DC`,
-   bytes `21 A0 0A 8B`, overlay residente ID `592606456`; GET retorna por LR
-   `0x1408`, PUT por `0x14F0`. O contexto SPU `526190333` não é ID do overlay.
-   O significado do job superior permanece desconhecido.
-4. **Desempenho.** `/O1` é padrão. Medição pareada anterior foi 8.225 → 8.75
-   batches/s; são batches incluindo passes offscreen, não FPS. A alteração de
-   timer não teve ganho e foi revertida.
-5. **Renderização.** Sampler 4 excede root signature limitada a quatro unidades;
-   bancos de descritores ainda se sobrepõem. D3D12 ID 921 indica recurso
-   destruído antes de Execute; aposentar pelo fence efetivamente submetido.
-   Uma captura após LOADING ficou preta; causa não isolada.
-
-`func_000A71E4` faz poll de 30 µs e sai quando o word em `*(objeto+0xC)` é zero.
-`func_000A8E10` publica 1 em `0x106E0900`; o SPU lê 1 e grava 0. Preservar o
-handshake/wait até provar semântica superior. Não repetir `PPU_WW_GUARD=1`:
-armou cedo e gerou 73.845 eventos na página de 4 KiB. Use watch estreito.
-
-O conjunto versionado de patches vai até `0004-ppu-status-watch-timestamp.patch`. `tools/run_native.py` usa `setdefault` para `PS3_HLE_TRACE`, então o chamador pode aumentar o trace sem editar o script.
-`python tools/apply_patches.py` reconheceu 0001–0004 aplicados. O gate
-`tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py` e foi
-cancelado; ele não foi aprovado nesta revisão. CMake direto reconstruiu o target
-`fifa_boot`, os 48 testes `test_boot_diagnostics.py` passaram, e o relink
-`tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4` concluiu. SHA-256
-do FullGame: `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
+1. **Menu e input.** Start/Cross foram condicionados por recortes revisados.
+   No run363.708s, capturas32/36/46 mostram seleções diferentes;55 mostra
+   SIGN IN FAILED;67 confirma retorno ao menu. A correspondência exata entre
+   um pulso e uma opção ainda não foi medida; não confundir highlight de
+   Practice Arena com entrada nesse modo. O controle não precisa de bypass.
+2. **Renderer.** 0005/0006 cobrem16 samplers e bancos SRV disjuntos por frame.
+   0009 prioriza a identidade do RT sobre heurísticas de dimensão. 0010 captura
+   depth enable/write/compare por draw e o inclui no cache PSO; antes o renderer
+   impunha depth ligado em toda a UI. O ensaio intermediário SCREEN_AS_TEX=0
+   mostrou gradiente amarelo; com depth correto o menu original ficou visível.
+3. **Validação.** Runtime20/20, title probe6/6, série0001–0010 reconstruída e
+   conferida, FullGame/O1/SPU relinkado. Quatro probes novos sem PSO FAIL ou
+   block/crash;65/65 amostras de assets por ensaio. Hash do executável no relatório.
+   Não foi rerodado o gate Boot integral anteriormente interrompido.
+4. **Limites do renderer.** Pitch linear guest não é preservado; RT CAB1280×720
+   aparece amostrado como2560×720. Há self-sampling sem snapshot e recriação/
+   evicção com release antes da submissão potencialmente inseguro. Não resolver
+   isso com heurísticas de pixels/dimensões. Capturar pitch/formato por draw.
+   Parser inicia depth_func1; o helper usa LEQUAL para esse inválido até receber
+   enum GL válido. Stencil/fallback sem guest-FP ainda são parciais.
+5. **PPU/SPU anterior.** Preservar handshake/wait e identidades por bytes/hash.
+   Evidência em `reports/spu-handshake-timing.json`; 63.2 pedidos de flip/s são
+   solicitações, não FPS. Não repetir PPU_WW_GUARD amplo nem converter batches
+   em FPS. REA/Rizin por endereço continua disponível conforme seção anterior.
 
 ### Próxima investigação recomendada
 
-1. Observar com o perfil real os controles que passam pelo sampler `0x011AA178`
-   e os metadados que o dispatcher `0x011A9EE0` usa. A fixture do projeto prova
-   a normalização e vínculos autorais Start/Cross, mas não os vínculos do jogo.
-2. Seguir o valor lógico até seu leitor de estado/evento da UI; usar REA/Rizin
-   por endereço sem atribuir nomes não provados. Correlacionar também
-   `cellPadSetPortSetting` (0x4 e 0x2), `mode=122` e offsets do report.
-3. Repetir entrada e capturar uma transição de tela reproduzível. Pacote lido,
-   normalizado ou somado pelo dispatcher não basta como aceite.
-4. Depois voltar aos bloqueios de renderização e alcançar uma partida offline.
+1. Abrir Hit the Streets offline; usar perfil copiado e capturas antes/depois.
+2. Separar seleção apresentada, input consumido e estado lógico. Medir atraso/
+   repetição antes de automatizar vários botões rápidos. Verificar teclado físico.
+3. Se surgir block90/PC SPU desconhecido, seguir trace e REA/Rizin por endereço;
+   não fabricar retornos/status. Se render falhar, isolar o draw e seu estado.
+4. Provar seleção de times/cena, jogadores/bola e uma partida offline real.
 
-O repositório [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port)
-serve como inspiração de pipeline e produto, mas recompila XEX de Xbox 360 via
-ReXGlue. Não reutilize binários/patches como dependências do port PS3. Consulte
-[`references/restreet-reference.md`](references/restreet-reference.md) antes
-de uma comparação concreta. Rizin não interpreta SPU; preserve bytes, faixa,
-hash, PC e logs runtime.
+Build atual: `tools/build.ps1 -Target Runtime`, copiar lib de runtime-clang para
+`private/build/boot/sdk/ps3recomp_runtime.lib`, depois `-Target FullGame -SkipLift
+-WithSpu`. Sem processos nativos vivos no relink. A verificação de patches usa
+worktree temporário para comparar a série inteira quando reverse-check isolado
+não é possível. SHA-256 e limites estão no relatório atual, não no hash histórico.
+
+ReStreet é referência de pipeline/produto, mas recompila XEX de Xbox360 via
+ReXGlue. Não reutilizar seus binários/patches como dependências do port PS3.
+Consulte `docs/references/restreet-reference.md` para comparação concreta.
 
 ## Registrar cada incremento para a próxima IA
 

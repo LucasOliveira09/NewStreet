@@ -1,118 +1,80 @@
 # Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`. Objetivo final: uma partida offline jogável.
-Guia de retomada: `docs/AI-HANDOFF.md`. Plano: `tasks/plan.md`.
+Branch: `codex/ps3-native-bootstrap`. Objetivo final: partida offline jogável.
+Guia: `docs/AI-HANDOFF.md`. Plano: `tasks/plan.md`.
 
 ## Estado do produto
 
-O executável nativo abre em D3D12 na RX 580 e mostra o logo FIFA STREET em
-1280×720. Uma captura válida confirma renderização do título, mas nenhuma das
-entradas recentes abriu menu. Não há menu navegável, seleção de modo/time, cena
-nativa de partida ou partida jogável comprovada. A captura de Arsenal × Chicago
-Fire via RPCS3 é só referência do original, não avanço do port.
+**Menu principal original visível e navegação confirmada no executável nativo.**
+Inputs mudaram a seleção; Cross abriu `SIGN IN FAILED`; outro Cross em `OK`
+fechou o aviso e retornou ao menu. A captura mostra opções Hit the Streets,
+World Tour, Online, My Squad e Practice Arena, com o fundo original do Messi.
+Ainda há blocos cinza, diagonais e ícones/texturas incorretos. Não foi validada
+entrada em modo offline, arena 3D, partida, estabilidade ou performance.
 
-O probe `1793112938625277900` enviou START/CROSS/DOWN e registrou seis
-transições válidas (`len=20`, `mode=122`) no buffer guest `0xD0189CE0`; oito
-capturas tiveram hash idêntico e mantiveram o logo. Um follow-up com
-`PS3_HLE_ARGS=8B72CDA1` correlacionou o NID de `cellPadGetData` ao LR guest
-`0x014351D0`. REA/Rizin mostra o callsite em `0x014351CC`, que passa um buffer
-local `SP+0x70`; depois o guest lê `len` e, se não for zero, acessa o word de
-botões em `SP+0x78` e chama `0x01434DB8`. A inspeção desse helper indica que
-ele atualiza o dispositivo virtual do jogo: índices digitais alteram o bitset;
-índices restantes escrevem a matriz de pressão. Isso prova que o relatório é
-traduzido para o estado guest do controle. A cadeia estática segue pelo sampler
-`0x011AA178`, que normaliza 16 controles, e dispatcher `0x011A9EE0`, que soma e
-limita valores de acordo com metadados de vínculos lógicos. Ainda falta observar
-os vínculos reais e provar uma transição da UI; o logo continuou idêntico.
-`PAD_ALWAYS_CHANGE=1` foi só diagnóstico e altera a cadência. Timeout não é
-sucesso. Relatórios:
-[`title-navigation-probe.json`](reports/title-navigation-probe.json) e
-[`pad-input-consumer.json`](reports/pad-input-consumer.json).
+Evidência: [`menu-renderer-progress.json`](reports/menu-renderer-progress.json).
+Run: `private/analysis/runs/1793122289140347600`, 363.708 s.
+Capturas em `private/analysis/menu-navigation-depth-exact-frames/`:
+- `frame_32`: My Squad selecionado antes dos comandos de navegação.
+- `frame_36`: Online selecionado; `frame_46`: Practice Arena selecionado.
+- `frame_55`: aviso de login; `frame_67`: retorno ao menu após confirmar OK.
 
-Os cinco arquivos do save original ainda coincidem com os hashes do checkpoint.
-Esse probe usou uma cópia em `private/userdata_probe_1793112100000000000`; não
-apontou o jogo ao perfil original.
+Cross enviado após revisar Practice Arena abriu o aviso de login. Isso não
+prova entrada nessa arena; a correspondência exata entre cada pulso de input,
+animação e frame apresentado precisa de medição. O ensaio foi encerrado
+intencionalmente com `taskkill` após a validação visual (exit 1), sem eventos
+`fifa-block`/`fifa-crash`. Não é evidência de encerramento limpo ou estabilidade.
 
-## Próxima pergunta técnica
+## Correções que recuperaram a interface
 
-Observar com o perfil real os controles normalizados pelo sampler `0x011AA178`,
-os metadados consumidos por `0x011A9EE0` e a chamada que usa o valor lógico no
-estado da UI. Confrontar `mode=122`, tamanho e offsets do `CellPadData` com o
-caller guest; preservar o input realista e não injetar estado interno. Só mudar
-o HLE depois de uma incompatibilidade provada.
+- `0005/0006`: root signature e estado cobrem as 16 unidades de textura.
+  Atlas, 96 uploads, 16 RTs e dois bancos de descritores por draw não se sobrepõem.
+- `0007/0008`: sondas de cor/textura reconhecem o HLSL atual (return e MRT).
+  FP_TEX reescreveu FP0x12D041 para amostrar o centro da unidade8; a captura
+  final preta não isola o conteúdo dessa textura da composição posterior.
+- `0009`: lookup pelo endereço do RT precede heurísticas de dimensão. Antes,
+  passes reais liam a cópia do backbuffer em vez de seus produtores offscreen.
+- `0010`: enable, máscara de escrita e comparação de profundidade são
+  capturados por draw, traduzidos e incluídos na identidade do PSO. O renderer
+  anterior forçava depth ligado e escrita em toda a interface.
+- Comparação intermediária com `SCREEN_AS_TEX=0` mostrou apenas gradiente
+  amarelo; após estado de profundidade correto, o menu original apareceu.
 
-REA MCP `open_binary` rejeita este ELF PowerPC como arquitetura não suportada.
-O REA CLI 6.7.0 com Rizin 0.9.1 funciona ao definir `REA_RIZIN_COMMAND` e
-acrescentar o diretório `bin` privado ao PATH do processo. O comando PPU local
-produziu Evidence `ev_78025d4611a3c21b91bab08e45f2a20d2c04ce0b6ba216780d61937298af555`.
-Rizin avisa que há program headers malformados; interpretar só as instruções por
-endereço e não confiar em limites de funções/símbolos automáticos. Rizin não
-decodifica SPU neste ambiente; atribuições SPU usam lifter e trace bytes/hash.
+## Validação do incremento
 
-## Wait PPU/SPU e flip timing
+- `tools/build.ps1 -Target Runtime`: build e 20/20 testes passaram.
+- `python -m unittest discover -s tests -p test_title_probe.py`: 6/6 passaram.
+- `python tools/apply_patches.py`: reconstruiu e conferiu a série 0001–0010.
+- FullGame `/O1`, SPU ligado, relinkado após encerrar pai e filho nativos.
+  SHA-256 e comandos em `reports/menu-renderer-progress.json`.
+- Quatro probes novos: zero PSO FAIL, zero eventos block/crash e 65/65 amostras
+  de assets conferidas por ensaio. As amostras não cobrem todos os assets.
+- Revisão estática independente dos patches 0009/0010 sem bloqueador novo.
+- Os cinco hashes do save original continuam iguais ao checkpoint; cada probe
+  usou uma cópia de `private/userdata`, com HDD0/HDD1 explícitos.
 
-A evidência do REA/Rizin no ELF (`func_000A71E4`) diz que o wait de 30 µs sai
-quando o word em `*(objeto+0xC)` é zero. O PPU publica 1 em `0x106E0900` por
-`func_000A8E10` / LR `0x000A95DC`; o SPU faz GET de 1 e PUT de 0. A finalidade
-do job superior e o efeito no renderer continuam sem prova.
+## Como abrir
 
-O probe direto `1793111736649624200` registrou, na janela FTrace de 12 s,
-472 pedidos de flip (mediana 15.8 ms; 63.2 pedidos/s, não FPS exibido), 237
-stores de status 1 e 236 GET + 236 PUT bem-sucedidos. Correlação por evento mais
-próximo produziu 236 ciclos candidatos: mediana status→GET 19.952 ms e GET→PUT
-3.719 ms. Não existe job ID para garantir que cada par seja o mesmo trabalho.
-Não atribuir causalidade. Relatório: [`spu-handshake-timing.json`](reports/spu-handshake-timing.json).
+Execute `Iniciar-FIFA.cmd` na raiz. Ele chama `tools/play.ps1`, usa ELF/disco e
+executáveis locais e mantém um perfil separado em `private/userdata_interactive`.
+Enter = Start; Z = confirmar; X = voltar; setas = navegar. A janela precisa ter
+foco para o teclado. O launcher preserva logs em `private/analysis/interactive-*`.
+O launcher teve sintaxe PowerShell conferida; o round trip acima foi validado
+pelo probe, não por teste manual de teclado. Não é pacote autônomo distribuível.
 
-A proveniência do MFC está corrigida: `0x015DC`, bytes `21 A0 0A 8B`, pertence
-ao overlay residente `sportsrna_spupatch`, ID `592606456`, hash
-`35274f8f…22aeeae`; GET LR `0x1408`, PUT LR `0x14F0`. `526190333` é ID de
-contexto SPU, não identidade do overlay.
+## Próximo trabalho
 
-## Instrumentação e validação recentes
+1. Entrar em Hit the Streets offline, revisar os frames após cada input e
+   capturar o próximo serviço/SPU não implementado ou a seleção de times.
+2. Medir atraso/repetição de inputs e verificar teclado e controle físico.
+3. Corrigir artefatos com estado por draw: pitch linear, aliases de RT (há
+   RT1280×720 lido como textura2560×720), culling/UV/remap e self-sampling.
+4. Aposentar recursos recriados/evictados pelo fence da submissão que realmente
+   os referencia; `wait_for_gpu()` não protege uma lista ainda não submetida.
+5. O default `depth_func=1` do parser não é enum GL; corrigir com regressão se
+   esse estado for observado antes de SET_DEPTH_FUNC. Stencil permanece parcial.
 
-- `patches/0002-post-transfer-spu-watch.patch` registra EA/bytes/PC/residência e
-  tempo FTrace após DMA; `0003` passa o PC guest do `wrch MFC_Cmd`;
-  `0004` acrescenta o mesmo relógio às escritas `PPU_WWATCH`.
-- `python tools/apply_patches.py` reconhece os patches 0001–0004 aplicados.
-- `tools/run_native.py` agora preserva um `PS3_HLE_TRACE` fornecido pelo chamador;
-  run `1793113457141600800` pediu 12.000 e reteve exatamente 12.000 HLE events.
-- O gate `tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py`
-  durante a compilação de fixture; foi cancelado. Não contar esse gate como aprovado.
-- CMake direto recompilou `fifa_boot` no build Boot. Os 48 testes de
-  `test_boot_diagnostics.py` passaram. `tools/build.ps1 -Target FullGame
-  -SkipLift -WithSpu -Jobs 4` relinkou o jogo; SHA-256
-  `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
-- Não foram alterados nem commitados arquivos do submódulo. Patches de SDK são
-  versionados somente em `patches/` na raiz.
-
-## Referência ReStreet
-
-O port [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port) é
-uma referência de build, separação de módulos, renderers e validação de produto.
-Ele recompila a versão Xbox 360 por ReXGlue; não misturar XEX/patches/backends
-com o nosso target PS3 PPU/SPU/RSX. Critérios de reaproveitamento e links em
-[`docs/references/restreet-reference.md`](docs/references/restreet-reference.md).
-Nenhum código do ReStreet foi importado.
-
-## Outros bloqueios do port
-
-- Benchmark pareado `/O1`: 8.225 → 8.75 batches/s; batches incluem passes
-  offscreen e não são FPS. Ajuste de timer sem ganho foi revertido.
-- Renderer: sampler 4 fora da root signature; bancos de descritores ainda se
-  sobrepõem e precisam mapear 16 unidades reais.
-- D3D12 ID 921 mostra recurso destruído antes de Execute; aposentar após fence
-  da submissão efetiva.
-- Uma captura após LOADING ficou preta. As causas não foram isoladas.
-- RPCS3 capturou Arsenal × Chicago Fire, HUD e quadra; movimento, controles,
-  desempenho sustentado e partida completa continuam sem gravação verificável.
-
-## Regras para continuar
-
-Preservar saves e comparar os cinco hashes do checkpoint. Probes diretos devem
-usar raízes HDD0/HDD1 explicitamente. Timeout, janela aberta, flip ou logo não
-são sucesso. Guardar binários, dumps e capturas privadas em `private/`; não
-versionar conteúdo derivado do jogo. Antes de relink/probe, confirmar que pais e
-filhos terminaram. Rodar só os checks afetados e revisar staged files antes do
-commit. O caminho seguinte é provar consumo do input guest, obter navegação real,
-então atacar renderização, cena, física, controle, áudio e ciclo de partida.
+REA/Rizin e evidências PPU/SPU anteriores continuam em `docs/AI-HANDOFF.md` e
+`reports/pad-input-consumer.json`. Não repetir investigação do consumo básico do
+controle como se o menu ainda estivesse bloqueado no logo. Gameplay segue aberto.
