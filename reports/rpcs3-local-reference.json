@@ -75,13 +75,13 @@
   },
   "latest_user_reported_run": {
     "user_report": "User says FIFA Street launched fully and they entered a match.",
-    "desktop_inspection_at": "2026-10-27 09:55 local",
+    "desktop_inspection_at": "2026-10-27 10:03:56 local",
     "rpcs3_window_title": "FPS: 58.01 | Vulkan | 0.0.43-20402 | FIFA Street [BLUS30882]",
-    "game_row_last_played": "2026-10-27 09:49",
-    "game_row_total_time_played": "22 minutes 55 seconds",
+    "game_row_last_played": "2026-10-27 10:03",
+    "game_row_total_time_played": "32 minutes 52 seconds",
     "game_row_compatibility_label": "Ingame (2026-08-30)",
     "compatibility_label_interpretation": "RPCS3 compatibility-list status, not proof of this specific run reaching a match.",
-    "observed_current_state": "The game advanced from the PPU code screen through the autosave notice to the Select Sides screen. At the latest capture it is waiting for user input; no match scene is visible yet.",
+    "observed_current_state": "A live capture confirmed an offline match scene. In the next sample, the game window was gone and RPCS3 had returned to the library; whether this was a normal exit or an unexpected end is unknown because logs are empty.",
     "live_capture": {
       "path_ignored_by_git": "D:/Ludevi/projetos/fifa-street-native/private/analysis/rpcs3_reference/game-window-current.png",
       "dimensions": "1920x1080",
@@ -109,7 +109,7 @@
     ],
     "new_recording_or_screenshot_found": false,
     "logs_still_empty": true,
-    "evidence_limit": "The user's report says a match was reached. The directly captured boot sequence is verified through Select Sides, which is waiting for input; no match scene or new recording has been captured yet. The RPCS3 logs remain empty, so gameplay controls and match performance are not yet analyzed."
+    "evidence_limit": "A direct image confirms a rendered match scene and scoreboard, but one still image cannot prove controls responded, sustained performance, a full match, or its outcome. The game later returned to the library; the cause is unknown, and RPCS3 logs remain empty."
   },
   "live_follow_sequence": [
     {
@@ -147,6 +147,21 @@
       "screen": "Same Select Team screen; no selection transition in this sample.",
       "capture": "private/analysis/rpcs3_reference/live-follow-5.png",
       "window_title_fps": 51.34
+    },
+    {
+      "time_local": "2026-10-27 10:03:32",
+      "screen": "Rendered offline match: Arsenal vs Chicago Fire, score 0-0, match clock displayed as 2:00; players, ball, goals, pitch and HUD visible. Player indicators/names include Gervinho and Pappa.",
+      "capture": "private/analysis/rpcs3_reference/live-match-current.png",
+      "window_title_fps_before_capture": 45.58,
+      "fps_in_captured_title_bar": 57.32,
+      "fps_note": "Instantaneous title-bar values differ between adjacent reads; they do not establish sustained match FPS."
+    },
+    {
+      "time_local": "2026-10-27 10:03:56",
+      "screen": "RPCS3 returned to its library window; FIFA Street row shows last played 10:03 and total play time 32 minutes 52 seconds.",
+      "capture": "private/analysis/rpcs3_reference/post-match-window.png",
+      "process_responding": true,
+      "game_exit_cause": "Unknown; no useful log was generated."
     }
   ],
   "user_run_capture_plan": [
