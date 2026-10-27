@@ -1,0 +1,89 @@
+{
+  "checked_at_local": "2026-10-27",
+  "purpose": "Baseline local RPCS3 setup and define a reproducible user-driven game run for collecting evidence toward the native Windows port.",
+  "scope": {
+    "rpcs3_files_modified": false,
+    "game_saves_modified": false,
+    "game_launched_by_agent": false,
+    "notes": "Inspection only. RPCS3 was open at its welcome screen; no game process was running."
+  },
+  "rpcs3": {
+    "directory": "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc",
+    "build_from_directory_name": "v0.0.43-20387-aa9ebd2f",
+    "executable": "rpcs3.exe",
+    "executable_size_bytes": 69464064,
+    "process_id_during_inspection": 6040,
+    "window_title_during_inspection": "Welcome to RPCS3",
+    "game_entry": "BLUS30882: D:/Luquinha/Downloads/FIFA Street (USA) (EnFrEs)/FIFA Street (USA) (En,Fr,Es).iso",
+    "iso_size_bytes": 5070913536,
+    "game_is_installed_to_dev_hdd0_game": false,
+    "custom_game_configs_found": false
+  },
+  "settings": {
+    "renderer": "Vulkan",
+    "adapter": "AMD Radeon RX 580 2048SP",
+    "resolution": "1280x720",
+    "resolution_scale_percent": 100,
+    "vblank_hz": 60,
+    "frame_limit": "Auto",
+    "vsync": false,
+    "performance_overlay": false,
+    "record_with_overlays": true,
+    "ppu_debug": false,
+    "spu_debug": false,
+    "shader_logs": false,
+    "debug_output": false,
+    "input_handler_player1": "XInput",
+    "input_device_player1": "XInput Pad #1",
+    "input_mapping": {
+      "Start": "Start",
+      "Cross": "A",
+      "Circle": "B",
+      "Square": "X",
+      "Triangle": "Y"
+    }
+  },
+  "existing_recording": {
+    "path": "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/recordings/BLUS30882/BLUS30882_recording_2026_10_26_20_12_57.mp4",
+    "duration_seconds": 18.88,
+    "resolution": "1280x720",
+    "average_video_fps": 29.84,
+    "video_codec": "MPEG-4 Part 2",
+    "audio_codec": "AAC",
+    "video_bitrate_configured": "4 Mbps",
+    "audio_bitrate_configured": "192 kbps",
+    "observed_sequence": [
+      "EA/FIFA Street splash for approximately 2-3 seconds",
+      "Title screen with PRESS START BUTTON for the remainder of the sampled recording"
+    ],
+    "start_button_pressed": false,
+    "menu_reached": false,
+    "analysis_limit": "Frames were sampled locally; the audio track was not transcribed."
+  },
+  "existing_screenshots": [
+    "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/screenshots/BLUS30882/BLUS30882_screenshot_2026_10_26_20_12_58.png",
+    "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/screenshots/BLUS30882/BLUS30882_screenshot_2026_10_26_20_13_17.png"
+  ],
+  "logs_at_inspection": {
+    "paths": [
+      "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/log/RPCS3.log",
+      "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/log/RPCS3.log.gz",
+      "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/log/TTY.log"
+    ],
+    "observed_sizes_bytes": [0, 0, 0],
+    "interpretation": "No useful game-run trace existed at inspection time; the emulator was idle. Recheck after the next run and normal shutdown because buffered logs may not be flushed while RPCS3 remains open."
+  },
+  "user_run_capture_plan": [
+    "Leave current RPCS3 settings and save data unchanged.",
+    "Launch the BLUS30882 entry from RPCS3.",
+    "Record the launch and the first transition away from PRESS START BUTTON.",
+    "Press Start once; wait for the next screen. If no transition appears, record the unchanged screen for 10-20 seconds and note any on-screen error.",
+    "If a menu appears, capture each transition with a short wait between inputs and record which controller input was used.",
+    "Close RPCS3 normally after the observation so logs can flush; retain the recording, screenshots, and log for analysis."
+  ],
+  "comparison_limits": [
+    "RPCS3 behavior is a reference for the original game, not proof that the native port behaves the same.",
+    "A successful splash or title screen does not establish menu navigation or gameplay.",
+    "The existing recording does not show a Start press or a menu transition."
+  ]
+}

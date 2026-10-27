@@ -41,6 +41,7 @@ partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 - `private/`: ISO/ELF/assets, executáveis, gerados, perfis, logs e capturas locais; nunca versionar.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
 - `reports/performance-opening.json`: medições de abertura, instrumentação, hashes e limitações.
+- `reports/rpcs3-local-reference.json`: configuração observada do RPCS3 local, gravação de referência e procedimento para capturar a navegação após Start.
 - `docs/history/`: checkpoints antigos preservados; podem estar desatualizados.
 
 Os identificadores de guest como `0x000A969C` são endereços observados, não
@@ -89,6 +90,14 @@ Probes diretos precisam definir `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` para
 `private/userdata/dev_hdd0` e `private/userdata/dev_hdd1`; o lançamento de memória
 registrado abaixo omitiu essas variáveis e criou `gamedata/trophies/` na raiz.
 Esse conteúdo foi mantido e a pasta está ignorada pelo Git.
+
+### Referência externa no RPCS3
+
+O RPCS3 portátil local usa Vulkan e XInput e carrega BLUS30882 por ISO. A gravação
+disponível termina no título `PRESS START BUTTON`; ela não registra navegação.
+Para comparar o comportamento original, siga o procedimento em
+[`rpcs3-local-reference.json`](../reports/rpcs3-local-reference.json). O RPCS3
+serve como referência do original, não como evidência de avanço do port nativo.
 
 ## Checkpoint técnico ativo
 

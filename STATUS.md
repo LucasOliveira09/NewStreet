@@ -41,6 +41,13 @@ O boot mostra título e aviso de autosave. Start/Cross chegaram ao código origi
 - Renderer D3D12 ainda requer mapeamento comprovado de 16 texturas/samplers, descritores disjuntos e aposentadoria de recursos pelo fence efetivamente submetido.
 - Arquivos privados de jogo, ELF, assets, executáveis, logs e capturas ficam em `private/`; não versionar conteúdo derivado nem saves.
 
+## Referência local no RPCS3
+
+- RPCS3 portátil `v0.0.43-20387-aa9ebd2f`, Vulkan, RX 580 2048SP, 1280x720, XInput. FIFA Street BLUS30882 está registrado como ISO externa; não está instalado em `dev_hdd0/game`.
+- A gravação existente de 18,88 s mostra o splash e depois `PRESS START BUTTON`; Start não foi pressionado e nenhum menu foi observado. A sessão inspecionada estava ociosa na tela de boas-vindas; logs estavam vazios.
+- Configuração, perfil e saves não foram alterados. Referência, limites e procedimento para o próximo run: [`reports/rpcs3-local-reference.json`](reports/rpcs3-local-reference.json).
+- Próxima coleta depende do usuário: abrir BLUS30882, pressionar Start uma vez, registrar a transição ou 10–20 s sem mudança, e fechar RPCS3 normalmente para liberar os logs.
+
 ## Reproduzir a validação do incremento
 
 - `private\python-env\Scripts\python.exe tools/apply_patches.py` reconhece os patches 0001 e 0002 já aplicados no checkout fixado.

@@ -80,3 +80,14 @@ Histórico preservado: [índice](../docs/history/README.md).
 
 Só detalhar o marco seguinte quando houver evidência suficiente. Online e melhoria
 visual avançada continuam posteriores à base offline funcional.
+
+## Coleta de referência do jogo original (usuário)
+
+RPCS3 está configurado para BLUS30882 via ISO e a gravação existente mostra
+somente splash/tela `PRESS START BUTTON`. Antes de atribuir um bloqueio ao port,
+obter uma referência de navegação original: abrir o jogo no RPCS3, pressionar
+Start uma vez, capturar a tela seguinte e anotar qualquer input adicional. Se
+não houver mudança, registrar 10–20 s e a mensagem visível. Fechar RPCS3
+normalmente e então inspecionar logs. Configuração, save e controles devem ficar
+inalterados. Detalhes e limitações estão em
+[`reports/rpcs3-local-reference.json`](../reports/rpcs3-local-reference.json).
