@@ -98,6 +98,11 @@ disponível termina no título `PRESS START BUTTON`; ela não registra navegaç�
 Para comparar o comportamento original, siga o procedimento em
 [`rpcs3-local-reference.json`](../reports/rpcs3-local-reference.json). O RPCS3
 serve como referência do original, não como evidência de avanço do port nativo.
+Na execução informada em 27/10, o usuário chegou a uma partida; a biblioteca
+depois mostrou última execução 09:49 e 22min55s acumulados. A inspeção da tela
+09:51 já encontrou a biblioteca, sem nova gravação/captura ou log. Trate a
+entrada em partida como relato do usuário até haver evidência visual; não use o
+rótulo geral `Ingame` da lista de compatibilidade como prova desta execução.
 
 ## Checkpoint técnico ativo
 

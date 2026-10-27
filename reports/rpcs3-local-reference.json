@@ -73,6 +73,31 @@
     "observed_sizes_bytes": [0, 0, 0],
     "interpretation": "No useful game-run trace existed at inspection time; the emulator was idle. Recheck after the next run and normal shutdown because buffered logs may not be flushed while RPCS3 remains open."
   },
+  "latest_user_reported_run": {
+    "user_report": "User says FIFA Street launched fully and they entered a match.",
+    "desktop_inspection_at": "2026-10-27 09:51 local",
+    "rpcs3_window_title": "RPCS3 0.0.43-20402-d00d8023 Alpha | master",
+    "game_row_last_played": "2026-10-27 09:49",
+    "game_row_total_time_played": "22 minutes 55 seconds",
+    "game_row_compatibility_label": "Ingame (2026-08-30)",
+    "compatibility_label_interpretation": "RPCS3 compatibility-list status, not proof of this specific run reaching a match.",
+    "observed_current_state": "RPCS3 library window; game was no longer visibly running at the time of desktop capture.",
+    "recent_game_cache_files": [
+      {
+        "path": "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/dev_hdd1/caches/BLUS30882_BLUS30882/replay0.bin",
+        "size_bytes": 536870912,
+        "last_modified": "2026-10-27 09:49:35"
+      },
+      {
+        "path": "D:/Luquinha/Downloads/rpcs3-v0.0.43-20387-aa9ebd2f_win64_msvc/dev_hdd1/caches/BLUS30882_BLUS30882/audioreplaydata.dat",
+        "size_bytes": 419430400,
+        "last_modified": "2026-10-27 09:49:32"
+      }
+    ],
+    "new_recording_or_screenshot_found": false,
+    "logs_still_empty": true,
+    "evidence_limit": "This confirms a recent, substantial game run and records the user's report of entering a match, but there is no in-match image/video or RPCS3 log to inspect gameplay, rendering, controls, or performance."
+  },
   "user_run_capture_plan": [
     "Leave current RPCS3 settings and save data unchanged.",
     "Launch the BLUS30882 entry from RPCS3.",
