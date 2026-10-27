@@ -27,15 +27,17 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Mais9 amostras pareadas em8,76 batches/s; continua abaixo do desempenho esperado.
 - FTrace mediu99 pedidos de flip/12s (120,6ms por flip), com26,2ms no drain RSX.
 - PPU22 RenderThread fez305.628 polls de30µs em12s (9,168s pedidos no wait),
-  no loop LR0x000A969C. Estado observado0/1; o laço termina ao ler valor negativo.
+  no loop LR0x000A969C. REA/Rizin no ELF original mostra `func_000A71E4`
+  dormindo 30µs enquanto `*(objeto+0xC)[0] != 0`; o branch em0xA720C sai em zero.
 - `PPU_WWATCH` atribui stores de1 a `func_000A8E10`/LR0x000A95DC (TID17/22).
   Hook pós-MFC versionado em `patches/0002-post-transfer-spu-watch.patch`.
 - Probe combinado20s: 265 GETs SPU4/5 leem status1 + ponteiro0x12805080;
   260 PUTs gravam status0 e preservam o ponteiro; rc=0. PPU escreveu1 260 vezes
   (TID17=36,TID22=224); nenhum negativo observado.
-- O wait `func_000A71E4` retorna apenas quando o primeiro word é negativo. O
-  produtor do sinal terminal e a relação desses estados com a tela preta seguem
-  desconhecidos. Timeout é bloqueio, não sucesso.
+- Correção REA: o wait retorna quando o primeiro word é zero. O PUT SPU que
+  gravou0 é compatível com essa saída, mas a identidade entre `*(objeto+0xC)` e
+  EA0x106E0900 ainda precisa ser demonstrada. Causa da taxa baixa/tela preta segue
+  desconhecida; timeout é bloqueio, não sucesso. Evidence e limites no STATUS.
 - Não repetir `PPU_WW_GUARD=1`: armou no ponteiro de inicialização e gerou73.845
   eventos de página. Próximo: seguir a instância e o callback de conclusão com
   PPU_WWATCH/PPU_CASWATCH e o watch pós-DMA; só corrigir semântica provada.
@@ -92,10 +94,7 @@ Detalhes e sequência em [`reports/rpcs3-local-reference.json`](../reports/rpcs3
 ## REA e referências externas
 
 Comparação com outros ports: [`docs/recomp-ports-reference.md`](../docs/recomp-ports-reference.md).
-Setup REA autorizado e aplicado: Codex MCP + skill global versão42/207
-ferramentas; doctor confirmou alinhamento. Reiniciar/reconectar Codex para
-carregar o MCP. Não há engine de análise PPU: o `inspect-binary-layout` do REA
-recusa ELF PS3 (pwntools cobre Linux x64 apenas), Ghidra não está configurado e
-IDA/Kuna/Hopper estão indisponíveis. Próximo: conectar o MCP, instalar/configurar
-um provider compatível e abrir `private/FIFAZF.elf` pelo REA; só então registrar
-análise de funções/pseudocódigo. Detalhes em [`STATUS.md`](../STATUS.md).
+REA CLI 6.7.0 + Rizin 0.9.1 já analisaram o ELF por endereço; Evidence ID e
+limitações em [`STATUS.md`](../STATUS.md) e
+[`reports/performance-opening.json`](../reports/performance-opening.json). REA
+MCP está registrado com `REA_RIZIN_COMMAND`; reiniciar Codex para ativá-lo.

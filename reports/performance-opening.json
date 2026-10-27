@@ -93,8 +93,18 @@
       0,
       1
     ],
-    "loop_exits_when": "the observed signed status becomes negative",
-    "interpretation": "Confirms a costly sub-millisecond poll. Its causal contribution to the low flip rate remains unproven.",
+    "loop_exits_when": "REA/Rizin disassembly at 0x000A7208 compares the first word of *(object+0xC) with zero; the beq at 0x000A720C exits to 0x000A7220 when equal. Nonzero status calls syscall 0x8D with 30 microseconds, then loops.",
+    "interpretation": "Corrects the prior negative-status interpretation. The observed SPU 1-to-0 transition is consistent with releasing this wait, but exact pointer identity and causal contribution to the low flip rate remain unproven.",
+    "rea_static_disassembly": {
+      "evidence_id": "ev_61b45e6f394c696b71e944869e2130639021b4eb0d82dc5addc95e6512bb755b",
+      "artifact": "private/FIFAZF.elf",
+      "sha256": "5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+      "provider": "Rizin 0.9.1 via REA CLI 6.7.0",
+      "command": "e scr.color=0; pd 18 @ 0xa71e4",
+      "observed_instruction_bytes": "2c 04 00 00 41 82 00 14 at 0x000A7208",
+      "supporting_output": "private/analysis/rea/rea-fifazf-wait.json",
+      "limitations": "Rizin warned that ELF program headers 2-4 appeared invalid. The requested section address disassembled, but automatic function sizing grouped adjacent routines; rely on the address-scoped instructions, not Rizin's 900-byte function extent or inferred argument list. Rizin pdc returned no pseudocode."
+    },
     "instrumentation": "PS3_POLLTOP and PS3_FTRACE enabled; use counts as diagnostic evidence, not an uninstrumented benchmark.",
     "follow_up": {
       "ppu_write_watch": {
@@ -138,7 +148,7 @@
         "scope": "Best-effort ReadProcessMemory snapshots. A transition shorter than the sampling interval is not excluded.",
         "storage_note": "This one-off direct launch omitted PS3_HDD0_ROOT/PS3_HDD1_ROOT. It created local trophy files at gamedata/trophies; files were preserved and the root folder is now Git-ignored. Future direct probes must point storage to private/userdata."
       },
-      "next": "Trace the exact object instance and producer/worker path from func_000A9680 -> func_000A71E4 and func_000A8E10. Watch the same instance fields with PPU_WWATCH/PPU_CASWATCH plus post-transfer SPU_WATCHEA; identify the owner of the expected negative terminal state before changing behavior. Do not force status or skip the wait.",
+      "next": "Trace the exact object instance from func_000A9680 -> func_000A71E4 and establish whether *(object+0xC) points to 0x106E0900 in this run. Correlate the PPU write of 1 and SPU post-transfer write of 0 with the branch at 0x000A720C; identify why the status remains nonzero and whether repeated waits explain the flip rate. Do not force status or skip the wait.",
       "post_transfer_watch": {
         "implementation": "SPU_WATCHEA logs only after MFC execution; counts matching GET/PUT records, includes rc and source/destination bytes. SPU_WATCHEA_EVERY defaults to 1.",
         "build_note": "Target Runtime builds private/build/runtime-clang and is not the archive linked by FullGame. Rebuild the shared archive with tools/build.ps1 -Target Boot, then relink FullGame.",
@@ -157,7 +167,7 @@
         },
         "observed_transfer": "MFC GET cmd 0x40 transferred status 1 and adjacent word 0x12805080 from EA 0x106E0900. MFC PUT cmd 0x20 committed status 0 and preserved adjacent word 0x12805080. Every logged transfer returned rc=0.",
         "ppu_writer": "PPU_WWATCH saw 260 writes of 1 by func_000A8E10, caller LR 0x000A95DC, split across TID17 and TID22. No negative write appeared during the probe.",
-        "meaning": "The 1-to-0 SPU transition is proven, but its protocol meaning and the expected negative terminal signal source remain unknown. No menu progression was demonstrated.",
+        "meaning": "The 1-to-0 SPU transition is proven. Static disassembly shows zero exits the observed helper's poll; whether the watched EA is that helper instance's status word and the full protocol meaning remain unproven. No menu progression was demonstrated.",
         "limitations": "20s instrumented run, timeout. Diagnostics can perturb scheduling. PC 0x0156C and image 526190333 are observed identifiers, not semantic names.",
         "final_atomic_counter_probe": {
           "run": "private/analysis/runs/1793103742518647900",

@@ -1,7 +1,7 @@
 # Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`. Incremento: baseline RPCS3 e revisão de referências de recompilação.
+Branch: `codex/ps3-native-bootstrap`. Incremento: REA/Rizin no ELF PPU e correção do wait.
 Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/performance-opening.json`.
 
 ## Critério de verdade
@@ -12,11 +12,11 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 
 ## Novo diagnóstico do wait
 
-- PPU22 (`RenderThread`) gastou 9,168 s de 12 s em 305.628 chamadas `sys_timer_usleep(30us)` no loop chamado em `LR 0x000A969C`; helper `func_000A71E4` lê o primeiro word de `*(objeto+0xC)` e só sai se o valor for negativo.
+- PPU22 (`RenderThread`) gastou 9,168 s de 12 s em 305.628 chamadas de sleep de 30 µs no caminho `LR 0x000A969C` → `func_000A71E4`. REA/Rizin disassemblou o ELF do jogo (`FIFAZF.elf`, SHA-256 `5521a262…be34afb`): o helper repete enquanto o primeiro word de `*(objeto+0xC)` é diferente de zero; `beq` em `0x000A720C` sai quando é zero. Isso corrige a hipótese anterior de estado negativo.
 - Watch pós-transferência foi adicionado ao SDK por `patches/0002-post-transfer-spu-watch.patch`. `SPU_WATCHEA=<EA>` agora conta hits e registra depois do MFC, com resultado e bytes de origem/destino. `SPU_WATCHEA_EVERY=1` captura todos.
 - Probe combinado de 20 s: `private/analysis/runs/1793103246332528600`. PPU escreveu `1` em `0x106E0900` 260 vezes: TID17=36, TID22=224, sempre `func_000A8E10`, caller LR `0x000A95DC`. Inicialização também escreveu zeros e ponteiros.
 - No mesmo probe, SPU4/5 fez 265 GETs de 8 bytes (primeiro word `1`, segundo `0x12805080`) e 260 PUTs (primeiro word `0`, segundo `0x12805080`), todos `rc=0`, PC reportado `0x0156C`, imagem `526190333`. O destino do PUT correspondeu aos bytes registrados depois da execução.
-- Não foi observado estado negativo. O SPU alternar `1→0` e o PPU escrever `1` está confirmado; o significado do ponteiro, a rotina que deveria concluir o wait e a relação com a tela preta ainda não estão provados. Não force sinal nem burle o loop.
+- O SPU alternar `1→0` e o PPU escrever `1` está confirmado; a transição para zero é compatível com a condição de saída estática. Ainda falta provar que `*(objeto+0xC)` é exatamente `0x106E0900` nessa instância e medir se esse ciclo causa a baixa taxa de flip. Não force sinal nem burle o loop.
 - A tentativa anterior com `-Target Runtime` recompilou outra biblioteca e não atualizou o FullGame. Para este executável, use `-Target Boot` para reconstruir `private/build/boot/sdk/ps3recomp_runtime.lib`, depois relinke FullGame.
 - `-Target Runtime`: build concluído, 18/18 checks passaram. `-Target Boot`: build concluído, 48/48 checks passaram. FullGame relinkado após ambos os ajustes.
 - Probes normais EBOOT→FIFAZF de 35 s, 20 s, 20 s e 15 s terminaram por timeout; o último capturou348 DMAs com contagem atômica. Nenhum prova avanço de menu.
@@ -55,9 +55,8 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 ## REA no ambiente atual
 
 - O wrapper `tools/rea.ps1` executa o REA 6.7.0 instalado localmente e a CLI funciona.
-- Setup autorizado e aplicado: registro MCP REA em `C:\Users\Luquinhas\.codex\config.toml`, backup `C:\Users\Luquinhas\.codex\config.toml.rea.backup`, skill global `reverse-engineer-anything` versão42/207 ferramentas. REA doctor confirmou registro/skill alinhados; o processo Codex atual ainda precisa reiniciar para carregar as ferramentas.
-- Nenhum motor nativo está disponível: Ghidra 12.1 não configurado; Hopper não suporta Windows; IDA/Kuna ausentes. Java 25 está instalado, mas REA setup não instala engines. O comando `inspect-binary-layout` foi aplicado aos ELF locais e recusou ambos: perfil pwntools oferecido pelo REA suporta Linux x64 apenas, não o ELF PPU PS3. Isso não é disassembly nem pseudocódigo.
-- Próximo passo: reiniciar/reconectar Codex e verificar que as ferramentas REA apareçam; para análise de PPU, configurar um provider compatível (por exemplo, Ghidra) e então abrir `private/FIFAZF.elf` por SHA-256 no REA. Não inventar saída de descompilação antes disso.
+- Setup REA aprovado: MCP Codex e skill global versão42/207 ferramentas alinhados; Rizin estático 0.9.1 foi baixado em `private/toolchain/` e o SHA-256 do pacote oficial foi validado. `REA_RIZIN_COMMAND` foi adicionado à entrada MCP em `C:\Users\Luquinhas\.codex\config.toml`; reiniciar Codex para carregá-lo. Ghidra Windows P0 foi descartado porque essa versão do REA limita o provider a PE x86/x64/ARM e raw 6502, não ELF PowerPC.
+- Primeira análise REA real: ELF64 PowerPC big-endian; `pd 18 @ 0xa71e4` observou a comparação do status com zero e branch de saída quando igual; Evidence `ev_61b45e6f394c696b71e944869e2130639021b4eb0d82dc5addc95e6512bb755b`, registro local `private/analysis/rea/rea-fifazf-wait.json`. Rizin sinalizou três program headers inválidos e agrupou rotinas adjacentes no tamanho automático; usamos apenas o disassembly por endereço. Não produziu pseudocódigo. Interpretação e próximos passos em `reports/performance-opening.json`.
 
 ## Reproduzir a validação do incremento
 
@@ -70,7 +69,7 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 
 ## Próximo trabalho
 
-1. Partir dos argumentos/campos do objeto passado por `func_000A9680 → func_000A71E4` e do publicador chamado por `func_000A8E10`; identificar o worker/callback responsável pelo sinal terminal negativo.
+1. Partir dos argumentos/campos do objeto passado por `func_000A9680 → func_000A71E4` e do publicador chamado por `func_000A8E10`; confirmar se `*(objeto+0xC)` aponta para EA `0x106E0900` e identificar quem mantém/libera o status zero.
 2. Instrumentar os campos dessa mesma instância com `PPU_WWATCH`/`PPU_CASWATCH` e watch pós-MFC. Correlacionar pedido, job SPU, retorno e estado final; distinguir instâncias de TID17 e TID22.
 3. Corrigir somente a semântica/comunicação que a evidência demonstrar. Reproduzir probe normal e verificar se o RenderThread progride além do wait e se surge uma tela verificável.
 4. Em seguida atacar a captura preta, banco de 16 texturas/descritores e retirement por fence; voltar ao caminho de menu e partida offline.

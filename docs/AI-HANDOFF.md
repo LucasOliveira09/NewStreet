@@ -111,15 +111,19 @@ detalhes e limites estão no relatório estruturado e no documento de referênci
 
 ### REA
 
-O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. O setup aprovado registrou o
-servidor MCP em Codex e instalou a skill global versão42/207 ferramentas;
-`REA doctor` confirmou alinhamento. Reinicie/reconecte Codex antes de esperar as
-ferramentas MCP na sessão. Nenhum provider nativo está disponível: Ghidra não
-está configurado, Hopper não suporta Windows e IDA/Kuna estão ausentes. O CLI
-`inspect-binary-layout` recusou `FIFAZF.elf` e `EBOOT.elf` porque seu perfil
-pwntools cobre apenas Linux x64. Isso não constitui análise do código PS3. Veja
-STATUS para os caminhos e resultados. Depois da reconexão, configure um engine
-compatível e abra o ELF do jogo pelo REA antes de afirmar pseudocódigo/disassembly.
+O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. Setup registrou o MCP Codex
+e instalou a skill global versão42/207 ferramentas. Rizin estático 0.9.1 fica
+em `private/toolchain/`; `REA_RIZIN_COMMAND` está configurado na entrada MCP,
+mas reinicie Codex para carregar o ambiente. Ghidra Windows P0 não aceita este
+ELF PowerPC; Hopper não suporta Windows. O REA CLI analisou `FIFAZF.elf`, SHA-256
+`5521a262…be34afb`: o disassembly de `0xA71E4` mostra poll de 30 µs até o status
+ser zero. Evidence completa (privada/ignorada):
+`private/analysis/rea/rea-fifazf-wait.json`, ID
+`ev_61b45e6f394c696b71e944869e2130639021b4eb0d82dc5addc95e6512bb755b`.
+Rizin avisou que três program headers são inválidos e a análise automática
+agrupou rotinas próximas; use apenas as instruções por endereço até validar
+limites de função. `pdc` não devolveu pseudocódigo. Veja STATUS e
+`reports/performance-opening.json` antes de seguir a hipótese do wait.
 
 ## Checkpoint técnico ativo
 
@@ -129,8 +133,9 @@ compatível e abra o ELF do jogo pelo REA antes de afirmar pseudocódigo/disasse
    e não deve ser comparada como pareada. FTrace de abertura registrou 99 pedidos
    de flip em 12 s (mediana 120,6 ms) e drain FIFO RSX de 26,2 ms por intervalo.
    PPU22 (`RenderThread`) registrou 305.628 polls de sleep solicitado de 30 µs
-   em 12 s no retorno `0x000A969C`; o estado visto alternou 0/1 e o loop termina
-   em valor negativo. Otimização do temporizador foi realmente compilada uma vez,
+   em 12 s no retorno `0x000A969C`; o estado visto alternou 0/1. A análise
+   estática REA/Rizin mostra `func_000A71E4` saindo quando o word apontado por
+   `*(objeto+0xC)` é zero, não negativo. Otimização do temporizador foi compilada uma vez,
    não alterou a mediana (8,76 vs 8,75 batches/s) e foi revertida.
 2. **Estado do job/asset.** A origem que deve escrever o estado de espera e a
    relação causal com a taxa de flip ainda são desconhecidas. Arquivos
@@ -154,9 +159,11 @@ transferência. `SPU_WATCHEA_EVERY=1` registra todos os hits. Probe combinado de
 20 s `private/analysis/runs/1793103246332528600`: MFC GETs de SPU4/5 leram
 `1 0x12805080`; PUTs gravaram `0 0x12805080`; 525 registros no total. PPU
 `func_000A8E10`, LR `0x000A95DC`, gravou1 260 vezes (TID17=36, TID22=224).
-Nenhum negativo apareceu. Isso prova a transição1→0, mas não o significado do
-protocolo, o autor do sinal terminal nem a causa da tela preta. O wait traduzido
-em `func_000A71E4` lê `*(objeto+0xC)` e só retorna se o valor for negativo.
+Nenhum valor negativo apareceu. Isso prova a transição1→0, mas não o significado
+completo do protocolo nem a causa da tela preta. A análise estática REA/Rizin
+mostra que `func_000A71E4` dorme 30 µs enquanto o word em `*(objeto+0xC)` é
+diferente de zero e sai quando é zero. Ainda não foi provado que esse endereço
+seja o mesmo EA `0x106E0900` observado no probe.
 
 `PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
 no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
