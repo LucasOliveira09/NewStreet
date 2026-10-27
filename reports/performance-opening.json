@@ -92,8 +92,48 @@
       1
     ],
     "loop_exits_when": "the observed signed status becomes negative",
-    "interpretation": "Confirms a costly sub-millisecond poll. Its causal contribution to the low flip rate and the producer of this status are not yet established.",
-    "instrumentation": "PS3_POLLTOP and PS3_FTRACE enabled; use counts as diagnostic evidence, not an uninstrumented benchmark."
+    "interpretation": "Confirms a costly sub-millisecond poll. Its causal contribution to the low flip rate remains unproven.",
+    "instrumentation": "PS3_POLLTOP and PS3_FTRACE enabled; use counts as diagnostic evidence, not an uninstrumented benchmark.",
+    "follow_up": {
+      "ppu_write_watch": {
+        "run": "private/analysis/runs/1793102011598067300",
+        "watch_ea": "0x106E0900",
+        "ppu_writes_status_one": "func_000A8E10 called from LR 0x000A95DC; observed on TIDs 17 and 22",
+        "wait_helper": "func_000A71E4, called from func_000A9680 at LR 0x000A969C",
+        "scope": "PPU_WWATCH only sees guest PPU stores; it does not attribute SPU DMA or raw host writes."
+      },
+      "spu_dma_watch": {
+        "run": "private/analysis/runs/1793102166742658400",
+        "watch_ea": "0x106E0900",
+        "matching_lines": 782,
+        "spu_ids": [4, 5],
+        "commands": {
+          "0x40": "MFC_GET",
+          "0x20": "MFC_PUT"
+        },
+        "transfer_bytes": 8,
+        "local_store_address": "0x3ED10",
+        "reported_pc": "0x0156C",
+        "scope": "SPU_WATCHEA runs before command execution in mfc_submit; its counter remains zero in this source, so every matching DMA printed. These lines prove matching GET/PUT requests, not the value committed by PUT."
+      },
+      "live_memory_sampling": {
+        "run": "private/analysis/runs/1793102435000000000",
+        "mode": "direct execution using the recorded spawn request; EBOOT bypassed for this read-only memory sample",
+        "guest_address": "0x106E0900",
+        "samples": 315,
+        "period_ms": 25,
+        "window_seconds_approx": 7.9,
+        "delay_after_launch_seconds": 18,
+        "status_counts": {
+          "0": 51,
+          "1": 264
+        },
+        "negative_status_seen": false,
+        "scope": "Best-effort ReadProcessMemory snapshots. A transition shorter than the sampling interval is not excluded.",
+        "storage_note": "This one-off direct launch omitted PS3_HDD0_ROOT/PS3_HDD1_ROOT. It created local trophy files at gamedata/trophies; files were preserved and the root folder is now Git-ignored. Future direct probes must point storage to private/userdata."
+      },
+      "next": "Use PPU_WW_GUARD=1 to attribute writes crossing the guarded host page. If the SPU DMA is the writer, move/add a narrowly filtered observation after MFC execution to record the committed word and transfer result; do not force the status negative."
+    }
   },
   "timer_experiment": {
     "run": "private/analysis/runs/1793076468720766300",

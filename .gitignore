@@ -1,5 +1,6 @@
 private/
 vendor/
+/gamedata/
 __pycache__/
 *.pyc
 .env

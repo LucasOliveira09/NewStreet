@@ -28,11 +28,16 @@ Histórico preservado: [índice](../docs/history/README.md).
 - FTrace mediu99 pedidos de flip/12s (120,6ms por flip), com26,2ms no drain RSX.
 - PPU22 RenderThread fez305.628 polls de30µs em12s (9,168s pedidos no wait),
   no loop LR0x000A969C. Estado observado0/1; o laço termina ao ler valor negativo.
-- O wait caro está confirmado; a ligação causal com os8,3 flips/s e o produtor do
-  estado permanecem incertos. Uma alteração do temporizador foi compilada de fato,
-  não mudou a mediana (8,76 contra8,75) e foi removida.
-- Próximo: identificar quem atualiza o objeto/estado e por que não chega ao valor
-  de conclusão; cruzar com pedidos de assets ausentes e fila de jobs.
+- `PPU_WWATCH` atribui stores de1 a `func_000A8E10`/LR0x000A95DC (TID17/22).
+  SPU4/5 pedem MFC_GET 0x40 e MFC_PUT 0x20 de8 bytes para EA0x106E0900,
+  LS0x3ED10, PC0x156C. O watch atual roda antes da execução; valor gravado não provado.
+- 315 snapshots read-only a cada25ms viram status0/1, nenhum negativo. Não exclui
+  transiente entre leituras; `SPU_WATCHEA` não prova o PUT. Timeout segue bloqueio.
+- Próximo: use `PPU_WW_GUARD=1` para atribuir escritas da página. Se for DMA,
+  capture valor/resultado após MFC executar; não force sinal nem pule o wait.
+  Depois cruze com jobs/assets e teste se a hipótese explica a tela/FPS.
+- A mudança do timer foi compilada corretamente, não mudou a mediana (8,76vs8,75)
+  e foi revertida; causalidade do wait com8,3 flips/s ainda não provada.
 - Menu/jogo ainda não validados; batches do profiler não são FPS de gameplay.
 - Binário /Od preservado em private/build/fifazf_full_debug_baseline.
 

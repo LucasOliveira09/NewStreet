@@ -85,6 +85,10 @@ Antes de relink ou iniciar outra execução, confira que o processo nativo e seu
 filhos encerraram. Não basta o launcher sair. Ao ler log vivo, leia intervalos
 limitados de bytes; não use `Get-Content -Tail` em stderr aberto. Não substitua
 o perfil de save para facilitar probes: compare os cinco hashes do checkpoint.
+Probes diretos precisam definir `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` para
+`private/userdata/dev_hdd0` e `private/userdata/dev_hdd1`; o lançamento de memória
+registrado abaixo omitiu essas variáveis e criou `gamedata/trophies/` na raiz.
+Esse conteúdo foi mantido e a pasta está ignorada pelo Git.
 
 ## Checkpoint técnico ativo
 
@@ -113,8 +117,21 @@ o perfil de save para facilitar probes: compare os cinco hashes do checkpoint.
 5. **Captura/jogo.** Última captura posterior a LOADING ficou preta. Várias
    causas continuam possíveis; nenhum vínculo causal foi isolado.
 
-Detalhes, amostras, hashes e ressalvas estão nos dois relatórios JSON acima e
-em `STATUS.md`. Preserve distinção entre dado observado, hipótese e conclusão.
+O follow-up mais recente observou PPU stores de `1` pelo endereço guest
+`0x000A8E10` (LR `0x000A95DC`) para `0x106E0900`, e requisições SPU4/5 MFC_GET
+(`0x40`) / MFC_PUT (`0x20`) cobrindo 8 bytes na mesma EA a partir de LS
+`0x3ED10`, PC `0x0156C`. O hook `SPU_WATCHEA` está antes de executar o comando;
+ele não revela o valor efetivamente escrito. A amostra read-only de 315 leituras
+em ~7,9 s, a cada25 ms, encontrou só0 e1 (nunca negativo); transientes menores
+que o intervalo continuam possíveis. O ensaio direto pula EBOOT e foi feito só
+para essa leitura; não substitui a execução FullGame normal.
+
+Veja IDs de runs, contagens, hashes e escopo em
+[`performance-opening.json`](../reports/performance-opening.json). Preserve a
+distinção entre dado observado, hipótese e conclusão. Próximo passo: armar
+`PPU_WW_GUARD=1` para atribuir qualquer escrita na página. Se o SPU DMA alterar o
+estado, capturar valor e resultado após a execução do MFC por um hook estreito.
+Não force status nem burle o wait.
 
 ## Próxima investigação recomendada
 

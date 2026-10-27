@@ -26,8 +26,12 @@ Guia de retomada para outras IAs: docs/AI-HANDOFF.md.
   por intervalo. O restante ainda precisa de atribuição causal.
 - RenderThread (PPU22) gastou9,168s/12s em 305.628 polls de usleep(30µs),
   retorno LR0x000A969C. O objeto observado alternou0/1; a espera sai com valor<0.
-- Isso confirma polling submilissegundo caro; não prova sozinho que ele limite os
-  frames. A tentativa de ceder uma vez e depois pausar deu8,76 vs8,75 e foi revertida.
+- PPU_WWATCH encontrou `func_000A8E10` (LR0x000A95DC) gravando1 no estado
+  0x106E0900. SPU4/5 pediram GET/PUT de8 bytes nessa palavra, LS0x3ED10, PC0x156C.
+- Leitura ao vivo read-only:315 amostras/7,9s viram0(51x) e1(264x), nunca negativo;
+  intervalo25ms não exclui transiente. Watch DMA atual ocorre pré-transferência.
+- Wait caro confirmado; causalidade com FPS não. Experimento do timer deu8,76vs8,75
+  e foi revertido. Logs/escopos/retomada em reports/performance-opening.json.
 - A última captura segue preta, sem menu ou gameplay validado. Alguns assets
   pedidos no boot não existem no disco extraído; causa ainda não isolada.
 - Evidências e limitações em reports/performance-opening.json.
