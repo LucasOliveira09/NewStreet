@@ -48,6 +48,7 @@ O boot mostra título e aviso de autosave. Start/Cross chegaram ao código origi
 - Configuração, perfil e saves não foram alterados. Referência, limites e procedimento para o próximo run: [`reports/rpcs3-local-reference.json`](reports/rpcs3-local-reference.json).
 - Próxima coleta depende do usuário: abrir BLUS30882, pressionar Start uma vez, registrar a transição ou 10–20 s sem mudança, e fechar RPCS3 normalmente para liberar os logs.
 - Nova execução em 27/10: o usuário relata ter entrado em uma partida; lista do RPCS3 mostra última execução 09:49 e 22min55s acumulados. Na inspeção 09:51, emulador já estava de volta à biblioteca. Nenhum vídeo/captura novo ou log disponível, então gameplay/FPS ainda sem evidência visual; detalhes em `reports/rpcs3-local-reference.json`.
+- Inspeção ao vivo 09:55: a janela de renderização está ativa/responsiva, mas exibe `Applying PPU Code...`, módulo284/284, estimativa22m. Duas capturas com10s de intervalo não mudaram essa tela. Título do RPCS3 oscilou28,71→58,04→58,01 FPS; isso é tela de carregamento, não FPS de partida. Log continua zerado; capturas privadas e métricas estão no relatório.
 
 ## Reproduzir a validação do incremento
 
