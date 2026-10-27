@@ -122,8 +122,14 @@ ser zero. Evidence completa (privada/ignorada):
 `ev_61b45e6f394c696b71e944869e2130639021b4eb0d82dc5addc95e6512bb755b`.
 Rizin avisou que três program headers são inválidos e a análise automática
 agrupou rotinas próximas; use apenas as instruções por endereço até validar
-limites de função. `pdc` não devolveu pseudocódigo. Veja STATUS e
-`reports/performance-opening.json` antes de seguir a hipótese do wait.
+limites de função. `pdc` não devolveu pseudocódigo. Análises também cobriram
+`func_000A8E10` (escreve 1 em `*(contexto+0xC)`) e `func_000A9680` (passa
+`*(objeto+0x9C)` ao helper). O log do mesmo run mostra o helper escrevendo em
+`0x106E0904/0908`, comprovando que seu `*(objeto+0xC)` era `0x106E0900`; SPU GET
+leu 1 e PUT comprometeu 0 nessa EA. O handshake PPU/SPU está provado. O próximo
+passo é medir duração e origem do trabalho em SPU PC `0x0156C` e cruzar com os
+flips. IDs de Evidence, limites e artefatos privados estão em STATUS e
+`reports/performance-opening.json`.
 
 ## Checkpoint técnico ativo
 
@@ -159,11 +165,11 @@ transferência. `SPU_WATCHEA_EVERY=1` registra todos os hits. Probe combinado de
 20 s `private/analysis/runs/1793103246332528600`: MFC GETs de SPU4/5 leram
 `1 0x12805080`; PUTs gravaram `0 0x12805080`; 525 registros no total. PPU
 `func_000A8E10`, LR `0x000A95DC`, gravou1 260 vezes (TID17=36, TID22=224).
-Nenhum valor negativo apareceu. Isso prova a transição1→0, mas não o significado
-completo do protocolo nem a causa da tela preta. A análise estática REA/Rizin
-mostra que `func_000A71E4` dorme 30 µs enquanto o word em `*(objeto+0xC)` é
-diferente de zero e sai quando é zero. Ainda não foi provado que esse endereço
-seja o mesmo EA `0x106E0900` observado no probe.
+Nenhum valor negativo apareceu. REA/Rizin mostra que `func_000A71E4` dorme 30 µs
+enquanto o word em `*(objeto+0xC)` é diferente de zero e sai quando é zero.
+No mesmo probe, escritas de cleanup do helper em `0x106E0904/0908` provam que
+seu ponteiro era `0x106E0900`; o PPU publicou 1 e o SPU leu 1/gravou 0 nessa
+EA. A duração do estado 1 e o impacto na apresentação ainda precisam de medida.
 
 `PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
 no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
