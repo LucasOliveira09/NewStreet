@@ -1,0 +1,157 @@
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -105,6 +105,7 @@
+         u32 raw;        /* raw RSX offset (offscreen-RT matching) */
+         u32 w, h, fmt;  /* dims + RSX base format */
+         u32 ctrl1;      /* NV4097 TEXTURE_CONTROL1: component remap crossbar */
++        u32 pitch;      /* SET_TEXTURE_CONTROL3 row pitch for linear textures */
+         u32 mips;       /* SET_TEXTURE_FORMAT bits 16..31: mipmap level count.
+                          * Cube faces sit one whole mip pyramid apart, so this
+                          * is what sets the face stride. */
+@@ -170,7 +171,7 @@
+ typedef struct {
+     ID3D12Resource* res;
+     ID3D12Resource* up;
+-    u32 off, w, h, fmt; /* current contents (resource reused when dims match) */
++    u32 off, w, h, fmt, src_pitch; /* current contents and guest row pitch */
+     u64 csum;           /* full content fingerprint taken before conversion */
+     int cube;           /* resource is a 6-face cube, sampled as TextureCube */
+     u32 key;            /* the ORIGINAL bound offset -- the cache lookup key.
+@@ -323,7 +324,7 @@
+     int                   vp_fp_n;
+     u32                   srv_inc;              /* CBV_SRV_UAV descriptor size   */
+     /* VP path: latest texture bound for all RSX texture units. */
+-    struct { u32 off, raw, w, h, fmt, ctrl1, mips; int cube; int set; }
++    struct { u32 off, raw, w, h, fmt, ctrl1, pitch, mips; int cube; int set; }
+         cur_texs[RSX_D3D12_TEXTURE_UNITS];
+ 
+     /* Render-to-texture: offscreen RT pool + their RTV heap. */
+@@ -1571,11 +1572,12 @@
+                         r->tex[0].raw, r->tex[1].raw, r->tex[2].raw, r->tex[3].raw);
+                 for (int u = 0; u < RSX_D3D12_TEXTURE_UNITS; u++)
+                     if (r->tex[u].set)
+-                        fprintf(mf, "      t%d off=0x%08X fmt=0x%02X (%s%s) %ux%u remap=0x%04X\n", u,
++                        fprintf(mf, "      t%d off=0x%08X fmt=0x%02X (%s%s) %ux%u pitch=%u remap=0x%04X\n", u,
+                                 r->tex[u].off, r->tex[u].fmt,
+                                 (r->tex[u].fmt & 0x20) ? "LN" : "SZ",
+                                 (r->tex[u].fmt & 0x40) ? ",NR" : "",
+-                                r->tex[u].w, r->tex[u].h, r->tex[u].ctrl1 & 0xFFFF);
++                                r->tex[u].w, r->tex[u].h, r->tex[u].pitch,
++                                r->tex[u].ctrl1 & 0xFFFF);
+             }
+         }
+         /* Per-draw VP constant banks for the first few offscreen-RT geometry
+@@ -2597,7 +2599,8 @@
+  * NV40 layout (matches RPCS3 convert_linear_swizzle). POT dims only, which is
+  * what the hardware requires for swizzled textures. */
+ 
+-static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, int cube, u32 mips)
++static int vp_upload_tex_slot(u32 off, u32 w, u32 h, u32 fmt, u32 src_pitch,
++                              int cube, u32 mips)
+ {
+     /* TEX_BUDGET=<n>: cap texture uploads per frame. Off by default -- it was
+      * tried against the TDR and does not help, because PERF shows the upload
+@@ -2621,7 +2624,7 @@
+      * layout.c owns them so the Metal backend can read a guest texture without
+      * re-deriving any of it. Only the DXGI mapping below is ours. */
+     rsx_tex_layout tl;
+-    rsx_texture_layout(fmt, w, h, &tl);
++    rsx_texture_layout_pitched(fmt, w, h, src_pitch, &tl);
+     u32 basef = fmt & 0x9F;              /* still needed for the SRV remap */
+     int argb = (tl.fmt == RSX_TEXFMT_R8G8B8A8);
+     int dxt  = tl.compressed;
+@@ -2655,7 +2658,7 @@
+     for (int i = 0; i < VP_TEX_SLOTS; i++) {
+         VPTexSlot* c = &s_d3d.vp_tex[i];
+         if (c->res && c->key == key_off && c->w == w && c->h == h && c->fmt == fmt
+-            && c->cube == cube) {
++            && c->cube == cube && c->src_pitch == src_pitch) {
+             if (c->used) return i;                /* already bound this frame */
+             { static int nocache = -1;            /* TEX_NOCACHE=1: always re-upload */
+               if (nocache < 0) { const char* e = getenv("TEX_NOCACHE");
+@@ -2664,7 +2667,7 @@
+             /* Held from an earlier frame: re-upload only if the guest bytes
+              * changed. Most of this scene's textures are static, and converting
+              * every one of them every frame was ~70% of the frame's CPU time. */
+-            u32 nb = dxt ? (blkrow * blkrows) : (w * h * bpp);
++            u32 nb = tl.face_bytes;
+             u64 cs = TEX_CSUM(vm_base + c->off, nb);
+             if (cs == c->csum) { c->used = 1; return i; }
+             slot = i; break;                      /* stale: fall through and redo */
+@@ -2840,24 +2843,15 @@
+      * aligned) in. Assuming mip-0-sized strides made face 1 land inside face 0's
+      * mip chain -- which is exactly what the dumps showed, every face after the
+      * first a progressively smaller copy of the first. */
+-    u32 _face_bytes = dxt ? (blkrow * blkrows) : (w * h * bpp);
+-    if (cube) {
+-        u32 total = 0;
+-        for (u32 lw = w, lh = h, l = 0; l < (mips ? mips : 1u); l++) {
+-            total += dxt ? (((lw + 3) / 4) * (bpp == 8 ? 16u : 8u) * ((lh + 3) / 4))
+-                         : (lw * lh * bpp);
+-            if (lw > 1) lw >>= 1;
+-            if (lh > 1) lh >>= 1;
+-        }
+-        _face_bytes = (total + 127u) & ~127u;
+-    }
++    u32 _face_bytes = cube ? rsx_texture_cube_face_stride(fmt, w, h, mips, src_pitch)
++                           : tl.face_bytes;
+     const u32 _nfaces     = cube ? 6u : 1u;
+     const u32 _off0 = off; u8* const _map0 = (u8*)mapped;
+     /* Record the source BEFORE reading pixels. Hashing afterwards could mark
+      * a concurrent guest update as uploaded even though conversion read older
+      * pixels, leaving the stale atlas cached indefinitely. A later update must
+      * be seen by validation on the next frame. */
+-    const u32 _source_bytes = dxt ? (blkrow * blkrows) : (w * h * bpp);
++    const u32 _source_bytes = tl.face_bytes;
+     const u64 upload_fingerprint = TEX_CSUM(vm_base + off, _source_bytes);
+     for (u32 _f = 0; _f < _nfaces; _f++) {
+     off    = _off0 + _f * _face_bytes;
+@@ -3187,6 +3181,7 @@
+     s_d3d.device->lpVtbl->CreateShaderResourceView(s_d3d.device, t->res, &sv, sh);
+ 
+     t->off = off; t->key = key_off; t->w = w; t->h = h; t->fmt = fmt;
++    t->src_pitch = src_pitch;
+     t->cube = cube; t->used = 1;
+     t->csum = upload_fingerprint;
+     #undef TEX_CSUM
+@@ -4388,6 +4383,7 @@
+                     int _cube = dr->tex[_u].cube && (dr_cube_mask(dr) & (1u << _u));
+                     int ts = vp_upload_tex_slot(dr->tex[_u].off, dr->tex[_u].w,
+                                                 dr->tex[_u].h, dr->tex[_u].fmt,
++                                                dr->tex[_u].pitch,
+                                                 _cube, dr->tex[_u].mips);
+                     if (perf_on()) { s_perf_tex += perf_now() - _tt; s_perf_ntex++;
+                         s_perf_texbytes += (u64)dr->tex[_u].w * dr->tex[_u].h * 4u; }
+@@ -6287,6 +6283,7 @@
+                     dr->tex[_u].h   = s_d3d.cur_texs[_u].h;
+                     dr->tex[_u].fmt = s_d3d.cur_texs[_u].fmt;
+                     dr->tex[_u].ctrl1 = s_d3d.cur_texs[_u].ctrl1;
++                    dr->tex[_u].pitch = s_d3d.cur_texs[_u].pitch;
+                     dr->tex[_u].cube  = s_d3d.cur_texs[_u].cube;
+                     dr->tex[_u].mips  = s_d3d.cur_texs[_u].mips;
+                     dr->tex[_u].set = s_d3d.cur_texs[_u].set;
+@@ -6413,6 +6410,7 @@
+                 dr->tex[_u].h   = s_d3d.cur_texs[_u].h;
+                 dr->tex[_u].fmt = s_d3d.cur_texs[_u].fmt;
+                     dr->tex[_u].ctrl1 = s_d3d.cur_texs[_u].ctrl1;
++                    dr->tex[_u].pitch = s_d3d.cur_texs[_u].pitch;
+                     dr->tex[_u].cube  = s_d3d.cur_texs[_u].cube;
+                     dr->tex[_u].mips  = s_d3d.cur_texs[_u].mips;
+                 dr->tex[_u].set = s_d3d.cur_texs[_u].set;
+@@ -6560,6 +6558,7 @@
+             dr->tex[_u].h   = s_d3d.cur_texs[_u].h;
+             dr->tex[_u].fmt = s_d3d.cur_texs[_u].fmt;
+                     dr->tex[_u].ctrl1 = s_d3d.cur_texs[_u].ctrl1;
++                    dr->tex[_u].pitch = s_d3d.cur_texs[_u].pitch;
+                     dr->tex[_u].cube  = s_d3d.cur_texs[_u].cube;
+                     dr->tex[_u].mips  = s_d3d.cur_texs[_u].mips;
+             dr->tex[_u].set = s_d3d.cur_texs[_u].set;
+@@ -6708,6 +6707,7 @@
+         s_d3d.cur_texs[unit].w = width; s_d3d.cur_texs[unit].h = height;
+         s_d3d.cur_texs[unit].fmt = format;   /* full byte: LN(0x20)/UN(0x40) kept */
+         s_d3d.cur_texs[unit].ctrl1 = tex->control1;
++        s_d3d.cur_texs[unit].pitch = tex->control3 & 0xFFFFFu;
+         s_d3d.cur_texs[unit].cube  = (tex->format & 4) ? 1 : 0;
+         s_d3d.cur_texs[unit].mips  = (tex->format >> 16) & 0xFFFFu;
+         if (getenv("TEXFMTDBG")) { static u32 seen[64]; static int ns=0;
