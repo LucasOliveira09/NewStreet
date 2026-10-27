@@ -55,9 +55,9 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 ## REA no ambiente atual
 
 - O wrapper `tools/rea.ps1` executa o REA 6.7.0 instalado localmente e a CLI funciona.
-- A análise nativa REA não está pronta: Codex não tem registro MCP REA; o `setup --client codex --dry-run --json` propõe editar `C:\Users\Luquinhas\.codex\config.toml` e instalar/atualizar `C:\Users\Luquinhas\.agents\skills\reverse-engineer-anything`. O plano ainda não foi aplicado.
-- O ambiente também não tem Ghidra 12.1 configurado; Hopper não suporta Windows, IDA/Kuna não estão configurados. O próprio REA não instala essas ferramentas. Para ativar as ferramentas MCP é necessário revisar/aprovar o plano e reiniciar o Codex; para descompilar PPU será necessário prover um engine suportado.
-- Até a reconexão, não chamar investigação de pseudocódigo/disassembly via REA. Use as análises/manifests do projeto e registre claramente o bloqueio; retomar REA assim que o provider estiver disponível.
+- Setup autorizado e aplicado: registro MCP REA em `C:\Users\Luquinhas\.codex\config.toml`, backup `C:\Users\Luquinhas\.codex\config.toml.rea.backup`, skill global `reverse-engineer-anything` versão42/207 ferramentas. REA doctor confirmou registro/skill alinhados; o processo Codex atual ainda precisa reiniciar para carregar as ferramentas.
+- Nenhum motor nativo está disponível: Ghidra 12.1 não configurado; Hopper não suporta Windows; IDA/Kuna ausentes. Java 25 está instalado, mas REA setup não instala engines. O comando `inspect-binary-layout` foi aplicado aos ELF locais e recusou ambos: perfil pwntools oferecido pelo REA suporta Linux x64 apenas, não o ELF PPU PS3. Isso não é disassembly nem pseudocódigo.
+- Próximo passo: reiniciar/reconectar Codex e verificar que as ferramentas REA apareçam; para análise de PPU, configurar um provider compatível (por exemplo, Ghidra) e então abrir `private/FIFAZF.elf` por SHA-256 no REA. Não inventar saída de descompilação antes disso.
 
 ## Reproduzir a validação do incremento
 

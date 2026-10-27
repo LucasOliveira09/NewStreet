@@ -92,7 +92,10 @@ Detalhes e sequência em [`reports/rpcs3-local-reference.json`](../reports/rpcs3
 ## REA e referências externas
 
 Comparação com outros ports: [`docs/recomp-ports-reference.md`](../docs/recomp-ports-reference.md).
-REA CLI local existe, mas REA MCP ainda não está conectado ao Codex e não há
-Ghidra/IDA/Hopper disponível para descompilar o binário nesta sessão. Revisar o
-dry-run e habilitar um provider antes de descrever qualquer saída como análise
-REA; seguir o procedimento autorizado no site oficial.
+Setup REA autorizado e aplicado: Codex MCP + skill global versão42/207
+ferramentas; doctor confirmou alinhamento. Reiniciar/reconectar Codex para
+carregar o MCP. Não há engine de análise PPU: o `inspect-binary-layout` do REA
+recusa ELF PS3 (pwntools cobre Linux x64 apenas), Ghidra não está configurado e
+IDA/Kuna/Hopper estão indisponíveis. Próximo: conectar o MCP, instalar/configurar
+um provider compatível e abrir `private/FIFAZF.elf` pelo REA; só então registrar
+análise de funções/pseudocódigo. Detalhes em [`STATUS.md`](../STATUS.md).

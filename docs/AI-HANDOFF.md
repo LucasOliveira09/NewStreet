@@ -111,13 +111,15 @@ detalhes e limites estão no relatório estruturado e no documento de referênci
 
 ### REA
 
-O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. Nesta sessão a integração MCP
-com Codex não está registrada e não há provider nativo configurado: Ghidra não
-está instalado/configurado, Hopper não é suportado em Windows e IDA/Kuna estão
-ausentes. O dry-run de setup propõe editar o config global do Codex e instalar
-a skill REA; não aplique sem aprovação e reinício do cliente. Veja STATUS para
-os caminhos e o plano exato. Não afirme usar análise nativa REA até ela estar
-conectada.
+O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. O setup aprovado registrou o
+servidor MCP em Codex e instalou a skill global versão42/207 ferramentas;
+`REA doctor` confirmou alinhamento. Reinicie/reconecte Codex antes de esperar as
+ferramentas MCP na sessão. Nenhum provider nativo está disponível: Ghidra não
+está configurado, Hopper não suporta Windows e IDA/Kuna estão ausentes. O CLI
+`inspect-binary-layout` recusou `FIFAZF.elf` e `EBOOT.elf` porque seu perfil
+pwntools cobre apenas Linux x64. Isso não constitui análise do código PS3. Veja
+STATUS para os caminhos e resultados. Depois da reconexão, configure um engine
+compatível e abra o ELF do jogo pelo REA antes de afirmar pseudocódigo/disassembly.
 
 ## Checkpoint técnico ativo
 
