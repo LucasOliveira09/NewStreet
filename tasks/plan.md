@@ -72,7 +72,7 @@ Histórico preservado: [índice](../docs/history/README.md).
 
 ## 4. Próximos marcos do produto
 
-1. Menu original navegável e seleção de modo/time/cena.
+1. Menu e seleção de modo/time/cena no port nativo, usando a referência original já capturada.
 2. Cena com jogadores, bola, animação, física e regras originais verificadas.
 3. Partida completa, pausa, retorno ao menu, controles e áudio sincronizado.
 4. Salvar/retomar progressão, modos offline e matriz de estabilidade/performance.
@@ -81,13 +81,18 @@ Histórico preservado: [índice](../docs/history/README.md).
 Só detalhar o marco seguinte quando houver evidência suficiente. Online e melhoria
 visual avançada continuam posteriores à base offline funcional.
 
-## Coleta de referência do jogo original (usuário)
+## Referência do original — concluída para a primeira partida
 
-RPCS3 está configurado para BLUS30882 via ISO e a gravação existente mostra
-somente splash/tela `PRESS START BUTTON`. Antes de atribuir um bloqueio ao port,
-obter uma referência de navegação original: abrir o jogo no RPCS3, pressionar
-Start uma vez, capturar a tela seguinte e anotar qualquer input adicional. Se
-não houver mudança, registrar 10–20 s e a mensagem visível. Fechar RPCS3
-normalmente e então inspecionar logs. Configuração, save e controles devem ficar
-inalterados. Detalhes e limitações estão em
-[`reports/rpcs3-local-reference.json`](../reports/rpcs3-local-reference.json).
+RPCS3 alcançou uma cena offline com Arsenal × Chicago Fire, 0–0 e relógio visual
+2:00. Esse frame é o alvo de comparação para a cena nativa. O frame prova
+renderização estática, não controle, movimento, partida completa ou performance.
+O processo voltou à biblioteca e os logs estavam vazios; causa desconhecida.
+Detalhes e sequência em [`reports/rpcs3-local-reference.json`](../reports/rpcs3-local-reference.json).
+
+## REA e referências externas
+
+Comparação com outros ports: [`docs/recomp-ports-reference.md`](../docs/recomp-ports-reference.md).
+REA CLI local existe, mas REA MCP ainda não está conectado ao Codex e não há
+Ghidra/IDA/Hopper disponível para descompilar o binário nesta sessão. Revisar o
+dry-run e habilitar um provider antes de descrever qualquer saída como análise
+REA; seguir o procedimento autorizado no site oficial.

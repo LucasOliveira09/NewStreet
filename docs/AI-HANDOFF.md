@@ -42,6 +42,7 @@ partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
 - `reports/performance-opening.json`: medições de abertura, instrumentação, hashes e limitações.
 - `reports/rpcs3-local-reference.json`: configuração observada do RPCS3 local, gravação de referência e procedimento para capturar a navegação após Start.
+- [`recomp-ports-reference.md`](recomp-ports-reference.md): comparação de ReStreet e ports PS3 em `ps3recomp`, com implicações para SPURS/render.
 - `docs/history/`: checkpoints antigos preservados; podem estar desatualizados.
 
 Os identificadores de guest como `0x000A969C` são endereços observados, não
@@ -103,6 +104,20 @@ depois mostrou última execução 09:49 e 22min55s acumulados. A inspeção da t
 09:51 já encontrou a biblioteca, sem nova gravação/captura ou log. Trate a
 entrada em partida como relato do usuário até haver evidência visual; não use o
 rótulo geral `Ingame` da lista de compatibilidade como prova desta execução.
+
+Uma captura posterior confirmou o boot até a cena offline Arsenal × Chicago Fire,
+com HUD e 3D visíveis. A captura é `private/analysis/rpcs3_reference/live-match-current.png`;
+detalhes e limites estão no relatório estruturado e no documento de referências.
+
+### REA
+
+O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. Nesta sessão a integração MCP
+com Codex não está registrada e não há provider nativo configurado: Ghidra não
+está instalado/configurado, Hopper não é suportado em Windows e IDA/Kuna estão
+ausentes. O dry-run de setup propõe editar o config global do Codex e instalar
+a skill REA; não aplique sem aprovação e reinício do cliente. Veja STATUS para
+os caminhos e o plano exato. Não afirme usar análise nativa REA até ela estar
+conectada.
 
 ## Checkpoint técnico ativo
 

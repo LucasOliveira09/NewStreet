@@ -1,12 +1,14 @@
 # Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`. Incremento: protocolo do estado de espera do RenderThread.
+Branch: `codex/ps3-native-bootstrap`. Incremento: baseline RPCS3 e revisão de referências de recompilação.
 Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/performance-opening.json`.
 
 ## Critério de verdade
 
-O boot mostra título e aviso de autosave. Start/Cross chegaram ao código original em probes anteriores; o perfil local foi criado e relido. **Menu navegável, seleção, cena 3D, controle, bola, partida e ciclo completo continuam sem validação.** Timeout, janela ou flip não significam jogo jogável. O objetivo autorizado é chegar a uma partida offline completa no Windows.
+**Referência PS3 via RPCS3:** captura direta confirmou a sequência até uma partida offline, Arsenal × Chicago Fire, 0–0 e relógio visual 2:00; quadra, jogadores, bola e HUD aparecem. Movimento, controle, FPS sustentado e partida completa não foram registrados.
+
+**Port Windows nativo:** o boot anterior chega ao título/aviso de autosave; menu, cena 3D e partida continuam sem validação. O avanço observado no RPCS3 é baseline, não avanço do port. Timeout, janela ou flip isolado não significam jogo jogável. O objetivo é uma partida offline completa no Windows.
 
 ## Novo diagnóstico do wait
 
@@ -43,15 +45,19 @@ O boot mostra título e aviso de autosave. Start/Cross chegaram ao código origi
 
 ## Referência local no RPCS3
 
-- RPCS3 portátil `v0.0.43-20387-aa9ebd2f`, Vulkan, RX 580 2048SP, 1280x720, XInput. FIFA Street BLUS30882 está registrado como ISO externa; não está instalado em `dev_hdd0/game`.
-- A gravação existente de 18,88 s mostra o splash e depois `PRESS START BUTTON`; Start não foi pressionado e nenhum menu foi observado. A sessão inspecionada estava ociosa na tela de boas-vindas; logs estavam vazios.
-- Configuração, perfil e saves não foram alterados. Referência, limites e procedimento para o próximo run: [`reports/rpcs3-local-reference.json`](reports/rpcs3-local-reference.json).
-- Próxima coleta depende do usuário: abrir BLUS30882, pressionar Start uma vez, registrar a transição ou 10–20 s sem mudança, e fechar RPCS3 normalmente para liberar os logs.
-- Nova execução em 27/10: o usuário relata ter entrado em uma partida; lista do RPCS3 mostra última execução 09:49 e 22min55s acumulados. Na inspeção 09:51, emulador já estava de volta à biblioteca. Nenhum vídeo/captura novo ou log disponível, então gameplay/FPS ainda sem evidência visual; detalhes em `reports/rpcs3-local-reference.json`.
-- Inspeção ao vivo 09:55: a janela de renderização está ativa/responsiva, mas exibe `Applying PPU Code...`, módulo284/284, estimativa22m. Duas capturas com10s de intervalo não mudaram essa tela. Título do RPCS3 oscilou28,71→58,04→58,01 FPS; isso é tela de carregamento, não FPS de partida. Log continua zerado; capturas privadas e métricas estão no relatório.
-- Acompanhamento 09:58–09:59: avançou para o aviso de autosave e depois `Hit the Streets — Select Sides`. Controle está no lado vermelho; o prompt mostra `Cross: Advance`; a barra online avisa desconexão dos servidores EA. A tela ficou igual por30s aguardando botão. Janela responsiva, título ~29,8–30 FPS; esse valor é do menu, não gameplay. Capturas/linha do tempo em `reports/rpcs3-local-reference.json`.
-- 10:00:51 avançou a `Select Team`; categoria Barclays PL e Inglaterra destacadas, nome do clube ainda `---`. Prompt é `Cross: Select`; quadro seguinte 10:01:22 permaneceu igual. Título variou33,28→51,34 FPS, leitura de menu, não desempenho de partida.
-- 10:03:32: captura ao vivo confirma partida offline Arsenal × Chicago Fire, 0–0 e relógio 2:00; renderiza quadra, jogadores, bola e HUD. Barra de título marcou 45,58 antes e 57,32 no quadro; é leitura instantânea. Às10:03:56, RPCS3 retornou à biblioteca, última execução10:03, tempo acumulado32m52s. Não há log para determinar se foi saída normal ou inesperada; partida completa/controles/FPS sustentado não comprovados. Evidência privada no relatório.
+- Configuração local: RPCS3 portátil, build exibida `0.0.43-20402`, Vulkan, RX 580 2048SP, janela 1920×1080; o FIFA BLUS30882 é carregado por ISO externa.
+- Fluxo observado: aviso de autosave → `Select Sides` → `Select Team` → cena de partida. Em `Select Team`, Barclays PL/England ficaram destacados e o time Arsenal foi escolhido para a captura da partida.
+- Cena capturada: Arsenal × Chicago Fire, 0–0, relógio visual 2:00, quadra/jogadores/bola/HUD visíveis. Captura privada: `private/analysis/rpcs3_reference/live-match-current.png`.
+- Leituras de FPS na barra da janela oscilaram entre aproximadamente16 e57 durante carregamento/menus/partida; não são medição sustentada. A partida não foi gravada em vídeo.
+- O RPCS3 retornou à biblioteca na leitura seguinte. Não se sabe se houve saída normal ou inesperada; os três logs permaneceram vazios. Não inferir partida completa nem resposta de controles de uma imagem estática.
+- Registro estruturado: [`reports/rpcs3-local-reference.json`](reports/rpcs3-local-reference.json). Referências de recompilação e implicações: [`docs/recomp-ports-reference.md`](docs/recomp-ports-reference.md).
+
+## REA no ambiente atual
+
+- O wrapper `tools/rea.ps1` executa o REA 6.7.0 instalado localmente e a CLI funciona.
+- A análise nativa REA não está pronta: Codex não tem registro MCP REA; o `setup --client codex --dry-run --json` propõe editar `C:\Users\Luquinhas\.codex\config.toml` e instalar/atualizar `C:\Users\Luquinhas\.agents\skills\reverse-engineer-anything`. O plano ainda não foi aplicado.
+- O ambiente também não tem Ghidra 12.1 configurado; Hopper não suporta Windows, IDA/Kuna não estão configurados. O próprio REA não instala essas ferramentas. Para ativar as ferramentas MCP é necessário revisar/aprovar o plano e reiniciar o Codex; para descompilar PPU será necessário prover um engine suportado.
+- Até a reconexão, não chamar investigação de pseudocódigo/disassembly via REA. Use as análises/manifests do projeto e registre claramente o bloqueio; retomar REA assim que o provider estiver disponível.
 
 ## Reproduzir a validação do incremento
 
