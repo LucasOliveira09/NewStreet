@@ -24,10 +24,11 @@ interpretador/JIT. O usuário autorizou continuar até alcançar partida jogáve
 O aceite completo está no prompt de execução; os próximos marcos estão no plano.
 
 No checkpoint desta revisão, o executável nativo mostra o logo FIFA STREET em
-1280×720. Um probe envia START/CROSS/DOWN como pacotes `cellPadGetData` válidos
-a memória guest, mas a imagem não muda. Isso não prova consumo/aceitação pelo
-jogo. Perfil de probe foi copiado e os saves originais foram preservados.
-**Menu navegável, seleção, cena 3D, controles, bola e partida não estão comprovados.** Não descreva o
+1280×720. START/CROSS/DOWN foram escritos em relatórios válidos; o caller
+`0x014351D0` lê o comprimento e o word de botões do buffer local. A imagem não
+muda, então a leitura do input está provada, mas mapeamento da ação/transição de
+UI não. Perfil de probe foi copiado e os saves originais foram preservados.
+**Menu navegável, seleção, cena 3D, controle de jogadores, bola e partida não estão comprovados.** Não descreva o
 projeto como jogável. Janela, pedido de flip ou imagem preta não equivalem a
 partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 
@@ -43,7 +44,9 @@ partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
 - `reports/performance-opening.json`: medições anteriores de abertura.
 - `reports/spu-handshake-timing.json`: relógio correlacionado de status PPU, DMA SPU e flips.
-- `reports/title-navigation-probe.json`: pacotes de controle válidos sem mudança visual.
+- `reports/title-navigation-probe.json`: pacotes válidos sem transição visual.
+- `reports/pad-input-consumer.json`: caller `cellPadGetData` e início do parser guest.
+- [`references/restreet-reference.md`](references/restreet-reference.md): projeto ReStreet como referência, com limites PS3/Xbox 360.
 - `reports/rpcs3-local-reference.json`: configuração observada do RPCS3 local, gravação de referência e procedimento para capturar a navegação após Start.
 - [`recomp-ports-reference.md`](recomp-ports-reference.md): comparação de ReStreet e ports PS3 em `ps3recomp`, com implicações para SPURS/render.
 - `docs/history/`: checkpoints antigos preservados; podem estar desatualizados.
@@ -114,42 +117,30 @@ detalhes e limites estão no relatório estruturado e no documento de referênci
 
 ### REA
 
-O projeto contém `tools/rea.ps1` e REA CLI 6.7.0. Setup registrou o MCP Codex
-e instalou a skill global versão42/207 ferramentas. Rizin estático 0.9.1 fica
-em `private/toolchain/`; `REA_RIZIN_COMMAND` está configurado na entrada MCP,
-mas reinicie Codex para carregar o ambiente. Ghidra Windows P0 não aceita este
-ELF PowerPC; Hopper não suporta Windows. O REA CLI analisou `FIFAZF.elf`, SHA-256
-`5521a262…be34afb`: o disassembly de `0xA71E4` mostra poll de 30 µs até o status
-ser zero. Evidence completa (privada/ignorada):
-`private/analysis/rea/rea-fifazf-wait.json`, ID
-`ev_61b45e6f394c696b71e944869e2130639021b4eb0d82dc5addc95e6512bb755b`.
-Rizin avisou que três program headers são inválidos e a análise automática
-agrupou rotinas próximas; use apenas as instruções por endereço até validar
-limites de função. `pdc` não devolveu pseudocódigo. Análises também cobriram
-`func_000A8E10` (escreve 1 em `*(contexto+0xC)`) e `func_000A9680` (passa
-`*(objeto+0x9C)` ao helper). O log do mesmo run mostra o helper escrevendo em
-`0x106E0904/0908`, comprovando que seu `*(objeto+0xC)` era `0x106E0900`; SPU GET
-leu 1 e PUT comprometeu 0 nessa EA. O handshake PPU/SPU está provado. A proveniência do MFC também foi fechada:
-`patches/0003-spu-wrch-callsite-pc.patch` preserva o PC guest em cada `wrch
-MFC_Cmd`; no run `1793110334315435500`, `0x015DC` (`21 A0 0A 8B`) mapeia para
-o overlay residente `sportsrna_spupatch` (ID `592606456`, SHA-256
-`35274f8f…22aeeae`). O GET passa pelo LR `0x1408`, e o PUT pelo LR `0x14F0`.
-O ID `526190333` é identidade do contexto SPU, não do overlay residente. O
-snapshot antigo que confere com `AssetStream_zlib` caracteriza apenas aquele
-snapshot estático; ele não localiza o código do probe atual. A rotina baixa de
-transferência está atribuída, mas a finalidade do job superior, sua duração e
-a relação causal com flips continuam em aberto. IDs, logs e limites estão em
-STATUS e `reports/performance-opening.json`.
+O setup REA aprovado está instalado; esta sessão usou REA CLI 6.7.0 com Rizin
+0.9.1. O MCP `open_binary` não aceita o ELF PowerPC, mas `execute-rizin-command`
+funciona quando o processo define `REA_RIZIN_COMMAND` para o `rizin.exe` privado
+e inclui seu diretório `bin` no PATH. O comando por endereço no callsite de input
+retornou Evidence `ev_78025d4611a3c21b91bab08e45f2a20d2c04ce0b6ba216780d61937298af555`.
+
+O ELF reporta headers de programa malformados; os offsets e instruções pontuais
+são observações, mas não confie nos limites de função/símbolos automáticos. REA
+anteriormente analisou `func_000A71E4` (wait de 30 µs até estado zero),
+`func_000A8E10` e o MFC em `sportsrna_spupatch`. Rizin não decodifica SPU aqui;
+use lifter e correlação de bytes/hash/runtime para SPU.
 
 ## Checkpoint técnico ativo
 
 1. **Input e navegação.** Run `1793112938625277900` usou cópia do perfil e
    `PAD_ALWAYS_CHANGE=1`, `PAD_REPORT_TRACE=1`, `PAD_SCRIPT='4:0x0008,7:0x4000,10:0x0040'`.
    Seis transições válidas (`len=20`, `mode=122`) foram escritas em
-   `0xD0189CE0`; oito capturas tiveram o mesmo hash e mostram o logo. É prova de
-   entrega ao buffer guest pelo HLE, não de consumo pelo código de UI. O próximo
-   passo é descobrir quem lê esse endereço e qual estado controla a transição.
-   Evidência/limitações em [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
+   `0xD0189CE0`; oito capturas tiveram o mesmo hash e mostram o logo. Follow-up
+   `1793113545266437400` e REA identificam NID `0x8B72CDA1`, LR `0x014351D0`;
+   o guest lê `len` e o word de botões no buffer stack-local e chama helper
+   `0x01434DB8`. Isso prova que o parser do guest recebe o relatório, não que a
+   ação seja mapeada à troca de tela. Evidência em
+   [`pad-input-consumer.json`](../reports/pad-input-consumer.json) e
+   [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
 2. **Handshaking e flips.** Run direto `1793111736649624200`, trace de 12 s:
    472 pedidos de flip, mediana 15.8 ms (63.2 solicitações/s, não FPS visível),
    237 stores de status 1 e 236 MFC GET/PUT de status. Correlação aproximada por
@@ -172,7 +163,7 @@ STATUS e `reports/performance-opening.json`.
 handshake/wait até provar semântica superior. Não repetir `PPU_WW_GUARD=1`:
 armou cedo e gerou 73.845 eventos na página de 4 KiB. Use watch estreito.
 
-O conjunto versionado de patches vai até `0004-ppu-status-watch-timestamp.patch`.
+O conjunto versionado de patches vai até `0004-ppu-status-watch-timestamp.patch`. `tools/run_native.py` usa `setdefault` para `PS3_HLE_TRACE`, então o chamador pode aumentar o trace sem editar o script.
 `python tools/apply_patches.py` reconheceu 0001–0004 aplicados. O gate
 `tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py` e foi
 cancelado; ele não foi aprovado nesta revisão. CMake direto reconstruiu o target
@@ -182,20 +173,23 @@ do FullGame: `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
 
 ### Próxima investigação recomendada
 
-1. Instrumentar `cellPadGetData` para registrar LR/TID do PPU no mesmo evento que
-   o payload, como patch composável com o estado atual de `0001`; usar LR para
-   localizar o chamador no `FIFAZF.elf` e confirmar quais buffers/rotinas leem.
-2. Comparar o código que interpreta o relatório com a implementação de
-   `cellPadGetData`, modo/pressão, configuração de porta e eventos de UI. Só
-   trocar semântica depois de evidência, sem inventar estado de menu.
-3. Repetir uma ação autorizada pela tela e capturar o estado seguinte. Aceite é
-   mudança visual/estado comprovada e navegação reproduzível, não pacote escrito.
+1. Seguir a rotina caller iniciada em `0x014351D0`. O callsite `0x014351CC`
+   fornece `SP+0x70` a `cellPadGetData`; após retorno verifica `len`, lê o word
+   em `SP+0x78` e chama `0x01434DB8`. Use REA/Rizin por endereço e identifique os
+   bits/eventos e o estado destino; não atribua nome sem evidência.
+2. Correlacionar a rotina com `cellPadSetPortSetting` (0x4 e 0x2 observados),
+   `mode=122`, tamanho/offsets do report e o fluxo de UI. Não mudar semântica até
+   descobrir por que o branch de ação não muda o título.
+3. Repetir entrada e capturar a próxima tela. Aceite é transição reproduzível,
+   não só escrita/leitura de um pacote.
 4. Depois voltar aos bloqueios de renderização e alcançar uma partida offline.
 
-REA MCP não abriu esse ELF nesta sessão por limitação de arquitetura. Use o REA
-CLI/Rizin já configurado quando o provider local estiver acessível; identifique
-primeiro por que a chamada CLI retornou `ERR_REA_WINDOWS_NATIVE`. Rizin não
-interpreta SPU aqui; preserve bytes, faixa, hash, PC e logs runtime.
+O repositório [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port)
+serve como inspiração de pipeline e produto, mas recompila XEX de Xbox 360 via
+ReXGlue. Não reutilize binários/patches como dependências do port PS3. Consulte
+[`references/restreet-reference.md`](references/restreet-reference.md) antes
+de uma comparação concreta. Rizin não interpreta SPU; preserve bytes, faixa,
+hash, PC e logs runtime.
 
 ## Registrar cada incremento para a próxima IA
 

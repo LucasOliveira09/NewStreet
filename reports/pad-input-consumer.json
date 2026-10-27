@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-27",
+  "target": "FIFAZF.elf, SHA-256 5521a262a973e636923889c5f0d073f55b899644030d72d54b4535fe8be34afb",
+  "run": "private/analysis/runs/1793113545266437400",
+  "rea_evidence": {
+    "id": "ev_78025d4611a3c21b91bab08e45f2a20d2c04ce0b6ba216780d61937298af555",
+    "operation": "execute_rizin_command",
+    "provider": "Rizin 0.9.1",
+    "command": "e scr.color=0; pd 64 @ 0x14351B0"
+  },
+  "import": {
+    "name": "cellPadGetData",
+    "nid": "0x8B72CDA1",
+    "registration_source": "private/build/fifazf_full/ppu_hle_nids.cpp"
+  },
+  "runtime": {
+    "trace": "PS3_HLE_ARGS=8B72CDA1 and PS3_HLE_FIRST_CALLS=1",
+    "observed_callsite_lr": "0x014351D0",
+    "arguments": [
+      {
+        "r3": "0x00000000",
+        "r4": "0x0FEFF900",
+        "r5": "0x00000001",
+        "lr": "0x014351D0",
+        "thread_id": "1"
+      },
+      {
+        "r3": "0x00000000",
+        "r4": "0xD0189CE0",
+        "r5": "0x00000002",
+        "lr": "0x014351D0"
+      },
+      {
+        "r3": "0x00000000",
+        "r4": "0xD0189CE0",
+        "r5": "0x00000003",
+        "lr": "0x014351D0"
+      },
+      {
+        "r3": "0x00000000",
+        "r4": "0xD0189CE0",
+        "r5": "0x00000004",
+        "lr": "0x014351D0"
+      },
+      {
+        "r3": "0x00000000",
+        "r4": "0xD0189CE0",
+        "r5": "0x00000005",
+        "lr": "0x014351D0"
+      },
+      {
+        "r3": "0x00000000",
+        "r4": "0xD0189CE0",
+        "r5": "0x00000006",
+        "lr": "0x014351D0"
+      }
+    ],
+    "report_events": 6,
+    "report_buffer_guest_ea": "0xD0189CE0",
+    "report_length": 20,
+    "report_mode": 122
+  },
+  "static_observations": [
+    {
+      "address": "0x014351C8",
+      "instruction": "addic r4, r1, 0x70",
+      "meaning": "Sets the second argument to a stack-local CellPadData-shaped buffer at SP+0x70."
+    },
+    {
+      "address": "0x014351CC",
+      "instruction": "bl 0x01C0F17C",
+      "meaning": "Calls the import stub; runtime NID trace identifies the call as cellPadGetData."
+    },
+    {
+      "address": "0x014351D0",
+      "instruction": "lwz r3, 0x70(r1)"
+    },
+    {
+      "address": "0x014351D4",
+      "instruction": "cmpwi r3, 0"
+    },
+    {
+      "address": "0x014351D8",
+      "instruction": "bt eq, 0x0143583C",
+      "meaning": "Branches away when returned CellPadData.len is zero."
+    },
+    {
+      "address": "0x014351EC",
+      "instruction": "lhz r3, 0x78(r1)",
+      "meaning": "When len is nonzero, reads a 16-bit word at buffer offset +8, the first digital-button word for the current CellPadData layout."
+    },
+    {
+      "address": "0x0143521C",
+      "instruction": "bl 0x01434DB8",
+      "meaning": "Dispatches a value derived from the report to a helper. The surrounding bit-to-action mapping is not named yet."
+    }
+  ],
+  "conclusion": "The game calls cellPadGetData at LR 0x014351D0, then checks the report length and reads button data from its stack-local report. The earlier button writes therefore reach a guest buffer that this observed code path reads. This establishes a guest input-consumption path, but not that a particular button triggers the title UI transition.",
+  "limits": [
+    "Rizin reports malformed/incongruent ELF program headers and skipped oversized string regions. The disassembly is address-local; automatic function bounds and symbols are not trusted.",
+    "PS3_HLE_ARGS logs the first six matching import calls; repeated LR and changing stack addresses are consistent with the same callsite across contexts, but not a unique UI state identity.",
+    "The report parser and helper 0x01434DB8 still need call/argument analysis before assigning button semantics.",
+    "The source run times out and does not reach menu navigation or gameplay."
+  ]
+}

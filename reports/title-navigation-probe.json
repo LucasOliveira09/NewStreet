@@ -126,5 +126,10 @@
     "The run ended by timeout; no menu, gameplay, or stable FPS claim.",
     "Screenshots are sparse sampled frames, not a continuous recording."
   ],
-  "guest_address_hex": "0xD0189CE0"
+  "guest_address_hex": "0xD0189CE0",
+  "follow_up": {
+    "run": "private/analysis/runs/1793113545266437400",
+    "report": "reports/pad-input-consumer.json",
+    "summary": "REA/Rizin and targeted HLE argument logging identified the callsite and proved that the guest reads len and a button word from the same stack-local CellPadData buffer. This still did not produce a visible menu transition."
+  }
 }

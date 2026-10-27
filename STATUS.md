@@ -12,14 +12,18 @@ entradas recentes abriu menu. Não há menu navegável, seleção de modo/time, 
 nativa de partida ou partida jogável comprovada. A captura de Arsenal × Chicago
 Fire via RPCS3 é só referência do original, não avanço do port.
 
-O último probe de input, `private/analysis/runs/1793112938625277900`, enviou
-START, CROSS e DOWN em sequência. O HLE registrou seis transições de pacote
-válido, com `len=20`, `mode=122`, no buffer guest `0xD0189CE0`. O quadro manteve
-o logo em todas as oito amostras visuais (`private/analysis/captures/title-input-report-probe/`;
-um hash único). Isso prova escrita do payload pelo `cellPadGetData`, não que a
-rotina de UI do jogo o tenha consumido ou aceitado. `PAD_ALWAYS_CHANGE=1` foi
-usado apenas para diagnóstico e altera a cadência de entrega; não é correção.
-O processo encerrou por timeout. Resultado: [`title-navigation-probe.json`](reports/title-navigation-probe.json).
+O probe `1793112938625277900` enviou START/CROSS/DOWN e registrou seis
+transições válidas (`len=20`, `mode=122`) no buffer guest `0xD0189CE0`; oito
+capturas tiveram hash idêntico e mantiveram o logo. Um follow-up com
+`PS3_HLE_ARGS=8B72CDA1` correlacionou o NID de `cellPadGetData` ao LR guest
+`0x014351D0`. REA/Rizin mostra o callsite em `0x014351CC`, que passa um buffer
+local `SP+0x70`; depois o guest lê `len` e, se não for zero, acessa o word de
+botões em `SP+0x78` e chama `0x01434DB8`. A entrada chega ao parser guest, mas
+não há transição visual: o logo continuou idêntico. O significado dos bits e o
+estado/UI chamados depois ainda precisam de análise. `PAD_ALWAYS_CHANGE=1` foi
+só diagnóstico e altera a cadência. Timeout não é sucesso. Relatórios:
+[`title-navigation-probe.json`](reports/title-navigation-probe.json) e
+[`pad-input-consumer.json`](reports/pad-input-consumer.json).
 
 Os cinco arquivos do save original ainda coincidem com os hashes do checkpoint.
 Esse probe usou uma cópia em `private/userdata_probe_1793112100000000000`; não
@@ -27,18 +31,18 @@ apontou o jogo ao perfil original.
 
 ## Próxima pergunta técnica
 
-Identificar a rotina guest que lê o buffer de `cellPadGetData` e descobrir por
-que os pacotes START/CROSS/DOWN não causaram transição. Registrar LR/TID do PPU
-no trace de `cellPadGetData` ou seguir o consumidor por callsites/refs do ELF.
-Só então comparar o fluxo e o estado da UI. Não injetar estado interno nem
-assumir que o título deve aceitar qualquer botão naquele frame.
+Seguir `0x01434DB8` e as referências do callsite `0x014351D0` para descobrir
+qual estado/evento do jogo recebe cada bit. Confrontar `mode=122`, tamanho e
+offsets do `CellPadData` com a rotina guest; preservar o input realista e não
+injetar estado interno. Só mudar o HLE depois de uma incompatibilidade provada.
 
-REA MCP foi chamado nesta sessão, mas `open_binary` rejeitou o `FIFAZF.elf`
-como arquitetura não suportada. O uso anterior do REA CLI/Rizin permanece válido
-para as instruções PPU já registradas. A tentativa nova do comando Rizin pela
-CLI terminou `ERR_REA_WINDOWS_NATIVE`; verificar provider/command antes de
-repetir. Rizin/REA não decodifica SPU neste ambiente; atribuições de SPU usam
-o lifter e o trace correlacionado com bytes/hash.
+REA MCP `open_binary` rejeita este ELF PowerPC como arquitetura não suportada.
+O REA CLI 6.7.0 com Rizin 0.9.1 funciona ao definir `REA_RIZIN_COMMAND` e
+acrescentar o diretório `bin` privado ao PATH do processo. O comando PPU local
+produziu Evidence `ev_78025d4611a3c21b91bab08e45f2a20d2c04ce0b6ba216780d61937298af555`.
+Rizin avisa que há program headers malformados; interpretar só as instruções por
+endereço e não confiar em limites de funções/símbolos automáticos. Rizin não
+decodifica SPU neste ambiente; atribuições SPU usam lifter e trace bytes/hash.
 
 ## Wait PPU/SPU e flip timing
 
@@ -65,6 +69,8 @@ contexto SPU, não identidade do overlay.
   tempo FTrace após DMA; `0003` passa o PC guest do `wrch MFC_Cmd`;
   `0004` acrescenta o mesmo relógio às escritas `PPU_WWATCH`.
 - `python tools/apply_patches.py` reconhece os patches 0001–0004 aplicados.
+- `tools/run_native.py` agora preserva um `PS3_HLE_TRACE` fornecido pelo chamador;
+  run `1793113457141600800` pediu 12.000 e reteve exatamente 12.000 HLE events.
 - O gate `tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py`
   durante a compilação de fixture; foi cancelado. Não contar esse gate como aprovado.
 - CMake direto recompilou `fifa_boot` no build Boot. Os 48 testes de
@@ -73,6 +79,15 @@ contexto SPU, não identidade do overlay.
   `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
 - Não foram alterados nem commitados arquivos do submódulo. Patches de SDK são
   versionados somente em `patches/` na raiz.
+
+## Referência ReStreet
+
+O port [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port) é
+uma referência de build, separação de módulos, renderers e validação de produto.
+Ele recompila a versão Xbox 360 por ReXGlue; não misturar XEX/patches/backends
+com o nosso target PS3 PPU/SPU/RSX. Critérios de reaproveitamento e links em
+[`docs/references/restreet-reference.md`](docs/references/restreet-reference.md).
+Nenhum código do ReStreet foi importado.
 
 ## Outros bloqueios do port
 

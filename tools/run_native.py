@@ -47,7 +47,7 @@ def run_native(profile='full', timeout=30, direct=False, syscall_trace=False, ca
     output = ROOT / 'private/analysis/runs' / str(time.time_ns())
     output.mkdir(parents=True)
     env = os.environ.copy()
-    env['PS3_HLE_TRACE'] = '200'
+    env.setdefault('PS3_HLE_TRACE', '200')
     env.pop('PS3_SCTRACE', None)
     (output / 'spu').mkdir()
     env['FIFA_SPU_DUMP_DIR'] = str(output / 'spu')

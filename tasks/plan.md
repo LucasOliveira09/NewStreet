@@ -26,17 +26,21 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Probe direto `1793112938625277900`, com cópia do save: `PAD_SCRIPT` enviou
   START (`0x0008`), CROSS (`0x4000`) e DOWN (`0x0040`). `PAD_REPORT_TRACE`
   observou seis transições válidas (`len=20`, `mode=122`) em `0xD0189CE0`.
-- Oito amostras capturadas tiveram o mesmo hash e mostram o logo. A escrita no
-  buffer está confirmada; consumo pela UI não. Probe terminou por timeout.
+- Oito amostras capturadas tiveram o mesmo hash e mostram o logo. O follow-up
+  prova que o guest lê `len` e o word de botões, mas não que a ação alcance a UI.
+  Probes terminaram por timeout.
 - `PAD_ALWAYS_CHANGE=1` foi somente diagnóstico e muda a cadência de relatórios.
   Não assuma que esse modo ou os botões causem avanço do menu.
-- Próximo: acrescentar LR/TID do PPU ao trace de `cellPadGetData` em patch que
-  aplique sobre `0001`–`0004`; localizar callsite/consumidor guest no ELF e
-  comparar protocolo, modo de porta e estado de UI. Aceite: transição observada
-  visualmente após um input validamente dirigido pela tela.
-- REA MCP desta sessão rejeitou o ELF PowerPC; chamada REA CLI/Rizin retornou
-  `ERR_REA_WINDOWS_NATIVE`. Resolver a disponibilidade do provider sem setup
-  amplo. Evidência atual em [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
+- O callsite está identificado: NID `0x8B72CDA1`, LR `0x014351D0`; REA mostra
+  `bl 0x01C0F17C` em `0x014351CC`, com `SP+0x70` como buffer. Depois o game lê
+  len em `SP+0x70`, verifica o word de botões em `SP+0x78` e chama `0x01434DB8`.
+  IDs/logs/limitações em `reports/pad-input-consumer.json`.
+- Próximo: seguir `0x01434DB8` e os ramos de bits até estado/evento da UI. Conferir
+  `SetPortSetting(0x4, 0x2)` e layout do relatório. Aceite: mudança de tela
+  reproduzível; pacote escrito ou lido não basta.
+- O MCP REA `open_binary` rejeita ELF PowerPC. A CLI/Rizin funciona com
+  `REA_RIZIN_COMMAND` e PATH explícitos. Evidence/limitações em STATUS e no
+  relatório do callsite.
 
 ### Handshake e medição de abertura já registrados
 
@@ -92,7 +96,8 @@ Histórico preservado: [índice](../docs/history/README.md).
 5. Build e execução reproduzíveis fora da pasta de desenvolvimento.
 
 Só detalhar o marco seguinte quando houver evidência suficiente. Online e melhoria
-visual avançada continuam posteriores à base offline funcional.
+visual avançada continuam posteriores à base offline funcional. A referência
+externa ReStreet está analisada em [`docs/references/restreet-reference.md`](../docs/references/restreet-reference.md); é port Xbox 360/ReXGlue, não dependência para PS3.
 
 ## Referência do original — concluída para a primeira partida
 
@@ -104,7 +109,12 @@ Detalhes e sequência em [`reports/rpcs3-local-reference.json`](../reports/rpcs3
 
 ## REA e referências externas
 
-Comparação com outros ports: [`docs/recomp-ports-reference.md`](../docs/recomp-ports-reference.md).
-REA CLI 6.7.0 + Rizin 0.9.1 já analisaram o ELF por endereço; Evidence ID e
-limitações em [`STATUS.md`](../STATUS.md). Nesta sessão, MCP rejeitou ELF PowerPC
-e a CLI falhou com `ERR_REA_WINDOWS_NATIVE`; resolver o provider antes de repetir.
+REA CLI 6.7.0 + Rizin 0.9.1 analisaram instruções por endereço; MCP `open_binary`
+rejeita ELF PowerPC. Para CLI, definir `REA_RIZIN_COMMAND` e PATH para o Rizin
+privado. Evidence de callsite e limitações em [`reports/pad-input-consumer.json`](../reports/pad-input-consumer.json)
+e [`STATUS.md`](../STATUS.md). Rizin avisa sobre headers inválidos e não decodifica
+SPU; manter análise pontual e usar o lifter para SPU.
+
+A referência [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port)
+é Xbox 360/ReXGlue, não dependência do port PS3. Resumo, diferenças e trilhas
+para inspeção em [`docs/references/restreet-reference.md`](../docs/references/restreet-reference.md).
