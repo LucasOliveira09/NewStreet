@@ -3,6 +3,7 @@
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
 Branch: codex/ps3-native-bootstrap. Incremento atual: medir e corrigir FPS da execução interativa.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
+Guia de retomada para outras IAs: docs/AI-HANDOFF.md.
 
 ## Confirmado
 

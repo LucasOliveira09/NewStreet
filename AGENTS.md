@@ -7,7 +7,7 @@ só se aplicam a pedidos de conteúdo. Responda ao Lucas em português brasileir
 ## Retomada com contexto mínimo
 
 1. Confira `git status --short`, branch e HEAD; preserve alterações existentes.
-2. Leia `STATUS.md` e a etapa atual de `tasks/plan.md`.
+2. Leia `docs/AI-HANDOFF.md`, `STATUS.md` e a etapa atual de `tasks/plan.md`.
 3. Abra somente código, testes e evidências necessários para essa etapa.
 4. Consulte `PROMPT_EXECUCAO_COMPLETA.md` para os critérios completos, mudanças
    de escopo ou quando o usuário pedir sua leitura integral.
