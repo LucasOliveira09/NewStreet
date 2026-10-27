@@ -36,9 +36,12 @@ Histórico preservado: [índice](../docs/history/README.md).
   (TID17=36,TID22=224); nenhum negativo observado.
 - Correção REA: o wait retorna quando o primeiro word é zero. Escritas do helper
   em0x106E0904/0908 no probe provam que `*(objeto+0xC)` era EA0x106E0900; PPU
-  publicou1 e SPU leu1/gravou0. Próximo: medir duração do handshake e correlação
-  com cadence de flip. Causa final da taxa baixa segue desconhecida; timeout é
-  bloqueio, não sucesso. Evidence e limites no STATUS.
+  publicou1 e SPU leu1/gravou0. Correlação de PC: imagem526190333 é
+  `AssetStream_zlib`; snapshot de runtime confere com a fonte e PC0x156C contém
+  NOP. `ctx->pc` do hook é insuficiente para atribuir o MFC; próxima ação é
+  passar o PC guest de `wrch MFC_Cmd` ao log e registrar os bytes da instrução.
+  Depois medir duração do handshake e relação com flips. Causa final da taxa
+  baixa segue desconhecida; timeout é bloqueio, não sucesso. Evidence no STATUS.
 - Não repetir `PPU_WW_GUARD=1`: armou no ponteiro de inicialização e gerou73.845
   eventos de página. Próximo: seguir a instância e o callback de conclusão com
   PPU_WWATCH/PPU_CASWATCH e o watch pós-DMA; só corrigir semântica provada.

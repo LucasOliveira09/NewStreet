@@ -127,8 +127,11 @@ limites de função. `pdc` não devolveu pseudocódigo. Análises também cobrir
 `*(objeto+0x9C)` ao helper). O log do mesmo run mostra o helper escrevendo em
 `0x106E0904/0908`, comprovando que seu `*(objeto+0xC)` era `0x106E0900`; SPU GET
 leu 1 e PUT comprometeu 0 nessa EA. O handshake PPU/SPU está provado. O próximo
-passo é medir duração e origem do trabalho em SPU PC `0x0156C` e cruzar com os
-flips. IDs de Evidence, limites e artefatos privados estão em STATUS e
+passo é medir duração e origem do trabalho SPU, mas o PC do log requer cautela:
+embora o DMA registre `0x0156C`, esse endereço é NOP na imagem `AssetStream_zlib`
+associada à imagem `526190333`. O hook registra `ctx->pc`, que não avança a cada
+instrução nos blocos levantados; portanto `0x0156C` não é um call site MFC
+provado. IDs, limites e artefatos privados estão em STATUS e
 `reports/performance-opening.json`.
 
 ## Checkpoint técnico ativo
@@ -170,6 +173,14 @@ enquanto o word em `*(objeto+0xC)` é diferente de zero e sai quando é zero.
 No mesmo probe, escritas de cleanup do helper em `0x106E0904/0908` provam que
 seu ponteiro era `0x106E0900`; o PPU publicou 1 e o SPU leu 1/gravou 0 nessa
 EA. A duração do estado 1 e o impacto na apresentação ainda precisam de medida.
+O snapshot runtime `spu-8197-526190333-256.ls` bate nos 25.776 bytes da imagem
+fonte (zero diferenças); no mapeamento LS base `0x80`, o word em `0x0156C` é
+`00 20 00 00`, NOP. Os blocos gerados em `spu_recomp.c` executam várias
+instruções antes de atualizar `ctx->pc`, o que pode deixar o PC reportado pelo
+hook defasado dentro de chamadas MFC síncronas. A próxima instrumentação deve
+passar o PC guest de `wrch MFC_Cmd` até o hook e registrar os bytes daquela
+instrução. REA/Rizin não suporta decodificação SPU neste ambiente; o PC correto
+deve ser obtido no lifter/runtime, não inferido do endereço atual do hook.
 
 `PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
 no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
@@ -182,14 +193,13 @@ o estado nem burle o wait.
 
 ## Próxima investigação recomendada
 
-Siga a prioridade atual em `tasks/plan.md`: identificar o produtor do objeto de
-espera associado ao loop observado, sem forçar o estado nem pular o loop. Faça
-uma observação nova que registre endereço, valor e thread/PC que escreve, ou
-prove que o mecanismo atual não consegue identificar o escritor. Procure primeiro
-instrumentação já existente em código, manifests e executáveis locais. Se for
-preciso adicionar watchpoint/log, delimite a escrita, documente overhead e remova
-instrumentação temporária ou transforme-a em ferramenta suportada. Correlacione
-com conclusão de jobs/solicitações de assets e chamadas de flip no mesmo run.
+Siga a prioridade atual em `tasks/plan.md`: corrigir a proveniência do PC do
+hook SPU. O snapshot de runtime da imagem `AssetStream_zlib` bate nos 25.776
+bytes da fonte; nessa correspondência, `0x0156C` é NOP. Passe o endereço guest
+da instrução `wrch MFC_Cmd` pelo lifter até o registro pós-DMA, incluindo a
+palavra de instrução. Então atribua semanticamente o job que zera
+`0x106E0900`, meça a duração do status e cruze com conclusão de jobs/assets e
+chamadas de flip. Preserve a semântica do handshake e do wait.
 
 Depois de duas tentativas sem informação nova, reveja hipótese, pontos de
 instrumentação e evidência antes de repetir. Não conclua que o sleep é a causa

@@ -1,7 +1,7 @@
 # Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`. Incremento: REA/Rizin no ELF PPU e correção do wait.
+Branch: `codex/ps3-native-bootstrap`. Incremento: REA/Rizin no ELF PPU e origem do PC SPU em aberto.
 Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/performance-opening.json`.
 
 ## Critério de verdade
@@ -16,6 +16,7 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 - Watch pós-transferência foi adicionado ao SDK por `patches/0002-post-transfer-spu-watch.patch`. `SPU_WATCHEA=<EA>` agora conta hits e registra depois do MFC, com resultado e bytes de origem/destino. `SPU_WATCHEA_EVERY=1` captura todos.
 - Probe combinado de 20 s: `private/analysis/runs/1793103246332528600`. PPU escreveu `1` em `0x106E0900` 260 vezes: TID17=36, TID22=224, sempre `func_000A8E10`, caller LR `0x000A95DC`. Inicialização também escreveu zeros e ponteiros.
 - No mesmo probe, SPU4/5 fez 265 GETs de 8 bytes (primeiro word `1`, segundo `0x12805080`) e 260 PUTs (primeiro word `0`, segundo `0x12805080`), todos `rc=0`, PC reportado `0x0156C`, imagem `526190333`. O destino do PUT correspondeu aos bytes registrados depois da execução.
+- A associação por imagem/hash identifica `526190333` como o overlay `AssetStream_zlib` (SHA-256 `db11ceda…12c87efb`, LS base `0x80`). Um snapshot dessa imagem (`1792842082406795800`, 0 diferenças nos 25.776 bytes) confirma que LS `0x0156C` contém `00 20 00 00`; o lift do projeto o marca como NOP. Portanto o PC nos logs de DMA é evidência observada, mas **não identifica o wrch/MFC que emitiu o comando**. Blocos levantados mantêm `ctx->pc` entre instruções e chamadas síncronas; a origem precisa ser registrada no call site.
 - A identidade do status também foi confirmada: em run instrumentado, `func_000A71E4` com LR `0x000A969C` escreveu em `0x106E0904/0908`; pelo disassembly, esse `r3` vem de `*(objeto+0xC)`, logo aponta a `0x106E0900`. `func_000A8E10` escreve 1 nesse word; SPU GET observa 1 e PUT grava 0, valor que encerra o poll. Handshake PPU/SPU provado; duração por pedido, semântica completa do job e causalidade com flips ainda não.
 - A tentativa anterior com `-Target Runtime` recompilou outra biblioteca e não atualizou o FullGame. Para este executável, use `-Target Boot` para reconstruir `private/build/boot/sdk/ps3recomp_runtime.lib`, depois relinke FullGame.
 - `-Target Runtime`: build concluído, 18/18 checks passaram. `-Target Boot`: build concluído, 48/48 checks passaram. FullGame relinkado após ambos os ajustes.
@@ -56,7 +57,7 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 
 - O wrapper `tools/rea.ps1` executa o REA 6.7.0 instalado localmente e a CLI funciona.
 - Setup REA aprovado: MCP Codex e skill global versão42/207 ferramentas alinhados; Rizin estático 0.9.1 foi baixado em `private/toolchain/` e o SHA-256 do pacote oficial foi validado. `REA_RIZIN_COMMAND` foi adicionado à entrada MCP em `C:\Users\Luquinhas\.codex\config.toml`; reiniciar Codex para carregá-lo. Ghidra Windows P0 foi descartado porque essa versão do REA limita o provider a PE x86/x64/ARM e raw 6502, não ELF PowerPC.
-- Análise REA real do ELF64 PowerPC big-endian: disassembly de `func_000A71E4`, publicador `func_000A8E10` e caller `func_000A9680`, cruzado com o probe instrumentado. Evidence IDs e logs privados em `reports/performance-opening.json`. Rizin sinalizou três program headers inválidos e agrupou rotinas adjacentes no tamanho automático; usamos apenas o disassembly por endereço. Não produziu pseudocódigo. O handshake status `0→1→0` está provado; a função do job e seu impacto em flip cadence seguem abertos.
+- Análise REA real do ELF64 PowerPC big-endian: disassembly de `func_000A71E4`, publicador `func_000A8E10` e caller `func_000A9680`, cruzado com o probe instrumentado. Evidence IDs e logs privados em `reports/performance-opening.json`. Rizin sinalizou três program headers inválidos e agrupou rotinas adjacentes no tamanho automático; usamos apenas o disassembly por endereço. Não produziu pseudocódigo e não oferece arquitetura SPU neste build. Para SPU, a identificação por hash/snapshot e o lift autoral corroboram que `0x0156C` é NOP na imagem mapeada, expondo a defasagem do PC do hook; ainda não há atribuição do call site MFC. O handshake status `0→1→0` está provado; a função do job e seu impacto em flip cadence seguem abertos.
 
 ## Reproduzir a validação do incremento
 
@@ -69,7 +70,7 @@ Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/perform
 
 ## Próximo trabalho
 
-1. Rastrear o trabalho SPU em PC `0x0156C` que atende ao handshake de `0x106E0900`; medir quanto o status fica 1 e cruzar com os 305.628 polls/99 flips para determinar a contribuição à taxa baixa.
+1. Corrigir a observabilidade do call site: a captura precisa registrar o endereço da instrução `wrch MFC_Cmd` (e os bytes de LS) junto com cada DMA; `ctx->pc=0x0156C` é stale/insuficiente, pois esse endereço é NOP na cópia de `AssetStream_zlib` conferida por hash. Então medir duração do status e cruzar com polls/flips.
 2. Instrumentar os campos dessa mesma instância com `PPU_WWATCH`/`PPU_CASWATCH` e watch pós-MFC. Correlacionar pedido, job SPU, retorno e estado final; distinguir instâncias de TID17 e TID22.
 3. Corrigir somente a semântica/comunicação que a evidência demonstrar. Reproduzir probe normal e verificar se o RenderThread progride além do wait e se surge uma tela verificável.
 4. Em seguida atacar a captura preta, banco de 16 texturas/descritores e retirement por fence; voltar ao caminho de menu e partida offline.

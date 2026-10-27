@@ -181,7 +181,29 @@
         "observed_transfer": "MFC GET cmd 0x40 transferred status 1 and adjacent word 0x12805080 from EA 0x106E0900. MFC PUT cmd 0x20 committed status 0 and preserved adjacent word 0x12805080. Every logged transfer returned rc=0.",
         "ppu_writer": "PPU_WWATCH saw 260 writes of 1 by func_000A8E10, caller LR 0x000A95DC, split across TID17 and TID22. No negative write appeared during the probe.",
         "meaning": "The 1-to-0 handshake at 0x106E0900 and the helper's exit-on-zero behavior are corroborated by static disassembly and the same instrumented run. The full SPU job semantics and causal relationship to low flip cadence remain unknown. No menu progression was demonstrated.",
-        "limitations": "20s instrumented run, timeout. Diagnostics can perturb scheduling. PC 0x0156C and image 526190333 are observed identifiers, not semantic names.",
+        "limitations": "20s instrumented run, timeout. Diagnostics can perturb scheduling. PC 0x0156C and image 526190333 are observed identifiers, not semantic names. Static mapping shows 0x0156C is a NOP in the identified overlay, so the logged PC is not a proven MFC call site.",
+        "spu_pc_provenance": {
+          "observed_dma_log": "private/analysis/runs/1793103742518647900/stderr.log, lines 839-840 and later: image=526190333, pc=0x0156C, MFC GET/PUT to 0x106E0900",
+          "rea_spu_support": "REA 6.7.0 Windows provider/Rizin 0.9.1 could not disassemble SPU; Rizin rejected asm.arch=spu and asm.bits=128. Saved diagnostic: private/analysis/rea/rea-spu-rizin-limitation.json.",
+          "overlay_identity": {
+            "name": "AssetStream_zlib",
+            "image_id": 526190333,
+            "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
+            "local_store_base": "0x80",
+            "source_image": "private/analysis/overlays/assetstream_zlib/image.bin"
+          },
+          "runtime_copy_check": {
+            "run": "private/analysis/runs/1792842082406795800/spu/spu-8197-526190333-256.ls",
+            "compared_bytes": 25776,
+            "byte_differences": 0,
+            "pc": "0x0156C",
+            "source_file_offset": "0x14EC",
+            "instruction_bytes": "00 20 00 00",
+            "lifted_interpretation": "nop; private/generated/spu_overlays/assetstream_zlib/spu_recomp.c, function starting at 0x153C"
+          },
+          "interpretation": "The runtime PC recorded by the MFC hook does not identify the wrch instruction. Lifted blocks call spu_wrch synchronously without updating ctx->pc for each guest instruction, so it can retain a prior block/interpreter PC. Do not attribute the handshake to code at 0x0156C.",
+          "next_instrumentation": "Carry guest instruction address from the SPU lifter to the channel-write hook (at least MFC_Cmd), and log the LS instruction word at that address in the same DMA record. Preserve the transfer and wait semantics."
+        },
         "final_atomic_counter_probe": {
           "run": "private/analysis/runs/1793103742518647900",
           "timeout_seconds": 15,
