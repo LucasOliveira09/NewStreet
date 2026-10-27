@@ -21,38 +21,42 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Prioridade atual: FPS da execução interativa
+## 1. Prioridade atual: provar consumo do controle e navegar o menu
 
-- /O1 virou padrão; no workload pareado, mediana foi8,225→8,75 batches/s (+6,4%).
-- Mais9 amostras pareadas em8,76 batches/s; continua abaixo do desempenho esperado.
-- FTrace mediu99 pedidos de flip/12s (120,6ms por flip), com26,2ms no drain RSX.
-- PPU22 RenderThread fez305.628 polls de30µs em12s (9,168s pedidos no wait),
-  no loop LR0x000A969C. REA/Rizin no ELF original mostra `func_000A71E4`
-  dormindo 30µs enquanto `*(objeto+0xC)[0] != 0`; o branch em0xA720C sai em zero.
-- `PPU_WWATCH` atribui stores de1 a `func_000A8E10`/LR0x000A95DC (TID17/22).
-  Hook pós-MFC versionado em `patches/0002-post-transfer-spu-watch.patch`.
-- Probe combinado20s: 265 GETs SPU4/5 leem status1 + ponteiro0x12805080;
-  260 PUTs gravam status0 e preservam o ponteiro; rc=0. PPU escreveu1 260 vezes
-  (TID17=36,TID22=224); nenhum negativo observado.
-- Correção REA: o wait retorna quando o primeiro word é zero. Escritas do helper
-  em0x106E0904/0908 no probe provam que `*(objeto+0xC)` era EA0x106E0900; PPU
-  publicou1 e SPU leu1/gravou0. A proveniência exata do MFC está corrigida:
-  run `1793110334315435500` registra `wrch MFC_Cmd` em `sportsrna_spupatch`,
-  PC0x15DC/bytes21A00A8B, GET pelo LR0x1408 e PUT pelo LR0x14F0. O ID de
-  contexto526190333 não é o overlay residente (592606456); `AssetStream_zlib`
-  identifica apenas o snapshot anterior. Medir a duração e correlação com flips;
-  semântica completa e causalidade seguem desconhecidas. Timeout não é sucesso.
-  Evidência em STATUS e `reports/performance-opening.json`.
-- Não repetir `PPU_WW_GUARD=1`: armou no ponteiro de inicialização e gerou73.845
-  eventos de página. Próximo: seguir a instância e o callback de conclusão com
-  PPU_WWATCH/PPU_CASWATCH e o watch pós-DMA; só corrigir semântica provada.
-- Para atualizar o SDK usado por FullGame: `tools/build.ps1 -Target Boot` e
-  depois `tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4`.
-  Depois cruze com jobs/assets e teste se a hipótese explica a tela/FPS.
-- A mudança do timer foi compilada corretamente, não mudou a mediana (8,76vs8,75)
-  e foi revertida; causalidade do wait com8,3 flips/s ainda não provada.
-- Menu/jogo ainda não validados; batches do profiler não são FPS de gameplay.
-- Binário /Od preservado em private/build/fifazf_full_debug_baseline.
+- Probe direto `1793112938625277900`, com cópia do save: `PAD_SCRIPT` enviou
+  START (`0x0008`), CROSS (`0x4000`) e DOWN (`0x0040`). `PAD_REPORT_TRACE`
+  observou seis transições válidas (`len=20`, `mode=122`) em `0xD0189CE0`.
+- Oito amostras capturadas tiveram o mesmo hash e mostram o logo. A escrita no
+  buffer está confirmada; consumo pela UI não. Probe terminou por timeout.
+- `PAD_ALWAYS_CHANGE=1` foi somente diagnóstico e muda a cadência de relatórios.
+  Não assuma que esse modo ou os botões causem avanço do menu.
+- Próximo: acrescentar LR/TID do PPU ao trace de `cellPadGetData` em patch que
+  aplique sobre `0001`–`0004`; localizar callsite/consumidor guest no ELF e
+  comparar protocolo, modo de porta e estado de UI. Aceite: transição observada
+  visualmente após um input validamente dirigido pela tela.
+- REA MCP desta sessão rejeitou o ELF PowerPC; chamada REA CLI/Rizin retornou
+  `ERR_REA_WINDOWS_NATIVE`. Resolver a disponibilidade do provider sem setup
+  amplo. Evidência atual em [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
+
+### Handshake e medição de abertura já registrados
+
+- O wait `func_000A71E4` sai quando `*(objeto+0xC)[0] == 0`. PPU publica 1 em
+  `0x106E0900` via `func_000A8E10`; MFC GET lê1 e PUT grava0.
+- MFC exato: `sportsrna_spupatch`, PC `0x015DC`, bytes `21 A0 0A 8B`, overlay
+  residente ID `592606456`; LR GET `0x1408`, LR PUT `0x14F0`. Semântica do job
+  superior ainda desconhecida.
+- Run `1793111736649624200`: FTrace de 12 s, 472 pedidos de flip (mediana
+  15.8 ms; 63.2 pedidos/s, não FPS visível), 237 stores de status1, 236 GET e
+  236 PUT. Correlação por eventos próximos sugere 236 ciclos; não há job ID nem
+  causalidade provada. Relatório `reports/spu-handshake-timing.json`.
+- Não repetir `PPU_WW_GUARD=1`: armou cedo e gerou73.845 eventos numa página de
+  4 KiB. Não forçar status nem contornar o wait.
+- `/O1` segue padrão: 8.225→8.75 batches/s no workload pareado. Batches não são
+  FPS. Otimização de timer sem ganho foi revertida.
+- Build mais recente: CMake direto atualizou `fifa_boot`; 48 diagnósticos Boot
+  passaram; FullGame relinkado com `tools/build.ps1 -Target FullGame -SkipLift
+  -WithSpu -Jobs 4`. O gate `tools/build.ps1 -Target Boot` travou em
+  `check_switch_lowering.py` e foi cancelado; não contar como sucesso.
 
 ## 2. Banco real de16texturas e retirement de recursos
 
@@ -67,15 +71,17 @@ Histórico preservado: [índice](../docs/history/README.md).
 - 18 runtime/48 Boot/146 projeto passaram; revisão FP sem pendências.
 - Menu navegável e gameplay ainda não validados; continuar até próximos marcos.
 
-## 3. Ensaiar o avanço real após o novo módulo
+## 3. Confirmar navegação real após correção comprovada
 
-- Antes de relink, conferir ausência de processos nativos pais/filhos vivos.
-- Rodar os checks afetados e um probe com rótulo novo e configuração revisada.
-- Preservar os cinco hashes do perfil e conferir amostras de assets pertinentes.
-- Aceite: entrada real do novo módulo observada, resultado/saída registrados;
-  próximo bloqueio identificado por bytes/PC, ou novo comportamento verificado.
-- Saída 90 continua bloqueio válido; não a converter em sucesso.
-- Atualizar checkpoint JSON/STATUS e commitar o incremento autoral validado.
+- Preserve os cinco hashes do save original; probes usam perfil copiado e raízes
+  HDD0/HDD1 explícitas.
+- Rode build/checks afetados e um probe com label novo. Registre input, caller LR,
+  TID, buffer/bytes, frame anterior e frame seguinte; timeout segue sendo bloqueio.
+- Aceite: entrada dirigida pela tela e transição reproduzível, com captura
+  revisada. Não considerar pacote escrito, window, flip ou logo como progresso
+  de navegação.
+- Atualize relatório, checkpoint, handoff e commit local pequeno após revisar o
+  staging. Não publicar remoto.
 
 ## 4. Próximos marcos do produto
 
@@ -100,6 +106,5 @@ Detalhes e sequência em [`reports/rpcs3-local-reference.json`](../reports/rpcs3
 
 Comparação com outros ports: [`docs/recomp-ports-reference.md`](../docs/recomp-ports-reference.md).
 REA CLI 6.7.0 + Rizin 0.9.1 já analisaram o ELF por endereço; Evidence ID e
-limitações em [`STATUS.md`](../STATUS.md) e
-[`reports/performance-opening.json`](../reports/performance-opening.json). REA
-MCP está registrado com `REA_RIZIN_COMMAND`; reiniciar Codex para ativá-lo.
+limitações em [`STATUS.md`](../STATUS.md). Nesta sessão, MCP rejeitou ELF PowerPC
+e a CLI falhou com `ERR_REA_WINDOWS_NATIVE`; resolver o provider antes de repetir.

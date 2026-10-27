@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-27",
+  "run": "1793111736649624200",
+  "profile": "full",
+  "direct": true,
+  "timeout_seconds": 18,
+  "trace": "private/analysis/ftrace-status-timed.txt",
+  "trace_header": "# ps3_ftrace start_us=0.000 end_us=12000000.000 spans=13432 dropped=0",
+  "guest_flip_requests": {
+    "count": 472,
+    "median_interval_ms": 15.8,
+    "min_ms": 13.6,
+    "max_ms": 286.9,
+    "rate_per_second": 63.2,
+    "caveat": "Guest flip requests only; this run did not capture a visible graphics frame, so this is not measured displayed FPS."
+  },
+  "ppu_status_store_one_count": 237,
+  "ppu_status_store_tids": {
+    "17": 38,
+    "22": 199
+  },
+  "ppu_writer": "func_000A8E10, LR 0x000A95DC",
+  "spu_mfc_status_word": {
+    "get_count": 236,
+    "put_count": 236,
+    "target_ea": "0x106E0900",
+    "all_rc_zero": true,
+    "resident_overlay": "sportsrna_spupatch",
+    "resident_image_id": 592606456,
+    "instruction_pc": "0x015DC",
+    "instruction_bytes": "21 A0 0A 8B",
+    "get_lr": "0x01408",
+    "put_lr": "0x014F0"
+  },
+  "render_thread": {
+    "tid": 22,
+    "name": "RenderThread",
+    "usleep_calls": 85851,
+    "merged_sleep_span_ms": 2708.8
+  },
+  "candidate_correlation": {
+    "candidate_cycles": 236,
+    "status_to_next_get_median_ms": 19.952,
+    "get_to_following_put_median_ms": 3.719,
+    "caveat": "Nearest-event matching only. There is no job ID proving each store/GET/PUT belongs to one request.",
+    "status_to_next_get_p90_ms": 28.191,
+    "status_to_next_get_max_ms": 164.025,
+    "get_to_following_put_p90_ms": 4.504,
+    "get_to_following_put_max_ms": 6.47
+  },
+  "result": "The trace shows recurring status stores and successful SPU GET/PUT pairs, but does not identify the higher-level job or prove the status cadence causes flip timing.",
+  "limits": [
+    "Direct launch avoids EBOOT/child sharing the same trace file.",
+    "Measurements are instrumentation-affected.",
+    "No visible-FPS claim.",
+    "Exact event-to-job association is unknown."
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-27",
+  "target": "FIFA Street 2012 PS3 BLUS30882 01.00, native Windows x64",
+  "question": "Do controller packets reach the guest input buffer, and does a Start/Cross/Down sequence advance the title screen?",
+  "run": {
+    "id": "1793112938625277900",
+    "profile": "full",
+    "direct": true,
+    "timeout_seconds": 16,
+    "exit": "timeout",
+    "logs": "private/analysis/runs/1793112938625277900"
+  },
+  "isolation": {
+    "save_root": "private/userdata_probe_1793112100000000000",
+    "original_profile_used": false,
+    "original_five_checkpoint_hashes_rechecked": true
+  },
+  "environment": {
+    "PAD_ALWAYS_CHANGE": "1",
+    "PAD_REPORT_TRACE": "1",
+    "PAD_SCRIPT": "4:0x0008,7:0x4000,10:0x0040",
+    "RSX_CAP": "1:8:60"
+  },
+  "observed_packets": [
+    {
+      "sequence": 0,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 8,
+      "digital2": 0
+    },
+    {
+      "sequence": 1,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 0,
+      "digital2": 0
+    },
+    {
+      "sequence": 2,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 0,
+      "digital2": 64
+    },
+    {
+      "sequence": 3,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 0,
+      "digital2": 0
+    },
+    {
+      "sequence": 4,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 64,
+      "digital2": 0
+    },
+    {
+      "sequence": 5,
+      "port": 0,
+      "guest_address": 3491273952,
+      "length": 20,
+      "mode": 122,
+      "digital1": 0,
+      "digital2": 0
+    }
+  ],
+  "visual_samples": [
+    {
+      "frame": "frame_00",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_01",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_02",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_03",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_04",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_05",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_06",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    },
+    {
+      "frame": "frame_07",
+      "sha256": "c0082e623bc60e8a4601ce4f3ae2a0c01f32a2b6fe71315538246ecfc5baa84f",
+      "bytes": 2764854
+    }
+  ],
+  "result": "Valid START, CROSS and DOWN payloads were written to the guest CellPadData buffer (guest EA 0xD0189CE0). Reviewed captured frame 07 still displays the FIFA STREET logo. Menu navigation was not observed.",
+  "limits": [
+    "PAD_ALWAYS_CHANGE alters the report-delivery cadence and is diagnostic only.",
+    "The trace runs after the HLE writes guest memory; it does not prove which guest routine consumes the packet.",
+    "The run ended by timeout; no menu, gameplay, or stable FPS claim.",
+    "Screenshots are sparse sampled frames, not a continuous recording."
+  ],
+  "guest_address_hex": "0xD0189CE0"
+}

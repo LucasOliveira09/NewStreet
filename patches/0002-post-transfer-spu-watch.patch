@@ -2,6 +2,13 @@ diff --git a/runtime/spu/spu_dma.h b/runtime/spu/spu_dma.h
 index 7b0debe..6b406c2 100644
 --- a/runtime/spu/spu_dma.h
 +++ b/runtime/spu/spu_dma.h
+@@ -17,5 +17,6 @@
+ #include "spu_context.h"
+ #include "../../include/ps3emu/log_first.h"
++#include "../../include/ps3emu/ps3_ftrace.h"
+ #include "spu_coherency.h"
+ #include <stdint.h>
+ #include <string.h>
 @@ -931,43 +931,8 @@ static inline int mfc_submit(mfc_engine* mfc, spu_context* spu, uint32_t cmd)
      uint32_t tag  = spu->mfc_tag & 0x1F;
      int rc = 0;
@@ -48,7 +55,7 @@ index 7b0debe..6b406c2 100644
  
      /* SPU_WATCHLSA=<hex LS addr>: every DMA whose LOCAL STORE range covers one
       * word, with the value that word holds after the transfer.
-@@ -1457,6 +1422,91 @@ static inline int mfc_submit(mfc_engine* mfc, spu_context* spu, uint32_t cmd)
+@@ -1457,6 +1422,97 @@ static inline int mfc_submit(mfc_engine* mfc, spu_context* spu, uint32_t cmd)
          rc = mfc_do_transfer(spu, lsa, ea, size, cmd);
      }
  
@@ -95,6 +102,11 @@ index 7b0debe..6b406c2 100644
 +              int32_t code_bias = 0;
 +              int lr_img = 0;
 +              uint32_t lr_ea = 0, lr_lsa = 0;
++              uint64_t ftrace_us = 0;
++              if (PS3_FT_ON()) {
++                  const uint64_t now = ps3_ft_now();
++                  if (now >= g_ps3_ft.base) ftrace_us = (now - g_ps3_ft.base) / 1000u;
++              }
 +              for (unsigned ci = 0; ci < 128; ++ci) {
 +                  const uint32_t base = spu->resident_code[ci].lsa;
 +                  const uint32_t span = spu->resident_code[ci].size;
@@ -117,7 +129,7 @@ index 7b0debe..6b406c2 100644
 +                      "[watchea-post] n=%lu spu%u img=%d cmd=0x%02X rc=%d"
 +                      " ea=0x%08X size=%u lsa=0x%05X offset=0x%X pc=0x%05X"
 +                      " insn=%02X%02X%02X%02X"
-+                      " resident_ovl=%d code_img=%d code_ea=0x%08X"
++                      " ftrace_us=%llu resident_ovl=%d code_img=%d code_ea=0x%08X"
 +                      " code_lsa=0x%05X code_size=0x%X code_bias=%d"
 +                      " lr=0x%05X lr_img=%d lr_ea=0x%08X lr_lsa=0x%05X"
 +                      " src=%02X%02X%02X%02X%02X%02X%02X%02X"
@@ -125,6 +137,7 @@ index 7b0debe..6b406c2 100644
 +                      hit, spu->spu_id & 7u, spu->image_id, cmd & 0xFFu, rc,
 +                      (uint32_t)ea, size, lsa, offset,
 +                      pc, ip[0], ip[1], ip[2], ip[3],
++                      (unsigned long long)ftrace_us,
 +                      spu->resident_ovl, code_img, code_ea, code_lsa,
 +                      code_size, code_bias,
 +                      lr, lr_img, lr_ea, lr_lsa,

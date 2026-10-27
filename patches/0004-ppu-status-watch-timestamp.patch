@@ -1,0 +1,20 @@
+diff --git a/runtime/ppu/ppu_loader.cpp b/runtime/ppu/ppu_loader.cpp
+--- a/runtime/ppu/ppu_loader.cpp
++++ b/runtime/ppu/ppu_loader.cpp
+@@ -1888,8 +1888,14 @@ void barrier_watch_hit(uint32_t a, uint32_t v, unsigned width, void* ra)
+               extern PPU_THREAD_LOCAL ppu_context* g_active_ctx;
++              uint64_t ftrace_us = 0;
++              if (PS3_FT_ON()) {
++                  const uint64_t now = ps3_ft_now();
++                  if (now >= g_ps3_ft.base) ftrace_us = (now - g_ps3_ft.base) / 1000u;
++              }
+               fprintf(stderr, "[ww] 0x%08X <- 0x%X (w%d) guest-fn=0x%08X"
+-                              " lr=0x%08X tid=%u\n",
++                              " lr=0x%08X tid=%u ftrace_us=%llu\n",
+                       a, v, width, ppu_prof_resolve_host(ra),
+                       g_active_ctx ? (uint32_t)g_active_ctx->lr : 0u,
+-                      g_active_ctx ? (unsigned)g_active_ctx->thread_id : 0u);
++                      g_active_ctx ? (unsigned)g_active_ctx->thread_id : 0u,
++                      (unsigned long long)ftrace_us);
+               /* On the first write to the watched word, dump the guest caller
+                * chain so the origin of a null field can be walked up-stack. */

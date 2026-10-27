@@ -1,78 +1,97 @@
 # Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: `codex/ps3-native-bootstrap`. Incremento: proveniência exata do MFC SPU em `sportsrna_spupatch`.
-Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/performance-opening.json`.
+Branch: `codex/ps3-native-bootstrap`. Objetivo final: uma partida offline jogável.
+Guia de retomada: `docs/AI-HANDOFF.md`. Plano: `tasks/plan.md`.
 
-## Critério de verdade
+## Estado do produto
 
-**Referência PS3 via RPCS3:** captura direta confirmou a sequência até uma partida offline, Arsenal × Chicago Fire, 0–0 e relógio visual 2:00; quadra, jogadores, bola e HUD aparecem. Movimento, controle, FPS sustentado e partida completa não foram registrados.
+O executável nativo abre em D3D12 na RX 580 e mostra o logo FIFA STREET em
+1280×720. Uma captura válida confirma renderização do título, mas nenhuma das
+entradas recentes abriu menu. Não há menu navegável, seleção de modo/time, cena
+nativa de partida ou partida jogável comprovada. A captura de Arsenal × Chicago
+Fire via RPCS3 é só referência do original, não avanço do port.
 
-**Port Windows nativo:** o boot anterior chega ao título/aviso de autosave; menu, cena 3D e partida continuam sem validação. O avanço observado no RPCS3 é baseline, não avanço do port. Timeout, janela ou flip isolado não significam jogo jogável. O objetivo é uma partida offline completa no Windows.
+O último probe de input, `private/analysis/runs/1793112938625277900`, enviou
+START, CROSS e DOWN em sequência. O HLE registrou seis transições de pacote
+válido, com `len=20`, `mode=122`, no buffer guest `0xD0189CE0`. O quadro manteve
+o logo em todas as oito amostras visuais (`private/analysis/captures/title-input-report-probe/`;
+um hash único). Isso prova escrita do payload pelo `cellPadGetData`, não que a
+rotina de UI do jogo o tenha consumido ou aceitado. `PAD_ALWAYS_CHANGE=1` foi
+usado apenas para diagnóstico e altera a cadência de entrega; não é correção.
+O processo encerrou por timeout. Resultado: [`title-navigation-probe.json`](reports/title-navigation-probe.json).
 
-## Novo diagnóstico do wait
+Os cinco arquivos do save original ainda coincidem com os hashes do checkpoint.
+Esse probe usou uma cópia em `private/userdata_probe_1793112100000000000`; não
+apontou o jogo ao perfil original.
 
-- PPU22 (`RenderThread`) gastou 9,168 s de 12 s em 305.628 chamadas de sleep de 30 µs no caminho `LR 0x000A969C` → `func_000A71E4`. REA/Rizin disassemblou o ELF do jogo (`FIFAZF.elf`, SHA-256 `5521a262…be34afb`): o helper repete enquanto o primeiro word de `*(objeto+0xC)` é diferente de zero; `beq` em `0x000A720C` sai quando é zero. Isso corrige a hipótese anterior de estado negativo.
-- Watch pós-transferência foi adicionado ao SDK por `patches/0002-post-transfer-spu-watch.patch`. `SPU_WATCHEA=<EA>` agora conta hits e registra depois do MFC, com resultado e bytes de origem/destino. `SPU_WATCHEA_EVERY=1` captura todos.
-- Probe combinado de 20 s: `private/analysis/runs/1793103246332528600`. PPU escreveu `1` em `0x106E0900` 260 vezes: TID17=36, TID22=224, sempre `func_000A8E10`, caller LR `0x000A95DC`. Inicialização também escreveu zeros e ponteiros.
-- No mesmo probe, SPU4/5 fez 265 GETs de 8 bytes (primeiro word `1`, segundo `0x12805080`) e 260 PUTs (primeiro word `0`, segundo `0x12805080`), todos `rc=0`, PC reportado `0x0156C`, imagem `526190333`. O destino do PUT correspondeu aos bytes registrados depois da execução.
-- A instrumentação `patches/0003-spu-wrch-callsite-pc.patch` agora passa o PC guest de `wrch MFC_Cmd` ao hook. Probe `1793110334315435500`: GET/PUT a `0x106E0900` vieram de `sportsrna_spupatch`, ID residente `592606456`, hash `35274f8f…22aeeae`; instrução `0x015DC`, bytes `21 A0 0A 8B`, decodificada como `wrch MFC_Cmd, $r11`. O ID de contexto `526190333` não é o ID do overlay residente. O snapshot anterior que bate com `AssetStream_zlib` identifica somente aquele snapshot, não a rotina deste probe.
-- A identidade do status também foi confirmada: em run instrumentado, `func_000A71E4` com LR `0x000A969C` escreveu em `0x106E0904/0908`; pelo disassembly, esse `r3` vem de `*(objeto+0xC)`, logo aponta a `0x106E0900`. `func_000A8E10` escreve 1 nesse word; SPU GET observa 1 e PUT grava 0, valor que encerra o poll. Handshake PPU/SPU provado; duração por pedido, semântica completa do job e causalidade com flips ainda não.
-- A tentativa anterior com `-Target Runtime` recompilou outra biblioteca e não atualizou o FullGame. Para este executável, use `-Target Boot` para reconstruir `private/build/boot/sdk/ps3recomp_runtime.lib`, depois relinke FullGame.
-- `-Target Runtime`: build concluído, 18/18 checks passaram. `-Target Boot`: build concluído, 48/48 checks passaram. FullGame relinkado após ambos os ajustes.
-- Probes normais EBOOT→FIFAZF de 35 s, 20 s, 20 s e 15 s terminaram por timeout; o último capturou348 DMAs com contagem atômica. Nenhum prova avanço de menu.
-- A page guard anterior foi armada cedo no ponteiro `0x106E0800` e produziu 73.845 registros na página de 4 KiB. Não repetir sem um armamento condicionado ao valor certo; o watch pós-DMA e `PPU_WWATCH` são mais estreitos.
+## Próxima pergunta técnica
 
-## Outros bloqueios ativos
+Identificar a rotina guest que lê o buffer de `cellPadGetData` e descobrir por
+que os pacotes START/CROSS/DOWN não causaram transição. Registrar LR/TID do PPU
+no trace de `cellPadGetData` ou seguir o consumidor por callsites/refs do ELF.
+Só então comparar o fluxo e o estado da UI. Não injetar estado interno nem
+assumir que o título deve aceitar qualquer botão naquele frame.
 
-- Desempenho de abertura: /O1 teve 8,75 batches/s contra 8,225 no trecho pareado; batches não são FPS visível. FTrace: 99 flips/12 s, mediana 120,6 ms; drain RSX 26,2 ms.
-- A alteração de temporizador não mudou a mediana (8,76 vs 8,75 batches/s) e foi revertida.
-- Última captura após LOADING é preta. Sampler4 excede root signature limitada a quatro unidades; mapa real tem sobreposições de descritores. D3D12 ID921 acusa recurso destruído antes do Execute.
-- Alguns assets pedidos no boot não existem nos caminhos extraídos. O impacto ainda não foi isolado.
-- Guardar os cinco hashes do save conforme `reports/native-boot-checkpoint.json`. Nunca substituir o perfil.
+REA MCP foi chamado nesta sessão, mas `open_binary` rejeitou o `FIFAZF.elf`
+como arquitetura não suportada. O uso anterior do REA CLI/Rizin permanece válido
+para as instruções PPU já registradas. A tentativa nova do comando Rizin pela
+CLI terminou `ERR_REA_WINDOWS_NATIVE`; verificar provider/command antes de
+repetir. Rizin/REA não decodifica SPU neste ambiente; atribuições de SPU usam
+o lifter e o trace correlacionado com bytes/hash.
 
-## Base já validada neste port
+## Wait PPU/SPU e flip timing
 
-- FullGame compila 99 mil funções PPU do FIFAZF, além de workloads SPU levantados; EBOOT é reproduzido separadamente e inicia o ELF do jogo pelo launcher nativo.
-- Builds de desenvolvimento exigem as entradas privadas e a toolchain fixada. `-SkipLift` só vale quando os artefatos gerados correspondem aos ELFs e manifests atuais.
-- `tools/run_native.py --profile full --timeout N` grava logs e `result.json` sob `private/analysis/runs`; timeout mata pai e descendentes e não declara sucesso.
-- Probes usuais preservam os saves em `private/userdata`; conferir os cinco hashes de `reports/native-boot-checkpoint.json` antes/depois.
-- O teste pareado de /O1 mede batches de renderer, incluindo passes fora da tela. Não converter esse dado em FPS do jogo.
-- Foram identificadas entradas reais e testadas em módulos de AI, Replay, Railtracks e áudio. Esses resultados cobrem entradas/construtores/callbacks descritos no plano, não provam algoritmos completos.
-- O relatório de desempenho guarda os hashes exatos do executável FullGame e do archive Runtime usado nesta revisão.
-- O lift SPU preserva PC de retorno a stops originais; imagens e limites precisam continuar vinculados a bytes/hash, sem usar rótulo inferido como nome original.
-- Renderer D3D12 ainda requer mapeamento comprovado de 16 texturas/samplers, descritores disjuntos e aposentadoria de recursos pelo fence efetivamente submetido.
-- Arquivos privados de jogo, ELF, assets, executáveis, logs e capturas ficam em `private/`; não versionar conteúdo derivado nem saves.
+A evidência do REA/Rizin no ELF (`func_000A71E4`) diz que o wait de 30 µs sai
+quando o word em `*(objeto+0xC)` é zero. O PPU publica 1 em `0x106E0900` por
+`func_000A8E10` / LR `0x000A95DC`; o SPU faz GET de 1 e PUT de 0. A finalidade
+do job superior e o efeito no renderer continuam sem prova.
 
-## Referência local no RPCS3
+O probe direto `1793111736649624200` registrou, na janela FTrace de 12 s,
+472 pedidos de flip (mediana 15.8 ms; 63.2 pedidos/s, não FPS exibido), 237
+stores de status 1 e 236 GET + 236 PUT bem-sucedidos. Correlação por evento mais
+próximo produziu 236 ciclos candidatos: mediana status→GET 19.952 ms e GET→PUT
+3.719 ms. Não existe job ID para garantir que cada par seja o mesmo trabalho.
+Não atribuir causalidade. Relatório: [`spu-handshake-timing.json`](reports/spu-handshake-timing.json).
 
-- Configuração local: RPCS3 portátil, build exibida `0.0.43-20402`, Vulkan, RX 580 2048SP, janela 1920×1080; o FIFA BLUS30882 é carregado por ISO externa.
-- Fluxo observado: aviso de autosave → `Select Sides` → `Select Team` → cena de partida. Em `Select Team`, Barclays PL/England ficaram destacados e o time Arsenal foi escolhido para a captura da partida.
-- Cena capturada: Arsenal × Chicago Fire, 0–0, relógio visual 2:00, quadra/jogadores/bola/HUD visíveis. Captura privada: `private/analysis/rpcs3_reference/live-match-current.png`.
-- Leituras de FPS na barra da janela oscilaram entre aproximadamente16 e57 durante carregamento/menus/partida; não são medição sustentada. A partida não foi gravada em vídeo.
-- O RPCS3 retornou à biblioteca na leitura seguinte. Não se sabe se houve saída normal ou inesperada; os três logs permaneceram vazios. Não inferir partida completa nem resposta de controles de uma imagem estática.
-- Registro estruturado: [`reports/rpcs3-local-reference.json`](reports/rpcs3-local-reference.json). Referências de recompilação e implicações: [`docs/recomp-ports-reference.md`](docs/recomp-ports-reference.md).
+A proveniência do MFC está corrigida: `0x015DC`, bytes `21 A0 0A 8B`, pertence
+ao overlay residente `sportsrna_spupatch`, ID `592606456`, hash
+`35274f8f…22aeeae`; GET LR `0x1408`, PUT LR `0x14F0`. `526190333` é ID de
+contexto SPU, não identidade do overlay.
 
-## REA no ambiente atual
+## Instrumentação e validação recentes
 
-- O wrapper `tools/rea.ps1` executa o REA 6.7.0 instalado localmente e a CLI funciona.
-- Setup REA aprovado: MCP Codex e skill global versão42/207 ferramentas alinhados; Rizin estático 0.9.1 foi baixado em `private/toolchain/` e o SHA-256 do pacote oficial foi validado. `REA_RIZIN_COMMAND` foi adicionado à entrada MCP em `C:\Users\Luquinhas\.codex\config.toml`; reiniciar Codex para carregá-lo. Ghidra Windows P0 foi descartado porque essa versão do REA limita o provider a PE x86/x64/ARM e raw 6502, não ELF PowerPC.
-- Análise REA real do ELF64 PowerPC big-endian: disassembly de `func_000A71E4`, publicador `func_000A8E10` e caller `func_000A9680`, cruzado com o probe instrumentado. Rizin sinalizou três program headers inválidos e agrupou rotinas adjacentes no tamanho automático; usamos instruções por endereço. REA/Rizin não decodifica SPU neste ambiente. O lifter do projeto e a instrumentação runtime identificam exatamente o `wrch` MFC em `sportsrna_spupatch`; o significado do job superior e seu impacto em flip cadence seguem abertos.
+- `patches/0002-post-transfer-spu-watch.patch` registra EA/bytes/PC/residência e
+  tempo FTrace após DMA; `0003` passa o PC guest do `wrch MFC_Cmd`;
+  `0004` acrescenta o mesmo relógio às escritas `PPU_WWATCH`.
+- `python tools/apply_patches.py` reconhece os patches 0001–0004 aplicados.
+- O gate `tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py`
+  durante a compilação de fixture; foi cancelado. Não contar esse gate como aprovado.
+- CMake direto recompilou `fifa_boot` no build Boot. Os 48 testes de
+  `test_boot_diagnostics.py` passaram. `tools/build.ps1 -Target FullGame
+  -SkipLift -WithSpu -Jobs 4` relinkou o jogo; SHA-256
+  `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
+- Não foram alterados nem commitados arquivos do submódulo. Patches de SDK são
+  versionados somente em `patches/` na raiz.
 
-## Reproduzir a validação do incremento
+## Outros bloqueios do port
 
-- `private\python-env\Scripts\python.exe tools/apply_patches.py` reconhece os patches 0001, 0002 e 0003 aplicados no checkout fixado.
-- `tools/build.ps1 -Target Runtime`: biblioteca de runtime alternativa; 18 checks passaram, mas esse archive não é consumido pelo FullGame.
-- `tools/build.ps1 -Target Boot`: atualizou `private/build/boot/sdk/ps3recomp_runtime.lib`; 48 checks passaram.
-- `tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4`: relinkou `private/build/fifazf_full/fifa_boot.exe` com o archive de Boot atualizado.
-- `SPU_WATCHEA=106E0900`, `SPU_WATCHEA_EVERY=1`, `PPU_WWATCH=106E0900`, `PPU_WWATCH_LEN=0x10`, `PPU_WWATCH_MAX=0` foram usados somente no probe instrumentado de 20 s.
-- Probes normais e os probes instrumentados desta série encerraram por timeout; o mais recente (15,19 s) não teve captura gráfica nem validação de menu/jogo. Nenhum desses timeouts equivale a conclusão bem-sucedida.
+- Benchmark pareado `/O1`: 8.225 → 8.75 batches/s; batches incluem passes
+  offscreen e não são FPS. Ajuste de timer sem ganho foi revertido.
+- Renderer: sampler 4 fora da root signature; bancos de descritores ainda se
+  sobrepõem e precisam mapear 16 unidades reais.
+- D3D12 ID 921 mostra recurso destruído antes de Execute; aposentar após fence
+  da submissão efetiva.
+- Uma captura após LOADING ficou preta. As causas não foram isoladas.
+- RPCS3 capturou Arsenal × Chicago Fire, HUD e quadra; movimento, controles,
+  desempenho sustentado e partida completa continuam sem gravação verificável.
 
-## Próximo trabalho
+## Regras para continuar
 
-1. Medir timestamps de baixo custo para início/fim do wait PPU e pares GET/PUT do status, mantendo a cadência e valor originais; correlacionar com flip requests e com os TIDs 17/22.
-2. Seguir o caller acima de `sportsrna_spupatch` para identificar que job/asset provoca o status 1, sem atribuir semântica pelo ponteiro adjacente sozinho.
-3. Só modificar comportamento se duração/callback demonstrar o defeito. Reproduzir o probe normal e verificar se o RenderThread sai do wait e produz quadro capturável.
-4. Em seguida atacar a captura preta, banco de 16 texturas/descritores e retirement por fence; voltar ao caminho de menu e partida offline.
-
-Probes diretos devem definir `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` para `private/userdata/dev_hdd0` e `.../dev_hdd1`. A pasta local `gamedata/` permanece ignorada e preservada.
+Preservar saves e comparar os cinco hashes do checkpoint. Probes diretos devem
+usar raízes HDD0/HDD1 explicitamente. Timeout, janela aberta, flip ou logo não
+são sucesso. Guardar binários, dumps e capturas privadas em `private/`; não
+versionar conteúdo derivado do jogo. Antes de relink/probe, confirmar que pais e
+filhos terminaram. Rodar só os checks afetados e revisar staged files antes do
+commit. O caminho seguinte é provar consumo do input guest, obter navegação real,
+então atacar renderização, cena, física, controle, áudio e ciclo de partida.

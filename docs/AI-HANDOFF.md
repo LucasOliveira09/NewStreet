@@ -23,10 +23,11 @@ nativa, sem RPCS3/Xenia e sem trocar silenciosamente a recompilação por
 interpretador/JIT. O usuário autorizou continuar até alcançar partida jogável.
 O aceite completo está no prompt de execução; os próximos marcos estão no plano.
 
-No checkpoint desta revisão, o boot mostrou título e aviso de autosave, e
-Start/Cross chegaram ao código original em probes anteriores. Perfil local foi
-criado e relido. **Menu navegável, seleção, cena 3D, controle de jogadores,
-bola, partida e ciclo completo ainda não foram comprovados.** Não descreva o
+No checkpoint desta revisão, o executável nativo mostra o logo FIFA STREET em
+1280×720. Um probe envia START/CROSS/DOWN como pacotes `cellPadGetData` válidos
+a memória guest, mas a imagem não muda. Isso não prova consumo/aceitação pelo
+jogo. Perfil de probe foi copiado e os saves originais foram preservados.
+**Menu navegável, seleção, cena 3D, controles, bola e partida não estão comprovados.** Não descreva o
 projeto como jogável. Janela, pedido de flip ou imagem preta não equivalem a
 partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 
@@ -36,11 +37,13 @@ partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
 - `tools/`: extração/lifting, build, probes, inspeção e validação de manifests.
 - `tests/`: probes nativos e testes Python/C++; use os checks pertinentes ao código alterado.
 - `vendor/ps3recomp/`: SDK externo fixado; não commitar alteração solta nesse submódulo.
-- `patches/0001-strict-native-boot.patch`: reprodução de mudanças autorais do SDK.
+- `patches/0001-strict-native-boot.patch` e `patches/0002`–`0004`: reprodução dos patches autorais do SDK.
 - `toolchain.lock.json`: commits e versões fixadas; confira o checkout antes de atualizar algo.
 - `private/`: ISO/ELF/assets, executáveis, gerados, perfis, logs e capturas locais; nunca versionar.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
-- `reports/performance-opening.json`: medições de abertura, instrumentação, hashes e limitações.
+- `reports/performance-opening.json`: medições anteriores de abertura.
+- `reports/spu-handshake-timing.json`: relógio correlacionado de status PPU, DMA SPU e flips.
+- `reports/title-navigation-probe.json`: pacotes de controle válidos sem mudança visual.
 - `reports/rpcs3-local-reference.json`: configuração observada do RPCS3 local, gravação de referência e procedimento para capturar a navegação após Start.
 - [`recomp-ports-reference.md`](recomp-ports-reference.md): comparação de ReStreet e ports PS3 em `ps3recomp`, com implicações para SPURS/render.
 - `docs/history/`: checkpoints antigos preservados; podem estar desatualizados.
@@ -140,75 +143,59 @@ STATUS e `reports/performance-opening.json`.
 
 ## Checkpoint técnico ativo
 
-1. **FPS/espera do RenderThread.** `/O1` é padrão. A comparação de workload
-   pareado reporta 8,225 → 8,75 batches/s, mas batches incluem passes offscreen
-   e não são FPS visível. Uma medição de abertura separada tem números diferentes
-   e não deve ser comparada como pareada. FTrace de abertura registrou 99 pedidos
-   de flip em 12 s (mediana 120,6 ms) e drain FIFO RSX de 26,2 ms por intervalo.
-   PPU22 (`RenderThread`) registrou 305.628 polls de sleep solicitado de 30 µs
-   em 12 s no retorno `0x000A969C`; o estado visto alternou 0/1. A análise
-   estática REA/Rizin mostra `func_000A71E4` saindo quando o word apontado por
-   `*(objeto+0xC)` é zero, não negativo. Otimização do temporizador foi compilada uma vez,
-   não alterou a mediana (8,76 vs 8,75 batches/s) e foi revertida.
-2. **Estado do job/asset.** A origem que deve escrever o estado de espera e a
-   relação causal com a taxa de flip ainda são desconhecidas. Arquivos
-   `genheadtex.big`, `Player_SFX_01.ast`, `TUNA_SFX_BE.ast` e `TUNA_SFX_FE.ast`
-   não foram encontrados nos caminhos esperados do disco extraído; impacto no
-   estado ou na renderização não foi demonstrado.
-3. **Renderização.** Pipeline alcançou criação para shaders de 5.024/5.472 bytes
-   no ensaio relatado; uma falha de sampler 4 excede root signature limitada a
-   quatro unidades. Há espaços de descritor que se sobrepõem (VP cache 1..96,
-   RT 5..20 e base de draw 32). Corrigir o mapeamento real das 16 unidades,
-   estado por draw e heaps antes de declarar banco de texturas correto.
-4. **Vida útil de recursos.** D3D12 ID 921 indica recurso destruído antes da
-   execução do comando e já ocorria no baseline. A aposentadoria precisa seguir
-   o fence da submissão efetiva; não aguarde trabalho ainda não enviado.
-5. **Captura/jogo.** Última captura posterior a LOADING ficou preta. Várias
-   causas continuam possíveis; nenhum vínculo causal foi isolado.
+1. **Input e navegação.** Run `1793112938625277900` usou cópia do perfil e
+   `PAD_ALWAYS_CHANGE=1`, `PAD_REPORT_TRACE=1`, `PAD_SCRIPT='4:0x0008,7:0x4000,10:0x0040'`.
+   Seis transições válidas (`len=20`, `mode=122`) foram escritas em
+   `0xD0189CE0`; oito capturas tiveram o mesmo hash e mostram o logo. É prova de
+   entrega ao buffer guest pelo HLE, não de consumo pelo código de UI. O próximo
+   passo é descobrir quem lê esse endereço e qual estado controla a transição.
+   Evidência/limitações em [`title-navigation-probe.json`](../reports/title-navigation-probe.json).
+2. **Handshaking e flips.** Run direto `1793111736649624200`, trace de 12 s:
+   472 pedidos de flip, mediana 15.8 ms (63.2 solicitações/s, não FPS visível),
+   237 stores de status 1 e 236 MFC GET/PUT de status. Correlação aproximada por
+   ordem encontrou 236 ciclos; não há ID do job e causalidade não está provada.
+   Ver [`spu-handshake-timing.json`](../reports/spu-handshake-timing.json).
+3. **Identidade do MFC.** `wrch MFC_Cmd` em `sportsrna_spupatch`, PC `0x015DC`,
+   bytes `21 A0 0A 8B`, overlay residente ID `592606456`; GET retorna por LR
+   `0x1408`, PUT por `0x14F0`. O contexto SPU `526190333` não é ID do overlay.
+   O significado do job superior permanece desconhecido.
+4. **Desempenho.** `/O1` é padrão. Medição pareada anterior foi 8.225 → 8.75
+   batches/s; são batches incluindo passes offscreen, não FPS. A alteração de
+   timer não teve ganho e foi revertida.
+5. **Renderização.** Sampler 4 excede root signature limitada a quatro unidades;
+   bancos de descritores ainda se sobrepõem. D3D12 ID 921 indica recurso
+   destruído antes de Execute; aposentar pelo fence efetivamente submetido.
+   Uma captura após LOADING ficou preta; causa não isolada.
 
-O watch pós-MFC está versionado em `patches/0002-post-transfer-spu-watch.patch`.
-Com `SPU_WATCHEA=106E0900` registra `rc`, origem/destino e contador depois da
-transferência. `SPU_WATCHEA_EVERY=1` registra todos os hits. Probe combinado de
-20 s `private/analysis/runs/1793103246332528600`: MFC GETs de SPU4/5 leram
-`1 0x12805080`; PUTs gravaram `0 0x12805080`; 525 registros no total. PPU
-`func_000A8E10`, LR `0x000A95DC`, gravou1 260 vezes (TID17=36, TID22=224).
-Nenhum valor negativo apareceu. REA/Rizin mostra que `func_000A71E4` dorme 30 µs
-enquanto o word em `*(objeto+0xC)` é diferente de zero e sai quando é zero.
-No mesmo probe, escritas de cleanup do helper em `0x106E0904/0908` provam que
-seu ponteiro era `0x106E0900`; o PPU publicou 1 e o SPU leu 1/gravou 0 nessa
-EA. A duração do estado 1 e o impacto na apresentação ainda precisam de medida.
-O snapshot `spu-8197-526190333-256.ls` bate byte a byte com a imagem-fonte
-`AssetStream_zlib`; isso não identifica o overlay residente de outro momento.
-No probe atual, a instrumentação corrigida registrou a instrução MFC em
-`sportsrna_spupatch`: PC `0x015DC`, bytes `21 A0 0A 8B`, runtime EA `0x01F2645C`.
-Os retornos `0x1408` e `0x14F0` identificam os caminhos GET e PUT no helper de
-transferência. A semântica do trabalho de nível superior ainda é desconhecida.
-REA/Rizin não suporta SPU neste ambiente; interpretação SPU usa o lifter/decoder
-do projeto e a correlação runtime com os bytes-fonte.
+`func_000A71E4` faz poll de 30 µs e sai quando o word em `*(objeto+0xC)` é zero.
+`func_000A8E10` publica 1 em `0x106E0900`; o SPU lê 1 e grava 0. Preservar o
+handshake/wait até provar semântica superior. Não repetir `PPU_WW_GUARD=1`:
+armou cedo e gerou 73.845 eventos na página de 4 KiB. Use watch estreito.
 
-`PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
-no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
-`PPU_WWATCH`/`PPU_CASWATCH` mais watch pós-MFC. A tentativa com `-Target Runtime`
-reconstrói `private/build/runtime-clang`, que FullGame não liga. Para atualizar o
-archive compartilhado, execute `tools/build.ps1 -Target Boot` e relinke FullGame.
-IDs, contagens, hashes e escopo em
-[`performance-opening.json`](../reports/performance-opening.json). Não force
-o estado nem burle o wait.
+O conjunto versionado de patches vai até `0004-ppu-status-watch-timestamp.patch`.
+`python tools/apply_patches.py` reconheceu 0001–0004 aplicados. O gate
+`tools/build.ps1 -Target Boot` ficou preso em `check_switch_lowering.py` e foi
+cancelado; ele não foi aprovado nesta revisão. CMake direto reconstruiu o target
+`fifa_boot`, os 48 testes `test_boot_diagnostics.py` passaram, e o relink
+`tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4` concluiu. SHA-256
+do FullGame: `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
 
-## Próxima investigação recomendada
+### Próxima investigação recomendada
 
-Siga a prioridade atual em `tasks/plan.md`: medir a duração do status por
-pedido e correlacioná-la com os polls PPU, os retornos GET/PUT em
-`sportsrna_spupatch` e as chamadas de flip. O PC e os bytes guest do `wrch
-MFC_Cmd` já são preservados no log pós-DMA. Depois investigue o caller acima do
-helper para nomear o job/asset, sem inferir semântica só pelo ponteiro adjacente.
-Preserve o handshake e o wait.
+1. Instrumentar `cellPadGetData` para registrar LR/TID do PPU no mesmo evento que
+   o payload, como patch composável com o estado atual de `0001`; usar LR para
+   localizar o chamador no `FIFAZF.elf` e confirmar quais buffers/rotinas leem.
+2. Comparar o código que interpreta o relatório com a implementação de
+   `cellPadGetData`, modo/pressão, configuração de porta e eventos de UI. Só
+   trocar semântica depois de evidência, sem inventar estado de menu.
+3. Repetir uma ação autorizada pela tela e capturar o estado seguinte. Aceite é
+   mudança visual/estado comprovada e navegação reproduzível, não pacote escrito.
+4. Depois voltar aos bloqueios de renderização e alcançar uma partida offline.
 
-Depois de duas tentativas sem informação nova, reveja hipótese, pontos de
-instrumentação e evidência antes de repetir. Não conclua que o sleep é a causa
-só por consumir tempo de CPU. Um teste de throughput deve usar mesmos inputs,
-cena, duração e instrumentação; registre mediana/dispersão, hash do binário e
-limites do que foi medido. Continue então o caminho real até menu e partida.
+REA MCP não abriu esse ELF nesta sessão por limitação de arquitetura. Use o REA
+CLI/Rizin já configurado quando o provider local estiver acessível; identifique
+primeiro por que a chamada CLI retornou `ERR_REA_WINDOWS_NATIVE`. Rizin não
+interpreta SPU aqui; preserve bytes, faixa, hash, PC e logs runtime.
 
 ## Registrar cada incremento para a próxima IA
 
