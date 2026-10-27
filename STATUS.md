@@ -49,6 +49,8 @@ O boot mostra título e aviso de autosave. Start/Cross chegaram ao código origi
 - Próxima coleta depende do usuário: abrir BLUS30882, pressionar Start uma vez, registrar a transição ou 10–20 s sem mudança, e fechar RPCS3 normalmente para liberar os logs.
 - Nova execução em 27/10: o usuário relata ter entrado em uma partida; lista do RPCS3 mostra última execução 09:49 e 22min55s acumulados. Na inspeção 09:51, emulador já estava de volta à biblioteca. Nenhum vídeo/captura novo ou log disponível, então gameplay/FPS ainda sem evidência visual; detalhes em `reports/rpcs3-local-reference.json`.
 - Inspeção ao vivo 09:55: a janela de renderização está ativa/responsiva, mas exibe `Applying PPU Code...`, módulo284/284, estimativa22m. Duas capturas com10s de intervalo não mudaram essa tela. Título do RPCS3 oscilou28,71→58,04→58,01 FPS; isso é tela de carregamento, não FPS de partida. Log continua zerado; capturas privadas e métricas estão no relatório.
+- Acompanhamento 09:58–09:59: avançou para o aviso de autosave e depois `Hit the Streets — Select Sides`. Controle está no lado vermelho; o prompt mostra `Cross: Advance`; a barra online avisa desconexão dos servidores EA. A tela ficou igual por30s aguardando botão. Janela responsiva, título ~29,8–30 FPS; esse valor é do menu, não gameplay. Capturas/linha do tempo em `reports/rpcs3-local-reference.json`.
+- 10:00:51 avançou a `Select Team`; categoria Barclays PL e Inglaterra destacadas, nome do clube ainda `---`. Prompt é `Cross: Select`; quadro seguinte 10:01:22 permaneceu igual. Título variou33,28→51,34 FPS, leitura de menu, não desempenho de partida.
 
 ## Reproduzir a validação do incremento
 

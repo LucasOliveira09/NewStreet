@@ -81,7 +81,7 @@
     "game_row_total_time_played": "22 minutes 55 seconds",
     "game_row_compatibility_label": "Ingame (2026-08-30)",
     "compatibility_label_interpretation": "RPCS3 compatibility-list status, not proof of this specific run reaching a match.",
-    "observed_current_state": "RPCS3 render window is active and responsive. Direct window capture shows 'Applying PPU Code...' at module 284 of 284 with 22 minutes remaining, rather than a visible match. This conflicts with the user's report of having entered a match, so the exact current state needs another capture after this screen changes.",
+    "observed_current_state": "The game advanced from the PPU code screen through the autosave notice to the Select Sides screen. At the latest capture it is waiting for user input; no match scene is visible yet.",
     "live_capture": {
       "path_ignored_by_git": "D:/Ludevi/projetos/fifa-street-native/private/analysis/rpcs3_reference/game-window-current.png",
       "dimensions": "1920x1080",
@@ -109,8 +109,46 @@
     ],
     "new_recording_or_screenshot_found": false,
     "logs_still_empty": true,
-    "evidence_limit": "The user's report says a match was reached. The direct capture now shows a PPU code application/loading screen, and the process is responsive. There is still no in-match image/video or RPCS3 log to inspect gameplay, controls, or match performance."
+    "evidence_limit": "The user's report says a match was reached. The directly captured boot sequence is verified through Select Sides, which is waiting for input; no match scene or new recording has been captured yet. The RPCS3 logs remain empty, so gameplay controls and match performance are not yet analyzed."
   },
+  "live_follow_sequence": [
+    {
+      "time_local": "2026-10-27 09:55",
+      "screen": "Applying PPU Code; module 284 of 284; 22 minutes estimated remaining.",
+      "capture": "private/analysis/rpcs3_reference/game-window-current.png",
+      "meaning": "Loading stage, not gameplay."
+    },
+    {
+      "time_local": "2026-10-27 09:58:57",
+      "screen": "FIFA Street autosave information prompt; Okay selected.",
+      "capture": "private/analysis/rpcs3_reference/live-follow-1.png",
+      "window_title_fps": 29.79
+    },
+    {
+      "time_local": "2026-10-27 09:59:24",
+      "screen": "Hit the Streets - Select Sides. Player controller shown on red side; not connected to EA servers. On-screen controls show Circle=Back, Triangle=Customize Controls, Cross=Advance.",
+      "capture": "private/analysis/rpcs3_reference/live-follow-2.png",
+      "window_title_fps": 29.96
+    },
+    {
+      "time_local": "2026-10-27 09:59:54",
+      "screen": "Same Select Sides screen, unchanged for 30 seconds, awaiting a button press.",
+      "capture": "private/analysis/rpcs3_reference/live-follow-3.png",
+      "window_title_fps": 29.81
+    },
+    {
+      "time_local": "2026-10-27 10:00:51",
+      "screen": "Hit the Streets - Select Team. Barclays PL category and England flag are highlighted; team label still shows ---. EA servers remain disconnected. Bottom prompt shows Circle=Back, Square=Randomise, Cross=Select.",
+      "capture": "private/analysis/rpcs3_reference/live-follow-4.png",
+      "window_title_fps": 33.28
+    },
+    {
+      "time_local": "2026-10-27 10:01:22",
+      "screen": "Same Select Team screen; no selection transition in this sample.",
+      "capture": "private/analysis/rpcs3_reference/live-follow-5.png",
+      "window_title_fps": 51.34
+    }
+  ],
   "user_run_capture_plan": [
     "Leave current RPCS3 settings and save data unchanged.",
     "Launch the BLUS30882 entry from RPCS3.",
