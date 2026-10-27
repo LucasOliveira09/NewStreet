@@ -1,11 +1,11 @@
 {
   "target": "PS3 BLUS30882 01.00",
-  "stage": "Original native main menu navigates; confirmation opens sign-in dialog and returns to menu",
+  "stage": "Stable original menu; Hit the Streets -> Futsal -> Select Sides -> Select Team, left Chicago Fire ready",
   "native_process": true,
   "emulator_launched": false,
-  "exit_code": 1,
-  "logs": "private\\analysis\\runs\\1793122289140347600",
-  "elapsed_seconds": 363.708,
+  "exit_code": "timeout",
+  "logs": "private\\analysis\\runs\\1793124900057646500",
+  "elapsed_seconds": 480.176,
   "block": null,
   "menu_navigable_validated": true,
   "gameplay_tested": false,
@@ -1559,5 +1559,7 @@
     "dialog_round_trip_validated": true,
     "graphics_correct": false,
     "offline_mode_loaded": false
-  }
+  },
+  "menu_progress_report": "reports/menu-input-progress.json",
+  "original_save_hashes_unchanged_after_latest_run": true
 }

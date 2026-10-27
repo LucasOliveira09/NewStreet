@@ -2,79 +2,82 @@
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
 Branch: `codex/ps3-native-bootstrap`. Objetivo final: partida offline jogável.
-Guia: `docs/AI-HANDOFF.md`. Plano: `tasks/plan.md`.
+Guia: `docs/AI-HANDOFF.md`; plano: `tasks/plan.md`.
 
 ## Estado do produto
 
-**Menu principal original visível e navegação confirmada no executável nativo.**
-Inputs mudaram a seleção; Cross abriu `SIGN IN FAILED`; outro Cross em `OK`
-fechou o aviso e retornou ao menu. A captura mostra opções Hit the Streets,
-World Tour, Online, My Squad e Practice Arena, com o fundo original do Messi.
-Ainda há blocos cinza, diagonais e ícones/texturas incorretos. Não foi validada
-entrada em modo offline, arena 3D, partida, estabilidade ou performance.
+**O menu original está estável e o caminho Futsal avança até SELECT TEAM.**
+No executável nativo, o fluxo observado foi: título → aviso de autosave →
+Hit the Streets → Select Match Type → Futsal → Select Sides → Select Team.
+Chicago Fire foi escolhido para o lado esquerdo e apareceu como READY; o
+seletor de liga MLS do adversário estava aberto quando o ensaio terminou.
+Evidência e hashes: `reports/menu-input-progress.json`.
+Run: `private/analysis/runs/1793124900057646500` (480,176 s, timeout).
+Capturas revisadas: `private/analysis/pad-neutral-menu-frames/frame_41`,
+`frame_47`, `frame_54`, `frame_61`, `frame_68`, `frame_76`, `frame_82`, `frame_88`.
 
-Evidência: [`menu-renderer-progress.json`](reports/menu-renderer-progress.json).
-Run: `private/analysis/runs/1793122289140347600`, 363.708 s.
-Capturas em `private/analysis/menu-navigation-depth-exact-frames/`:
-- `frame_32`: My Squad selecionado antes dos comandos de navegação.
-- `frame_36`: Online selecionado; `frame_46`: Practice Arena selecionado.
-- `frame_55`: aviso de login; `frame_67`: retorno ao menu após confirmar OK.
+**Ainda não há partida jogável.** Não foram validados adversário, arena,
+carregamento da partida, jogadores controláveis, física, áudio ou saída limpa.
+O timeout encerrou pai e filho nativos; ausência de block/crash não prova
+estabilidade. Blocos pretos/cinzas, diagonais e texto imperfeito persistem.
+O indicador da janela mede lotes do backend, não FPS apresentados; no menu e
+na seleção houve leituras aproximadamente entre 12 e 22 lotes/s.
 
-Cross enviado após revisar Practice Arena abriu o aviso de login. Isso não
-prova entrada nessa arena; a correspondência exata entre cada pulso de input,
-animação e frame apresentado precisa de medição. O ensaio foi encerrado
-intencionalmente com `taskkill` após a validação visual (exit 1), sem eventos
-`fifa-block`/`fifa-crash`. Não é evidência de encerramento limpo ou estabilidade.
+## Correção decisiva de input
 
-## Correções que recuperaram a interface
+Sem XInput e com `PAD_NO_KEYBOARD=1`, o port 0 virtual saía de `memset` com
+analógicos `0,0`: isso é deflexão máxima para cima/esquerda. O backend também
+mantinha eixos antigos depois da desconexão física. `patches/0012` agora
+centraliza os quatro eixos em 128 e zera os botões ao desconectar/inicializar.
+No ensaio anterior, 25 capturas sem novos comandos percorreram as cinco opções
+(24 transições). Após a correção, oito capturas consecutivas mantiveram
+Hit the Streets selecionado (zero transições). Um Cross abriu a tela correta;
+Down levou de 5-A-SIDE a PANNA RULES e depois a FUTSAL. Isso corrige a falsa
+atribuição de navegação aos pulsos nos relatórios anteriores.
 
-- `0005/0006`: root signature e estado cobrem as 16 unidades de textura.
-  Atlas, 96 uploads, 16 RTs e dois bancos de descritores por draw não se sobrepõem.
-- `0007/0008`: sondas de cor/textura reconhecem o HLSL atual (return e MRT).
-  FP_TEX reescreveu FP0x12D041 para amostrar o centro da unidade8; a captura
-  final preta não isola o conteúdo dessa textura da composição posterior.
-- `0009`: lookup pelo endereço do RT precede heurísticas de dimensão. Antes,
-  passes reais liam a cópia do backbuffer em vez de seus produtores offscreen.
-- `0010`: enable, máscara de escrita e comparação de profundidade são
-  capturados por draw, traduzidos e incluídos na identidade do PSO. O renderer
-  anterior forçava depth ligado e escrita em toda a interface.
-- Comparação intermediária com `SCREEN_AS_TEX=0` mostrou apenas gradiente
-  amarelo; após estado de profundidade correto, o menu original apareceu.
+## Renderização e desempenho
+
+`patches/0011` transporta `SET_TEXTURE_CONTROL3` para o upload D3D12: layout,
+leitura por linha, fingerprint e identidade do cache usam o pitch da textura.
+O manifesto agora o registra. Nas capturas atuais, nenhuma textura linear
+suportada tinha pitch maior que sua linha compacta; portanto essa correção
+não explica nem resolveu os blocos visuais do menu. Investigar RT aliases,
+alpha/blend e composição por draw, sem atribuir causa sem reprodução.
+
+O maior engasgo observado na entrada do menu foi compilação de PSOs:
+uma janela `[PERF]` consumiu 12,94 s em PSO, com 124 misses. Depois do
+carregamento, uma amostra da seleção de time marcou 14,49 lotes/s; 86% do
+tempo estava fora de `render_frame`. O ganho de FPS do novo código não foi
+medido em cenários equivalentes. `tools/play.ps1` força `PS3_VERBOSE=0` para
+evitar a torrente de logs gerada pelo stderr redirecionado.
 
 ## Validação do incremento
 
-- `tools/build.ps1 -Target Runtime`: build e 20/20 testes passaram.
-- `python -m unittest discover -s tests -p test_title_probe.py`: 6/6 passaram.
-- `python tools/apply_patches.py`: reconstruiu e conferiu a série 0001–0010.
-- FullGame `/O1`, SPU ligado, relinkado após encerrar pai e filho nativos.
-  SHA-256 e comandos em `reports/menu-renderer-progress.json`.
-- Quatro probes novos: zero PSO FAIL, zero eventos block/crash e 65/65 amostras
-  de assets conferidas por ensaio. As amostras não cobrem todos os assets.
-- Revisão estática independente dos patches 0009/0010 sem bloqueador novo.
-- Os cinco hashes do save original continuam iguais ao checkpoint; cada probe
-  usou uma cópia de `private/userdata`, com HDD0/HDD1 explícitos.
+- `tools/build.ps1 -Target Runtime`: compilou; 20/20 CTest passaram.
+- FullGame `/O1` com SPU relinkado após encerrar todos os processos nativos.
+- `tools/apply_patches.py`: série autoral 0001–0012 reproduzida e verificada.
+- 65/65 jobs de assets amostrados corresponderam; zero eventos
+  `[fifa-block]`/`[fifa-crash]`, zero erros de parse no run final.
+- Cinco hashes do save original conferidos e inalterados; probes usaram cópias.
+- `tools/play.ps1`: sintaxe PowerShell validada; boot/filho abriram e a janela
+  foi verificada com `IsWindowVisible=True`. O teste foi parado por taskkill.
+- SHA-256 do FullGame atual: `db8525d6e23ccf943708ba9cf593e55fc5b1e63f5669fe16007c65304f83a6b5`.
 
-## Como abrir
+## Como abrir e próximo trabalho
 
-Execute `Iniciar-FIFA.cmd` na raiz. Ele chama `tools/play.ps1`, usa ELF/disco e
-executáveis locais e mantém um perfil separado em `private/userdata_interactive`.
-Enter = Start; Z = confirmar; X = voltar; setas = navegar. A janela precisa ter
-foco para o teclado. O launcher preserva logs em `private/analysis/interactive-*`.
-O launcher teve sintaxe PowerShell conferida; o round trip acima foi validado
-pelo probe, não por teste manual de teclado. Não é pacote autônomo distribuível.
+Execute `Iniciar-FIFA.cmd` na raiz. O perfil interativo fica em
+`private/userdata_interactive`; Enter = Start, Z = confirmar, X = voltar,
+setas = navegar. A janela precisa ter foco. Logs em `private/analysis/interactive-*`.
+Este launcher abre o binário local; ainda não é pacote autônomo distribuível.
 
-## Próximo trabalho
+1. Selecionar adversário no SELECT TEAM, avançar até venue/arena e seguir o
+   próximo bloqueio real com capturas guiadas. Preservar o save original.
+2. Reproduzir um bloco visual em draw específico; examinar alias CAB
+   (RT 1280×720 amostrado como textura 2560×720), blend/alpha e self-sampling.
+3. Medir frames realmente apresentados sem RSX_CAP contínuo; separar o custo
+   de compilação inicial de PSO do custo estável do jogo.
+4. Validar teclado/controle físico no menu até uma partida offline; depois
+   melhorar gráficos, áudio, regras, estabilidade e execução independente.
 
-1. Entrar em Hit the Streets offline, revisar os frames após cada input e
-   capturar o próximo serviço/SPU não implementado ou a seleção de times.
-2. Medir atraso/repetição de inputs e verificar teclado e controle físico.
-3. Corrigir artefatos com estado por draw: pitch linear, aliases de RT (há
-   RT1280×720 lido como textura2560×720), culling/UV/remap e self-sampling.
-4. Aposentar recursos recriados/evictados pelo fence da submissão que realmente
-   os referencia; `wait_for_gpu()` não protege uma lista ainda não submetida.
-5. O default `depth_func=1` do parser não é enum GL; corrigir com regressão se
-   esse estado for observado antes de SET_DEPTH_FUNC. Stencil permanece parcial.
-
-REA/Rizin e evidências PPU/SPU anteriores continuam em `docs/AI-HANDOFF.md` e
-`reports/pad-input-consumer.json`. Não repetir investigação do consumo básico do
-controle como se o menu ainda estivesse bloqueado no logo. Gameplay segue aberto.
+Histórico anterior de REA/Rizin, SPU e pad: `docs/AI-HANDOFF.md`,
+`reports/pad-input-consumer.json` e `reports/menu-renderer-progress.json`.

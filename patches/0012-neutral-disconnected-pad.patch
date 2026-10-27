@@ -1,0 +1,64 @@
+diff --git a/libs/input/cellPad.c b/libs/input/cellPad.c
+--- a/libs/input/cellPad.c
++++ b/libs/input/cellPad.c
+@@ -97,6 +97,16 @@
+ /* Per-port "a report has arrived since your last read" flag; see cellPadGetData. */
+ static int s_data_fresh[PAD_MAX_HOST_PORTS];
+ 
++/* Port 0 remains a virtual pad with no controller. Zero means full up/left
++ * stick deflection, so a disconnected pad must report centered sticks. */
++static void pad_neutralize_disconnected(int port)
++{
++    PadHostState* hs = &s_host_state[port];
++    memset(hs, 0, sizeof *hs);
++    hs->analog_lx = hs->analog_ly = 128;
++    hs->analog_rx = hs->analog_ry = 128;
++}
++
+ #if PAD_BACKEND_SDL2
+ static SDL_GameController* s_sdl_controllers[PAD_MAX_HOST_PORTS];
+ static int s_sdl_inited = 0;
+@@ -243,7 +253,7 @@
+ 
+         DWORD result = XInputGetState((DWORD)i, &state);
+         if (result != ERROR_SUCCESS) {
+-            s_host_state[i].connected = 0;
++            pad_neutralize_disconnected(i);
+             continue;
+         }
+ 
+@@ -359,7 +369,7 @@
+ 
+         SDL_GameController* gc = s_sdl_controllers[i];
+         if (!gc || !SDL_GameControllerGetAttached(gc)) {
+-            s_host_state[i].connected = 0;
++            pad_neutralize_disconnected(i);
+             if (gc) {
+                 SDL_GameControllerClose(gc);
+                 s_sdl_controllers[i] = NULL;
+@@ -563,6 +573,8 @@
+     s_max_connect = max_connect > CELL_PAD_MAX_PORT_NUM ? CELL_PAD_MAX_PORT_NUM : max_connect;
+     memset(s_port_setting, 0, sizeof(s_port_setting));
+     memset(s_host_state, 0, sizeof(s_host_state));
++    for (int i = 0; i < PAD_MAX_HOST_PORTS; i++)
++        pad_neutralize_disconnected(i);
+ 
+     pad_init_backend();
+ 
+diff --git a/libs/input/tests/test_pad_rumble.c b/libs/input/tests/test_pad_rumble.c
+--- a/libs/input/tests/test_pad_rumble.c
++++ b/libs/input/tests/test_pad_rumble.c
+@@ -97,8 +97,13 @@
+     set_act(0, 0, 255, CELL_OK);
+     assert(s_calls == 4 && s_lo == 65535 && s_hi == 0);
+     s_sdl_controllers[0] = (SDL_GameController*)&s_gone_gc;   /* GetAttached says no */
++    s_host_state[0].buttons = CELL_PAD_CTRL_UP;
++    s_host_state[0].analog_lx = s_host_state[0].analog_ly = 0;
+     pad_poll_sdl2();
+     assert(s_sdl_controllers[0] == NULL && s_rumble[0].lo == 0 && s_rumble[0].sent_ms == 0);
++    assert(s_host_state[0].buttons == 0);
++    assert(s_host_state[0].analog_lx == 128 && s_host_state[0].analog_ly == 128);
++    assert(s_host_state[0].analog_rx == 128 && s_host_state[0].analog_ry == 128);
+ 
+     /* Ports past the host's, bad arguments, a closed library. */
+     set_act(5, 1, 1, CELL_OK);

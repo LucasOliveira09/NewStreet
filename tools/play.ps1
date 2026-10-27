@@ -25,6 +25,7 @@ $launchEnvironment = @{
     PS3_HDD0_ROOT = (Join-Path $profile 'dev_hdd0')
     PS3_HDD1_ROOT = (Join-Path $profile 'dev_hdd1')
     PS3_HLE_TRACE = '200'
+    PS3_VERBOSE = '0'
 }
 # Keep diagnostic overrides out of interactive sessions; restore the calling shell.
 foreach ($key in @('PAD_FILE','PAD_SCRIPT','PAD_AUTOPRESS','PAD_NO_KEYBOARD',
@@ -40,7 +41,7 @@ try {
     }
     $arguments = '"{0}" "{1}"' -f $bootElf, $disc
     $process = Start-Process -FilePath $bootExe -ArgumentList $arguments -WorkingDirectory $projectRoot `
-        -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logDir 'stdout.log') `
+        -WindowStyle Normal -PassThru -RedirectStandardOutput (Join-Path $logDir 'stdout.log') `
         -RedirectStandardError (Join-Path $logDir 'stderr.log')
 } finally {
     foreach ($key in $previousEnvironment.Keys) {
@@ -52,4 +53,7 @@ Write-Host 'Enter = Start | Z = confirmar | X = voltar | Setas = navegar'
 Write-Host "Perfil: $profile"
 Write-Host "Logs: $logDir"
 $process.WaitForExit()
-if ($process.ExitCode -ne 0) { throw "O processo nativo encerrou com codigo $($process.ExitCode). Consulte $logDir" }
+$process.Refresh()
+$exitCode = $process.ExitCode
+if ($null -eq $exitCode) { throw "O processo nativo foi encerrado sem codigo de saida. Consulte $logDir" }
+if ($exitCode -ne 0) { throw "O processo nativo encerrou com codigo $exitCode. Consulte $logDir" }

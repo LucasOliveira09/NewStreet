@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-27",
+  "target": "FIFA Street 2012 PS3 BLUS30882 1.00, native Windows x64",
+  "binary_sha256": "db8525d6e23ccf943708ba9cf593e55fc5b1e63f5669fe16007c65304f83a6b5",
+  "fixes": [
+    "patches/0011-rsx-linear-texture-pitch.patch",
+    "patches/0012-neutral-disconnected-pad.patch",
+    "tools/play.ps1"
+  ],
+  "root_cause": "With no XInput device and PAD_NO_KEYBOARD=1, memset left the virtual port-0 analog axes at 0 (full up/left) while digital reports stayed neutral. A disconnected physical device could leave stale axes too.",
+  "before": {
+    "run": "private\\analysis\\runs\\1793124459667832300",
+    "exit_code": 1,
+    "manual_stop": true,
+    "frames": "private/analysis/pitch-gated-menu-frames/frame_46..frame_70",
+    "sample_x": 600,
+    "sample_y": [
+      240,
+      330,
+      420,
+      520,
+      610
+    ],
+    "selected_rows": [
+      0,
+      2,
+      0,
+      3,
+      0,
+      3,
+      1,
+      2,
+      0,
+      4,
+      1,
+      3,
+      1,
+      4,
+      2,
+      0,
+      2,
+      0,
+      3,
+      4,
+      2,
+      0,
+      2,
+      0,
+      2
+    ],
+    "transitions_without_new_input": 24,
+    "distinct_menu_items": 5,
+    "observed_wrong_cross": "CREATED TEAM REQUIRED / My Squad after a Cross queued on an earlier Hit the Streets capture"
+  },
+  "after": {
+    "run": "private\\analysis\\runs\\1793124900057646500",
+    "exit_code": "timeout",
+    "elapsed_seconds": 480.176,
+    "timeout_is_not_clean_exit": true,
+    "frames": "private/analysis/pad-neutral-menu-frames/frame_34..frame_41",
+    "selected_rows": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "transitions_without_input": 0,
+    "manual_input_log": "private/analysis/pad-neutral-menu-manual-input.json",
+    "screens": {
+      "stable_menu": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_41/backbuffer.bmp",
+        "sha256": "06d98d963ebdb5336b960bbbf211eee7d8ff2890017790022ceb44f279f19767"
+      },
+      "match_type": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_47/backbuffer.bmp",
+        "sha256": "b34cbccef6da4cfd993e94d0b4f27f296b9534233c9c4991573cd90b9d543294"
+      },
+      "panna": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_54/backbuffer.bmp",
+        "sha256": "2aa9020f700eeb51356d29f809f63003d119a2dec0c7ade9267cb97571c741a8"
+      },
+      "futsal": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_61/backbuffer.bmp",
+        "sha256": "6987d62c6d7ecfebc6d627fa367864a2002f89162ca69a4a154063bb04abf9f5"
+      },
+      "sides": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_68/backbuffer.bmp",
+        "sha256": "b01bc180686ed70a33b8d2cbefe85609218f5c854ed6fc7ffb64c964dbdbe7f9"
+      },
+      "teams": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_76/backbuffer.bmp",
+        "sha256": "82c2564fe538c737f7ec1f54afe6a7de03b1865ea48a34e7e4c4dc2ddeb506ce"
+      },
+      "chicago_fire": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_82/backbuffer.bmp",
+        "sha256": "716e3fd5ffe462d0a2db57e7c208c3da494dd11db82c1cbd522217d98f910db4"
+      },
+      "left_ready": {
+        "path": "private/analysis/pad-neutral-menu-frames/frame_88/backbuffer.bmp",
+        "sha256": "a9b92ba28b641940d770e91cdaa48e0d540a32d40e7c75efad94624af443a604"
+      }
+    },
+    "path_observed": [
+      "Hit the Streets",
+      "Select Match Type",
+      "Panna Rules",
+      "Futsal",
+      "Select Sides",
+      "Select Team",
+      "Chicago Fire selected",
+      "Chicago Fire ready; opponent MLS league chooser visible"
+    ],
+    "fault_events": 0,
+    "event_parse_errors": 0,
+    "asset_jobs_matched": 65,
+    "asset_jobs_sampled": 65
+  },
+  "graphics": {
+    "texture_pitch": "Backend now consumes SET_TEXTURE_CONTROL3 pitch when uploading a linear texture and fingerprints the full source face.",
+    "observed_padded_linear_textures_in_captured_menu": 0,
+    "menu_blocks_still_present": true,
+    "note": "Correct texture-pitch semantics did not explain the current menu blocks; all observed supported linear textures in these captures used a tight pitch."
+  },
+  "performance": {
+    "metric": "backend batches per second, not confirmed displayed frames or gameplay FPS",
+    "steady_team_screen_last_perf_line": "[PERF] 14.49 fps | render_frame 0.19s (14%) | guest 1.19s (86%)",
+    "shader_compile_stall_previous_run": "[PERF] 1.27 fps | render_frame 13.15s (84%) | pso 12.94s (82%) | 124 MISS",
+    "launcher_verbose_logging_disabled": true,
+    "no_validated_fps_gain": true
+  },
+  "launcher": {
+    "path": "tools/play.ps1",
+    "native_window_visible_checked": true,
+    "interactive_log": "private/analysis/interactive-20261027-182335-8890469",
+    "test_ended_by_manual_taskkill": true
+  },
+  "original_save_hashes_unchanged": true,
+  "remaining": [
+    "Pick opponent and advance to venue/arena",
+    "Resolve visual blocks and menu text artifacts",
+    "Measure actual presented FPS without continuous capture",
+    "Reach and validate a full futsal match, controls, physics, audio and exit"
+  ]
+}

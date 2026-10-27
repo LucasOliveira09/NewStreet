@@ -51,7 +51,8 @@ só se aplicam a pedidos de conteúdo. Responda ao Lucas em português brasileir
 - `gamedata/` na raiz é armazenamento local do jogo e fica ignorado; probes
   diretos precisam configurar `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` para `private/userdata/`.
 - Dependência fixada em `toolchain.lock.json`; mudanças autorais no SDK precisam
-  permanecer reproduzíveis em `patches/0001-strict-native-boot.patch`.
+  permanecer reproduzíveis na série ordenada `patches/0001`–`0012` (e próximos
+  patches versionados), nunca como alteração solta do submódulo.
 
 ## Execução e conclusão de incrementos
 

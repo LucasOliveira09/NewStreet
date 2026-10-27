@@ -1,65 +1,68 @@
 # Plano ativo do port
 
-Estado/evidência: [checkpoint](../STATUS.md) e
-[relatório do menu](../reports/menu-renderer-progress.json).
+Estado/evidência: [checkpoint](../STATUS.md),
+[progresso do input e Futsal](../reports/menu-input-progress.json) e
+[renderização anterior](../reports/menu-renderer-progress.json).
 Aceite completo: [prompt](../PROMPT_EXECUCAO_COMPLETA.md).
 
-## 1. Marco concluído: menu original navegável
+## 1. Marcos concluídos: menu e fluxo offline inicial
 
-- Banco completo de 16 texturas, root signature e descritores sem sobreposição.
-- Lookup exato de RT antes dos fallbacks por dimensão.
-- Estado de profundidade guest por draw e por PSO; 20 testes runtime passaram.
-- Start no título → Cross no aviso de save → menu principal original.
-- Mudança de seleção, abertura de SIGN IN FAILED e confirmação de OK com retorno.
-- Capturas32/36/46/55/67 do run `1793122289140347600` foram revisadas.
-- O processo foi encerrado intencionalmente após o ensaio; exit1 não é clean exit.
-- Há artefatos visuais. Não há partida ou arena 3D nativa validada.
+- Renderer: 16 unidades de textura, lookup exato de RT, estado de depth guest.
+- Port 0 virtual neutro em `patches/0012`: sem XInput/teclado, eixos em 128.
+  O menu deixou de oscilar sozinho: oito capturas estáveis, contra 24
+  transições em 25 capturas anteriores sem novo comando.
+- Start no título → aviso de autosave → Hit the Streets → Futsal → Select
+  Sides → Select Team. Chicago Fire foi marcado READY no lado esquerdo.
+- Capturas `frame_41/47/54/61/68/76/82/88` no run `1793124900057646500`.
+- O run terminou por timeout em SELECT TEAM, sem block/crash; não é clean exit.
+- `Iniciar-FIFA.cmd` abriu janela visível e processo FullGame nativo num teste
+  controlado; não valida teclado ou pacote de distribuição.
 
-## 2. Prioridade ativa: alcançar seleção/cena offline
+## 2. Prioridade ativa: atravessar SELECT TEAM e chegar à arena
 
-1. Usar perfil copiado e entrada guiada por captura revisada. Não sobrescrever
-   os cinco arquivos do save original. `Iniciar-FIFA.cmd` usa perfil interativo separado.
-2. Selecionar Hit the Streets offline, aguardar apresentação após cada comando
-   e registrar botão/horário/captura anterior e seguinte. Não inferir modo carregado
-   a partir do highlight: o Cross após Practice Arena exibiu um aviso de login.
-3. Validar também teclado (setas, Z/X, Enter) e controle físico; medir latência e
-   repetição. Os pulsos PAD_FILE do ensaio ainda não têm medição um-a-um.
-4. Ao aparecer um block/crash, seguir endereço/bytes/PC com REA/Rizin/lifter e
-   implementar semântica real. Preservar saída90 e diagnóstico de faltas.
-5. Aceite seguinte: seleção de times/cena e jogadores/bola visíveis; depois
-   controle, animação, física, áudio e regras verificadas em uma partida offline.
+1. Usar uma nova cópia de `private/userdata` e input guiado por tela revisada.
+   Preservar os cinco hashes do save original. `tools/run_title_probe.py`
+   automatiza Start e o aviso, mas a seleção posterior exige revisão visual.
+2. No SELECT TEAM, escolher o adversário (MLS já selecionada no lado direito),
+   avançar a venue/arena e registrar captura antes e depois de cada comando.
+3. Validar o primeiro frame 3D, jogadores/bola, resposta ao controle e próximo
+   serviço/SPU faltante. Se houver block/crash, seguir PC/bytes via REA/Rizin;
+   saída 90 permanece falha, nunca sucesso.
+4. Repetir o mesmo fluxo pelo teclado em `Iniciar-FIFA.cmd` e controle físico.
+   Validar também voltar, pause, saída, áudio e partida completa.
 
-## 3. Renderização e recursos ainda abertos
+## 3. Renderização e desempenho ainda abertos
 
-- Artefatos cinza/diagonais/ícones; reproduzir em um draw identificável.
-- Registrar formato/pitch guest e control3 para aliases: CAB é RT1280×720,
-  mas op006 lê o mesmo raw como textura2560×720. Não adivinhar conversão.
-- Upload de textura linear não preserva pitch guest; separar largura de stride.
-- Resolver self-sampling com semântica explícita; não usar uma cópia de tela arbitrária.
-- Recriação/evicção de RT/textura durante prepass pode liberar recurso referenciado
-  por lista ainda não submetida. Corrigir retirement, sem esperar fence não enviado.
-- Default depth_func1 do parser não é GL0x201; fallback atual mantém LEQUAL até
-  SET_DEPTH_FUNC. Stencil, alpha test e scissor guest exigem cobertura futura.
+- Os blocos pretos/cinzas e diagonais persistem em menu e match type.
+  `patches/0011` passou pitch guest ao D3D12, mas nenhuma textura linear
+  suportada nas capturas do menu tinha pitch acolchoado. Não atribuir a ela
+  a correção visual; isolar um draw produtor dos blocos.
+- Investigar alias: CAB tem RT1280×720 e é lido como textura2560×720;
+  examinar pitch de superfície, multisample, remap, alpha/blend e self-sampling.
+- `PERF` identificou 124 PSO misses custando 12,94 s no carregamento.
+  Separar esse pico do custo estável e medir apresentações reais, não apenas
+  lotes de backend; em SELECT TEAM, uma amostra marcou 14,49 lotes/s.
+- Aposentar RT/textura referenciados por lista de comandos no fence da
+  submissão correta. `wait_for_gpu()` antes do submit não basta.
+- Default `depth_func=1` do parser ainda não é enum GL. Stencil, alpha test
+  e scissor guest seguem incompletos.
 
 ## 4. Build e encerramento de incrementos
 
-- SDK fixado; mudanças reproduzíveis na série `patches/0001`–`0010`.
-- Runtime: `tools/build.ps1 -Target Runtime`; copiar a lib de runtime-clang para
-  `private/build/boot/sdk/ps3recomp_runtime.lib` antes de FullGame.
-- Jogo: `tools/build.ps1 -Target FullGame -SkipLift -WithSpu` apenas quando os
-  gerados e manifesto já estão atualizados. Nunca relinkar com pai/filho vivos.
-- `apply_patches.py` compara o resultado completo reconstruído quando patches
-  posteriores invalidam o reverse-check individual de um patch anterior.
-- Checks proporcionais, revisão de diff, relatório, STATUS/handoff e commit local
-  com caminhos explícitos e `git diff --cached --check`. Não publicar remoto.
+- SDK fixado; mudanças autorais reproduzíveis em `patches/0001`–`0012`.
+- Runtime: `tools/build.ps1 -Target Runtime`; copiar a lib de runtime-clang
+  para `private/build/boot/sdk/ps3recomp_runtime.lib` antes de FullGame.
+- Jogo: `tools/build.ps1 -Target FullGame -SkipLift -WithSpu` quando os gerados
+  e manifesto já estão atuais; nunca relinkar com pai/filho nativos vivos.
+- `tools/apply_patches.py` reconstrói/verifica a série completa.
+- Checks proporcionais, revisão do diff, relatório, STATUS/handoff e commit
+  local com caminhos explícitos e `git diff --cached --check`.
 
 ## 5. Evidência anterior preservada
 
-- Consumo de controle PPU, metadados lógicos e REA:
-  `reports/pad-input-consumer.json`; agora há navegação visual comprovada.
+- Consumo de controle PPU e REA: `reports/pad-input-consumer.json`.
 - Handshake PPU/SPU e flips: `reports/spu-handshake-timing.json`; flip não é FPS.
-- SPU: identificação por bytes/faixa/hash, CRT e entradas reais de workloads
-  já traduzidos permanecem no checkpoint/histórico. Não refazer a análise inteira.
-- ReStreet recompila Xbox360/XEX; serve como referência, não como dependência PS3.
-- Próximos marcos: partida completa → pausa/retorno → save/retomada → estabilidade
-  e performance → execução reproduzível fora da pasta de desenvolvimento.
+- REA/Rizin e SPU por bytes/faixa/hash estão no checkpoint/histórico.
+- ReStreet recompila Xbox360/XEX; é referência, não dependência PS3.
+- Marcos seguintes: partida completa → pausa/retorno → save/retomada →
+  estabilidade e performance → execução independente da pasta de desenvolvimento.

@@ -23,19 +23,22 @@ nativa, sem RPCS3/Xenia e sem trocar silenciosamente a recompilação por
 interpretador/JIT. O usuário autorizou continuar até alcançar partida jogável.
 O aceite completo está no prompt de execução; os próximos marcos estão no plano.
 
-No checkpoint atual, o menu principal original do executável nativo está visível
-**e sua navegação foi confirmada**. Inputs mudaram a seleção; Cross abriu o
-aviso SIGN IN FAILED; confirmar OK retornou ao menu. Evidência e hashes em
-[`menu-renderer-progress.json`](../reports/menu-renderer-progress.json), run
-`1793122289140347600`, capturas32/36/46/55/67. Há artefatos gráficos. Arena 3D,
-seleção de times e partida não foram validadas. O ensaio foi encerrado
-intencionalmente por taskkill (exit1), sem block/crash; não é clean shutdown.
-Perfis copiados foram usados e os cinco hashes originais foram preservados.
+No checkpoint atual, **o menu estável chega à seleção de times do Futsal**:
+Hit the Streets → Futsal → Select Sides → Select Team. Chicago Fire apareceu
+READY no lado esquerdo; o adversário ainda não foi escolhido. Evidência,
+comandos e hashes em [`menu-input-progress.json`](../reports/menu-input-progress.json),
+run `1793124900057646500`, capturas41/47/54/61/68/76/82/88. O ensaio terminou
+por timeout de 480 s, sem evento block/crash; não é clean shutdown nem prova
+de partida jogável. Blocos e texto incorreto ainda aparecem na interface.
+Os cinco hashes do save original permaneceram iguais; probes usam cópias.
 
-Não retome o diagnóstico antigo como se o controle ainda estivesse preso no
-logo. A prioridade agora é entrar em um modo offline e seguir o próximo
-bloqueio real. `Iniciar-FIFA.cmd` / `tools/play.ps1` abre os binários com assets
-locais, teclado e perfil interativo separado; ainda não é um pacote autônomo.
+Correção essencial: sem XInput e com `PAD_NO_KEYBOARD=1`, o port 0 virtual
+enviava analógicos `0,0` (up/left máximos). Antes, 25 capturas sem novo comando
+percorreram as cinco opções; depois de `patches/0012`, oito capturas ficaram
+em Hit the Streets e um Cross abriu a tela correta. A antiga inferência de que
+os pulsos Down explicavam toda a navegação do menu era falsa. Continue a partir
+de SELECT TEAM, não do logo. `Iniciar-FIFA.cmd` abriu janela visível em teste,
+mas teclado/controle físico e pacote autônomo ainda não foram validados.
 
 ## Onde estão código, dependências e evidências
 
@@ -43,10 +46,12 @@ locais, teclado e perfil interativo separado; ainda não é um pacote autônomo.
 - `tools/`: extração/lifting, build, probes, inspeção e validação de manifests.
 - `tests/`: probes nativos e testes Python/C++; use os checks pertinentes ao código alterado.
 - `vendor/ps3recomp/`: SDK externo fixado; não commitar alteração solta nesse submódulo.
-- `patches/0001`–`0010`: patches autorais do SDK; o relatório do menu descreve 0005–0010.
+- `patches/0001`–`0012`: patches autorais do SDK. 0011 usa pitch de textura;
+  0012 centraliza o controle virtual e limpa eixos na desconexão.
 - `toolchain.lock.json`: commits e versões fixadas; confira o checkout antes de atualizar algo.
 - `private/`: ISO/ELF/assets, executáveis, gerados, perfis, logs e capturas locais; nunca versionar.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
+- `reports/menu-input-progress.json`: menu estável e caminho Futsal até SELECT TEAM.
 - `reports/performance-opening.json`: medições anteriores de abertura.
 - `reports/spu-handshake-timing.json`: relógio correlacionado de status PPU, DMA SPU e flips.
 - `reports/title-navigation-probe.json`: pacotes válidos sem transição visual.
@@ -137,23 +142,27 @@ use lifter e correlação de bytes/hash/runtime para SPU.
 ## Checkpoint técnico ativo
 
 1. **Menu e input.** Start/Cross foram condicionados por recortes revisados.
-   No run363.708s, capturas32/36/46 mostram seleções diferentes;55 mostra
-   SIGN IN FAILED;67 confirma retorno ao menu. A correspondência exata entre
-   um pulso e uma opção ainda não foi medida; não confundir highlight de
-   Practice Arena com entrada nesse modo. O controle não precisa de bypass.
+   `PAD_NO_KEYBOARD=1` deixava o port 0 sem XInput com analógicos0,0;
+   `patches/0012` centraliza em128. O run anterior alternou 24 vezes em
+   25 capturas sem novo input; o novo ficou oito capturas em Hit the Streets.
+   Cross/Down/Cross unitários chegaram a Futsal e SELECT TEAM. Reproduzir o
+   trajeto pela sequência de capturas e inputs em `menu-input-progress.json`.
 2. **Renderer.** 0005/0006 cobrem16 samplers e bancos SRV disjuntos por frame.
    0009 prioriza a identidade do RT sobre heurísticas de dimensão. 0010 captura
    depth enable/write/compare por draw e o inclui no cache PSO; antes o renderer
    impunha depth ligado em toda a UI. O ensaio intermediário SCREEN_AS_TEX=0
    mostrou gradiente amarelo; com depth correto o menu original ficou visível.
-3. **Validação.** Runtime20/20, title probe6/6, série0001–0010 reconstruída e
-   conferida, FullGame/O1/SPU relinkado. Quatro probes novos sem PSO FAIL ou
-   block/crash;65/65 amostras de assets por ensaio. Hash do executável no relatório.
-   Não foi rerodado o gate Boot integral anteriormente interrompido.
-4. **Limites do renderer.** Pitch linear guest não é preservado; RT CAB1280×720
-   aparece amostrado como2560×720. Há self-sampling sem snapshot e recriação/
-   evicção com release antes da submissão potencialmente inseguro. Não resolver
-   isso com heurísticas de pixels/dimensões. Capturar pitch/formato por draw.
+3. **Validação.** Runtime20/20, série0001–0012 reconstruída/conferida,
+   FullGame/O1/SPU relinkado. Run final sem block/crash ou erros de parse;
+   65/65 amostras de assets iguais à referência. O timeout480 não é clean exit.
+   `Iniciar-FIFA.cmd` abriu janela nativa visível; teste encerrado manualmente.
+   Hashes e limites no relatório novo. Gate Boot integral não foi rerodado.
+4. **Limites do renderer.** 0011 preserva pitch linear guest no upload/cache;
+   o manifesto registra o valor. Nas capturas atuais não havia textura linear
+   suportada com pitch acolchoado; os blocos persistem. RT CAB1280×720 aparece
+   amostrado como2560×720. Há self-sampling sem snapshot e recriação/evicção
+   antes da submissão potencialmente insegura. Isolar o draw, sem heurística
+   arbitrária de pixels ou dimensão. Houve pico de 12,94s/124 misses de PSO.
    Parser inicia depth_func1; o helper usa LEQUAL para esse inválido até receber
    enum GL válido. Stencil/fallback sem guest-FP ainda são parciais.
 5. **PPU/SPU anterior.** Preservar handshake/wait e identidades por bytes/hash.
@@ -163,12 +172,13 @@ use lifter e correlação de bytes/hash/runtime para SPU.
 
 ### Próxima investigação recomendada
 
-1. Abrir Hit the Streets offline; usar perfil copiado e capturas antes/depois.
-2. Separar seleção apresentada, input consumido e estado lógico. Medir atraso/
-   repetição antes de automatizar vários botões rápidos. Verificar teclado físico.
+1. Retomar em SELECT TEAM: escolher adversário, avançar venue/arena com perfil
+   copiado e capturas antes/depois. O lado esquerdo Chicago Fire já ficou READY.
+2. Verificar o mesmo caminho com teclado/controle físico no launcher; medir
+   FPS apresentado sem RSX_CAP contínuo e isolar os blocos do menu por draw.
 3. Se surgir block90/PC SPU desconhecido, seguir trace e REA/Rizin por endereço;
    não fabricar retornos/status. Se render falhar, isolar o draw e seu estado.
-4. Provar seleção de times/cena, jogadores/bola e uma partida offline real.
+4. Provar arena, jogadores/bola, comandos e uma partida offline real.
 
 Build atual: `tools/build.ps1 -Target Runtime`, copiar lib de runtime-clang para
 `private/build/boot/sdk/ps3recomp_runtime.lib`, depois `-Target FullGame -SkipLift
