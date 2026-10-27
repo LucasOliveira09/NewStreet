@@ -117,21 +117,24 @@ Esse conteúdo foi mantido e a pasta está ignorada pelo Git.
 5. **Captura/jogo.** Última captura posterior a LOADING ficou preta. Várias
    causas continuam possíveis; nenhum vínculo causal foi isolado.
 
-O follow-up mais recente observou PPU stores de `1` pelo endereço guest
-`0x000A8E10` (LR `0x000A95DC`) para `0x106E0900`, e requisições SPU4/5 MFC_GET
-(`0x40`) / MFC_PUT (`0x20`) cobrindo 8 bytes na mesma EA a partir de LS
-`0x3ED10`, PC `0x0156C`. O hook `SPU_WATCHEA` está antes de executar o comando;
-ele não revela o valor efetivamente escrito. A amostra read-only de 315 leituras
-em ~7,9 s, a cada25 ms, encontrou só0 e1 (nunca negativo); transientes menores
-que o intervalo continuam possíveis. O ensaio direto pula EBOOT e foi feito só
-para essa leitura; não substitui a execução FullGame normal.
+O watch pós-MFC está versionado em `patches/0002-post-transfer-spu-watch.patch`.
+Com `SPU_WATCHEA=106E0900` registra `rc`, origem/destino e contador depois da
+transferência. `SPU_WATCHEA_EVERY=1` registra todos os hits. Probe combinado de
+20 s `private/analysis/runs/1793103246332528600`: MFC GETs de SPU4/5 leram
+`1 0x12805080`; PUTs gravaram `0 0x12805080`; 525 registros no total. PPU
+`func_000A8E10`, LR `0x000A95DC`, gravou1 260 vezes (TID17=36, TID22=224).
+Nenhum negativo apareceu. Isso prova a transição1→0, mas não o significado do
+protocolo, o autor do sinal terminal nem a causa da tela preta. O wait traduzido
+em `func_000A71E4` lê `*(objeto+0xC)` e só retorna se o valor for negativo.
 
-Veja IDs de runs, contagens, hashes e escopo em
-[`performance-opening.json`](../reports/performance-opening.json). Preserve a
-distinção entre dado observado, hipótese e conclusão. Próximo passo: armar
-`PPU_WW_GUARD=1` para atribuir qualquer escrita na página. Se o SPU DMA alterar o
-estado, capturar valor e resultado após a execução do MFC por um hook estreito.
-Não force status nem burle o wait.
+`PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
+no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
+`PPU_WWATCH`/`PPU_CASWATCH` mais watch pós-MFC. A tentativa com `-Target Runtime`
+reconstrói `private/build/runtime-clang`, que FullGame não liga. Para atualizar o
+archive compartilhado, execute `tools/build.ps1 -Target Boot` e relinke FullGame.
+IDs, contagens, hashes e escopo em
+[`performance-opening.json`](../reports/performance-opening.json). Não force
+o estado nem burle o wait.
 
 ## Próxima investigação recomendada
 

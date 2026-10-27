@@ -65,8 +65,10 @@
   "current_binary": {
     "path": "private/build/fifazf_full/fifa_boot.exe",
     "optimization": "/O1",
-    "sha256": "2008ce3d073646543a99a76ce33fe0b40873a397c2a1e58df2b51613b45f8176",
-    "runtime_timer_change": "reverted; final SDK runtime source matches baseline"
+    "sha256": "86e125609c4e878cbce06aa3d5da74932a5574546921fdab9708357186e7608e",
+    "runtime_timer_change": "reverted; final SDK runtime source matches baseline",
+    "runtime_archive_sha256": "c60fa431ea9f2d243070c0de77dca82586e529825739327656125ebe6ec59a17",
+    "runtime_instrumentation_patch": "patches/0002-post-transfer-spu-watch.patch"
   },
   "frame_timeline": {
     "run": "private/analysis/runs/1793060864859956200",
@@ -106,7 +108,10 @@
         "run": "private/analysis/runs/1793102166742658400",
         "watch_ea": "0x106E0900",
         "matching_lines": 782,
-        "spu_ids": [4, 5],
+        "spu_ids": [
+          4,
+          5
+        ],
         "commands": {
           "0x40": "MFC_GET",
           "0x20": "MFC_PUT"
@@ -114,7 +119,8 @@
         "transfer_bytes": 8,
         "local_store_address": "0x3ED10",
         "reported_pc": "0x0156C",
-        "scope": "SPU_WATCHEA runs before command execution in mfc_submit; its counter remains zero in this source, so every matching DMA printed. These lines prove matching GET/PUT requests, not the value committed by PUT."
+        "scope": "The original watch ran before the MFC command and did not prove committed PUT values. It is superseded by post_transfer_watch below.",
+        "interpretation": "Pre-transfer records proved only matching requests. This flaw was replaced by the post-transfer watch in patches/0002-post-transfer-spu-watch.patch."
       },
       "live_memory_sampling": {
         "run": "private/analysis/runs/1793102435000000000",
@@ -132,7 +138,46 @@
         "scope": "Best-effort ReadProcessMemory snapshots. A transition shorter than the sampling interval is not excluded.",
         "storage_note": "This one-off direct launch omitted PS3_HDD0_ROOT/PS3_HDD1_ROOT. It created local trophy files at gamedata/trophies; files were preserved and the root folder is now Git-ignored. Future direct probes must point storage to private/userdata."
       },
-      "next": "Use PPU_WW_GUARD=1 to attribute writes crossing the guarded host page. If the SPU DMA is the writer, move/add a narrowly filtered observation after MFC execution to record the committed word and transfer result; do not force the status negative."
+      "next": "Trace the exact object instance and producer/worker path from func_000A9680 -> func_000A71E4 and func_000A8E10. Watch the same instance fields with PPU_WWATCH/PPU_CASWATCH plus post-transfer SPU_WATCHEA; identify the owner of the expected negative terminal state before changing behavior. Do not force status or skip the wait.",
+      "post_transfer_watch": {
+        "implementation": "SPU_WATCHEA logs only after MFC execution; counts matching GET/PUT records, includes rc and source/destination bytes. SPU_WATCHEA_EVERY defaults to 1.",
+        "build_note": "Target Runtime builds private/build/runtime-clang and is not the archive linked by FullGame. Rebuild the shared archive with tools/build.ps1 -Target Boot, then relink FullGame.",
+        "run_35s": "private/analysis/runs/1793103018451518000",
+        "run_20s_full_8_bytes": "private/analysis/runs/1793103129252654000",
+        "run_20s_with_ppu_watch": "private/analysis/runs/1793103246332528600",
+        "combined_counts": {
+          "post_transfer_dma_records": 525,
+          "spu4_get": 146,
+          "spu4_put": 143,
+          "spu5_get": 119,
+          "spu5_put": 117,
+          "ppu_status_one_writes": 260,
+          "ppu_tid17": 36,
+          "ppu_tid22": 224
+        },
+        "observed_transfer": "MFC GET cmd 0x40 transferred status 1 and adjacent word 0x12805080 from EA 0x106E0900. MFC PUT cmd 0x20 committed status 0 and preserved adjacent word 0x12805080. Every logged transfer returned rc=0.",
+        "ppu_writer": "PPU_WWATCH saw 260 writes of 1 by func_000A8E10, caller LR 0x000A95DC, split across TID17 and TID22. No negative write appeared during the probe.",
+        "meaning": "The 1-to-0 SPU transition is proven, but its protocol meaning and the expected negative terminal signal source remain unknown. No menu progression was demonstrated.",
+        "limitations": "20s instrumented run, timeout. Diagnostics can perturb scheduling. PC 0x0156C and image 526190333 are observed identifiers, not semantic names.",
+        "final_atomic_counter_probe": {
+          "run": "private/analysis/runs/1793103742518647900",
+          "timeout_seconds": 15,
+          "exit": "timeout; native EBOOT-to-FIFAZF spawn observed; no graphics capture",
+          "records": 348,
+          "by_spu_and_command": {
+            "spu4_get": 104,
+            "spu4_put": 104,
+            "spu5_get": 70,
+            "spu5_put": 70
+          },
+          "values": "Every GET copied 0000000112805080; every PUT committed 0000000012805080; rc=0.",
+          "counter": "Global hit counter uses __atomic_add_fetch; watch configuration is published with acquire/release atomics."
+        }
+      },
+      "page_guard_follow_up": {
+        "run": "private/analysis/runs/1793102580444686400",
+        "result": "Rejected as too noisy: PPU_WW_GUARD armed on pointer initialization 0x106E0800, then logged 73,845 writes across a 4 KiB page. Do not repeat unchanged."
+      }
     }
   },
   "timer_experiment": {

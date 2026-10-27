@@ -1,110 +1,60 @@
 # Checkpoint atual — 27/10/2026
 
-Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: medir e corrigir FPS da execução interativa.
-Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
-Guia de retomada para outras IAs: docs/AI-HANDOFF.md.
+Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
+Branch: `codex/ps3-native-bootstrap`. Incremento: protocolo do estado de espera do RenderThread.
+Guia de retomada: `docs/AI-HANDOFF.md`. Evidência estruturada: `reports/performance-opening.json`.
 
-## Confirmado
+## Critério de verdade
 
-- EBOOT inicia FIFAZF como processos Windows; PPU/SPU compilados e Direct3D 12.
-- Título original e aviso de autosave renderizados em 1280×720.
-- Start/Cross chegaram ao código original. Perfil BLUS308820000A criado/relido;
-  cinco arquivos preservados por hash; SYS-DATA tem 2.127.971 bytes.
-- Há artefatos na abertura. Áudio tem sinal; escuta/sincronia ainda pendentes.
-- **Menu navegável, cena, gameplay e partida completa ainda não validados.**
-- 99.127 entradas PPU, 369 wrappers de imports, 122 registros raw SPU.
-  Contagem não demonstra semântica completa dos serviços ou algoritmos.
+O boot mostra título e aviso de autosave. Start/Cross chegaram ao código original em probes anteriores; o perfil local foi criado e relido. **Menu navegável, seleção, cena 3D, controle, bola, partida e ciclo completo continuam sem validação.** Timeout, janela ou flip não significam jogo jogável. O objetivo autorizado é chegar a uma partida offline completa no Windows.
 
-## Trabalho de desempenho em andamento
+## Novo diagnóstico do wait
 
-- FullGame agora compila PPUs com /O1 por padrão; -DebugFullGame seleciona /Od.
-- No trecho de abertura pareado (1840 texturas,31k vértices,1240 PSOs,0 misses),
-  /O1 passou de 8,225 para 8,75 batches/s (+6,4%); não é FPS de gameplay.
-- Amostra posterior do mesmo trecho: 8,76 batches/s. Sem ganho demonstrável.
-- FTrace: 99 pedidos de flip em 12s, mediana120,6ms (8,3/s); drain RSX26,2ms
-  por intervalo. O restante ainda precisa de atribuição causal.
-- RenderThread (PPU22) gastou9,168s/12s em 305.628 polls de usleep(30µs),
-  retorno LR0x000A969C. O objeto observado alternou0/1; a espera sai com valor<0.
-- PPU_WWATCH encontrou `func_000A8E10` (LR0x000A95DC) gravando1 no estado
-  0x106E0900. SPU4/5 pediram GET/PUT de8 bytes nessa palavra, LS0x3ED10, PC0x156C.
-- Leitura ao vivo read-only:315 amostras/7,9s viram0(51x) e1(264x), nunca negativo;
-  intervalo25ms não exclui transiente. Watch DMA atual ocorre pré-transferência.
-- Wait caro confirmado; causalidade com FPS não. Experimento do timer deu8,76vs8,75
-  e foi revertido. Logs/escopos/retomada em reports/performance-opening.json.
-- A última captura segue preta, sem menu ou gameplay validado. Alguns assets
-  pedidos no boot não existem no disco extraído; causa ainda não isolada.
-- Evidências e limitações em reports/performance-opening.json.
+- PPU22 (`RenderThread`) gastou 9,168 s de 12 s em 305.628 chamadas `sys_timer_usleep(30us)` no loop chamado em `LR 0x000A969C`; helper `func_000A71E4` lê o primeiro word de `*(objeto+0xC)` e só sai se o valor for negativo.
+- Watch pós-transferência foi adicionado ao SDK por `patches/0002-post-transfer-spu-watch.patch`. `SPU_WATCHEA=<EA>` agora conta hits e registra depois do MFC, com resultado e bytes de origem/destino. `SPU_WATCHEA_EVERY=1` captura todos.
+- Probe combinado de 20 s: `private/analysis/runs/1793103246332528600`. PPU escreveu `1` em `0x106E0900` 260 vezes: TID17=36, TID22=224, sempre `func_000A8E10`, caller LR `0x000A95DC`. Inicialização também escreveu zeros e ponteiros.
+- No mesmo probe, SPU4/5 fez 265 GETs de 8 bytes (primeiro word `1`, segundo `0x12805080`) e 260 PUTs (primeiro word `0`, segundo `0x12805080`), todos `rc=0`, PC reportado `0x0156C`, imagem `526190333`. O destino do PUT correspondeu aos bytes registrados depois da execução.
+- Não foi observado estado negativo. O SPU alternar `1→0` e o PPU escrever `1` está confirmado; o significado do ponteiro, a rotina que deveria concluir o wait e a relação com a tela preta ainda não estão provados. Não force sinal nem burle o loop.
+- A tentativa anterior com `-Target Runtime` recompilou outra biblioteca e não atualizou o FullGame. Para este executável, use `-Target Boot` para reconstruir `private/build/boot/sdk/ps3recomp_runtime.lib`, depois relinke FullGame.
+- `-Target Runtime`: build concluído, 18/18 checks passaram. `-Target Boot`: build concluído, 48/48 checks passaram. FullGame relinkado após ambos os ajustes.
+- Probes normais EBOOT→FIFAZF de 35 s, 20 s, 20 s e 15 s terminaram por timeout; o último capturou348 DMAs com contagem atômica. Nenhum prova avanço de menu.
+- A page guard anterior foi armada cedo no ponteiro `0x106E0800` e produziu 73.845 registros na página de 4 KiB. Não repetir sem um armamento condicionado ao valor certo; o watch pós-DMA e `PPU_WWATCH` são mais estreitos.
 
-## Último ensaio e verificações
+## Outros bloqueios ativos
 
-- Resultado: private/analysis/fp-snapshot-native-run.json.
-- Logs: private/analysis/runs/1793045363092741200.
-- Timeout aos **180,176 s**, sem nova parada estrita; não equivale a jogo completo.
-- LOADING observado; depois tela preta. Falhas de shaders capturadas/reproduzidas.
-- 48 testes Boot, 146 do projeto e 65 amostras de assets passaram.
-- 18 testes runtime CTest passaram, incluindo os dois novos de FP/snapshot.
-- Os cinco hashes do perfil permanecem iguais ao checkpoint JSON.
+- Desempenho de abertura: /O1 teve 8,75 batches/s contra 8,225 no trecho pareado; batches não são FPS visível. FTrace: 99 flips/12 s, mediana 120,6 ms; drain RSX 26,2 ms.
+- A alteração de temporizador não mudou a mediana (8,76 vs 8,75 batches/s) e foi revertida.
+- Última captura após LOADING é preta. Sampler4 excede root signature limitada a quatro unidades; mapa real tem sobreposições de descritores. D3D12 ID921 acusa recurso destruído antes do Execute.
+- Alguns assets pedidos no boot não existem nos caminhos extraídos. O impacto ainda não foi isolado.
+- Guardar os cinco hashes do save conforme `reports/native-boot-checkpoint.json`. Nunca substituir o perfil.
 
-## Incrementos recentes validados
+## Base já validada neste port
 
-- ANT: 68 módulos comuns/816 chamadas de construtores e quatro variantes/72;
-  testes de CRT/BSS/relocação, sem afirmar todos os algoritmos de animação.
-- job_raw_1ee9580: 173 entradas, dez construtores reversos e BSS; entrada real.
-  Nome original desconhecido; rótulo distante Replay_deltacompress era inválido.
-- Replay_matrixsave/Matrixload: 78/189 entradas, CRT e constantes; entradas reais.
-- FIFARNA batchplayer pass0: 477 entradas, BSS448, dois construtores; entrada real.
-- Railtracks path estimates: 1.769 entradas, BSS25072, quatro construtores,
-  retorno ao stop0 original incluído e testado; entrada real.
-- User music arbiter: 19 entradas PIC; init4bases e 4.096 amostras de fade
-  contra oráculo linear em dois canais; código/guardas preservados; entrada real.
-- Compressor1: 114 entradas PIC; init4bases, callbacks/contexto/guardas validados;
-  entrada real, algoritmo completo de compressão não validado.
-- Reverb1: 287 entradas PIC; init4bases/callbacks/contexto/guardas e 32 bytes de
-  estado preservados; entrada real, algoritmo de reverberação não validado.
-- Matrix panner: 26 entradas PIC; init4bases/callbacks/guardas validados; entrada real.
-- Delay: 96 entradas PIC; init4bases/callbacks/contexto/guardas validados; entrada real.
-- Lote DSP: FIR64/IIR2/clip têm 82/44/21 entradas e init4bases cada; ainda sem entrada real.
-- Reverb IR1: 391 entradas, init4bases/208bytes de estado preservados; entrada real.
-- Identificador preserva diagnósticos de JSONs truncados e analisa os válidos.
+- FullGame compila 99 mil funções PPU do FIFAZF, além de workloads SPU levantados; EBOOT é reproduzido separadamente e inicia o ELF do jogo pelo launcher nativo.
+- Builds de desenvolvimento exigem as entradas privadas e a toolchain fixada. `-SkipLift` só vale quando os artefatos gerados correspondem aos ELFs e manifests atuais.
+- `tools/run_native.py --profile full --timeout N` grava logs e `result.json` sob `private/analysis/runs`; timeout mata pai e descendentes e não declara sucesso.
+- Probes usuais preservam os saves em `private/userdata`; conferir os cinco hashes de `reports/native-boot-checkpoint.json` antes/depois.
+- O teste pareado de /O1 mede batches de renderer, incluindo passes fora da tela. Não converter esse dado em FPS do jogo.
+- Foram identificadas entradas reais e testadas em módulos de AI, Replay, Railtracks e áudio. Esses resultados cobrem entradas/construtores/callbacks descritos no plano, não provam algoritmos completos.
+- O relatório de desempenho guarda os hashes exatos do executável FullGame e do archive Runtime usado nesta revisão.
+- O lift SPU preserva PC de retorno a stops originais; imagens e limites precisam continuar vinculados a bytes/hash, sem usar rótulo inferido como nome original.
+- Renderer D3D12 ainda requer mapeamento comprovado de 16 texturas/samplers, descritores disjuntos e aposentadoria de recursos pelo fence efetivamente submetido.
+- Arquivos privados de jogo, ELF, assets, executáveis, logs e capturas ficam em `private/`; não versionar conteúdo derivado nem saves.
 
-## Bloqueio atual
+## Reproduzir a validação do incremento
 
-- Span FP completo validado/possuído no consumo do draw, máximo64KiB.
-  Hash literal inclui constantes; cache compara bytes. PSOs retirados só após
-  confirmação do fence dedicado, sem assumir que timeout legado prova conclusão.
-- Novo ensaio: zero falhas de compilação capturadas; programas5024/5472bytes
-  chegaram à criação de pipeline. 18 runtime/48 Boot/146 projeto passaram.
-- Erro atual: sampler4 fora da root signature limitada a4 unidades.
-  Ampliar banco real para16: estado por draw, SRVs/samplers, strides e heaps.
-- Validação D3D12 também acusa recurso destruído antes de executar comandos
-  (ID921), já presente antes deste incremento. Corrigir retirement das texturas.
-- Verificar sobreposição de descritores: VPcache1..96, RT5..20 e drawbase32.
-- Nenhum menu/cena/gameplay validado; última imagem apósLOADING é preta.
+- `private\python-env\Scripts\python.exe tools/apply_patches.py` reconhece os patches 0001 e 0002 já aplicados no checkout fixado.
+- `tools/build.ps1 -Target Runtime`: biblioteca de runtime alternativa; 18 checks passaram, mas esse archive não é consumido pelo FullGame.
+- `tools/build.ps1 -Target Boot`: atualizou `private/build/boot/sdk/ps3recomp_runtime.lib`; 48 checks passaram.
+- `tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4`: relinkou `private/build/fifazf_full/fifa_boot.exe` com o archive de Boot atualizado.
+- `SPU_WATCHEA=106E0900`, `SPU_WATCHEA_EVERY=1`, `PPU_WWATCH=106E0900`, `PPU_WWATCH_LEN=0x10`, `PPU_WWATCH_MAX=0` foram usados somente no probe instrumentado de 20 s.
+- Todos os quatro probes desta etapa encerraram por timeout; não houve captura gráfica nem validação de menu/jogo.
 
-## Retomada e comandos
+## Próximo trabalho
 
-Leia AGENTS.md, este checkpoint e a etapa de tasks/plan.md. Abra só os arquivos
-pertinentes. O principal é dono de lift/build/probe/patch/commit, serializados.
-Nunca relinke com qualquer processo nativo pai ou filho vivo.
+1. Partir dos argumentos/campos do objeto passado por `func_000A9680 → func_000A71E4` e do publicador chamado por `func_000A8E10`; identificar o worker/callback responsável pelo sinal terminal negativo.
+2. Instrumentar os campos dessa mesma instância com `PPU_WWATCH`/`PPU_CASWATCH` e watch pós-MFC. Correlacionar pedido, job SPU, retorno e estado final; distinguir instâncias de TID17 e TID22.
+3. Corrigir somente a semântica/comunicação que a evidência demonstrar. Reproduzir probe normal e verificar se o RenderThread progride além do wait e se surge uma tela verificável.
+4. Em seguida atacar a captura preta, banco de 16 texturas/descritores e retirement por fence; voltar ao caminho de menu e partida offline.
 
-```powershell
-private/python-env/Scripts/python.exe tools/check_agent_setup.py
-private/python-env/Scripts/python.exe -m unittest discover -s tests
-./tools/build.ps1 -Target Boot
-./tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4
-```
-
-Novo manifesto exige tools/lift_spu_overlays.py antes do build. Use SkipLift
-somente com gerados atuais; confira instruções e destinos diretos pendentes.
-Use tools/run_title_probe.py com ROIs/tempos já revisados e rótulo novo.
-Leia logs vivos por trechos limitados de bytes; nunca use Tail contínuo.
-
-## Fontes de verdade
-
-- PROMPT_EXECUCAO_COMPLETA.md: critérios integrais; tasks/todo.md: aceite final.
-- SDK a6d76c895f77eb30b90a806c830544e61821b77f e patch reproduzível em patches/.
-- .agents/model-routing.md: somente6+, principal e no máximo um auxiliar.
-- docs/history/manifest.json: histórico anterior preservado e hashes.
-- docs/PORTHEON-reference.md: referência complementar; nada externo executado.
-- Substitua este checkpoint ao avançar; não acrescente um diário infinito.
+Probes diretos devem definir `PS3_HDD0_ROOT` e `PS3_HDD1_ROOT` para `private/userdata/dev_hdd0` e `.../dev_hdd1`. A pasta local `gamedata/` permanece ignorada e preservada.

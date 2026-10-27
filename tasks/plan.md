@@ -29,12 +29,18 @@ Histórico preservado: [índice](../docs/history/README.md).
 - PPU22 RenderThread fez305.628 polls de30µs em12s (9,168s pedidos no wait),
   no loop LR0x000A969C. Estado observado0/1; o laço termina ao ler valor negativo.
 - `PPU_WWATCH` atribui stores de1 a `func_000A8E10`/LR0x000A95DC (TID17/22).
-  SPU4/5 pedem MFC_GET 0x40 e MFC_PUT 0x20 de8 bytes para EA0x106E0900,
-  LS0x3ED10, PC0x156C. O watch atual roda antes da execução; valor gravado não provado.
-- 315 snapshots read-only a cada25ms viram status0/1, nenhum negativo. Não exclui
-  transiente entre leituras; `SPU_WATCHEA` não prova o PUT. Timeout segue bloqueio.
-- Próximo: use `PPU_WW_GUARD=1` para atribuir escritas da página. Se for DMA,
-  capture valor/resultado após MFC executar; não force sinal nem pule o wait.
+  Hook pós-MFC versionado em `patches/0002-post-transfer-spu-watch.patch`.
+- Probe combinado20s: 265 GETs SPU4/5 leem status1 + ponteiro0x12805080;
+  260 PUTs gravam status0 e preservam o ponteiro; rc=0. PPU escreveu1 260 vezes
+  (TID17=36,TID22=224); nenhum negativo observado.
+- O wait `func_000A71E4` retorna apenas quando o primeiro word é negativo. O
+  produtor do sinal terminal e a relação desses estados com a tela preta seguem
+  desconhecidos. Timeout é bloqueio, não sucesso.
+- Não repetir `PPU_WW_GUARD=1`: armou no ponteiro de inicialização e gerou73.845
+  eventos de página. Próximo: seguir a instância e o callback de conclusão com
+  PPU_WWATCH/PPU_CASWATCH e o watch pós-DMA; só corrigir semântica provada.
+- Para atualizar o SDK usado por FullGame: `tools/build.ps1 -Target Boot` e
+  depois `tools/build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 4`.
   Depois cruze com jobs/assets e teste se a hipótese explica a tela/FPS.
 - A mudança do timer foi compilada corretamente, não mudou a mediana (8,76vs8,75)
   e foi revertida; causalidade do wait com8,3 flips/s ainda não provada.
