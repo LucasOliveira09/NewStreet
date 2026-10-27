@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from run_title_probe import capture_identity, parse_region, TitleGate, CaptureSequence
+from run_title_probe import capture_identity, parse_mask, parse_region, TitleGate, CaptureSequence
 
 
 def bitmap(rows, top_down=False):
@@ -69,6 +69,13 @@ class TitleCaptureIdentityTests(unittest.TestCase):
         for value in ['0,0,0,1', '-1,0,1,1', '1,2,3', 'x,0,1,1']:
             with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
                 parse_region(value)
+
+    def test_selected_pad_mask_accepts_decimal_and_hex_with_16_bit_bounds(self):
+        self.assertEqual(parse_mask('0x4000'), 0x4000)
+        self.assertEqual(parse_mask('8'), 8)
+        for value in ['-1', '0x10000', 'cross', '']:
+            with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
+                parse_mask(value)
 
 
 if __name__ == '__main__':

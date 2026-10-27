@@ -1,0 +1,75 @@
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -2376,38 +2376,40 @@
+-    /* FP_TEX=<unit>: output that unit's sample verbatim. FP_TEX_FP=<hex> limits
+-     * it to one program, so one surface can be inspected without repainting the
+-     * whole scene. FP_TEX_UV=1 samples with the same texcoord the program uses
+-     * for that unit rather than tc0. */
++    /* FP_TEX=<unit>: output a fixed centre sample from texture unit 0..15.
++     * FP_TEX_FP=<hex> limits the replacement to one program, so a surface can
++     * be inspected without repainting the whole scene. */
+     if (getenv("FP_TEX") && (!getenv("FP_TEX_FP") ||
+         (u32)strtoul(getenv("FP_TEX_FP"), NULL, 16) == fp_addr)) {
+         int _un = atoi(getenv("FP_TEX"));
+-        if (_un < 0 || _un > 3) _un = 0;
+-        char* rp = strstr(hlsl, "_po.c0 = ");
+-        if (rp) {
+-            char* semi = strchr(rp, ';');
+-            if (semi) {
+-                char rep[160];
+-                /* FP_TEX_UV=1: sample at a fixed centre UV instead of the
+-                 * interpolated texcoord. If the texture is populated but the
+-                 * texcoords never arrive, the normal path samples texel (0,0)
+-                 * -- usually black -- and looks exactly like an empty texture.
+-                 * This tells the two apart. */
+-                if (getenv("FP_TEX_UV"))
+-                    snprintf(rep, sizeof rep,
+-                             "_po.c0 = rsx_tex%d.Sample(rsx_samp%d, float2(0.5, 0.5))",
+-                             _un, _un);
+-                else
+-                snprintf(rep, sizeof rep,
+-                         "_po.c0 = rsx_tex%d.Sample(rsx_samp%d, input.tc0.xy * rsx_texscale[%d].xy)",
+-                         _un, _un, _un);
+-                size_t newlen = strlen(rep), tail = strlen(semi) + 1;
+-                fprintf(stderr, "[FP_TEX] program 0x%X rewritten to sample unit %d%c",
+-                        fp_addr, _un, 10);
+-                if ((size_t)(rp - hlsl) + newlen + tail < sizeof(hlsl)) {
+-                    memmove(rp + newlen, semi, tail);
+-                    memcpy(rp, rep, newlen);
+-                }
++        if (_un < 0 || _un >= RSX_D3D12_TEXTURE_UNITS) _un = 0;
++        char sample[192];
++        snprintf(sample, sizeof sample,
++                 "rsx_tex[%d].Sample(rsx_samp[%d], float2(0.5, 0.5))", _un, _un);
++        int changed = 0;
++        if (strstr(hlsl, "struct PSOutput")) {
++            for (int target = 0; target < 4; target++) {
++                char field[24];
++                snprintf(field, sizeof field, "_out.t%d = ", target);
++                char* assignment = strstr(hlsl, field);
++                if (!assignment) continue;
++                char* begin = assignment + strlen(field);
++                char* end = strchr(begin, ';');
++                changed += hlsl_replace_range(hlsl, sizeof hlsl, begin, end, sample);
+             }
+-        }
++        } else {
++            char* main_fn = strstr(hlsl, "float4 main(");
++            char* cursor = main_fn ? main_fn : hlsl;
++            char* last_return = NULL;
++            while ((cursor = strstr(cursor, "return ")) != NULL) {
++                last_return = cursor + strlen("return ");
++                cursor = last_return;
++            }
++            if (last_return) {
++                char* end = strchr(last_return, ';');
++                changed = hlsl_replace_range(hlsl, sizeof hlsl, last_return, end, sample);
++            }
++        }
++        if (changed)
++            fprintf(stderr, "[FP_TEX] program 0x%X rewritten to sample unit %d at centre UV%c",
++                    fp_addr, _un, 10);
+     }
+     /* FP_FORCE=1: replace the translated body with solid magenta -- isolates
+      * geometry/transform problems from texture/blend problems. */

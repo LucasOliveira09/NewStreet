@@ -1,0 +1,96 @@
+diff --git a/libs/video/rsx_d3d12_backend.c b/libs/video/rsx_d3d12_backend.c
+--- a/libs/video/rsx_d3d12_backend.c
++++ b/libs/video/rsx_d3d12_backend.c
+@@ -2009,6 +2009,18 @@
+         memcpy(at, repl, rl);
+         at += rl;
+     }
++}
++
++static int hlsl_replace_range(char* hlsl, size_t cap, char* begin, char* end,
++                              const char* replacement)
++{
++    if (!hlsl || !begin || !end || end < begin) return 0;
++    size_t prefix = (size_t)(begin - hlsl), old_len = (size_t)(end - begin);
++    size_t new_len = strlen(replacement), tail_len = strlen(end);
++    if (prefix + new_len + tail_len >= cap) return 0;
++    memmove(begin + new_len, end, tail_len + 1);
++    memcpy(begin, replacement, new_len);
++    return 1;
+ }
+ 
+ /* Which of a draw's texture units are cube textures, as a 4-bit mask. */
+@@ -2323,38 +2335,43 @@
+             fprintf(stderr, "[CUBE] fp=0x%X compiled with cube units mask 0x%X%c",
+                     fp_addr, cube_mask, 10); }
+     }
+-    /* FP_IDCOLOR=1: give every fragment program a distinct flat colour derived
+-     * from its address. One frame then shows which program paints which surface,
+-     * instead of one run per candidate to test them by elimination. */
++    /* FP_IDCOLOR=1: replace each translated FP's colour outputs with a distinct
++     * flat colour. Handle both the current float4-return form and MRT structs. */
+     if (getenv("FP_IDCOLOR")) {
+-        char* rp = strstr(hlsl, "_po.c0 = ");
+-        if (rp) {
+-            char* semi = strchr(rp, ';');
+-            if (semi) {
+-                /* Mix properly: every fp address in a title tends to share low
+-                 * bits (they all end 0x01/0x81 here), so a single multiply left
+-                 * one channel constant across all programs and made distinct
+-                 * shaders look like the same colour. */
+-                u32 hsh = fp_addr * 2654435761u;
+-                hsh ^= hsh >> 13; hsh *= 0x5BD1E995u; hsh ^= hsh >> 15;
+-                /* Force the top bit on in each channel: a hash that happens to
+-                 * land near black is indistinguishable from "this surface was
+-                 * never painted", which is the exact question the mode exists
+-                 * to answer. */
+-                float cr = (float)(((hsh >> 16) & 0x7F) | 0x80) / 255.0f;
+-                float cg = (float)(((hsh >>  8) & 0x7F) | 0x80) / 255.0f;
+-                float cb = (float)(((hsh      ) & 0x7F) | 0x80) / 255.0f;
+-                char rep[128];
+-                snprintf(rep, sizeof rep, "_po.c0 = float4(%.3f,%.3f,%.3f,1.0)", cr, cg, cb);
+-                size_t newlen = strlen(rep), tail = strlen(semi) + 1;
+-                if ((size_t)(rp - hlsl) + newlen + tail < sizeof(hlsl)) {
+-                    memmove(rp + newlen, semi, tail);
+-                    memcpy(rp, rep, newlen);
+-                    fprintf(stderr, "[FPID] fp=0x%X -> rgb(%.0f,%.0f,%.0f)%c",
+-                            fp_addr, cr*255, cg*255, cb*255, 10);
+-                }
++        u32 hsh = fp_addr * 2654435761u;
++        hsh ^= hsh >> 13; hsh *= 0x5BD1E995u; hsh ^= hsh >> 15;
++        float cr = (float)(((hsh >> 16) & 0x7F) | 0x80) / 255.0f;
++        float cg = (float)(((hsh >>  8) & 0x7F) | 0x80) / 255.0f;
++        float cb = (float)(((hsh      ) & 0x7F) | 0x80) / 255.0f;
++        char color[96];
++        snprintf(color, sizeof color, "float4(%.3f,%.3f,%.3f,1.0)", cr, cg, cb);
++        int changed = 0;
++        if (strstr(hlsl, "struct PSOutput")) {
++            for (int target = 0; target < 4; target++) {
++                char field[24];
++                snprintf(field, sizeof field, "_out.t%d = ", target);
++                char* assignment = strstr(hlsl, field);
++                if (!assignment) continue;
++                char* begin = assignment + strlen(field);
++                char* end = strchr(begin, ';');
++                changed += hlsl_replace_range(hlsl, sizeof hlsl, begin, end, color);
+             }
+-        }
++        } else {
++            char* main_fn = strstr(hlsl, "float4 main(");
++            char* cursor = main_fn ? main_fn : hlsl;
++            char* last_return = NULL;
++            while ((cursor = strstr(cursor, "return ")) != NULL) {
++                last_return = cursor + strlen("return ");
++                cursor = last_return;
++            }
++            if (last_return) {
++                char* end = strchr(last_return, ';');
++                changed = hlsl_replace_range(hlsl, sizeof hlsl, last_return, end, color);
++            }
++        }
++        if (changed)
++            fprintf(stderr, "[FPID] fp=0x%X -> rgb(%.0f,%.0f,%.0f)%c",
++                    fp_addr, cr*255, cg*255, cb*255, 10);
+     }
+     /* FP_TEX=<unit>: output that unit's sample verbatim. FP_TEX_FP=<hex> limits
+      * it to one program, so one surface can be inspected without repainting the

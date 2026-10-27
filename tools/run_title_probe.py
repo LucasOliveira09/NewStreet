@@ -1,4 +1,4 @@
-"""Run a native boot and queue one Start only after an exact reviewed title capture.
+"""Run a native boot and queue a selected pad input after a reviewed capture.
 
 An input match proves which frame authorized the button, not that the game
 accepted it. Inspect the run, frames and next state before claiming navigation.
@@ -49,6 +49,16 @@ def parse_region(value):
         raise argparse.ArgumentTypeError('Use x,y,width,height with positive dimensions')
 
 
+def parse_mask(value):
+    try:
+        mask = int(value, 0)
+        if not 0 <= mask <= 0xFFFF:
+            raise ValueError()
+        return mask
+    except ValueError:
+        raise argparse.ArgumentTypeError('Use a pad mask from 0x0000 to 0xFFFF')
+
+
 class TitleGate:
     def __init__(self, references, delay):
         self.references, self.delay, self.since = references, delay, None
@@ -82,14 +92,16 @@ class CaptureSequence:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--label', required=True, help='Unused private analysis label')
+    parser.add_argument('--label', required=True, help='Private analysis label')
     parser.add_argument('--title-reference', action='append', required=True, type=Path,
-                        help='Previously reviewed title BMP; repeat for blink variants')
+                        help='Previously reviewed backend BMP for the screen; repeat for visual variants')
+    parser.add_argument('--title-mask', type=parse_mask, default=0x0008,
+                        help='PS button mask to queue after the reference screen remains visible (default: Start, 0x0008)')
     parser.add_argument('--timeout', type=int, default=240)
     parser.add_argument('--capture-start', type=int, default=3001,
                         help='First guest flip to capture (1..100000); use 1 to observe the opening')
     parser.add_argument('--hold-reports', type=int, default=40,
-                        help='Valid reports for the single Start press (1..300)')
+                        help='Valid reports for the selected input press (1..300)')
     parser.add_argument('--title-delay', type=float, default=0,
                         help='Seconds the latest capture must keep matching the title (0..20)')
     parser.add_argument('--title-region', type=parse_region,
@@ -143,7 +155,7 @@ def main():
     def drive():
         checked = {}
         steps = [dict(references=references, delay=args.title_delay, region=args.title_region,
-                      mask='0x0008', reports=args.hold_reports)]
+                      mask=f'0x{args.title_mask:04X}', reports=args.hold_reports)]
         if confirmations:
             steps.append(dict(references=confirmations, delay=0, region=args.confirm_region,
                               mask='0x4000', reports=40))
@@ -166,7 +178,7 @@ def main():
                     if action is None:
                         continue
                     paths['pad'].write_text(f"{action['mask']} {action['reports']}", encoding='ascii')
-                    event = dict(status=('start_queued_after_exact_title_match' if action['index'] == 0
+                    event = dict(status=('input_queued_after_exact_screen_match' if action['index'] == 0
                                          else 'cross_queued_after_exact_confirmation_match'),
                         capture=str(capture.relative_to(ROOT)), sha256=sha256,
                         matching_region=action['region'], match_sha256=action['identity'][-1],
