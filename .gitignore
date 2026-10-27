@@ -26,3 +26,4 @@ reports/*
 !reports/asset-job-validation.json
 !reports/trophy-storage-admission.json
 !reports/spu-raw-inventory.json
+!reports/performance-opening.json

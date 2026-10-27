@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-27",
+  "target": "FIFA Street PS3 BLUS30882 / native Windows",
+  "hardware_cpu": "Intel Core i5-10400F / 6 cores / 12 logical processors",
+  "scenario": "90-second opening, no scripted input, keyboard fallback, PERF=1",
+  "metric": "render_frame batches per second; includes offscreen passes; not displayed gameplay FPS",
+  "interactive_observation": "1.2498 renderer batches/s in a separate4s sample; scene not controlled",
+  "before": {
+    "mode": "/Od",
+    "run": "private\\analysis\\runs\\1793058906602848100",
+    "result": "timeout",
+    "elapsed_seconds": 90.212,
+    "samples": {
+      "samples": 60,
+      "median_batch_fps": 11.805,
+      "min_batch_fps": 6.57,
+      "max_batch_fps": 64.18,
+      "mean_batch_fps": 13.926748593791643,
+      "median_renderer_share_percent": 2.0
+    },
+    "binary_bytes": 560234496,
+    "binary_sha256": "a9125f0cf31c93b1ddf4cb1805c3adffc19f1043c239107ed1fb42a55a0db13a"
+  },
+  "after": {
+    "mode": "/O1",
+    "run": "private\\analysis\\runs\\1793060378716102400",
+    "result": "timeout",
+    "elapsed_seconds": 90.196,
+    "samples": {
+      "samples": 55,
+      "median_batch_fps": 8.89,
+      "min_batch_fps": 8.15,
+      "max_batch_fps": 65.34,
+      "mean_batch_fps": 12.684121970867155,
+      "median_renderer_share_percent": 3.0
+    },
+    "binary_bytes": 377678336,
+    "binary_sha256": "79c8fe949bbe429f46439246a1c0fee6004e518345092b89a6bc7be5ff621497"
+  },
+  "matching_workload": {
+    "texture_calls": 1840,
+    "vertices_k": 31.0,
+    "pso_calls": 1240,
+    "pso_misses": 0,
+    "before": {
+      "samples": 26,
+      "median_batch_fps": 8.225000000000001,
+      "min_batch_fps": 6.57,
+      "max_batch_fps": 9.05,
+      "mean_batch_fps": 8.109541913960712,
+      "median_renderer_share_percent": 3.0
+    },
+    "after": {
+      "samples": 30,
+      "median_batch_fps": 8.75,
+      "min_batch_fps": 8.28,
+      "max_batch_fps": 9.14,
+      "mean_batch_fps": 8.726850997683457,
+      "median_renderer_share_percent": 3.0
+    }
+  },
+  "menu_validated": false,
+  "gameplay_validated": false,
+  "limitation": "Opening-only measurements. Different scenes and unresolved graphics defects prevent a gameplay performance claim.",
+  "current_binary": {
+    "path": "private/build/fifazf_full/fifa_boot.exe",
+    "optimization": "/O1",
+    "sha256": "2008ce3d073646543a99a76ce33fe0b40873a397c2a1e58df2b51613b45f8176",
+    "runtime_timer_change": "reverted; final SDK runtime source matches baseline"
+  },
+  "frame_timeline": {
+    "run": "private/analysis/runs/1793060864859956200",
+    "trace_window_seconds": 12,
+    "guest_flip_intervals": 99,
+    "median_guest_flip_interval_ms": 120.6,
+    "median_guest_flip_rate": 8.3,
+    "rsx_fifo_drain_ms_per_interval": 26.2,
+    "scope": "Representative opening-only trace; flip requests are not proof of presented gameplay FPS."
+  },
+  "poll_diagnosis": {
+    "run": "private/analysis/runs/1793076007647399000",
+    "window_seconds": 12,
+    "ppu_thread": 22,
+    "thread_name": "RenderThread",
+    "guest_call_site": "0x000A969C",
+    "guest_poll_helper": "0x000A71E4",
+    "poll_period_us": 30,
+    "poll_calls": 305628,
+    "requested_sleep_total_ms": 9168,
+    "observed_status_values": [
+      0,
+      1
+    ],
+    "loop_exits_when": "the observed signed status becomes negative",
+    "interpretation": "Confirms a costly sub-millisecond poll. Its causal contribution to the low flip rate and the producer of this status are not yet established.",
+    "instrumentation": "PS3_POLLTOP and PS3_FTRACE enabled; use counts as diagnostic evidence, not an uninstrumented benchmark."
+  },
+  "timer_experiment": {
+    "run": "private/analysis/runs/1793076468720766300",
+    "change": "one SwitchToThread per sub-millisecond wait, then YieldProcessor while checking the same QPC deadline",
+    "runtime_archive_rebuilt": true,
+    "same_workload": {
+      "texture_calls": 1840,
+      "vertices_k": 31.0,
+      "pso_calls": 1240,
+      "pso_misses": 0,
+      "baseline": {
+        "samples": 30,
+        "median_batches_per_second": 8.75,
+        "min": 8.28,
+        "max": 9.14
+      },
+      "trial": {
+        "samples": 9,
+        "median_batches_per_second": 8.76,
+        "min": 8.6,
+        "max": 8.99
+      }
+    },
+    "decision": "No measurable throughput change; source change reverted and baseline /O1 runtime rebuilt."
+  },
+  "known_opening_limitations": {
+    "last_capture": "black",
+    "menu_validated": false,
+    "gameplay_validated": false,
+    "missing_requested_assets": [
+      "PS3_GAME/USRDIR/data/sceneassets/genheadtex.big",
+      "PS3_GAME/USRDIR/audiodata/aemsdata/Player_SFX_01.ast",
+      "PS3_GAME/USRDIR/audiodata/aemsdata/TUNA_SFX_BE.ast",
+      "PS3_GAME/USRDIR/audiodata/aemsdata/TUNA_SFX_FE.ast"
+    ],
+    "causal_link_to_poll": "unproven"
+  }
+}

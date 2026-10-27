@@ -21,7 +21,22 @@ Histórico preservado: [índice](../docs/history/README.md).
 - Lote4 DSPs: 16 posições de init validadas; ReverbIR1 entrou, outros3 ainda não observados.
 - 144 testes do projeto, 46 Boot e 65 amostras de assets passaram.
 
-## 1. Banco real de16texturas e retirement de recursos
+## 1. Prioridade atual: FPS da execução interativa
+
+- /O1 virou padrão; no workload pareado, mediana foi8,225→8,75 batches/s (+6,4%).
+- Mais9 amostras pareadas em8,76 batches/s; continua abaixo do desempenho esperado.
+- FTrace mediu99 pedidos de flip/12s (120,6ms por flip), com26,2ms no drain RSX.
+- PPU22 RenderThread fez305.628 polls de30µs em12s (9,168s pedidos no wait),
+  no loop LR0x000A969C. Estado observado0/1; o laço termina ao ler valor negativo.
+- O wait caro está confirmado; a ligação causal com os8,3 flips/s e o produtor do
+  estado permanecem incertos. Uma alteração do temporizador foi compilada de fato,
+  não mudou a mediana (8,76 contra8,75) e foi removida.
+- Próximo: identificar quem atualiza o objeto/estado e por que não chega ao valor
+  de conclusão; cruzar com pedidos de assets ausentes e fila de jobs.
+- Menu/jogo ainda não validados; batches do profiler não são FPS de gameplay.
+- Binário /Od preservado em private/build/fifazf_full_debug_baseline.
+
+## 2. Banco real de16texturas e retirement de recursos
 
 - FP completo/snapshot por draw concluído; zerocompilefail no ensaio180s,
   programas5024/5472bytes compilaram. Literal/hash/constantes agora coerentes.

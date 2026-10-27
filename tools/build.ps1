@@ -4,10 +4,14 @@ param(
     [string[]]$AddFunction = @(),
     [switch]$SkipLift,
     [switch]$OptimizeFullGame,
+    [switch]$DebugFullGame,
     [switch]$WithSpu,
     [ValidateRange(1, 12)][int]$Jobs = 2
 )
 $ErrorActionPreference = 'Stop'
+if ($OptimizeFullGame -and $DebugFullGame) {
+    throw 'Choose either -OptimizeFullGame or -DebugFullGame, not both.'
+}
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $projectRoot
 $locked = Get-Content -LiteralPath 'toolchain.lock.json' -Raw | ConvertFrom-Json
@@ -88,7 +92,10 @@ if ($Target -in @('All', 'Game', 'FullGame')) {
         $liftArguments += '--all-opd'
         $profile = 'fifazf_full'
         $buildDirectory = 'private/build/fifazf_full'
-        if (-not $OptimizeFullGame) { $liftOptimization = '/Od' }
+        # Optimized code is the default for interactive runs. Keep the older
+        # -OptimizeFullGame switch compatible; /Od is now an explicit debug choice.
+        if ($DebugFullGame) { $liftOptimization = '/Od' }
+        Write-Output "FullGame PPU optimization: $liftOptimization"
     }
     foreach ($guestAddress in $AddFunction) { $liftArguments += @('--add', $guestAddress) }
     if ($SkipLift -and $AddFunction.Count) { throw '-AddFunction requires lifting.' }

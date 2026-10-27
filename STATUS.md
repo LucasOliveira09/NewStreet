@@ -1,7 +1,7 @@
-# Checkpoint atual — 26/10/2026
+# Checkpoint atual — 27/10/2026
 
 Alvo: FIFA Street 2012, PS3 BLUS30882 1.00 → Windows x64 nativo.
-Branch: codex/ps3-native-bootstrap. Incremento atual: fronteiras FIFO reais e shaders após carregamento.
+Branch: codex/ps3-native-bootstrap. Incremento atual: medir e corrigir FPS da execução interativa.
 Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Git.
 
 ## Confirmado
@@ -14,6 +14,22 @@ Estado detalhado e histórico técnico: reports/native-boot-checkpoint.json e Gi
 - **Menu navegável, cena, gameplay e partida completa ainda não validados.**
 - 99.127 entradas PPU, 369 wrappers de imports, 122 registros raw SPU.
   Contagem não demonstra semântica completa dos serviços ou algoritmos.
+
+## Trabalho de desempenho em andamento
+
+- FullGame agora compila PPUs com /O1 por padrão; -DebugFullGame seleciona /Od.
+- No trecho de abertura pareado (1840 texturas,31k vértices,1240 PSOs,0 misses),
+  /O1 passou de 8,225 para 8,75 batches/s (+6,4%); não é FPS de gameplay.
+- Amostra posterior do mesmo trecho: 8,76 batches/s. Sem ganho demonstrável.
+- FTrace: 99 pedidos de flip em 12s, mediana120,6ms (8,3/s); drain RSX26,2ms
+  por intervalo. O restante ainda precisa de atribuição causal.
+- RenderThread (PPU22) gastou9,168s/12s em 305.628 polls de usleep(30µs),
+  retorno LR0x000A969C. O objeto observado alternou0/1; a espera sai com valor<0.
+- Isso confirma polling submilissegundo caro; não prova sozinho que ele limite os
+  frames. A tentativa de ceder uma vez e depois pausar deu8,76 vs8,75 e foi revertida.
+- A última captura segue preta, sem menu ou gameplay validado. Alguns assets
+  pedidos no boot não existem no disco extraído; causa ainda não isolada.
+- Evidências e limitações em reports/performance-opening.json.
 
 ## Último ensaio e verificações
 

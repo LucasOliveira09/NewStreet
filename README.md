@@ -193,9 +193,10 @@ emulador é iniciado. O callback de encerramento do EBOOT também é executado.
 .\tools\build.ps1 -Target FullGame -SkipLift -WithSpu -Jobs 6
 ```
 
-O perfil `FullGame` usa `/Od` para reduzir o ciclo de investigação inicial.
-`-OptimizeFullGame` seleciona `/O1`; medir desempenho somente após validar o
-caminho funcional. O host também registra exceções nativas em `[fifa-crash]`,
+O perfil `FullGame` usa `/O1` por padrão para execução interativa.
+`-DebugFullGame` seleciona `/Od` para investigação; `-OptimizeFullGame` continua
+aceito por compatibilidade. Compare desempenho na mesma tela e valide o caminho
+funcional após mudar a otimização. O host registra exceções nativas em `[fifa-crash]`,
 incluindo símbolo/endereço do Windows e o contexto PPU disponível.
 
 A geração SPU admite somente programas revisados; o inventário permanece parcial.
