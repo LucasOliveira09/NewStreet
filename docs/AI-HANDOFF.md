@@ -26,8 +26,11 @@ O aceite completo está no prompt de execução; os próximos marcos estão no p
 No checkpoint desta revisão, o executável nativo mostra o logo FIFA STREET em
 1280×720. START/CROSS/DOWN foram escritos em relatórios válidos; o caller
 `0x014351D0` lê o comprimento e o word de botões do buffer local. A imagem não
-muda, então a leitura do input está provada, mas mapeamento da ação/transição de
-UI não. Perfil de probe foi copiado e os saves originais foram preservados.
+muda. O helper `0x01434DB8` traduz entradas em bitset digital e array de
+pressão do dispositivo guest. A análise estática segue pelo sampler `0x011AA178`
+e dispatcher de vínculos `0x011A9EE0`, mas os metadados reais e a
+ação/transição de UI ainda não foram observados. Perfil de probe foi copiado e
+os saves originais foram preservados.
 **Menu navegável, seleção, cena 3D, controle de jogadores, bola e partida não estão comprovados.** Não descreva o
 projeto como jogável. Janela, pedido de flip ou imagem preta não equivalem a
 partida. Uma saída por timeout ou código 90 é falha/bloqueio, nunca sucesso.
@@ -173,15 +176,14 @@ do FullGame: `C9D2CBA494E2B47D44B5339728AB50A3E6FF6927D7DB69EF9B8EFE6002A6C99D`.
 
 ### Próxima investigação recomendada
 
-1. Seguir a rotina caller iniciada em `0x014351D0`. O callsite `0x014351CC`
-   fornece `SP+0x70` a `cellPadGetData`; após retorno verifica `len`, lê o word
-   em `SP+0x78` e chama `0x01434DB8`. Use REA/Rizin por endereço e identifique os
-   bits/eventos e o estado destino; não atribua nome sem evidência.
-2. Correlacionar a rotina com `cellPadSetPortSetting` (0x4 e 0x2 observados),
-   `mode=122`, tamanho/offsets do report e o fluxo de UI. Não mudar semântica até
-   descobrir por que o branch de ação não muda o título.
-3. Repetir entrada e capturar a próxima tela. Aceite é transição reproduzível,
-   não só escrita/leitura de um pacote.
+1. Observar com o perfil real os controles que passam pelo sampler `0x011AA178`
+   e os metadados que o dispatcher `0x011A9EE0` usa. A fixture do projeto prova
+   a normalização e vínculos autorais Start/Cross, mas não os vínculos do jogo.
+2. Seguir o valor lógico até seu leitor de estado/evento da UI; usar REA/Rizin
+   por endereço sem atribuir nomes não provados. Correlacionar também
+   `cellPadSetPortSetting` (0x4 e 0x2), `mode=122` e offsets do report.
+3. Repetir entrada e capturar uma transição de tela reproduzível. Pacote lido,
+   normalizado ou somado pelo dispatcher não basta como aceite.
 4. Depois voltar aos bloqueios de renderização e alcançar uma partida offline.
 
 O repositório [ReStreet](https://github.com/samuelit0davila/fifa-street-pc-port)

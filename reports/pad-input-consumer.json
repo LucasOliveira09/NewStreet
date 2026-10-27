@@ -92,9 +92,20 @@
     {
       "address": "0x0143521C",
       "instruction": "bl 0x01434DB8",
-      "meaning": "Dispatches a value derived from the report to a helper. The surrounding bit-to-action mapping is not named yet."
+      "meaning": "Dispatches a value derived from the report to the device-state setter. Higher-level logical bindings and UI actions are not identified yet."
     }
   ],
+  "follow_up_analysis": {
+    "rea_evidence_id": "ev_3ebf4f7899df6be66c83128ba26903a37dec83f7b6e3059693f5040c55171168",
+    "callsite_evidence_id": "ev_04df59e3fba7906107f7ed51fd1499be5edf2fc4b6506f50882085465857be19",
+    "sampler_evidence_id": "ev_d73aa3cc08629301ffbb5464c6820279d8fd7570614a3de3c4b231cae103b6f8",
+    "binding_dispatcher_evidence_id": "ev_1b94ec10b0a8185c76a96ede4f0feb79281759b414804280c122f5b3217574ca",
+    "helper_address": "0x01434DB8",
+    "helper_observation": "The helper updates a guest input-device structure. If the index is below the digital-control count at object+0x14, it sets or clears that bit in the bitset at object+0x20. Otherwise, if it falls within digital_count + pressure_count at object+0x18, it writes the byte to the pressure array at object+0x24. The caller passes indices 0-3 from masks in the digital word at SP+0x78, and in the analog-enabled branch passes indices 4-15 from report words at SP+0x84..0x9A.",
+    "downstream_observation": "Sampler 0x11AA178 obtains digital and pressure control values through 0x01435AB8 and 0x01435B40, then normalizes them into a 16-float buffer. Dispatcher 0x11A9EE0 traverses metadata-defined bindings, selects matching control types, adds source float values, clamps to [0,1], and writes logical action values. Existing native sampler fixture covers 112 digital/pressure combinations and authored Start/Cross bindings; it does not exercise the real game's UI event consumer.",
+    "confidence": "derived from address-local PPU disassembly; no function name or automatic boundary trusted",
+    "conclusion_limit": "The static path reaches logical action values, but this run did not capture those values from the real game's metadata or prove that an action transitions the title UI."
+  },
   "conclusion": "The game calls cellPadGetData at LR 0x014351D0, then checks the report length and reads button data from its stack-local report. The earlier button writes therefore reach a guest buffer that this observed code path reads. This establishes a guest input-consumption path, but not that a particular button triggers the title UI transition.",
   "limits": [
     "Rizin reports malformed/incongruent ELF program headers and skipped oversized string regions. The disassembly is address-local; automatic function bounds and symbols are not trusted.",

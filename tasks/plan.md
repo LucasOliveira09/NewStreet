@@ -34,10 +34,13 @@ Histórico preservado: [índice](../docs/history/README.md).
 - O callsite está identificado: NID `0x8B72CDA1`, LR `0x014351D0`; REA mostra
   `bl 0x01C0F17C` em `0x014351CC`, com `SP+0x70` como buffer. Depois o game lê
   len em `SP+0x70`, verifica o word de botões em `SP+0x78` e chama `0x01434DB8`.
-  IDs/logs/limitações em `reports/pad-input-consumer.json`.
-- Próximo: seguir `0x01434DB8` e os ramos de bits até estado/evento da UI. Conferir
-  `SetPortSetting(0x4, 0x2)` e layout do relatório. Aceite: mudança de tela
-  reproduzível; pacote escrito ou lido não basta.
+  Esse helper atualiza o bitset digital ou array de pressão do dispositivo guest.
+  REA também traçou sampler `0x011AA178` e dispatcher de vínculos `0x011A9EE0`;
+  a fixture cobre somente metadados autorais. IDs/logs/limitações em
+  `reports/pad-input-consumer.json`.
+- Próximo: capturar controles e metadados reais, seguir o valor lógico até o
+  consumidor de UI. Conferir `SetPortSetting(0x4, 0x2)` e layout do relatório.
+  Aceite: mudança de tela reproduzível; pacote lido/normalizado não basta.
 - O MCP REA `open_binary` rejeita ELF PowerPC. A CLI/Rizin funciona com
   `REA_RIZIN_COMMAND` e PATH explícitos. Evidence/limitações em STATUS e no
   relatório do callsite.

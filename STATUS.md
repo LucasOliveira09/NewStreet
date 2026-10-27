@@ -18,10 +18,15 @@ capturas tiveram hash idêntico e mantiveram o logo. Um follow-up com
 `PS3_HLE_ARGS=8B72CDA1` correlacionou o NID de `cellPadGetData` ao LR guest
 `0x014351D0`. REA/Rizin mostra o callsite em `0x014351CC`, que passa um buffer
 local `SP+0x70`; depois o guest lê `len` e, se não for zero, acessa o word de
-botões em `SP+0x78` e chama `0x01434DB8`. A entrada chega ao parser guest, mas
-não há transição visual: o logo continuou idêntico. O significado dos bits e o
-estado/UI chamados depois ainda precisam de análise. `PAD_ALWAYS_CHANGE=1` foi
-só diagnóstico e altera a cadência. Timeout não é sucesso. Relatórios:
+botões em `SP+0x78` e chama `0x01434DB8`. A inspeção desse helper indica que
+ele atualiza o dispositivo virtual do jogo: índices digitais alteram o bitset;
+índices restantes escrevem a matriz de pressão. Isso prova que o relatório é
+traduzido para o estado guest do controle. A cadeia estática segue pelo sampler
+`0x011AA178`, que normaliza 16 controles, e dispatcher `0x011A9EE0`, que soma e
+limita valores de acordo com metadados de vínculos lógicos. Ainda falta observar
+os vínculos reais e provar uma transição da UI; o logo continuou idêntico.
+`PAD_ALWAYS_CHANGE=1` foi só diagnóstico e altera a cadência. Timeout não é
+sucesso. Relatórios:
 [`title-navigation-probe.json`](reports/title-navigation-probe.json) e
 [`pad-input-consumer.json`](reports/pad-input-consumer.json).
 
@@ -31,10 +36,11 @@ apontou o jogo ao perfil original.
 
 ## Próxima pergunta técnica
 
-Seguir `0x01434DB8` e as referências do callsite `0x014351D0` para descobrir
-qual estado/evento do jogo recebe cada bit. Confrontar `mode=122`, tamanho e
-offsets do `CellPadData` com a rotina guest; preservar o input realista e não
-injetar estado interno. Só mudar o HLE depois de uma incompatibilidade provada.
+Observar com o perfil real os controles normalizados pelo sampler `0x011AA178`,
+os metadados consumidos por `0x011A9EE0` e a chamada que usa o valor lógico no
+estado da UI. Confrontar `mode=122`, tamanho e offsets do `CellPadData` com o
+caller guest; preservar o input realista e não injetar estado interno. Só mudar
+o HLE depois de uma incompatibilidade provada.
 
 REA MCP `open_binary` rejeita este ELF PowerPC como arquitetura não suportada.
 O REA CLI 6.7.0 com Rizin 0.9.1 funciona ao definir `REA_RIZIN_COMMAND` e
