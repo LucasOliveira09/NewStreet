@@ -126,5 +126,24 @@
       "native_run": "private/analysis/runs/1792869262963781500",
       "audio_validated": false
     }
-  ]
+  ],
+  "identity_scope_note": "This top-level record identifies the saved 1792842082406795800 LS snapshot byte-for-byte. The runtime context image ID 526190333 does not identify the resident code in the later MFC probe. That dynamic callsite is mapped separately below to sportsrna_spupatch.",
+  "runtime_context_image_id": 526190333,
+  "dynamic_runtime_callsite": {
+    "run": "private/analysis/runs/1793110334315435500",
+    "context_image_id": 526190333,
+    "resident_overlay": "sportsrna_spupatch",
+    "resident_image_id": 592606456,
+    "fingerprint": "627E7A7DAC32A74D",
+    "source_sha256": "35274f8f1f03b6918a9e981b830a8100f92ea185775fc1e91d7d2290e22aeeae",
+    "source_ea": "0x1F24F00",
+    "wrch_guest_pc": "0x015DC",
+    "wrch_bytes": "21 A0 0A 8B",
+    "wrch_decode": "wrch MFC_Cmd, $r11",
+    "runtime_code_ea": "0x01F2645C",
+    "source_image_offset": "0x155C",
+    "get_lr": "0x01408",
+    "put_lr": "0x014F0",
+    "scope": "Exact low-level MFC callsite and transfer-helper path. Higher-level job purpose and link to rendering cadence are not established."
+  }
 }

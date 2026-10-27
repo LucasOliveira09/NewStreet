@@ -126,13 +126,17 @@ limites de função. `pdc` não devolveu pseudocódigo. Análises também cobrir
 `func_000A8E10` (escreve 1 em `*(contexto+0xC)`) e `func_000A9680` (passa
 `*(objeto+0x9C)` ao helper). O log do mesmo run mostra o helper escrevendo em
 `0x106E0904/0908`, comprovando que seu `*(objeto+0xC)` era `0x106E0900`; SPU GET
-leu 1 e PUT comprometeu 0 nessa EA. O handshake PPU/SPU está provado. O próximo
-passo é medir duração e origem do trabalho SPU, mas o PC do log requer cautela:
-embora o DMA registre `0x0156C`, esse endereço é NOP na imagem `AssetStream_zlib`
-associada à imagem `526190333`. O hook registra `ctx->pc`, que não avança a cada
-instrução nos blocos levantados; portanto `0x0156C` não é um call site MFC
-provado. IDs, limites e artefatos privados estão em STATUS e
-`reports/performance-opening.json`.
+leu 1 e PUT comprometeu 0 nessa EA. O handshake PPU/SPU está provado. A proveniência do MFC também foi fechada:
+`patches/0003-spu-wrch-callsite-pc.patch` preserva o PC guest em cada `wrch
+MFC_Cmd`; no run `1793110334315435500`, `0x015DC` (`21 A0 0A 8B`) mapeia para
+o overlay residente `sportsrna_spupatch` (ID `592606456`, SHA-256
+`35274f8f…22aeeae`). O GET passa pelo LR `0x1408`, e o PUT pelo LR `0x14F0`.
+O ID `526190333` é identidade do contexto SPU, não do overlay residente. O
+snapshot antigo que confere com `AssetStream_zlib` caracteriza apenas aquele
+snapshot estático; ele não localiza o código do probe atual. A rotina baixa de
+transferência está atribuída, mas a finalidade do job superior, sua duração e
+a relação causal com flips continuam em aberto. IDs, logs e limites estão em
+STATUS e `reports/performance-opening.json`.
 
 ## Checkpoint técnico ativo
 
@@ -173,14 +177,14 @@ enquanto o word em `*(objeto+0xC)` é diferente de zero e sai quando é zero.
 No mesmo probe, escritas de cleanup do helper em `0x106E0904/0908` provam que
 seu ponteiro era `0x106E0900`; o PPU publicou 1 e o SPU leu 1/gravou 0 nessa
 EA. A duração do estado 1 e o impacto na apresentação ainda precisam de medida.
-O snapshot runtime `spu-8197-526190333-256.ls` bate nos 25.776 bytes da imagem
-fonte (zero diferenças); no mapeamento LS base `0x80`, o word em `0x0156C` é
-`00 20 00 00`, NOP. Os blocos gerados em `spu_recomp.c` executam várias
-instruções antes de atualizar `ctx->pc`, o que pode deixar o PC reportado pelo
-hook defasado dentro de chamadas MFC síncronas. A próxima instrumentação deve
-passar o PC guest de `wrch MFC_Cmd` até o hook e registrar os bytes daquela
-instrução. REA/Rizin não suporta decodificação SPU neste ambiente; o PC correto
-deve ser obtido no lifter/runtime, não inferido do endereço atual do hook.
+O snapshot `spu-8197-526190333-256.ls` bate byte a byte com a imagem-fonte
+`AssetStream_zlib`; isso não identifica o overlay residente de outro momento.
+No probe atual, a instrumentação corrigida registrou a instrução MFC em
+`sportsrna_spupatch`: PC `0x015DC`, bytes `21 A0 0A 8B`, runtime EA `0x01F2645C`.
+Os retornos `0x1408` e `0x14F0` identificam os caminhos GET e PUT no helper de
+transferência. A semântica do trabalho de nível superior ainda é desconhecida.
+REA/Rizin não suporta SPU neste ambiente; interpretação SPU usa o lifter/decoder
+do projeto e a correlação runtime com os bytes-fonte.
 
 `PPU_WW_GUARD=1` não deve ser repetido sem condição de armamento melhor: armou
 no ponteiro de inicialização e gerou73.845 eventos na página de4 KiB. Use
@@ -193,13 +197,12 @@ o estado nem burle o wait.
 
 ## Próxima investigação recomendada
 
-Siga a prioridade atual em `tasks/plan.md`: corrigir a proveniência do PC do
-hook SPU. O snapshot de runtime da imagem `AssetStream_zlib` bate nos 25.776
-bytes da fonte; nessa correspondência, `0x0156C` é NOP. Passe o endereço guest
-da instrução `wrch MFC_Cmd` pelo lifter até o registro pós-DMA, incluindo a
-palavra de instrução. Então atribua semanticamente o job que zera
-`0x106E0900`, meça a duração do status e cruze com conclusão de jobs/assets e
-chamadas de flip. Preserve a semântica do handshake e do wait.
+Siga a prioridade atual em `tasks/plan.md`: medir a duração do status por
+pedido e correlacioná-la com os polls PPU, os retornos GET/PUT em
+`sportsrna_spupatch` e as chamadas de flip. O PC e os bytes guest do `wrch
+MFC_Cmd` já são preservados no log pós-DMA. Depois investigue o caller acima do
+helper para nomear o job/asset, sem inferir semântica só pelo ponteiro adjacente.
+Preserve o handshake e o wait.
 
 Depois de duas tentativas sem informação nova, reveja hipótese, pontos de
 instrumentação e evidência antes de repetir. Não conclua que o sleep é a causa

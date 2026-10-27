@@ -36,12 +36,13 @@ Histórico preservado: [índice](../docs/history/README.md).
   (TID17=36,TID22=224); nenhum negativo observado.
 - Correção REA: o wait retorna quando o primeiro word é zero. Escritas do helper
   em0x106E0904/0908 no probe provam que `*(objeto+0xC)` era EA0x106E0900; PPU
-  publicou1 e SPU leu1/gravou0. Correlação de PC: imagem526190333 é
-  `AssetStream_zlib`; snapshot de runtime confere com a fonte e PC0x156C contém
-  NOP. `ctx->pc` do hook é insuficiente para atribuir o MFC; próxima ação é
-  passar o PC guest de `wrch MFC_Cmd` ao log e registrar os bytes da instrução.
-  Depois medir duração do handshake e relação com flips. Causa final da taxa
-  baixa segue desconhecida; timeout é bloqueio, não sucesso. Evidence no STATUS.
+  publicou1 e SPU leu1/gravou0. A proveniência exata do MFC está corrigida:
+  run `1793110334315435500` registra `wrch MFC_Cmd` em `sportsrna_spupatch`,
+  PC0x15DC/bytes21A00A8B, GET pelo LR0x1408 e PUT pelo LR0x14F0. O ID de
+  contexto526190333 não é o overlay residente (592606456); `AssetStream_zlib`
+  identifica apenas o snapshot anterior. Medir a duração e correlação com flips;
+  semântica completa e causalidade seguem desconhecidas. Timeout não é sucesso.
+  Evidência em STATUS e `reports/performance-opening.json`.
 - Não repetir `PPU_WW_GUARD=1`: armou no ponteiro de inicialização e gerou73.845
   eventos de página. Próximo: seguir a instância e o callback de conclusão com
   PPU_WWATCH/PPU_CASWATCH e o watch pós-DMA; só corrigir semântica provada.

@@ -48,7 +48,7 @@ index 7b0debe..6b406c2 100644
  
      /* SPU_WATCHLSA=<hex LS addr>: every DMA whose LOCAL STORE range covers one
       * word, with the value that word holds after the transfer.
-@@ -1457,6 +1422,58 @@ static inline int mfc_submit(mfc_engine* mfc, spu_context* spu, uint32_t cmd)
+@@ -1457,6 +1422,91 @@ static inline int mfc_submit(mfc_engine* mfc, spu_context* spu, uint32_t cmd)
          rc = mfc_do_transfer(spu, lsa, ea, size, cmd);
      }
  
@@ -87,14 +87,47 @@ index 7b0debe..6b406c2 100644
 +                  local[i] = spu->ls[(lsa + offset + i) & SPU_LS_MASK];
 +              const uint8_t* src = mfc_is_put(cmd) ? local : guest;
 +              const uint8_t* dst = mfc_is_put(cmd) ? guest : local;
++              uint32_t pc = (uint32_t)spu->pc & SPU_LS_MASK;
++              const uint8_t* ip = spu->ls + pc;
++              uint32_t lr = spu->gpr[0]._u32[0] & SPU_LS_MASK;
++              int code_img = 0;
++              uint32_t code_ea = 0, code_lsa = 0, code_size = 0;
++              int32_t code_bias = 0;
++              int lr_img = 0;
++              uint32_t lr_ea = 0, lr_lsa = 0;
++              for (unsigned ci = 0; ci < 128; ++ci) {
++                  const uint32_t base = spu->resident_code[ci].lsa;
++                  const uint32_t span = spu->resident_code[ci].size;
++                  if (spu->resident_code[ci].image_id && pc >= base &&
++                      pc - base < span) {
++                      code_img = spu->resident_code[ci].image_id;
++                      code_ea = spu->resident_code[ci].source_ea + (pc - base);
++                      code_lsa = base;
++                      code_size = span;
++                      code_bias = spu->resident_code[ci].relocation_bias;
++                  }
++                  if (spu->resident_code[ci].image_id && lr >= base &&
++                      lr - base < span) {
++                      lr_img = spu->resident_code[ci].image_id;
++                      lr_ea = spu->resident_code[ci].source_ea + (lr - base);
++                      lr_lsa = base;
++                  }
++              }
 +              fprintf(stderr,
 +                      "[watchea-post] n=%lu spu%u img=%d cmd=0x%02X rc=%d"
 +                      " ea=0x%08X size=%u lsa=0x%05X offset=0x%X pc=0x%05X"
++                      " insn=%02X%02X%02X%02X"
++                      " resident_ovl=%d code_img=%d code_ea=0x%08X"
++                      " code_lsa=0x%05X code_size=0x%X code_bias=%d"
++                      " lr=0x%05X lr_img=%d lr_ea=0x%08X lr_lsa=0x%05X"
 +                      " src=%02X%02X%02X%02X%02X%02X%02X%02X"
 +                      " dst=%02X%02X%02X%02X%02X%02X%02X%02X\n",
 +                      hit, spu->spu_id & 7u, spu->image_id, cmd & 0xFFu, rc,
 +                      (uint32_t)ea, size, lsa, offset,
-+                      (uint32_t)spu->pc & SPU_LS_MASK,
++                      pc, ip[0], ip[1], ip[2], ip[3],
++                      spu->resident_ovl, code_img, code_ea, code_lsa,
++                      code_size, code_bias,
++                      lr, lr_img, lr_ea, lr_lsa,
 +                      src[0], src[1], src[2], src[3],
 +                      has_tail ? src[4] : 0, has_tail ? src[5] : 0,
 +                      has_tail ? src[6] : 0, has_tail ? src[7] : 0,

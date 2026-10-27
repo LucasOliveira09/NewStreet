@@ -1,0 +1,49 @@
+diff --git a/runtime/spu/spu_channels.c b/runtime/spu/spu_channels.c
+--- a/runtime/spu/spu_channels.c
++++ b/runtime/spu/spu_channels.c
+@@ -936,6 +936,19 @@ void spu_wrch(spu_context* ctx, uint32_t channel, u128 value)
+         break;
+     }
+ }
++
++/* A lifted basic block may execute many guest instructions before updating
++ * ctx->pc. Supply the exact WRCH address around an MFC_Cmd callback so DMA
++ * diagnostics attribute synchronous transfers to the instruction that issued
++ * them. Restore the block PC afterward; an architectural stop/longjmp does not
++ * return here and correctly retains the issuing PC. */
++void spu_wrch_at(spu_context* ctx, uint32_t guest_pc, uint32_t channel, u128 value)
++{
++    uint32_t saved_pc = ctx->pc;
++    ctx->pc = guest_pc & SPU_LS_MASK;
++    spu_wrch(ctx, channel, value);
++    ctx->pc = saved_pc;
++}
+
+ /* ===========================================================================
+  * Channel-stall contract (faithful-adopt, from canersaka's fork).
+diff --git a/tools/spu_lifter.py b/tools/spu_lifter.py
+--- a/tools/spu_lifter.py
++++ b/tools/spu_lifter.py
+@@ -120,5 +120,6 @@ u128 spu_rdch(spu_context* ctx, uint32_t channel);
+ uint32_t spu_rchcnt(spu_context* ctx, uint32_t channel);
+ void spu_wrch(spu_context* ctx, uint32_t channel, u128 value);
++void spu_wrch_at(spu_context* ctx, uint32_t guest_pc, uint32_t channel, u128 value);
+ 
+ /* Execution trace (only emitted when the lifter was invoked with --trace). */
+ void spu_trace_init(const char* path);
+@@ -886,5 +887,8 @@ class SPULifter:
+         if mn == "wrch":
+             # operands: channel, $rt
++            if _chan(ops[0]) == "MFC_Cmd":
++                return (f"spu_wrch_at(ctx, {self._physical_pc(addr)}, "
++                        f"MFC_Cmd, {g(_reg(ops[1]))});")
+             return f"spu_wrch(ctx, {_chan(ops[0])}, {g(_reg(ops[1]))});"
+ 
+         # ---- branches ----
+diff --git a/tools/spu_lift_selftest.py b/tools/spu_lift_selftest.py
+--- a/tools/spu_lift_selftest.py
++++ b/tools/spu_lift_selftest.py
+@@ -92,2 +92,3 @@ uint32_t spu_rchcnt(spu_context* c, uint32_t ch){ (void)c;(void)ch; return 1; }
+ void spu_wrch(spu_context* c, uint32_t ch, u128 v){ (void)c;(void)ch;(void)v; }
++void spu_wrch_at(spu_context* c, uint32_t pc, uint32_t ch, u128 v){ (void)pc; spu_wrch(c,ch,v); }
+ void spu_indirect_branch(spu_context* c){ (void)c; fprintf(stderr,"unexpected indirect branch\n"); }

@@ -161,7 +161,7 @@
         "scope": "Best-effort ReadProcessMemory snapshots. A transition shorter than the sampling interval is not excluded.",
         "storage_note": "This one-off direct launch omitted PS3_HDD0_ROOT/PS3_HDD1_ROOT. It created local trophy files at gamedata/trophies; files were preserved and the root folder is now Git-ignored. Future direct probes must point storage to private/userdata."
       },
-      "next": "Trace which SPU work at PC 0x0156C owns this 1-to-0 handshake, measure how long status stays nonzero per request, and establish whether the 305628 polls explain the missed flip cadence. Preserve the synchronization; do not force status or skip the wait.",
+      "next": "Attribute the status transfer to the exact SPU caller path now identified in sportsrna_spupatch; measure per-request status duration and correlate job completion with PPU polls and flips. Keep the synchronization unchanged. The current instrumented launch timed out without menu or gameplay.",
       "post_transfer_watch": {
         "implementation": "SPU_WATCHEA logs only after MFC execution; counts matching GET/PUT records, includes rc and source/destination bytes. SPU_WATCHEA_EVERY defaults to 1.",
         "build_note": "Target Runtime builds private/build/runtime-clang and is not the archive linked by FullGame. Rebuild the shared archive with tools/build.ps1 -Target Boot, then relink FullGame.",
@@ -180,29 +180,68 @@
         },
         "observed_transfer": "MFC GET cmd 0x40 transferred status 1 and adjacent word 0x12805080 from EA 0x106E0900. MFC PUT cmd 0x20 committed status 0 and preserved adjacent word 0x12805080. Every logged transfer returned rc=0.",
         "ppu_writer": "PPU_WWATCH saw 260 writes of 1 by func_000A8E10, caller LR 0x000A95DC, split across TID17 and TID22. No negative write appeared during the probe.",
-        "meaning": "The 1-to-0 handshake at 0x106E0900 and the helper's exit-on-zero behavior are corroborated by static disassembly and the same instrumented run. The full SPU job semantics and causal relationship to low flip cadence remain unknown. No menu progression was demonstrated.",
-        "limitations": "20s instrumented run, timeout. Diagnostics can perturb scheduling. PC 0x0156C and image 526190333 are observed identifiers, not semantic names. Static mapping shows 0x0156C is a NOP in the identified overlay, so the logged PC is not a proven MFC call site.",
+        "meaning": "The 1-to-0 handshake at 0x106E0900 and the helper's exit-on-zero behavior are corroborated. The exact wrch MFC_Cmd instruction and resident code image are now captured: sportsrna_spupatch, with GET and PUT returning through distinct caller LRs inside its transfer path. The higher-level job semantics and causal relationship to low flip cadence remain unknown. No menu progression was demonstrated.",
+        "limitations": "The 15s instrumented run timed out after EBOOT spawned FIFAZF; it captured no graphics and proves no menu/gameplay progress. Diagnostics may perturb scheduling. Context image ID 526190333 is not the resident overlay identity. The old AssetStream_zlib snapshot was a static byte match for that snapshot only; the newer dynamic code mapping resolves the observed callsite to sportsrna_spupatch.",
         "spu_pc_provenance": {
-          "observed_dma_log": "private/analysis/runs/1793103742518647900/stderr.log, lines 839-840 and later: image=526190333, pc=0x0156C, MFC GET/PUT to 0x106E0900",
-          "rea_spu_support": "REA 6.7.0 Windows provider/Rizin 0.9.1 could not disassemble SPU; Rizin rejected asm.arch=spu and asm.bits=128. Saved diagnostic: private/analysis/rea/rea-spu-rizin-limitation.json.",
-          "overlay_identity": {
-            "name": "AssetStream_zlib",
-            "image_id": 526190333,
-            "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
-            "local_store_base": "0x80",
-            "source_image": "private/analysis/overlays/assetstream_zlib/image.bin"
+          "instrumentation": "patches/0003-spu-wrch-callsite-pc.patch passes guest PC to spu_wrch_at for MFC_Cmd; patches/0002-post-transfer-spu-watch.patch records PC, instruction bytes, resident-code mapping, caller LR, and completed MFC data.",
+          "rea_spu_support": "REA 6.7.0 Windows provider/Rizin 0.9.1 could not disassemble SPU; Rizin rejected asm.arch=spu and asm.bits=128. PPU ELF disassembly remains REA/Rizin evidence; SPU instruction interpretation here uses the project lifter/decoder and runtime mapping.",
+          "run": "private/analysis/runs/1793110334315435500",
+          "run_result": "15.19s timeout; native EBOOT-to-FIFAZF spawn observed; no graphics capture.",
+          "context_identity": {
+            "runtime_context_image_id": 526190333,
+            "meaning": "SPU context/program identity in this runtime record; not the resident overlay executing the instruction.",
+            "prior_snapshot_only": {
+              "name": "AssetStream_zlib",
+              "sha256": "db11ceda61aa31ea50896c8291ae85b8c0102dbd05e64a0ea893cbd212c87efb",
+              "run": "private/analysis/runs/1792842082406795800/spu/spu-8197-526190333-256.ls",
+              "compared_bytes": 25776,
+              "byte_differences": 0,
+              "interpretation": "Identifies the bytes of this saved LS snapshot; must not be used to label the later resident code mapping."
+            }
           },
-          "runtime_copy_check": {
-            "run": "private/analysis/runs/1792842082406795800/spu/spu-8197-526190333-256.ls",
-            "compared_bytes": 25776,
-            "byte_differences": 0,
-            "pc": "0x0156C",
-            "source_file_offset": "0x14EC",
-            "instruction_bytes": "00 20 00 00",
-            "lifted_interpretation": "nop; private/generated/spu_overlays/assetstream_zlib/spu_recomp.c, function starting at 0x153C"
+          "dynamic_resident_code": {
+            "name": "sportsrna_spupatch",
+            "image_id": 592606456,
+            "fingerprint": "627E7A7DAC32A74D",
+            "sha256": "35274f8f1f03b6918a9e981b830a8100f92ea185775fc1e91d7d2290e22aeeae",
+            "source_ea": "0x1F24F00",
+            "source_size": "0x1690",
+            "code_lsa": "0x000B0",
+            "code_size": "0x1558",
+            "relocation_bias": 0,
+            "observed_instruction": {
+              "guest_pc": "0x015DC",
+              "instruction_bytes": "21 A0 0A 8B",
+              "decoded_as": "wrch MFC_Cmd, $r11",
+              "runtime_code_ea": "0x01F2645C",
+              "source_image_offset": "0x155C"
+            }
           },
-          "interpretation": "The runtime PC recorded by the MFC hook does not identify the wrch instruction. Lifted blocks call spu_wrch synchronously without updating ctx->pc for each guest instruction, so it can retain a prior block/interpreter PC. Do not attribute the handshake to code at 0x0156C.",
-          "next_instrumentation": "Carry guest instruction address from the SPU lifter to the channel-write hook (at least MFC_Cmd), and log the LS instruction word at that address in the same DMA record. Preserve the transfer and wait semantics."
+          "caller_paths": {
+            "get_status_1": {
+              "caller_lr": "0x01408",
+              "caller_runtime_ea": "0x01F26288",
+              "command": "MFC_GET 0x40",
+              "ea": "0x106E0900",
+              "bytes": 8,
+              "observed_data": "0000000112805080"
+            },
+            "put_status_0": {
+              "caller_lr": "0x014F0",
+              "caller_runtime_ea": "0x01F26370",
+              "command": "MFC_PUT 0x20",
+              "ea": "0x106E0900",
+              "bytes": 8,
+              "observed_data": "0000000012805080"
+            }
+          },
+          "static_path_observation": "Both LRs are in the lifted sportsrna_spupatch transfer-helper path rooted at func_000013B0; func_00001460 can branch to the PUT path at func_000014B0. This identifies the transfer path, not the semantic name or full purpose of its higher-level job.",
+          "log_examples": [
+            "[watchea-post] ... cmd=0x40 ... pc=0x015DC insn=21A00A8B ... code_img=592606456 code_ea=0x01F2645C ... lr=0x01408 ...",
+            "[watchea-post] ... cmd=0x20 ... pc=0x015DC insn=21A00A8B ... code_img=592606456 code_ea=0x01F2645C ... lr=0x014F0 ..."
+          ],
+          "interpretation": "The callsite provenance is now exact for the sampled GET/PUT records. Transfer purpose above the low-level status exchange, per-request duration, and relation to flip cadence remain unproven.",
+          "next": "Measure paired PPU wait intervals and MFC GET/PUT intervals in a bounded launch, using per-EA/per-SPU counters and low-volume timestamps; compare against flip requests and preserve status/wait semantics."
         },
         "final_atomic_counter_probe": {
           "run": "private/analysis/runs/1793103742518647900",
@@ -217,6 +256,27 @@
           },
           "values": "Every GET copied 0000000112805080; every PUT committed 0000000012805080; rc=0.",
           "counter": "Global hit counter uses __atomic_add_fetch; watch configuration is published with acquire/release atomics."
+        },
+        "latest_exact_callsite_probe": {
+          "run": "private/analysis/runs/1793110334315435500",
+          "timeout_seconds": 15,
+          "exit": "timeout",
+          "elapsed_seconds": 15.19,
+          "spawn_observed": true,
+          "graphics_captures": 0,
+          "guest_flips_observed_at_least": 360,
+          "by_spu_and_command": {
+            "spu4_get": 104,
+            "spu4_put": 104,
+            "spu5_get": 70,
+            "spu5_put": 70
+          },
+          "mfc_rc": 0,
+          "source_values": {
+            "get": "0000000112805080",
+            "put": "0000000012805080"
+          },
+          "binary_sha256": "9561D874F60227DD70E4DFD2DEB68B04D85D17A66CC5F44F6DE3E3F45DB22E0D"
         }
       },
       "page_guard_follow_up": {
