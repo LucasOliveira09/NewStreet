@@ -1,4 +1,4 @@
-# Checkpoint atual — 27/10/2026
+# Checkpoint atual — 28/10/2026
 
 Alvo: FIFA Street 2012 PS3 BLUS30882 1.00 → Windows x64 nativo.
 Branch: `codex/ps3-native-bootstrap`. Objetivo final: partida offline jogável.
@@ -20,8 +20,10 @@ Capturas revisadas: `private/analysis/pad-neutral-menu-frames/frame_41`,
 carregamento da partida, jogadores controláveis, física, áudio ou saída limpa.
 O timeout encerrou pai e filho nativos; ausência de block/crash não prova
 estabilidade. Blocos pretos/cinzas, diagonais e texto imperfeito persistem.
-O indicador da janela mede lotes do backend, não FPS apresentados; no menu e
-na seleção houve leituras aproximadamente entre 12 e 22 lotes/s.
+No binário do ensaio anterior, o indicador da janela contava lotes do backend,
+inclusive os que não chamavam Present. `patches/0013` corrige essa contagem;
+um novo ensaio no menu mediu 22,00 chamadas a Present/s de mediana em 32
+amostras sem captura, após o carregamento. Isso ainda não é FPS de gameplay.
 
 ## Correção decisiva de input
 
@@ -47,21 +49,30 @@ alpha/blend e composição por draw, sem atribuir causa sem reprodução.
 O maior engasgo observado na entrada do menu foi compilação de PSOs:
 uma janela `[PERF]` consumiu 12,94 s em PSO, com 124 misses. Depois do
 carregamento, uma amostra da seleção de time marcou 14,49 lotes/s; 86% do
-tempo estava fora de `render_frame`. O ganho de FPS do novo código não foi
-medido em cenários equivalentes. `tools/play.ps1` força `PS3_VERBOSE=0` para
-evitar a torrente de logs gerada pelo stderr redirecionado.
+tempo estava fora de `render_frame`. Um novo ensaio no menu, após apenas 45
+capturas iniciais, mediu 12 títulos de janela: mediana 22,00 lotes/s, faixa
+20,70–23,00. As últimas 30 amostras `[PERF]` deram mediana 21,94 lotes/s,
+82% do tempo fora de `render_frame`, 18% no renderer e zero misses de PSO.
+No binário corrigido, as últimas 30 amostras internas marcaram 21,69 lotes/s,
+82% fora do renderer, 18% nele e zero misses. Nenhum ganho de FPS está
+demonstrado. Detalhes: `reports/menu-performance-clean.json`. A coleta de
+pilhas ETW foi recusada pela política do Windows; seis threads saturadas
+continuam sem função mapeada. `tools/play.ps1` força `PS3_VERBOSE=0` para
+evitar logs excessivos.
 
 ## Validação do incremento
 
 - `tools/build.ps1 -Target Runtime`: compilou; 20/20 CTest passaram.
-- FullGame `/O1` com SPU relinkado após encerrar todos os processos nativos.
-- `tools/apply_patches.py`: série autoral 0001–0012 reproduzida e verificada.
-- 65/65 jobs de assets amostrados corresponderam; zero eventos
-  `[fifa-block]`/`[fifa-crash]`, zero erros de parse no run final.
-- Cinco hashes do save original conferidos e inalterados; probes usaram cópias.
+- `tools/apply_patches.py`: série autoral 0001–0013 reproduzida e verificada.
+- `tools/run_title_probe.py`: contagem/intervalo de capturas configuráveis;
+  seis testes Python passaram. `patches/0013` renomeia `[PERF]` para lotes/s
+  e conta no título apenas lotes que chamam Present.
+- FullGame `/O1` com SPU relinkado após `patches/0013`; novo run de 450,53 s
+  chegou ao menu, 65/65 assets iguais, sem block/crash ou erro de parse.
+  Terminou por timeout, não saída limpa. Cinco hashes do save original iguais.
 - `tools/play.ps1`: sintaxe PowerShell validada; boot/filho abriram e a janela
   foi verificada com `IsWindowVisible=True`. O teste foi parado por taskkill.
-- SHA-256 do FullGame atual: `db8525d6e23ccf943708ba9cf593e55fc5b1e63f5669fe16007c65304f83a6b5`.
+- SHA-256 do FullGame atual: `72107eba86d4dba78e9f8ff418a6411696f2dea6356f0d00978ec8c344c979da`.
 
 ## Como abrir e próximo trabalho
 
@@ -74,8 +85,9 @@ Este launcher abre o binário local; ainda não é pacote autônomo distribuíve
    próximo bloqueio real com capturas guiadas. Preservar o save original.
 2. Reproduzir um bloco visual em draw específico; examinar alias CAB
    (RT 1280×720 amostrado como textura 2560×720), blend/alpha e self-sampling.
-3. Medir frames realmente apresentados sem RSX_CAP contínuo; separar o custo
-   de compilação inicial de PSO do custo estável do jogo.
+3. Mapear as threads saturadas antes de alterar a política de espera/SPU.
+   O ETW do Windows recusou a gravação nesta sessão; usar instrumentação local
+   pontual ou perfilador com permissão de system performance.
 4. Validar teclado/controle físico no menu até uma partida offline; depois
    melhorar gráficos, áudio, regras, estabilidade e execução independente.
 

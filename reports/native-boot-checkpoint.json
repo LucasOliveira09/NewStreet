@@ -5,6 +5,17 @@
   "emulator_launched": false,
   "exit_code": "timeout",
   "logs": "private\\analysis\\runs\\1793124900057646500",
+  "latest_measurement": {
+    "run": "private/analysis/runs/1793190519864478300",
+    "purpose": "Menu Present/batch rate after patch 0013; no Futsal navigation in this run",
+    "report": "reports/menu-performance-clean.json",
+    "exit_code": "timeout",
+    "elapsed_seconds": 450.53,
+    "menu_present_calls_per_second_median": 22.0,
+    "menu_backend_batches_per_second_median": 21.69,
+    "asset_jobs_matched": "65/65",
+    "block_or_crash_events": 0
+  },
   "elapsed_seconds": 480.176,
   "block": null,
   "menu_navigable_validated": true,

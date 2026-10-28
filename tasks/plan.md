@@ -1,7 +1,8 @@
 # Plano ativo do port
 
 Estado/evidência: [checkpoint](../STATUS.md),
-[progresso do input e Futsal](../reports/menu-input-progress.json) e
+[progresso do input e Futsal](../reports/menu-input-progress.json),
+[medição limpa do menu](../reports/menu-performance-clean.json) e
 [renderização anterior](../reports/menu-renderer-progress.json).
 Aceite completo: [prompt](../PROMPT_EXECUCAO_COMPLETA.md).
 
@@ -40,8 +41,13 @@ Aceite completo: [prompt](../PROMPT_EXECUCAO_COMPLETA.md).
 - Investigar alias: CAB tem RT1280×720 e é lido como textura2560×720;
   examinar pitch de superfície, multisample, remap, alpha/blend e self-sampling.
 - `PERF` identificou 124 PSO misses custando 12,94 s no carregamento.
-  Separar esse pico do custo estável e medir apresentações reais, não apenas
-  lotes de backend; em SELECT TEAM, uma amostra marcou 14,49 lotes/s.
+  Sem captura após a 45ª captura (frame_44), o menu ficou em mediana de 21,94
+  lotes/s em 30 amostras, zero PSO misses e 82% fora de `render_frame`.
+  `patches/0013` distingue lotes/s de chamadas a Present no título da janela;
+  o novo run mediu mediana de 22,00 Present/s e 21,69 lotes/s no menu estável,
+  sem ganho de desempenho demonstrado. Mapear as seis threads saturadas antes
+  de alterar agendamento: a amostra atual não identifica sua função. O ETW
+  recusou a captura por política do Windows.
 - Aposentar RT/textura referenciados por lista de comandos no fence da
   submissão correta. `wait_for_gpu()` antes do submit não basta.
 - Default `depth_func=1` do parser ainda não é enum GL. Stencil, alpha test
@@ -49,7 +55,7 @@ Aceite completo: [prompt](../PROMPT_EXECUCAO_COMPLETA.md).
 
 ## 4. Build e encerramento de incrementos
 
-- SDK fixado; mudanças autorais reproduzíveis em `patches/0001`–`0012`.
+- SDK fixado; mudanças autorais reproduzíveis em `patches/0001`–`0013`.
 - Runtime: `tools/build.ps1 -Target Runtime`; copiar a lib de runtime-clang
   para `private/build/boot/sdk/ps3recomp_runtime.lib` antes de FullGame.
 - Jogo: `tools/build.ps1 -Target FullGame -SkipLift -WithSpu` quando os gerados

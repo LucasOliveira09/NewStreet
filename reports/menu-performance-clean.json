@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-28",
+  "target": "FIFA Street 2012 BLUS30882 1.00, native Windows x64",
+  "run": "private/analysis/runs/1793125932688979400",
+  "console_result": "private/analysis/menu-perf-clean-console.log",
+  "window_samples": "private/analysis/menu-perf-clean-window-samples.json",
+  "capture": {
+    "frames": "private/analysis/menu-perf-clean-frames/frame_00..frame_44",
+    "capture_count": 45,
+    "capture_stride": 120,
+    "after_capture_45": "RSX_CAP finished; steady-state window and PERF samples did not include further frame captures"
+  },
+  "navigation": {
+    "title": "Start queued after exact reference ROI match at frame_28",
+    "autosave": "Cross queued after exact confirmation ROI match at frame_29",
+    "menu": "Native menu reached; no later input queued during steady-state measurement"
+  },
+  "steady_state": {
+    "window_title_samples": 12,
+    "window_title_batch_rate_median": 22.0,
+    "window_title_batch_rate_range": [20.7, 23.0],
+    "backend_perf_samples_last": 30,
+    "backend_batch_rate_median": 21.94,
+    "backend_batch_rate_range": [20.88, 23.14],
+    "guest_time_share_median_percent": 82.0,
+    "render_frame_share_median_percent": 18.0,
+    "pso_misses_in_each_steady_sample": 0
+  },
+  "interpretation": "The capture process is not the dominant steady menu bottleneck in this run. Most elapsed time is outside render_frame. One-time PSO compilation is distinct from steady menu throughput. These measurements predate patch 0013 and measure backend batches, not confirmed swap-chain presents or gameplay FPS.",
+  "cpu_sample": "A five-second host process-thread sample observed six saturated threads and several additional active threads. Thread roles were not mapped, so no scheduling change is justified by this sample alone.",
+  "termination": {
+    "exit_code": "timeout",
+    "elapsed_seconds": 480.174,
+    "clean_shutdown": false
+  },
+  "present_metric_validation": {
+    "patch": "patches/0013-rsx-presented-fps-metric.patch",
+    "binary_sha256": "72107eba86d4dba78e9f8ff418a6411696f2dea6356f0d00978ec8c344c979da",
+    "run": "private/analysis/runs/1793190519864478300",
+    "window_samples": "private/analysis/menu-present-metric-window-samples.json",
+    "capture_count": 45,
+    "last_capture": "private/analysis/menu-present-metric-frames/frame_44/backbuffer.bmp",
+    "last_capture_utc": "2026-10-28T12:32:04.015130Z",
+    "steady_window_selection": "32 samples at least 90 seconds after last capture",
+    "present_calls_per_second_median": 22.0,
+    "present_calls_per_second_range": [16.73, 24.22],
+    "backend_perf_samples_last": 30,
+    "backend_batch_rate_median": 21.69,
+    "guest_time_share_median_percent": 82.0,
+    "render_frame_share_median_percent": 18.0,
+    "pso_misses_in_each_steady_sample": 0,
+    "asset_jobs_matched": 65,
+    "asset_jobs_sampled": 65,
+    "fault_events": 0,
+    "event_parse_errors": 0,
+    "original_save_hashes_unchanged": 5,
+    "exit_code": "timeout",
+    "elapsed_seconds": 450.53,
+    "clean_shutdown": false,
+    "limitation": "The title counts calls to Present, not verified successful display or gameplay FPS. This second run validates the metric in the menu; it is not evidence of a performance gain. ETW CPU stack capture was denied by host policy (WPR 0xc5585011), so the saturated threads remain unmapped."
+  }
+}

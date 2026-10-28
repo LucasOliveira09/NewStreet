@@ -1,6 +1,6 @@
 # Guia de retomada para agentes — FIFA Street nativo
 
-Atualizado em 27/10/2026. Este arquivo é o mapa de entrada para uma nova IA.
+Atualizado em 28/10/2026. Este arquivo é o mapa de entrada para uma nova IA.
 Ele não substitui as instruções, o aceite nem os dados privados do jogo.
 
 ## Leia nesta ordem
@@ -46,12 +46,15 @@ mas teclado/controle físico e pacote autônomo ainda não foram validados.
 - `tools/`: extração/lifting, build, probes, inspeção e validação de manifests.
 - `tests/`: probes nativos e testes Python/C++; use os checks pertinentes ao código alterado.
 - `vendor/ps3recomp/`: SDK externo fixado; não commitar alteração solta nesse submódulo.
-- `patches/0001`–`0012`: patches autorais do SDK. 0011 usa pitch de textura;
-  0012 centraliza o controle virtual e limpa eixos na desconexão.
+- `patches/0001`–`0013`: patches autorais do SDK. 0011 usa pitch de textura;
+  0012 centraliza o controle virtual; 0013 separa lotes/s de Present.
 - `toolchain.lock.json`: commits e versões fixadas; confira o checkout antes de atualizar algo.
 - `private/`: ISO/ELF/assets, executáveis, gerados, perfis, logs e capturas locais; nunca versionar.
 - `reports/native-boot-checkpoint.json`: evidência do último ensaio de boot.
 - `reports/menu-input-progress.json`: menu estável e caminho Futsal até SELECT TEAM.
+- `reports/menu-performance-clean.json`: menu sem captura contínua, 22 lotes/s
+  na janela do ensaio anterior; no novo binário, mediana de 22 Present/s e
+  21,69 lotes/s, 82% do tempo fora do renderer. Não é FPS de gameplay.
 - `reports/performance-opening.json`: medições anteriores de abertura.
 - `reports/spu-handshake-timing.json`: relógio correlacionado de status PPU, DMA SPU e flips.
 - `reports/title-navigation-probe.json`: pacotes válidos sem transição visual.
@@ -152,7 +155,7 @@ use lifter e correlação de bytes/hash/runtime para SPU.
    depth enable/write/compare por draw e o inclui no cache PSO; antes o renderer
    impunha depth ligado em toda a UI. O ensaio intermediário SCREEN_AS_TEX=0
    mostrou gradiente amarelo; com depth correto o menu original ficou visível.
-3. **Validação.** Runtime20/20, série0001–0012 reconstruída/conferida,
+3. **Validação.** Runtime20/20, série0001–0013 reconstruída/conferida,
    FullGame/O1/SPU relinkado. Run final sem block/crash ou erros de parse;
    65/65 amostras de assets iguais à referência. O timeout480 não é clean exit.
    `Iniciar-FIFA.cmd` abriu janela nativa visível; teste encerrado manualmente.
@@ -165,6 +168,14 @@ use lifter e correlação de bytes/hash/runtime para SPU.
    arbitrária de pixels ou dimensão. Houve pico de 12,94s/124 misses de PSO.
    Parser inicia depth_func1; o helper usa LEQUAL para esse inválido até receber
    enum GL válido. Stencil/fallback sem guest-FP ainda são parciais.
+   Ensaio sem captura após a 45ª captura (frame_44): mediana 21,94 lotes/s em
+   30 amostras, guest82%, render_frame18%, zero misses PSO. `patches/0013` corrige os rótulos
+   e conta no título somente batches que chamam Present. O run seguinte mediu
+   22,00 Present/s de mediana sem captura e 21,69 lotes/s no backend (run
+   `1793190519864478300`), 65/65 assets iguais e cinco hashes do save original
+   inalterados. Timeout450,53 s sem block/crash; não é saída limpa nem prova
+   de ganho de FPS. Seis threads saturaram CPU, mas sem função mapeada; ETW
+   recusou perfil de CPU por política do Windows (0xc5585011).
 5. **PPU/SPU anterior.** Preservar handshake/wait e identidades por bytes/hash.
    Evidência em `reports/spu-handshake-timing.json`; 63.2 pedidos de flip/s são
    solicitações, não FPS. Não repetir PPU_WW_GUARD amplo nem converter batches
@@ -175,7 +186,8 @@ use lifter e correlação de bytes/hash/runtime para SPU.
 1. Retomar em SELECT TEAM: escolher adversário, avançar venue/arena com perfil
    copiado e capturas antes/depois. O lado esquerdo Chicago Fire já ficou READY.
 2. Verificar o mesmo caminho com teclado/controle físico no launcher; medir
-   FPS apresentado sem RSX_CAP contínuo e isolar os blocos do menu por draw.
+   chamadas a Present em SELECT TEAM e isolar os blocos do menu por draw.
+   Mapear threads por amostragem de stack/ETW antes de alterar a espera.
 3. Se surgir block90/PC SPU desconhecido, seguir trace e REA/Rizin por endereço;
    não fabricar retornos/status. Se render falhar, isolar o draw e seu estado.
 4. Provar arena, jogadores/bola, comandos e uma partida offline real.
